@@ -16,7 +16,15 @@
   import type { PageFile, PageFileDelete } from "$lib/server/deepwell/page-file"
   import type { FileAction } from "./file-pane-state"
 
+  // Kept as an internal diagnostic marker only. Issue #2273 froze the source
+  // behavior for a failed attachment-list request: current Wikidot leaves the
+  // action area hidden and empty, with no visible error wording and no retry
+  // control, so nothing derived from this value may reach the Wikidot layout.
   const FILE_LIST_LOAD_ERROR = "Unable to load files."
+
+  function reportFileListFailure(detail: unknown) {
+    console.error(`page file list request failed: ${FILE_LIST_LOAD_ERROR}`, detail)
+  }
 
   let { data }: PageProps = $props()
 
@@ -27,6 +35,10 @@
   let fileMap = new SvelteMap<number, PageFile>()
   let fileListLoading = $state(true)
   let fileListError = $state<string | null>(null)
+  // A successful parse of an authoritative list response. The source-compatible
+  // empty-list wording is only reachable once this is true, so a failed or
+  // still-in-flight request can never be read as "this page has no files".
+  let fileListLoaded = $state(false)
   let requestedDeletedFiles = $state(false)
   let fileEditId = $state<number>(0)
   let historyRequestId = $state(0)
@@ -65,6 +77,7 @@
       >(res)
 
       if (result.type === "failure") {
+        reportFileListFailure(result.data?.message)
         fileListError = FILE_LIST_LOAD_ERROR
         activeFileAction = null
       } else if (result.type === "success" && Array.isArray(result.data?.res)) {
@@ -73,12 +86,15 @@
           fileMap.set(file.file_id, file)
         })
         fileListError = null
+        fileListLoaded = true
       } else {
+        reportFileListFailure("page files response was not an authoritative list")
         fileListError = FILE_LIST_LOAD_ERROR
         activeFileAction = null
       }
-    } catch {
+    } catch (error) {
       if (requestId === fileListRequestId) {
+        reportFileListFailure(error)
         fileListError = FILE_LIST_LOAD_ERROR
         activeFileAction = null
       }
@@ -289,6 +305,7 @@
     {getFileList}
     {fileListLoading}
     {fileListError}
+    {fileListLoaded}
     {requestedDeletedFiles}
     {openFileHistory}
     wikidot={pageLayoutContext.current === Layout.WIKIDOT}

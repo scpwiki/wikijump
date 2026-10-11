@@ -51,7 +51,8 @@ use crate::utils::{get_category_name, now};
 use ftml::layout::Layout;
 use sea_orm::DatabaseTransaction;
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, Condition, EntityTrait, QueryFilter, QueryOrder, Set,
+    ActiveModelTrait, ColumnTrait, Condition, EntityTrait, IntoActiveModel, QueryFilter,
+    QueryOrder, Set,
 };
 use sea_orm::{ConnectionTrait, DatabaseBackend, Statement, UpdateResult};
 use sea_query::Expr;
@@ -112,12 +113,111 @@ impl ImportService {
             )
         };
 
-        let (is_deleted, name, slug) = match wikidot_user_type {
-            ImportedUserType::Extant { name, slug } => (false, Some(name), Some(slug)),
-            ImportedUserType::Deleted => (true, None, None),
+        if user_id <= 0 {
+            return Err(make_error().into());
+        }
+
+        let (
+            is_deleted,
+            name,
+            slug,
+            avatar_uploaded_blob_id,
+            real_name,
+            gender,
+            birthday,
+            location,
+            biography,
+            website,
+            karma,
+            is_pro,
+        ) = match wikidot_user_type {
+            ImportedUserType::Extant { name, slug } => (
+                false,
+                Some(name),
+                Some(slug),
+                avatar_uploaded_blob_id,
+                real_name,
+                gender,
+                birthday,
+                location,
+                biography,
+                website,
+                karma,
+                is_pro,
+            ),
+            // A deleted source account is a tombstone. Discard its public
+            // profile and avatar fields so stale/private data cannot survive
+            // a deletion refresh.
+            ImportedUserType::Deleted => (
+                true,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                ftml::data::KarmaLevel::Zero,
+                false,
+            ),
         };
 
-        let avatar_s3_hash = match avatar_uploaded_blob_id {
+        let existing = WikidotUser::find_by_id(user_id)
+            .one(txn)
+            .await
+            .or_raise(make_error)?;
+
+        if let Some(existing) = existing.as_ref() {
+            if existing.created_at != created_at {
+                return Err(make_error().into());
+            }
+
+            let unchanged = existing.fetched_at == fetched_at
+                && existing.is_deleted == is_deleted
+                && existing.name == name
+                && existing.slug == slug
+                && existing.real_name == real_name
+                && existing.gender == gender
+                && existing.birthday == birthday
+                && existing.location == location
+                && existing.biography == biography
+                && existing.website == website
+                && existing.karma == i16::from(karma.value())
+                && existing.is_pro == is_pro
+                && (avatar_uploaded_blob_id.is_none() || is_deleted)
+                && (!is_deleted || existing.avatar_s3_hash.is_none());
+
+            if unchanged {
+                return Ok(ImportUserOutput { user_id });
+            }
+
+            // Stable source ID is authoritative. Accept a changed snapshot
+            // only when it is strictly newer; same-time contradictions and
+            // stale replays are not identity evidence.
+            if fetched_at <= existing.fetched_at {
+                return Err(make_error().into());
+            }
+        }
+
+        if !is_deleted {
+            let conflicting_identity = WikidotUser::find()
+                .filter(wikidot_user::Column::UserId.ne(user_id))
+                .filter(
+                    Condition::any()
+                        .add(wikidot_user::Column::Name.eq(name.as_deref().unwrap()))
+                        .add(wikidot_user::Column::Slug.eq(slug.as_deref().unwrap())),
+                )
+                .one(txn)
+                .await
+                .or_raise(make_error)?;
+            if conflicting_identity.is_some() {
+                return Err(make_error().into());
+            }
+        }
+
+        let uploaded_avatar_s3_hash = match avatar_uploaded_blob_id {
             None => None,
             Some(uploaded_blob_id) => {
                 let FinalizeBlobUploadOutput { s3_hash, .. } =
@@ -155,28 +255,55 @@ impl ImportService {
             .or_raise(make_error)?;
 
         // Now add the actual Wikidot record itself
-        let model = wikidot_user::ActiveModel {
-            user_id: Set(user_id),
-            created_at: Set(created_at),
-            fetched_at: Set(fetched_at),
-            is_deleted: Set(is_deleted),
-            name: Set(name),
-            slug: Set(slug),
-            avatar_s3_hash: Set(avatar_s3_hash),
-            real_name: Set(real_name),
-            gender: Set(gender),
-            birthday: Set(birthday),
-            location: Set(location),
-            biography: Set(biography),
-            website: Set(website),
-            karma: Set(i16::from(karma.value())),
-            is_pro: Set(is_pro),
+        let avatar_s3_hash = if is_deleted {
+            None
+        } else {
+            uploaded_avatar_s3_hash.or_else(|| {
+                existing
+                    .as_ref()
+                    .and_then(|user| user.avatar_s3_hash.clone())
+            })
         };
 
-        WikidotUser::insert(model)
-            .exec(txn)
-            .await
-            .or_raise(make_error)?;
+        if let Some(existing) = existing {
+            let mut model = existing.into_active_model();
+            model.fetched_at = Set(fetched_at);
+            model.is_deleted = Set(is_deleted);
+            model.name = Set(name);
+            model.slug = Set(slug);
+            model.avatar_s3_hash = Set(avatar_s3_hash);
+            model.real_name = Set(real_name);
+            model.gender = Set(gender);
+            model.birthday = Set(birthday);
+            model.location = Set(location);
+            model.biography = Set(biography);
+            model.website = Set(website);
+            model.karma = Set(i16::from(karma.value()));
+            model.is_pro = Set(is_pro);
+            model.update(txn).await.or_raise(make_error)?;
+        } else {
+            let model = wikidot_user::ActiveModel {
+                user_id: Set(user_id),
+                created_at: Set(created_at),
+                fetched_at: Set(fetched_at),
+                is_deleted: Set(is_deleted),
+                name: Set(name),
+                slug: Set(slug),
+                avatar_s3_hash: Set(avatar_s3_hash),
+                real_name: Set(real_name),
+                gender: Set(gender),
+                birthday: Set(birthday),
+                location: Set(location),
+                biography: Set(biography),
+                website: Set(website),
+                karma: Set(i16::from(karma.value())),
+                is_pro: Set(is_pro),
+            };
+            WikidotUser::insert(model)
+                .exec(txn)
+                .await
+                .or_raise(make_error)?;
+        }
 
         Ok(ImportUserOutput { user_id })
     }

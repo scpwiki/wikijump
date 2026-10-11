@@ -12,6 +12,7 @@
     fileMap,
     fileListLoading,
     fileListError,
+    fileListLoaded,
     requestedDeletedFiles,
     activeFileAction = $bindable(),
     fileEditId = $bindable(),
@@ -24,6 +25,7 @@
     fileMap: SvelteMap<number, PageFile>
     fileListLoading: boolean
     fileListError: string | null
+    fileListLoaded: boolean
     requestedDeletedFiles: boolean
     activeFileAction: FileAction | null
     fileEditId: number
@@ -115,12 +117,7 @@
 </script>
 
 {#if wikidot}
-  <div
-    class="buttons"
-    class:unavailable={fileListError !== null}
-    aria-hidden={fileListError !== null}
-    inert={fileListError !== null}
-  >
+  <div class="buttons">
     <input
       class="btn btn-primary"
       onclick={openUpload}
@@ -135,12 +132,7 @@
     />
   </div>
 {:else}
-  <div
-    class="action-row file-action"
-    class:unavailable={fileListError !== null}
-    aria-hidden={fileListError !== null}
-    inert={fileListError !== null}
-  >
+  <div class="action-row file-action">
     <button
       class="action-button upload-file clickable"
       onclick={openUpload}
@@ -159,21 +151,15 @@
 {/if}
 
 {#if fileListError}
-  <div class="file-list-scroll">
-    <div class="file-list file-list-message" role="alert">
-      <p>{fileListError}</p>
-      <button
-        class="action-button clickable"
-        onclick={() => void getFileList(requestedDeletedFiles)}
-        type="button"
-      >
-        Retry
-      </button>
-    </div>
-  </div>
-{/if}
-
-{#if fileMap.size > 0}
+  <!--
+    Source Wikidot leaves `#action-area` hidden and empty when the attachment
+    list request fails (verified for the initial HTTP 503 case, issue #2273).
+    It shows no result area, no error dialog, no toast and no retry control,
+    so this layout must reproduce that absence rather than invent a recovery
+    affordance. The failure stays observable internally through console error
+    logging; only the false "No files for this page." reading is removed.
+  -->
+{:else if fileMap.size > 0}
   <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
   <div
     class="file-list-scroll"
@@ -226,12 +212,7 @@
         <div class="file-attribute size">
           {file.size}
         </div>
-        <div
-          class="file-attribute action"
-          class:unavailable={fileListError !== null}
-          aria-hidden={fileListError !== null}
-          inert={fileListError !== null}
-        >
+        <div class="file-attribute action">
           {#if wikidot}
             {#if file.revision_type === "delete"}
               <!-- svelte-ignore a11y_invalid_attribute -->
@@ -353,11 +334,7 @@
       </div>
     </dialog>
   {/if}
-{:else if fileListLoading}
-  <div class="file-list-scroll">
-    <div class="file-list file-list-message" role="status">Loading files…</div>
-  </div>
-{:else if fileListError === null}
+{:else if fileListLoaded}
   <div class="file-list-scroll">
   <div class="file-list">
     <div class="file-list-message">
@@ -368,10 +345,6 @@
 {/if}
 
 <style lang="scss">
-  .unavailable {
-    visibility: hidden;
-  }
-
   .file-list-scroll {
     max-width: 100%;
     overflow-x: auto;
