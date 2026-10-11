@@ -46,6 +46,11 @@ test("imported Wikidot typography CSS survives HTTPS across browser engines", as
       content: fontSize("#page-content p"),
       title: fontSize("#page-title"),
       paragraphLeading: fontSize("#page-content p", "line-height"),
+      fontFamilies: ["body", "#page-content p", "#page-title"].map((selector) => {
+        const element = document.querySelector(selector)
+        if (!element) throw new Error(`typography target missing: ${selector}`)
+        return getComputedStyle(element).fontFamily
+      }),
       cssLinks: [
         ...document.querySelectorAll<HTMLLinkElement>(
           'head link[href^="/wikidot/styles/"]'
@@ -55,6 +60,9 @@ test("imported Wikidot typography CSS survives HTTPS across browser engines", as
   })
   expect(failedLocalStylesheets).toEqual([])
   expect(styles.cssLinks).toHaveLength(3)
+  expect(styles.fontFamilies).toEqual(
+    Array(3).fill("verdana, arial, helvetica, sans-serif")
+  )
   for (const url of styles.cssLinks) {
     expect(new URL(url).protocol).toBe("https:")
     const resource = await page.request.get(url)
