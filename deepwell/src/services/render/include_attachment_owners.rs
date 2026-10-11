@@ -347,8 +347,25 @@ pub(super) fn wikidot_include_directive_ranges(source: &str) -> Vec<Range<usize>
 
 pub(super) fn find_wikidot_directive_end(
     source: &str,
+    offset: usize,
+    scan_limit: usize,
+) -> Option<usize> {
+    find_wikidot_directive_end_with_value_quote_policy(source, offset, scan_limit, false)
+}
+
+pub(super) fn find_wikidot_image_block_directive_end(
+    source: &str,
+    offset: usize,
+    scan_limit: usize,
+) -> Option<usize> {
+    find_wikidot_directive_end_with_value_quote_policy(source, offset, scan_limit, true)
+}
+
+fn find_wikidot_directive_end_with_value_quote_policy(
+    source: &str,
     mut offset: usize,
     scan_limit: usize,
+    only_quote_argument_values: bool,
 ) -> Option<usize> {
     let bytes = source.as_bytes();
     let mut quote = None;
@@ -362,7 +379,10 @@ pub(super) fn find_wikidot_directive_end(
             continue;
         }
 
-        if matches!(bytes[offset], b'"' | b'\'') {
+        if matches!(bytes[offset], b'"' | b'\'')
+            && (!only_quote_argument_values
+                || quote_starts_argument_value(source, offset))
+        {
             quote = Some(bytes[offset]);
             offset += 1;
         } else if offset + 4 <= scan_limit
@@ -408,7 +428,7 @@ fn include_argument_values(
     let mut values = Vec::new();
     let mut segment_start = argument_start;
     loop {
-        let Some(segment_end) = next_top_level_pipe(body, segment_start) else {
+        let Some(segment_end) = next_top_level_pipe(body, segment_start, false) else {
             return Vec::new();
         };
         let segment_end = segment_end.unwrap_or(body.len());
@@ -515,10 +535,21 @@ fn trim_include_space_end(source: &str, minimum: usize) -> Option<usize> {
     Some(semantic_end)
 }
 
-pub(super) fn split_wikidot_include_argument_segments(source: &str) -> Option<Vec<&str>> {
+pub(super) fn split_wikidot_image_block_argument_segments(
+    source: &str,
+) -> Option<Vec<&str>> {
+    split_wikidot_argument_segments_with_value_quote_policy(source, true)
+}
+
+fn split_wikidot_argument_segments_with_value_quote_policy(
+    source: &str,
+    only_quote_argument_values: bool,
+) -> Option<Vec<&str>> {
     let mut segments = Vec::new();
     let mut segment_start = 0;
-    while let Some(segment_end) = next_top_level_pipe(source, segment_start)? {
+    while let Some(segment_end) =
+        next_top_level_pipe(source, segment_start, only_quote_argument_values)?
+    {
         segments.push(&source[segment_start..segment_end]);
         segment_start = segment_end + 1;
     }
@@ -526,7 +557,11 @@ pub(super) fn split_wikidot_include_argument_segments(source: &str) -> Option<Ve
     Some(segments)
 }
 
-fn next_top_level_pipe(source: &str, mut offset: usize) -> Option<Option<usize>> {
+fn next_top_level_pipe(
+    source: &str,
+    mut offset: usize,
+    only_quote_argument_values: bool,
+) -> Option<Option<usize>> {
     let bytes = source.as_bytes();
     let mut quote = None;
     while offset < bytes.len() {
@@ -537,7 +572,10 @@ fn next_top_level_pipe(source: &str, mut offset: usize) -> Option<Option<usize>>
             offset = advance_one_char(source, offset);
             continue;
         }
-        if matches!(bytes[offset], b'"' | b'\'') {
+        if matches!(bytes[offset], b'"' | b'\'')
+            && (!only_quote_argument_values
+                || quote_starts_argument_value(source, offset))
+        {
             quote = Some(bytes[offset]);
             offset += 1;
         } else if source[offset..].starts_with("[!--") {
@@ -547,7 +585,12 @@ fn next_top_level_pipe(source: &str, mut offset: usize) -> Option<Option<usize>>
             let close = source[offset + 3..].find("]]]")?;
             offset += 3 + close + 3;
         } else if source[offset..].starts_with("[[") {
-            offset = find_wikidot_directive_end(source, offset + 2, source.len())?;
+            offset = find_wikidot_directive_end_with_value_quote_policy(
+                source,
+                offset + 2,
+                source.len(),
+                only_quote_argument_values,
+            )?;
         } else if bytes[offset] == b'[' {
             let close = source[offset + 1..].find(']')?;
             offset += 1 + close + 1;
@@ -558,6 +601,15 @@ fn next_top_level_pipe(source: &str, mut offset: usize) -> Option<Option<usize>>
         }
     }
     Some(None)
+}
+
+fn quote_starts_argument_value(source: &str, offset: usize) -> bool {
+    let bytes = source.as_bytes();
+    let mut previous = offset;
+    while previous > 0 && bytes[previous - 1].is_ascii_whitespace() {
+        previous -= 1;
+    }
+    previous > 0 && bytes[previous - 1] == b'='
 }
 
 pub(super) fn preserve_argument_quotes(raw: &str, value: &str) -> String {
@@ -837,6 +889,39 @@ mod tests {
     use ftml::render::{Render, html::HtmlRender};
     use ftml::tree::VariableMap;
     use std::borrow::Cow;
+
+    #[test]
+    fn image_block_argument_scanning_keeps_apostrophes_and_quoted_delimiters_distinct() {
+        let arguments = r#"caption="quoted | closer" | next=Researcher O'Conner|"#;
+        assert_eq!(
+            split_wikidot_image_block_argument_segments(arguments),
+            Some(vec![
+                r#"caption="quoted | closer" "#,
+                " next=Researcher O'Conner",
+                "",
+            ]),
+        );
+
+        let closed = r#"[[include component:image-block caption="quoted ]] | closer" | width=100%]]"#;
+        assert_eq!(
+            find_wikidot_image_block_directive_end(
+                closed,
+                "[[include component:image-block ".len(),
+                closed.len(),
+            ),
+            Some(closed.len()),
+        );
+
+        let unclosed = r#"[[include component:image-block caption="unclosed ]]"#;
+        assert_eq!(
+            find_wikidot_image_block_directive_end(
+                unclosed,
+                "[[include component:image-block ".len(),
+                unclosed.len(),
+            ),
+            None,
+        );
+    }
 
     #[test]
     fn target_and_link_are_independent_and_same_values_do_not_collide() {

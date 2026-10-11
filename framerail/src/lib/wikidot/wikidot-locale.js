@@ -27,6 +27,16 @@ export const editPermissionDeniedMessage = (locale) => {
 }
 
 /**
+ * Wikidot's permission dialog for a viewer who may not start creating a
+ * missing page. Only the English sentence is evidenced here; the dialog's
+ * sign-in link is not rendered by the native error popup.
+ *
+ * @returns {string}
+ */
+export const createPageDeniedMessage = () =>
+  "Sorry, you can not create a new page in this category. Only members of this site, site administrators and perhaps selected moderators are allowed to do it."
+
+/**
  * Wikidot exposes `ja-corrections` as a site language identifier, but it
  * is not a valid BCP 47 locale and JavaScript's Intl APIs reject it.
  * Preserve the raw identifier at the Wikidot compatibility boundary and

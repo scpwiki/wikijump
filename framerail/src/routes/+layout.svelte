@@ -48,6 +48,8 @@
   import { installJavascriptAnchorGuard } from "$lib/wikidot/wikidot-javascript-anchors.js"
   import { installWikidotNewPageHelper } from "$lib/wikidot/wikidot-new-page-helper"
   import WikidotBottomToolbar from "$lib/wikidot/WikidotBottomToolbar.svelte"
+  import WikidotLoginDialog from "$lib/wikidot/WikidotLoginDialog.svelte"
+  import { isPlainPrimaryActivation } from "$lib/wikidot/wikidot-login-dialog.js"
   import {
     installWikidotSearchAll,
     submitWikidotTopSearch
@@ -64,6 +66,15 @@
     '<div id="search-top-box" class="form-search"><form id="search-top-box-form" class="input-append" action="dummy"><input id="search-top-box-input" name="query" class="text empty search-query" size="15" type="text" value="Search this site"/><input name="search" class="button btn" type="submit" value="Search" /></form></div>'
 
   let { children } = $props()
+
+  // Imported Wikidot layouts open Sign in in place; the href stays the native
+  // /-/login fallback for modified clicks and for activation before hydration.
+  let wikidotSignInOpen = $state(false)
+  function openWikidotSignIn(event: MouseEvent) {
+    if (!isPlainPrimaryActivation(event)) return
+    event.preventDefault()
+    wikidotSignInOpen = true
+  }
 
   function closeErrorPopup() {
     errorPopupState.current = {
@@ -355,9 +366,18 @@
             >{wikidotLoginLabels.createAccount}</a
           >
           <span>{wikidotLoginLabels.or}</span>
-          <a class="login-status-sign-in btn btn-primary" href={resolve("/-/login", {})}
+          <a
+            class="login-status-sign-in btn btn-primary"
+            href={resolve("/-/login", {})}
+            onclick={isImportedWikidotLayout ? openWikidotSignIn : undefined}
             >{wikidotLoginLabels.signIn}</a
           >
+          {#if isImportedWikidotLayout}
+            <WikidotLoginDialog
+              open={wikidotSignInOpen}
+              onclose={() => (wikidotSignInOpen = false)}
+            />
+          {/if}
         </div>
       {/if}
     {/snippet}

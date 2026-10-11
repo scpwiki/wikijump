@@ -4,6 +4,7 @@ import test from "node:test"
 
 import {
   performWikidotLegacyAction,
+  materializeWikidotRateActionHtml,
   planWikidotRateActionBindings,
   planWikidotStandaloneActionBindings,
   updateWikidotRateWidget,
@@ -128,6 +129,11 @@ test("standalone actions activate from Enter without Space activation", async ()
 
 test("Rate controls preserve Space keyboard activation", async () => {
   const rate = actionElement()
+  rate.setAttribute("href", "javascript:;")
+  rate.setAttribute(
+    "onclick",
+    "WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, 1)"
+  )
   const listeners = new Map()
   const root = {
     addEventListener: (name, listener) => listeners.set(name, listener),
@@ -248,6 +254,18 @@ test("Rate sidecars bind only the exact renderer-owned control sequence", () => 
     { type: "rate", index: 1, fingerprint, value: -1 },
     { type: "rate-cancel", index: 2, fingerprint }
   ]
+  controls[0].setAttribute(
+    "onclick",
+    "WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, 1)"
+  )
+  controls[1].setAttribute(
+    "onclick",
+    "WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, -1)"
+  )
+  controls[2].setAttribute(
+    "onclick",
+    "WIKIDOT.modules.PageRateWidgetModule.listeners.cancelVote(event)"
+  )
 
   assert.deepEqual(planWikidotRateActionBindings(controls, [], actions), [
     [controls[0], actions[0]],
@@ -266,6 +284,8 @@ test("Rate sidecars bind only the exact renderer-owned control sequence", () => 
     ),
     []
   )
+  controls[1].setAttribute("onclick", "alert(1)")
+  assert.deepEqual(planWikidotRateActionBindings(controls, [], actions), [])
 
   const starControls = Array.from({ length: 5 }, actionElement)
   const starActions = Array.from({ length: 5 }, (_, index) => ({
@@ -281,6 +301,104 @@ test("Rate sidecars bind only the exact renderer-owned control sequence", () => 
   assert.deepEqual(
     planWikidotRateActionBindings([], [starControls, starControls], starActions),
     []
+  )
+})
+
+test("trusted inline Rate bindings remove CSP-blocked handlers and JavaScript URLs", async () => {
+  const rate = actionElement()
+  rate.setAttribute("href", "javascript:;")
+  rate.setAttribute(
+    "onclick",
+    "WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, 1)"
+  )
+  const listeners = new Map()
+  const root = {
+    addEventListener: (name, listener) => listeners.set(name, listener),
+    removeEventListener: () => {},
+    querySelectorAll: (selector) => (selector.includes(".rateup") ? [rate] : [])
+  }
+  rate.parentElement = root
+  let votes = 0
+  const fingerprint = "0123456789abcdef0123456789abcdef"
+  const parameters = {
+    actions: [],
+    rateActions: [{ type: "rate", index: 0, fingerprint, value: 1 }],
+    runtime: { rate: () => (votes += 1) }
+  }
+  const legacyActions = wikidotLegacyActions(root, parameters)
+
+  assert.equal(rate.getAttribute("onclick"), null)
+  assert.equal(rate.getAttribute("href"), "#")
+  assert.equal(rate.getAttribute("data-wikijump-rate-bound"), "1")
+  await listeners.get("click")({
+    target: rate,
+    preventDefault: () => {},
+    stopPropagation: () => {}
+  })
+  assert.equal(votes, 1)
+
+  legacyActions.update(parameters)
+  await listeners.get("click")({
+    target: rate,
+    preventDefault: () => {},
+    stopPropagation: () => {}
+  })
+  assert.equal(votes, 2)
+})
+
+test("renderer removes exact Rate inline handlers before the browser parses HTML", () => {
+  const fingerprint = "0123456789abcdef0123456789abcdef"
+  const actions = [
+    { type: "rate", index: 0, fingerprint, value: 1 },
+    { type: "rate", index: 1, fingerprint, value: -1 },
+    { type: "rate-cancel", index: 2, fingerprint }
+  ]
+  const html = [
+    '<span class="rateup"><a href="javascript:;" onclick="WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, 1)" title="I like it">+</a></span>',
+    '<span class="ratedown"><a href="javascript:;" onclick="WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, -1)" title="I don\'t like it">-</a></span>',
+    '<span class="cancel"><a href="javascript:;" onclick="WIKIDOT.modules.PageRateWidgetModule.listeners.cancelVote(event)" title="Cancel my vote">x</a></span>',
+    '<a href="#" onclick="keepThisUnrelatedHandler()">unrelated</a>',
+    '<a href="javascript:;" onclick="keepThisUnrelatedHandler()">unrelated javascript link</a>'
+  ].join("")
+
+  const servedHtml = materializeWikidotRateActionHtml(html, actions)
+  assert.equal((servedHtml.match(/onclick=/gu) ?? []).length, 2)
+  assert.ok(
+    servedHtml.includes('<a href="javascript:;" onclick="keepThisUnrelatedHandler()">')
+  )
+  const servedRateAnchors = [
+    ...servedHtml.matchAll(/<a\b(?=[^>]*data-wikijump-rate-action-index)[^>]*>/giu)
+  ].map((match) => match[0])
+  assert.equal(servedRateAnchors.length, 3)
+  assert.ok(
+    servedRateAnchors.every((tag) => /href="#"/u.test(tag) && !/onclick=/u.test(tag))
+  )
+  assert.deepEqual(
+    [...servedHtml.matchAll(/data-wikijump-rate-action-index="([0-9]+)"/gu)].map(
+      (match) => match[1]
+    ),
+    ["0", "1", "2"]
+  )
+  assert.equal(
+    materializeWikidotRateActionHtml(html, actions.slice(0, 2)),
+    html,
+    "a descriptor/control mismatch leaves source HTML untouched"
+  )
+
+  const controls = actions.map((_, index) => {
+    const control = actionElement()
+    control.setAttribute("href", "#")
+    control.setAttribute("data-wikijump-rate-action-index", `${index}`)
+    return control
+  })
+  assert.deepEqual(
+    planWikidotRateActionBindings(controls, [], actions),
+    actions.map((action, index) => [controls[index], action])
+  )
+  assert.deepEqual(
+    planWikidotRateActionBindings([controls[1], controls[0], controls[2]], [], actions),
+    [],
+    "the server marker must retain its matching descriptor position"
   )
 })
 

@@ -162,6 +162,10 @@ pub enum GetPageViewOutput {
         selected_template_page_id: Option<i64>,
         #[serde(default)]
         data_form: Option<DataFormEditor>,
+        /// Whether the viewer may create this missing page. Same decision as
+        /// `page_create`; when false, no template or data-form source is returned.
+        #[serde(default)]
+        can_create: bool,
         compiled_body_html: String,
         compiled_body_styles: Vec<String>,
         compiled_top_bar_html: Option<String>,

@@ -1,0 +1,40 @@
+{
+  "schema": "wikijump.ftml_marker_contract_catalog.v1",
+  "pairs": [
+    {
+      "fixture_id": "marker-heading",
+      "family": "ftml-marker-contract",
+      "slug": "marker-canary-heading",
+      "expected_verdict": "match",
+      "evidence_directory": "/home/roku/.codex/worktrees/wikijump-ftml-canary/install/local/wikidot-verification/artifacts/ftml-inline-anchor-whitespace-canary-20261009/baseline"
+    },
+    {
+      "fixture_id": "marker-separator",
+      "family": "ftml-marker-contract",
+      "slug": "marker-canary-separator",
+      "expected_verdict": "match",
+      "evidence_directory": "/home/roku/.codex/worktrees/wikijump-ftml-canary/install/local/wikidot-verification/artifacts/ftml-inline-anchor-whitespace-canary-20261009/baseline"
+    },
+    {
+      "fixture_id": "marker-div",
+      "family": "ftml-marker-contract",
+      "slug": "marker-canary-div",
+      "expected_verdict": "match",
+      "evidence_directory": "/home/roku/.codex/worktrees/wikijump-ftml-canary/install/local/wikidot-verification/artifacts/ftml-inline-anchor-whitespace-canary-20261009/baseline"
+    },
+    {
+      "fixture_id": "marker-span",
+      "family": "ftml-marker-contract",
+      "slug": "marker-canary-span",
+      "expected_verdict": "match",
+      "evidence_directory": "/home/roku/.codex/worktrees/wikijump-ftml-canary/install/local/wikidot-verification/artifacts/ftml-inline-anchor-whitespace-canary-20261009/baseline"
+    },
+    {
+      "fixture_id": "marker-alignment",
+      "family": "ftml-marker-contract",
+      "slug": "marker-canary-alignment",
+      "expected_verdict": "match",
+      "evidence_directory": "/home/roku/.codex/worktrees/wikijump-ftml-canary/install/local/wikidot-verification/artifacts/ftml-inline-anchor-whitespace-canary-20261009/baseline"
+    }
+  ]
+}

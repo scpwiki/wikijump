@@ -33,6 +33,7 @@ use crate::types::{Action, Permission, Reference, Resource};
 use crate::utils::trim_default;
 use ftml::data::PageRef;
 use ftml::{self};
+use sea_orm::{ConnectionTrait, DatabaseBackend, Statement};
 use std::collections::{BTreeMap, HashMap};
 use std::future::Future;
 
@@ -150,7 +151,15 @@ impl<'context, 'transaction> RenderRuntime<'context, 'transaction> {
                     })
                     .await?
                 else {
-                    return Ok(None);
+                    return self
+                        .fetch_imported_cross_site_source(
+                            current_site_id,
+                            current_site_slug,
+                            site_slug,
+                            page_ref.page(),
+                            cache,
+                        )
+                        .await;
                 };
 
                 self.fetch_include_source_from_site(
@@ -171,6 +180,121 @@ impl<'context, 'transaction> RenderRuntime<'context, 'transaction> {
                 .await
             }
         }
+    }
+
+    async fn fetch_imported_cross_site_source(
+        &self,
+        current_site_id: i64,
+        current_site_slug: &str,
+        source_site_slug: &str,
+        source_page_slug: &str,
+        cache: &mut IncludeSourceCache,
+    ) -> Result<Option<IncludeSource>> {
+        let source_page_slug = trim_default(source_page_slug);
+        let cache_key = (
+            current_site_id,
+            source_site_slug.to_owned(),
+            source_page_slug.to_owned(),
+        );
+        if let Some(cached) = cache.imported_cross_site_sources.get(&cache_key) {
+            return Ok(cached.as_ref().map(|(page_slug, wikitext)| IncludeSource {
+                site_slug: current_site_slug.to_owned(),
+                page_slug: page_slug.clone(),
+                wikitext: wikitext.clone(),
+            }));
+        }
+
+        let statement = Statement::from_sql_and_values(
+            DatabaseBackend::Postgres,
+            r#"
+                SELECT page.page_id
+                FROM wikidot_page_snapshot AS snapshot
+                JOIN page ON page.page_id = snapshot.page_id
+                WHERE page.site_id = $1
+                  AND snapshot.source_site = $2
+                  AND snapshot.source_fullname = $3
+                  AND page.deleted_at IS NULL
+            "#,
+            [
+                current_site_id.into(),
+                source_site_slug.to_owned().into(),
+                source_page_slug.to_owned().into(),
+            ],
+        );
+        let page_id = self
+            .ctx
+            .transaction()
+            .query_one_raw(statement)
+            .await
+            .or_raise(|| {
+                Error::new(
+                    format!(
+                        "failed to resolve imported include {source_site_slug}:{source_page_slug}"
+                    ),
+                    ErrorType::DatabaseQuery,
+                )
+            })?
+            .map(|row| row.try_get::<i64>("", "page_id"))
+            .transpose()
+            .or_raise(|| {
+                Error::new(
+                    format!(
+                        "failed to read imported include {source_site_slug}:{source_page_slug}"
+                    ),
+                    ErrorType::DatabaseQuery,
+                )
+            })?;
+
+        let Some(page_id) = page_id else {
+            cache.imported_cross_site_sources.insert(cache_key, None);
+            return Ok(None);
+        };
+        let Some(page) =
+            PageService::get_optional(self.ctx, current_site_id, Reference::Id(page_id))
+                .await?
+        else {
+            cache.imported_cross_site_sources.insert(cache_key, None);
+            return Ok(None);
+        };
+
+        let can_view = PermissionService::check_user_can(
+            self.ctx,
+            &CheckPermissionContext {
+                user_id: None,
+                site_id: current_site_id,
+                page_reference: Some(Reference::Id(page_id)),
+            },
+            Permission {
+                resource_type: Resource::Page,
+                resource_category: Some(Reference::Id(page.page_category_id)),
+                action: Action::View,
+            },
+        )
+        .await?;
+        if !can_view {
+            cache.imported_cross_site_sources.insert(cache_key, None);
+            return Ok(None);
+        }
+
+        let wikitext = PageRevisionService::get_wikitext_optional(
+            self.ctx,
+            current_site_id,
+            Reference::Id(page_id),
+        )
+        .await?;
+        let Some(wikitext) = wikitext else {
+            cache.imported_cross_site_sources.insert(cache_key, None);
+            return Ok(None);
+        };
+
+        cache
+            .imported_cross_site_sources
+            .insert(cache_key, Some((page.slug.clone(), wikitext.clone())));
+        Ok(Some(IncludeSource {
+            site_slug: current_site_slug.to_owned(),
+            page_slug: page.slug,
+            wikitext,
+        }))
     }
 
     async fn fetch_include_source_from_site(
@@ -241,6 +365,7 @@ enum IncludeSourceCacheEntry {
 #[derive(Debug, Default)]
 pub(super) struct IncludeSourceCache {
     sources_by_site: HashMap<i64, HashMap<String, IncludeSourceCacheEntry>>,
+    imported_cross_site_sources: HashMap<(i64, String, String), Option<(String, String)>>,
     sites_by_id: HashMap<i64, Option<SiteModel>>,
     sites_by_slug: HashMap<String, Option<SiteModel>>,
     pub(super) attachment_provenance: AttachmentProvenanceRegistry,

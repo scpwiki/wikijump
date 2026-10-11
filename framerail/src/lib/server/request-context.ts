@@ -2,6 +2,7 @@ interface RequestContextFields {
   sessionToken?: string
   siteId?: number
   page?: string | number
+  localPageMutationActor?: boolean
 }
 
 export type RequestContext = RequestContextFields | void

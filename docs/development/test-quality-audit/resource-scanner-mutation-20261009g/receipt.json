@@ -1,0 +1,198 @@
+{
+  "owner": "resource-scanner",
+  "source_sha256": "763e5481e8aa04b9c72a8775e70a34a0625e66c9702cee8cfa52733678cdc315",
+  "inventory": [
+    {
+      "id": "canonical-dedup",
+      "start": 2008,
+      "end": 2032,
+      "original": "if (seen.has(canonical))",
+      "replacement": "if (!seen.has(canonical))"
+    },
+    {
+      "id": "host-boundary",
+      "start": 2087,
+      "end": 2120,
+      "original": "if (!isWikidotResourceHost(site))",
+      "replacement": "if (isWikidotResourceHost(site))"
+    },
+    {
+      "id": "resource-path-boundary",
+      "start": 1487,
+      "end": 1535,
+      "original": "if (!parsed.pathname.includes(\"/local--files/\"))",
+      "replacement": "if (parsed.pathname.includes(\"/local--files/\"))"
+    },
+    {
+      "id": "malformed-token-continuation",
+      "start": 1391,
+      "end": 1416,
+      "original": "} catch {\n      continue;",
+      "replacement": "} catch {\n      throw new Error(\"mutated token continuation\");"
+    },
+    {
+      "id": "known-kind",
+      "start": 922,
+      "end": 958,
+      "original": "KIND_GUESSES[extension] || \"unknown\"",
+      "replacement": "\"unknown\""
+    }
+  ],
+  "inventory_sha256": "aa094d158f88cea00e08f3bd196dce294be157e998620def6d232e49b8f06702",
+  "tool": "node v24.21.0",
+  "owner_sha256": "5a1407009aff16f447c909f5ed9f0f35c9baf92eb8fd024ca821adedc908b96c",
+  "command": [
+    "/usr/bin/node",
+    "--test",
+    "install/local/wikidot-verification/tests/resource-scanner.test.mjs"
+  ],
+  "baselines": [
+    {
+      "code": 0,
+      "signal": null,
+      "stdout": "",
+      "stderr": "",
+      "timedOut": false,
+      "elapsed_ms": 109.5028199999997,
+      "log_sha256": "6fca4683c0caef0f241317be2a14aaf4350b23b081fccf9b802815b7f224c790"
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "canonical-dedup",
+      "outcome": "caught",
+      "target": [
+        "/usr/bin/node",
+        "--test",
+        "install/local/wikidot-verification/tests/resource-scanner.test.mjs"
+      ],
+      "log_sha256": "cdc94c9fd7ffb61c40435398874a37c21cd98e1ad15424b2edc7029c938f5c19",
+      "timeout_ms": 1000,
+      "code": 1,
+      "signal": null,
+      "stdout": "",
+      "stderr": "",
+      "timedOut": false,
+      "elapsed_ms": 105.97671000000037
+    },
+    {
+      "id": "host-boundary",
+      "outcome": "caught",
+      "target": [
+        "/usr/bin/node",
+        "--test",
+        "install/local/wikidot-verification/tests/resource-scanner.test.mjs"
+      ],
+      "log_sha256": "0b45cc31e1cb4e5032fda795e0d465b13d44fb5b791eee148bb5c911b72e20de",
+      "timeout_ms": 1000,
+      "code": 1,
+      "signal": null,
+      "stdout": "",
+      "stderr": "",
+      "timedOut": false,
+      "elapsed_ms": 102.89357999999993
+    },
+    {
+      "id": "resource-path-boundary",
+      "outcome": "caught",
+      "target": [
+        "/usr/bin/node",
+        "--test",
+        "install/local/wikidot-verification/tests/resource-scanner.test.mjs"
+      ],
+      "log_sha256": "a1694375216b0490336c6bd1085cdcf8301ff8ea452792e4a9a91cb538ada358",
+      "timeout_ms": 1000,
+      "code": 1,
+      "signal": null,
+      "stdout": "",
+      "stderr": "",
+      "timedOut": false,
+      "elapsed_ms": 102.15908999999965
+    },
+    {
+      "id": "malformed-token-continuation",
+      "outcome": "caught",
+      "target": [
+        "/usr/bin/node",
+        "--test",
+        "install/local/wikidot-verification/tests/resource-scanner.test.mjs"
+      ],
+      "log_sha256": "deed3d152061107d42fd1031ea590e62cb03b9c0202cff72ea4f40251e526761",
+      "timeout_ms": 1000,
+      "code": 1,
+      "signal": null,
+      "stdout": "",
+      "stderr": "",
+      "timedOut": false,
+      "elapsed_ms": 102.0005100000003
+    },
+    {
+      "id": "known-kind",
+      "outcome": "caught",
+      "target": [
+        "/usr/bin/node",
+        "--test",
+        "install/local/wikidot-verification/tests/resource-scanner.test.mjs"
+      ],
+      "log_sha256": "85ca376780f135ea108a8c8a090977520843fa7936a251ee709e38e9d0664bef",
+      "timeout_ms": 1000,
+      "code": 1,
+      "signal": null,
+      "stdout": "",
+      "stderr": "",
+      "timedOut": false,
+      "elapsed_ms": 108.84033
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "docs/development/test-quality-audit/resource-scanner-mutation-20261009g/baseline.log",
+      "sha256": "6fca4683c0caef0f241317be2a14aaf4350b23b081fccf9b802815b7f224c790"
+    },
+    {
+      "path": "docs/development/test-quality-audit/resource-scanner-mutation-20261009g/canonical-dedup-syntax.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/development/test-quality-audit/resource-scanner-mutation-20261009g/canonical-dedup.log",
+      "sha256": "cdc94c9fd7ffb61c40435398874a37c21cd98e1ad15424b2edc7029c938f5c19"
+    },
+    {
+      "path": "docs/development/test-quality-audit/resource-scanner-mutation-20261009g/host-boundary-syntax.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/development/test-quality-audit/resource-scanner-mutation-20261009g/host-boundary.log",
+      "sha256": "0b45cc31e1cb4e5032fda795e0d465b13d44fb5b791eee148bb5c911b72e20de"
+    },
+    {
+      "path": "docs/development/test-quality-audit/resource-scanner-mutation-20261009g/resource-path-boundary-syntax.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/development/test-quality-audit/resource-scanner-mutation-20261009g/resource-path-boundary.log",
+      "sha256": "a1694375216b0490336c6bd1085cdcf8301ff8ea452792e4a9a91cb538ada358"
+    },
+    {
+      "path": "docs/development/test-quality-audit/resource-scanner-mutation-20261009g/malformed-token-continuation-syntax.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/development/test-quality-audit/resource-scanner-mutation-20261009g/malformed-token-continuation.log",
+      "sha256": "deed3d152061107d42fd1031ea590e62cb03b9c0202cff72ea4f40251e526761"
+    },
+    {
+      "path": "docs/development/test-quality-audit/resource-scanner-mutation-20261009g/known-kind-syntax.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/development/test-quality-audit/resource-scanner-mutation-20261009g/known-kind.log",
+      "sha256": "85ca376780f135ea108a8c8a090977520843fa7936a251ee709e38e9d0664bef"
+    }
+  ],
+  "source_restored": true,
+  "id": "resource-scanner-mutation-20261009g",
+  "kind": "mutation",
+  "inventory_digest": "ec32198cce138eab98d607ed200fa92e513348dd01062cbf4cc2b568cd4eea19",
+  "source_revision": "f00f17a216bf7cf187440c610278fbe1b4d47ca3"
+}

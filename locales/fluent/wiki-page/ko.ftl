@@ -2,6 +2,12 @@
 
 wiki-page-append-content = 추가할 위키 텍스트
 
+wiki-page-file-delete =
+  .confirmation = 파일을 삭제할까요?
+  .filename = 파일
+  .page = 페이지
+  .confirm = 삭제 확인
+
 wiki-page-category = 카테고리: { $category }
 
 wiki-page-revision = 리비전: { $revision }

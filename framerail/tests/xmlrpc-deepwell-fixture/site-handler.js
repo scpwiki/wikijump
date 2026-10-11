@@ -239,7 +239,11 @@ export const handleSiteRpc = ({ rpcRequest }) => {
           password: "Password",
           "password.placeholder": "Enter password...",
           "confirm-password": "Confirm Password",
-          "mfa-code": "MFA code"
+          "mfa-code": "MFA code",
+          "user-profile-info.remove-avatar": "Remove profile image",
+          "user-profile-info.remove-avatar-pending":
+            "The profile image will be removed when you save.",
+          "user-profile-info.keep-avatar": "Keep profile image"
         }
     const basePageActionLabels = isJapanese
       ? {
@@ -294,11 +298,38 @@ export const handleSiteRpc = ({ rpcRequest }) => {
           "wiki-page-meta-tag-name": "Meta tag name",
           "wiki-page-meta-tag-content": "Meta tag content"
         }
+    const voteLabels = isJapanese
+      ? {
+          "wiki-page-vote": "ページの評価",
+          "wiki-page-vote.description": "このページの内容を評価してみましょう。",
+          "wiki-page-vote.set": "投票する",
+          "wiki-page-vote.remove": "投票を取り消す",
+          "wiki-page-vote.list": "投票者一覧",
+          "wiki-page-vote.score": "評価",
+          "wiki-page-vote.like": "好き",
+          "wiki-page-vote.dislike": "好きじゃない",
+          "wiki-page-vote.cancel": "投票を取り消す",
+          "wiki-page-vote.who-rated": "誰がこのページに評価したかを閲覧",
+          "wiki-page-vote.user": "ユーザー"
+        }
+      : {
+          "wiki-page-vote": "Page rating",
+          "wiki-page-vote.description": "Simply rate contents of this page.",
+          "wiki-page-vote.set": "Cast vote",
+          "wiki-page-vote.remove": "Cancel vote",
+          "wiki-page-vote.list": "List votes",
+          "wiki-page-vote.score": "Rating",
+          "wiki-page-vote.like": "I like it",
+          "wiki-page-vote.dislike": "I don't like it",
+          "wiki-page-vote.cancel": "Cancel my vote",
+          "wiki-page-vote.who-rated": "Look who rated this page",
+          "wiki-page-vote.user": "User"
+        }
     const labels = { ...authLabels, ...basePageActionLabels, ...pageActionLabels }
     result = Object.fromEntries(
       Object.keys(rpcRequest.params.messages).map((key) => [
         key,
-        labels[key] ?? pageLabels[key] ?? key
+        labels[key] ?? pageLabels[key] ?? voteLabels[key] ?? key
       ])
     )
   } else {

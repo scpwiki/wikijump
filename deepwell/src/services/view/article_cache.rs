@@ -331,7 +331,7 @@ mod tests {
 
         assert_eq!(
             key,
-            "deepwell:article-view:page:v13:site=7:page=11:rev=13:updated=17:public=29:permission=site=19,user=23:template=89ab:body=0123:styles=34:top=45:side=67:slug=7374617274:extra=6e6f7265646972656374:locales=656e2c6a61",
+            "deepwell:article-view:page:v14:site=7:page=11:rev=13:updated=17:public=29:permission=site=19,user=23:template=89ab:body=0123:styles=34:top=45:side=67:slug=7374617274:extra=6e6f7265646972656374:locales=656e2c6a61",
         );
     }
 
@@ -424,7 +424,7 @@ mod tests {
             assert_eq!(
                 key.as_deref(),
                 Some(
-                    "deepwell:article-view:page:v13:site=7:page=11:rev=13:updated=17:public=29:permission=site=19,user=23:template=:body=0123:styles=34:top=45:side=67:slug=7374617274:extra=6e6f7265646972656374:locales=656e2c6a61"
+                    "deepwell:article-view:page:v14:site=7:page=11:rev=13:updated=17:public=29:permission=site=19,user=23:template=:body=0123:styles=34:top=45:side=67:slug=7374617274:extra=6e6f7265646972656374:locales=656e2c6a61"
                 ),
                 "{source}",
             );

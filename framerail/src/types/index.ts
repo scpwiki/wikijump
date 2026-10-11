@@ -328,6 +328,9 @@ export interface Locales {
   "user-profile-info.website": string
   "user-profile-info.user-page": string
   "user-profile-info.locales": string
+  "user-profile-info.remove-avatar": string
+  "user-profile-info.remove-avatar-pending": string
+  "user-profile-info.keep-avatar": string
   "user-profile-info.toast": string
   "user-not-exist": string
   "user-not-logged-in": string
@@ -379,10 +382,16 @@ export interface Locales {
   "wiki-page-revision-type.undelete": string
   "wiki-page-revision-type.undo": string
   "wiki-page-vote": string
+  "wiki-page-vote.description": string
   "wiki-page-vote.set": string
   "wiki-page-vote.remove": string
   "wiki-page-vote.list": string
   "wiki-page-vote.score": string
+  "wiki-page-vote.like": string
+  "wiki-page-vote.dislike": string
+  "wiki-page-vote.cancel": string
+  "wiki-page-vote.who-rated": string
+  "wiki-page-vote.user": string
   "wiki-page-vote.toast-set": string
   "wiki-page-vote.toast-remove": string
   "wiki-page-edit": string
@@ -412,6 +421,10 @@ export interface Locales {
   "wiki-page-file-upload.toast": string
   "wiki-page-file-delete": string
   "wiki-page-file-delete.toast": string
+  "wiki-page-file-delete.confirmation": string
+  "wiki-page-file-delete.filename": string
+  "wiki-page-file-delete.page": string
+  "wiki-page-file-delete.confirm": string
   "wiki-page-file-move-destination-page": string
   "wiki-page-file": string
   "wiki-page-file.name": string

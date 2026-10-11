@@ -9,6 +9,7 @@
  *   compiled_body_html: string
  *   compiled_body_styles?: string[]
  *   creator_user_id: number
+ *   from_wikidot?: boolean
  *   page_created_at: string
  *   page_id: number
  *   page_revision_count: number
@@ -85,6 +86,22 @@ export const pages = {
     rating: 173,
     wikitext: "**Item #:** SCP-173",
     compiled_body_html: "<p><strong>Item #:</strong> SCP-173</p>"
+  },
+  "vote-pane-wikijump-probe": {
+    page_id: 30002178,
+    revision_id: 90002178,
+    page_created_at: "2026-10-10T00:00:00Z",
+    page_updated_at: null,
+    page_revision_count: 1,
+    revision_created_at: "2026-10-10T00:00:00Z",
+    revision_user_id: 456,
+    creator_user_id: 456,
+    title: "Vote pane fixture",
+    slug: "vote-pane-wikijump-probe",
+    tags: [],
+    rating: 0,
+    wikitext: "Vote pane fixture",
+    compiled_body_html: "<p>Vote pane fixture.</p>"
   },
   "scp-173-parent": {
     page_id: 3000172,
@@ -186,6 +203,23 @@ export const pages = {
       "body { font-family: verdana, arial, helvetica, sans-serif; font-size: 0.8em; }",
       "#header h2 span { margin-left: 1px; }"
     ]
+  },
+  "wikidot-login-probe": {
+    page_id: 3000395,
+    revision_id: 9000395,
+    page_created_at: "2026-07-13T00:00:00Z",
+    page_updated_at: null,
+    page_revision_count: 1,
+    revision_created_at: "2026-07-13T00:00:00Z",
+    revision_user_id: 123,
+    creator_user_id: 123,
+    from_wikidot: true,
+    title: "Login probe",
+    slug: "wikidot-login-probe",
+    tags: [],
+    rating: 0,
+    wikitext: "Imported layout login probe marker.",
+    compiled_body_html: "<p>Imported layout login probe marker.</p>"
   },
   "wikidot-tabview": {
     page_id: 3000320,
@@ -696,13 +730,16 @@ export const toArticleViewResult = (page, siteId = 6000005) => ({
         created_at: page.page_created_at,
         updated_at: page.page_updated_at,
         deleted_at: null,
-        from_wikidot: false,
+        from_wikidot: page.from_wikidot === true,
         site_id: siteId,
         latest_revision_id: page.revision_id,
         page_category_id: 1,
         slug: page.slug,
         discussion_thread_id: null,
-        layout: siteId === 6000006 ? "wikijump" : "wikidot"
+        layout:
+          siteId === 6000006 || page.slug === "vote-pane-wikijump-probe"
+            ? "wikijump"
+            : "wikidot"
       },
       page_revision: {
         revision_id: page.revision_id,
@@ -713,7 +750,7 @@ export const toArticleViewResult = (page, siteId = 6000005) => ({
         page_id: page.page_id,
         site_id: siteId,
         user_id: page.revision_user_id,
-        from_wikidot: false,
+        from_wikidot: page.from_wikidot === true,
         changes: [],
         wikitext_hash: [],
         compiled_body_html_hash: [],

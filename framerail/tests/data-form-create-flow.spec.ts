@@ -29,9 +29,20 @@ test("data-form create flow renders controls and stores Wikidot source", async (
   request
 }) => {
   await request.get(`${FIXTURE_URL}/last-page-write-requests`)
+  await page.setExtraHTTPHeaders({
+    "X-Wikijump-Site-Id": "6000005",
+    "X-Wikijump-Site-Slug": "scp-wiki"
+  })
+  const anonymousMissingResponse = await page.goto("/data-form-create-flow:example")
+  expect(anonymousMissingResponse?.status()).toBe(404)
+  await expect(page.locator("[id='404-message']")).toHaveCount(1)
+  await expect(page.locator("#restore-button")).toHaveCount(0)
+
   await page.setExtraHTTPHeaders(AUTHENTICATED_HEADERS)
   const missingResponse = await page.goto("/data-form-create-flow:example")
   expect(missingResponse?.status()).toBe(404)
+  await expect(page.locator("[id='404-message']")).toHaveCount(1)
+  await expect(page.locator("#restore-button")).toHaveCount(0)
   await expect(page.locator("[id='404-message']")).toContainText(
     "data-form-create-flow:example"
   )
