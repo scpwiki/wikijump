@@ -18,6 +18,8 @@ The current local development model uses a local admin actor so the WSL owner ca
 
 That local authority must remain behind a replaceable seam. Page mutation code should continue to go through service/API boundaries and permission-aware paths. Do not add permanent deep bypasses inside page creation, page editing, revision persistence, or mirror import code.
 
+For the anonymous page mutation seam, Framerail may send the local actor marker only after resolving the actor for a `FRAMERAIL_ENV=local` request on this site and matching the request and mutation site IDs. Deepwell honors that marker only when its configured main domain is `wikijump.localhost`, the current database row for this exact site slug matches the request site ID, and the RPC is one of the page create/edit/delete/move or file restore/rollback methods. The normal trusted RPC credential and Deepwell's request-actor/attribution equality check remain required. Mirrors, other sites, and non-local deployments never receive this actor.
+
 Future work can replace the local admin actor with a Wikidot-like account/permission provider without changing which site owns editable drafts.
 
 ## Local compatibility action throttle

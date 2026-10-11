@@ -269,6 +269,66 @@ fn expands_wikidot_image_block_includes_with_defaults_and_arguments() {
 }
 
 #[test]
+fn expands_multiline_image_block_parameters_before_following_article_text() {
+    let mut wikitext = concat!(
+        "[[include component:image-block\n",
+        "    name=Replication.jpg|\n",
+        "    caption=Researcher O'Conner and Dr. Wettle.|\n",
+        "    align=center|\n",
+        "    width=100%|\n",
+        "]]\n",
+        "\n",
+        "**Researcher O'Conner:** The following dialogue is outside the image block.\n",
+        "\n",
+        "[[include component:image-block\n",
+        "    name=Egg.jpg|\n",
+        "    caption=Dr. Dan's breakfast for 16 July 2022.|\n",
+        "    align=center|\n",
+        "    width=700px|\n",
+        "]]\n",
+        "\n",
+        "|+ A later table\n",
+        "|| a || b ||\n",
+    )
+    .to_owned();
+    let page_info = fallback_test_page_info("scp-7000", "SCP-7000");
+
+    RenderService::normalize_wikidot_multiline_includes(&mut wikitext);
+    assert!(
+        wikitext.contains(
+            "[[include component:image-block name=Replication.jpg| caption=Researcher O'Conner and Dr. Wettle.| align=center| width=100%|]]"
+        ),
+        "normalized include source: {wikitext}"
+    );
+    let included_pages = RenderService::expand_wikidot_image_block_includes(
+        &mut wikitext,
+        &page_info,
+        None,
+    );
+
+    assert!(
+        wikitext.contains(
+            r#"[[div class="scp-image-block block-center" style="width:100%;"]]"#
+        )
+    );
+    assert!(wikitext.contains(
+        r#"[[div class="scp-image-block block-center" style="width:700px;"]]"#
+    ));
+    assert!(wikitext.contains("Researcher O'Conner and Dr. Wettle.\n[[/div]]\n[[/div]]"));
+    assert!(wikitext.contains(
+        "[[/div]]\n[[/div]]\n\n**Researcher O'Conner:** The following dialogue is outside the image block."
+    ));
+    assert!(
+        wikitext.contains("Dr. Dan's breakfast for 16 July 2022.\n[[/div]]\n[[/div]]")
+    );
+    assert!(wikitext.contains("|+ A later table\n|| a || b ||"));
+    assert!(!wikitext.contains("align=center|"));
+    assert!(!wikitext.contains("width=100%|"));
+    assert!(!wikitext.contains("width=700px|"));
+    assert_eq!(included_pages.len(), 4);
+}
+
+#[test]
 fn expands_wikidot_image_block_includes_with_nested_caption_markup() {
     let mut wikitext = concat!(
         "[[include :scp-wiki:component:image-block ",
@@ -1144,6 +1204,13 @@ fn leaves_malformed_multiline_include_boundaries_untouched() {
     let mut include = concat!(
         "[[include component:generic\n",
         "not-an-argument\n",
+        "]]\n",
+        "[[include component:generic\n",
+        "first=one|\n",
+        "]]\n",
+        "[[include component:image-block\n",
+        "name=still-valid|\n",
+        "not-an-argument|\n",
         "]]\n",
         "[[includex component:not-an-include\n",
         "|first=one\n",

@@ -1,16 +1,19 @@
 #!/usr/bin/env node
-// Dependency-closure report (agent-runnable, P2): resolve include / theme /
-// parent / attachment dependencies for a set of pages against the registered
-// source bundles and emit fail-closed verdicts. Exit codes: 0 all closures
-// complete or all out-of-bundle deps classified, 1 unclassified out-of-bundle
-// dependencies, 2 structural error.
+// Dependency-closure report: resolve include / theme / parent / attachment
+// dependencies for a set of pages against registered source bundles. A
+// closure-complete result requires the FTML parser binary. Exit codes: 0 all
+// parser-backed closures complete or all out-of-bundle deps classified, 1
+// unclassified out-of-bundle dependencies, 2 structural error or parser not
+// supplied.
 //
 // Usage:
 //   dependency-closure-report.mjs --inventory <corpus-inventory.lock.json> \
 //     --slug-file <slugs.txt> --output-dir <dir> [--family EN] [--max-depth 8]
+//     [--ftml-parser <wikidot_include_refs binary>]
 
 import fs from 'node:fs';
 import path from 'node:path';
+import {spawnSync} from 'node:child_process';
 
 import {runCliIfMain} from '../src/cli-entry.mjs';
 
@@ -21,7 +24,7 @@ import {
 } from '../src/dependency-closure.mjs';
 
 export function parseArgs(argv) {
-  const args = { inventory: null, slugFile: null, outputDir: null, family: null, maxDepth: 8 };
+  const args = { inventory: null, slugFile: null, outputDir: null, family: null, maxDepth: 8, ftmlParser: null };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     const next = () => argv[++i];
@@ -30,6 +33,7 @@ export function parseArgs(argv) {
     else if (arg === '--output-dir') args.outputDir = next();
     else if (arg === '--family') args.family = next();
     else if (arg === '--max-depth') args.maxDepth = Number(next());
+    else if (arg === '--ftml-parser') args.ftmlParser = next();
     else if (arg === '--help' || arg === '-h') return {help: true};
     else throw new Error(`Unknown argument: ${arg}`);
   }
@@ -50,7 +54,36 @@ function readSourceArtifact(row) {
 }
 
 export function usage() {
-  return 'Usage: dependency-closure-report.mjs --inventory <lock.json> --slug-file <slugs.txt> --output-dir <dir> [--family EN] [--max-depth 8]';
+  return 'Usage: dependency-closure-report.mjs --inventory <lock.json> --slug-file <slugs.txt> --output-dir <dir> [--family EN] [--max-depth 8] [--ftml-parser <wikidot_include_refs binary>]';
+}
+
+function makeFtmlIncludeScanner(binaryPath) {
+  return (source) => {
+    const result = spawnSync(binaryPath, [], {
+      input: source,
+      encoding: 'utf8',
+      maxBuffer: 8 * 1024 * 1024,
+    });
+    if (result.error) throw result.error;
+    if (result.status !== 0) {
+      throw new Error(`FTML include parser failed (${result.status}): ${result.stderr.trim()}`);
+    }
+    const parsed = JSON.parse(result.stdout);
+    if (!Array.isArray(parsed.includes) || typeof parsed.ftml_version !== 'string') {
+      throw new Error('FTML include parser returned an invalid response');
+    }
+    if (scanIncludes.ftmlVersion && scanIncludes.ftmlVersion !== parsed.ftml_version) {
+      throw new Error('FTML include parser version changed during closure resolution');
+    }
+    scanIncludes.ftmlVersion = parsed.ftml_version;
+    return parsed.includes.map((include) => {
+      const pageRef = include['page-ref'];
+      if (!pageRef || typeof pageRef.page !== 'string') {
+        throw new Error('FTML include parser returned an invalid page reference');
+      }
+      return { site: pageRef.site ?? null, page: pageRef.page, variables: include.variables ?? {} };
+    });
+  };
 }
 
 export function main(argv) {
@@ -64,6 +97,7 @@ export function main(argv) {
   if (!Array.isArray(rows)) throw new Error('inventory has no rows array');
 
   const registry = buildBundleRegistry(rows);
+  const scanIncludes = args.ftmlParser ? makeFtmlIncludeScanner(path.resolve(args.ftmlParser)) : undefined;
   const slugs = fs
     .readFileSync(args.slugFile, 'utf8')
     .split('\n')
@@ -91,8 +125,13 @@ export function main(argv) {
       row,
       registry,
       readSource: readSourceArtifact,
+      ...(scanIncludes ? {scanIncludes} : {}),
       maxDepth: args.maxDepth,
     });
+    report.parser_authoritative = Boolean(scanIncludes);
+    if (!scanIncludes && report.status === 'closure_complete') {
+      report.status = 'parser_unverified';
+    }
     reports.push(report);
     const fileName = `${report.fixture_id.replace(/[^a-zA-Z0-9_-]+/g, '_')}.json`;
     fs.writeFileSync(
@@ -102,6 +141,9 @@ export function main(argv) {
   }
 
   const summary = summarizeClosureReports(reports);
+  summary.parser_authoritative = Boolean(scanIncludes);
+  summary.ftml_version = scanIncludes?.ftmlVersion ?? null;
+  if (!scanIncludes) summary.exit_code = 2;
   summary.slugs_not_in_inventory = missing;
   summary.registry_collisions = registry.collisions.length;
   if (registry.collisions.length > 0) {

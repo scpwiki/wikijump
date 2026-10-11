@@ -30,7 +30,7 @@ use deepwell::hash::{blob_hash_to_hex, sha512_hash};
 use deepwell::models::audit_log::{Column as AuditLogColumn, Entity as AuditLogTable};
 use deepwell::models::blob_pending::{self, Entity as BlobPending};
 use deepwell::models::wikidot_user::{Entity as WikidotUser, Model as WikidotUserModel};
-use deepwell::models::{known_user, wikidot_user};
+use deepwell::models::{known_user, user, wikidot_user};
 use deepwell::services::import::ImportUserOutput;
 use deepwell::services::user::UserService;
 use deepwell::services::view::GetUserViewOutput;
@@ -1534,3 +1534,139 @@ async fn wikidot_user() {
 
 // TODO test renames / rename tokens
 //      test creating users of other types
+
+async fn stored_avatar(runner: &TestRunner, user_id: i64) -> Option<Vec<u8>> {
+    run_endpoint!(runner, user_get, json!({ "user": user_id }))
+        .expect("avatar fixture user should exist")
+        .user
+        .unwrap_wikijump()
+        .expect("fixture user should be a Wikijump user")
+        .avatar_s3_hash
+}
+
+#[tokio::test]
+async fn avatar_removal_is_owner_only_and_clears_only_the_association() {
+    let mut runner = TestRunner::setup().await;
+
+    let owner = run_endpoint!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "Avatar Owner",
+            "email": "avatar-owner@example.invalid",
+            "locales": ["en"],
+            "password": "password-fixture",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    let other = run_endpoint!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "Avatar Bystander",
+            "email": "avatar-bystander@example.invalid",
+            "locales": ["en"],
+            "password": "password-fixture",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    // Stored avatar hashes are set directly inside this test's transaction,
+    // so the upload and blob storage paths are not involved.
+    const OWNER_HASH: [u8; 64] = [0xab; 64];
+    const OTHER_HASH: [u8; 64] = [0xcd; 64];
+    for (user_id, hash) in [(owner.user_id, OWNER_HASH), (other.user_id, OTHER_HASH)] {
+        user::ActiveModel {
+            user_id: Set(user_id),
+            avatar_s3_hash: Set(Some(hash.to_vec())),
+            ..Default::default()
+        }
+        .update(runner.context().transaction())
+        .await
+        .expect("avatar fixture should be stored");
+    }
+
+    // An unauthenticated caller and another user cannot clear the owner's avatar.
+    let error = run_endpoint_err!(
+        runner,
+        user_edit,
+        json!({
+            "user": owner.user_id,
+            "avatar_uploaded_blob_id": null,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+
+    runner.set_request_context(RequestContext {
+        user_id: Some(other.user_id),
+        ..Default::default()
+    });
+    let error = run_endpoint_err!(
+        runner,
+        user_edit,
+        json!({
+            "user": owner.user_id,
+            "avatar_uploaded_blob_id": null,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::PermissionDenied);
+    assert_eq!(
+        stored_avatar(&runner, owner.user_id).await,
+        Some(OWNER_HASH.to_vec())
+    );
+
+    // The owner's ordinary edit omits the avatar field, so it keeps the image.
+    runner.set_request_context(RequestContext {
+        user_id: Some(owner.user_id),
+        ..Default::default()
+    });
+    run_endpoint!(
+        runner,
+        user_edit,
+        json!({
+            "user": owner.user_id,
+            "biography": "edited without touching the avatar",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_eq!(
+        stored_avatar(&runner, owner.user_id).await,
+        Some(OWNER_HASH.to_vec())
+    );
+
+    // The owner's explicit null clears only the owner's association.
+    run_endpoint!(
+        runner,
+        user_edit,
+        json!({
+            "user": owner.user_id,
+            "avatar_uploaded_blob_id": null,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_eq!(stored_avatar(&runner, owner.user_id).await, None);
+    assert_eq!(
+        stored_avatar(&runner, other.user_id).await,
+        Some(OTHER_HASH.to_vec())
+    );
+
+    // Repeating the removal is harmless.
+    run_endpoint!(
+        runner,
+        user_edit,
+        json!({
+            "user": owner.user_id,
+            "avatar_uploaded_blob_id": null,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_eq!(stored_avatar(&runner, owner.user_id).await, None);
+    assert_eq!(
+        stored_avatar(&runner, other.user_id).await,
+        Some(OTHER_HASH.to_vec())
+    );
+}

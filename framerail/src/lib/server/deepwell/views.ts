@@ -222,6 +222,12 @@ interface PageViewMissing {
     page_templates: PageTemplateSummary[]
     selected_template_page_id: Nullable<number>
     data_form: Nullable<DataFormEditor>
+    /**
+     * Deepwell's create decision for this viewer (the same authority
+     * page_create enforces). Template and data-form source is only present
+     * when this is true.
+     */
+    can_create: boolean
   }
 }
 interface PageViewPermissions {

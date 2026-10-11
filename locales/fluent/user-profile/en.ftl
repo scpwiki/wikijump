@@ -13,6 +13,9 @@ user-profile-info =
   .user-page = User page:
   .locales = Locales:
   .toast = Saved profile.
+  .remove-avatar = Remove profile image
+  .remove-avatar-pending = The profile image will be removed when you save.
+  .keep-avatar = Keep profile image
 
 user-not-exist = This user does not exist.
 

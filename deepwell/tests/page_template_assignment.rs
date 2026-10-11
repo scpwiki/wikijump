@@ -3426,3 +3426,99 @@ async fn page_view_exposes_live_hidden_password_static_url_scalar_contract() {
         }
     }
 }
+
+async fn missing_page_can_create(
+    runner: &TestRunner,
+    site_id: i64,
+    slug: &str,
+    extra: &str,
+    session_token: Option<&str>,
+) -> bool {
+    match run_endpoint!(
+        runner,
+        page_view,
+        json!({
+            "site_id": site_id,
+            "session_token": session_token,
+            "route": { "slug": slug, "extra": extra },
+            "locales": ["en-US", "en"],
+        }),
+    ) {
+        GetPageViewOutput::Missing { can_create, .. } => can_create,
+        other => panic!("expected a missing-page view, got {other:?}"),
+    }
+}
+
+#[tokio::test]
+async fn missing_page_view_reports_create_decision_per_actor() {
+    let runner = TestRunner::setup().await;
+    let site_id = run_endpoint!(runner, site_get, json!({ "site": "test" }))
+        .expect("seeded test site should exist")
+        .site
+        .site_id;
+    let category = CategoryService::get_or_create(
+        runner.context(),
+        site_id,
+        "missing-create-decision-target",
+    )
+    .await
+    .expect("target category should be created");
+    let sample_session_token = SessionService::create(
+        runner.context(),
+        CreateSession {
+            user_id: SAMPLE_USER_ID,
+            ip_address: common::IP_ADDRESS,
+            user_agent: "deepwell missing create decision test".to_owned(),
+            restricted: false,
+        },
+    )
+    .await
+    .expect("registered non-member session should be created");
+    let slug = "missing-create-decision-target:probe";
+
+    // Anonymous actors are never allowed to create, matching page_create.
+    assert!(!missing_page_can_create(&runner, site_id, slug, "/edit/true", None).await);
+    assert!(!missing_page_can_create(&runner, site_id, slug, "", None).await);
+    // A signed-in actor without a category grant is denied on both entry points.
+    assert!(
+        !missing_page_can_create(
+            &runner,
+            site_id,
+            slug,
+            "/edit/true",
+            Some(&sample_session_token)
+        )
+        .await
+    );
+    assert!(
+        !missing_page_can_create(&runner, site_id, slug, "", Some(&sample_session_token))
+            .await
+    );
+
+    grant_category_permission(
+        &runner,
+        site_id,
+        category.category_id,
+        "missing-create-decision-creators",
+        Action::Create,
+        &[SAMPLE_USER_ID],
+    )
+    .await;
+
+    // The granted actor is allowed on both entry points; anonymous stays denied.
+    assert!(
+        missing_page_can_create(
+            &runner,
+            site_id,
+            slug,
+            "/edit/true",
+            Some(&sample_session_token)
+        )
+        .await
+    );
+    assert!(
+        missing_page_can_create(&runner, site_id, slug, "", Some(&sample_session_token))
+            .await
+    );
+    assert!(!missing_page_can_create(&runner, site_id, slug, "/edit/true", None).await);
+}

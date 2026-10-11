@@ -18,9 +18,11 @@
     openWikidotPrinterFriendly
   } from "$lib/wikidot/wikidot-page-actions"
   import {
+    materializeWikidotRateActionHtml,
     updateWikidotRateWidget,
     wikidotLegacyActions
   } from "$lib/wikidot/wikidot-legacy-actions"
+  import { wikidotSiteChanges } from "$lib/wikidot/wikidot-site-changes.js"
   import {
     requestLegacyRate,
     requestLegacyRateCancel,
@@ -94,7 +96,12 @@
       : buildGeneratedPageStylesHead(compiledBodyStyles)
   )
   let renderedBodyHtml = $derived(
-    showRevision ? revision?.compiled_body_html : data.compiled_body_html
+    showRevision
+      ? revision?.compiled_body_html
+      : materializeWikidotRateActionHtml(
+          data.compiled_body_html,
+          currentRateRegistry()?.actions ?? []
+        )
   )
   let pageFontPreloadHrefs = $derived(
     pageLayoutContext.current === Layout.WIKIDOT
@@ -422,6 +429,7 @@
     actions: showRevision ? [] : (data.membership_actions ?? []),
     runtime: membershipActionRuntime
   })
+  let siteChangesActionParameters = $derived({ pageId: data.page.page_id })
 
   onMount(() => {
     // Hash Magic still applies under debug/norender documents (an edit hash on
@@ -503,6 +511,7 @@
       class:hidden={dataFormEditing}
       use:wikidotGalleryLightbox={showRevision ? revision?.wikitext : data.wikitext}
       use:wikidotLegacyActions={legacyActionParameters}
+      use:wikidotSiteChanges={siteChangesActionParameters}
       use:wikidotMembershipActions={membershipActionParameters}
       use:wikidotTabviews
       use:wikidotFoldableLists
@@ -510,7 +519,7 @@
       use:wikidotToc
       use:wikidotFootnotes
     >
-      {@html showRevision ? revision?.compiled_body_html : data.compiled_body_html}
+      {@html renderedBodyHtml}
     </div>
   {/if}
 
@@ -676,7 +685,8 @@
           onclick={() => openPagePane(PagePane.Append)}
           type="button"
         >
-          {wikidotPageActions?.append ?? "Append"}
+          {wikidotPageActions?.append ??
+            data.internationalization?.["wiki-page-action-append"]}
         </a>
         <!-- svelte-ignore a11y_invalid_attribute -->
         <a
@@ -686,7 +696,7 @@
           onclick={toggleEditSections}
           type="button"
         >
-          Edit Sections
+          {data.internationalization?.["wiki-page-action-edit-sections"]}
         </a>
         <!-- svelte-ignore a11y_invalid_attribute -->
         <a
@@ -696,7 +706,7 @@
           onclick={() => activatePagePane(PagePane.EditMeta)}
           type="button"
         >
-          Edit Meta
+          {data.internationalization?.["wiki-page-action-edit-meta"]}
         </a>
         <!-- svelte-ignore a11y_invalid_attribute -->
         <a
@@ -706,7 +716,7 @@
           onclick={() => activatePagePane(PagePane.Watchers)}
           type="button"
         >
-          Watchers
+          {data.internationalization?.["wiki-page-action-watchers"]}
         </a>
         <!-- svelte-ignore a11y_invalid_attribute -->
         <a
@@ -716,7 +726,8 @@
           onclick={() => activatePagePane(PagePane.Backlinks)}
           type="button"
         >
-          {wikidotPageActions?.backlinks ?? "Backlinks"}
+          {wikidotPageActions?.backlinks ??
+            data.internationalization?.["wiki-page-action-backlinks"]}
         </a>
         <!-- svelte-ignore a11y_invalid_attribute -->
         <a
@@ -759,7 +770,7 @@
           }}
           type="button"
         >
-          {data.internationalization?.["wiki-page-lock"]}
+          {data.internationalization?.["wiki-page-action-lock"]}
         </a>
         <!-- svelte-ignore a11y_invalid_attribute -->
         <a
@@ -769,7 +780,7 @@
           onclick={() => activatePagePane(PagePane.Move)}
           type="button"
         >
-          {data.internationalization?.move}
+          {data.internationalization?.["wiki-page-action-rename-move"]}
         </a>
         <!-- svelte-ignore a11y_invalid_attribute -->
         <a

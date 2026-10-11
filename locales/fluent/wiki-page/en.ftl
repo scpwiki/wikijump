@@ -17,6 +17,15 @@ wiki-page-source = Page source
 
 wiki-page-view-source = View Source
 
+## Wiki page actions
+wiki-page-action-append = Append
+wiki-page-action-edit-sections = Edit Sections
+wiki-page-action-edit-meta = Edit Meta
+wiki-page-action-watchers = Watchers
+wiki-page-action-backlinks = Backlinks
+wiki-page-action-lock = Lock Page
+wiki-page-action-rename-move = Move
+
 wiki-page-revision-history = Page revision history
 
 wiki-page-revision-diff = Compare revisions
@@ -51,10 +60,16 @@ wiki-page-revision-type = Type
 ### Wiki Page Vote
 
 wiki-page-vote = Page rating
+  .description = Simply rate contents of this page.
   .set = Cast vote
   .remove = Cancel vote
   .list = List votes
   .score = Rating
+  .like = I like it
+  .dislike = I don't like it
+  .cancel = Cancel my vote
+  .who-rated = Look who rated this page
+  .user = User
   .toast-set = Successfully voted.
   .toast-remove = Successfully removed vote.
 
@@ -77,6 +92,9 @@ wiki-page-layout = Page layout
   .wikijump = Wikijump
   .toast = Page layout saved.
 
+wiki-page-meta-tag-name = Meta tag name
+wiki-page-meta-tag-content = Meta tag content
+
 wiki-page-delete = Delete page
   .toast = Page deleted.
 
@@ -97,6 +115,10 @@ wiki-page-file-upload =
 
 wiki-page-file-delete =
   .toast = File deleted.
+  .confirmation = Delete this file?
+  .filename = File
+  .page = Page
+  .confirm = Confirm delete
 
 wiki-page-file-move-destination-page = Destination page
 

@@ -29,11 +29,28 @@ const fontSizesHtml = WIKIDOT_PRINT_FONT_SIZES.map(
     `<a href="javascript:;" onclick="WIKIDOT.printview.listeners.changeFontSize(event, '${size}')">${size}</a>`
 ).join(" | ")
 
-/**
- * Wikidot's verified printer-friendly option rows. Only the base font size
- * choices carry a retained live handler shape; every other row stays
- * literal until a retained interaction capture establishes its behavior.
- */
+const WIKIDOT_PRINT_FONT_FAMILIES = Object.freeze([
+  { label: "original font", value: "original", css: null },
+  { label: "Georgia", value: "georgia", css: "Georgia" },
+  { label: "Times New Roman", value: "times-new-roman", css: '"Times New Roman"' },
+  { label: "Serif (generic)", value: "serif", css: "serif" },
+  {
+    label: "Arial/Helvetica",
+    value: "arial-helvetica",
+    css: "Arial, Helvetica, sans-serif"
+  }
+])
+
+const fontFamilyByValue = new Map(
+  WIKIDOT_PRINT_FONT_FAMILIES.map((choice) => [choice.value, choice])
+)
+
+const fontFamiliesHtml = WIKIDOT_PRINT_FONT_FAMILIES.map(
+  ({ label, value }, index) =>
+    `<a href="javascript:;" role="button" aria-pressed="${index === 0}" onclick="WIKIDOT.printview.listeners.changeFontFamily(event, '${value}')">${label}</a>`
+).join(" | ")
+
+/** Wikidot's verified printer-friendly option rows. */
 export const buildWikidotPrintOptionsHtml = () =>
   [
     '<div id="print-options">',
@@ -49,13 +66,13 @@ export const buildWikidotPrintOptionsHtml = () =>
     "<td>",
     "Body font:",
     "</td>",
-    "<td>original font | Georgia | Times New Roman | Serif | Serif (generic) | Arial/Helvetica</td>",
+    `<td>${fontFamiliesHtml}</td>`,
     "</tr>",
     "<tr>",
     "<td>",
     "Source info:",
     "</td>",
-    "<td>toggle visibility</td>",
+    '<td><a href="javascript:;" role="button" aria-pressed="false" onclick="WIKIDOT.printview.listeners.toggleSourceInfo(event)">toggle visibility</a></td>',
     "</tr>",
     "<tr>",
     "<td>",
@@ -92,6 +109,11 @@ export const buildWikidotPrintSourceInfoHtml = ({
 
 const CHANGE_FONT_SIZE_ONCLICK =
   /^WIKIDOT\.printview\.listeners\.changeFontSize\(event, '([0-9]+pt)'\)$/u
+const CHANGE_FONT_FAMILY_ONCLICK =
+  /^WIKIDOT\.printview\.listeners\.changeFontFamily\(event, '([^']+)'\)$/u
+const TOGGLE_SOURCE_INFO_ONCLICK = "WIKIDOT.printview.listeners.toggleSourceInfo(event)"
+
+const originalFontStyles = new WeakMap()
 
 /**
  * Bind the printer-friendly child window's trusted behavior. Served markup
@@ -106,6 +128,14 @@ const CHANGE_FONT_SIZE_ONCLICK =
  */
 export const wikidotPrintView = (root) => {
   const content = () => root.querySelector("#print-content")
+  const sourceInfo = () => root.querySelector("#print-source-info")
+  if (!originalFontStyles.has(root)) {
+    const targetContent = content()
+    originalFontStyles.set(root, {
+      value: targetContent?.style.getPropertyValue("font-family") ?? "",
+      priority: targetContent?.style.getPropertyPriority("font-family") ?? ""
+    })
+  }
   const listener = (event) => {
     const target = typeof event.target?.closest === "function" ? event.target : null
     if (!target) return
@@ -124,6 +154,53 @@ export const wikidotPrintView = (root) => {
         event.preventDefault()
         const targetContent = content()
         if (targetContent) targetContent.style.fontSize = match[1]
+      }
+      return
+    }
+    const fontFamily = target.closest(
+      'a[onclick^="WIKIDOT.printview.listeners.changeFontFamily"]'
+    )
+    if (fontFamily) {
+      const match = CHANGE_FONT_FAMILY_ONCLICK.exec(
+        fontFamily.getAttribute("onclick") ?? ""
+      )
+      const choice = match ? fontFamilyByValue.get(match[1]) : null
+      if (choice) {
+        event.preventDefault()
+        const targetContent = content()
+        if (!targetContent) return
+        if (choice.css === null) {
+          const original = originalFontStyles.get(root)
+          if (original?.value) {
+            targetContent.style.setProperty(
+              "font-family",
+              original.value,
+              original.priority
+            )
+          } else {
+            targetContent.style.removeProperty("font-family")
+          }
+        } else {
+          targetContent.style.setProperty("font-family", choice.css)
+        }
+        for (const control of root.querySelectorAll(
+          'a[onclick^="WIKIDOT.printview.listeners.changeFontFamily"]'
+        )) {
+          const controlMatch = CHANGE_FONT_FAMILY_ONCLICK.exec(
+            control.getAttribute("onclick") ?? ""
+          )
+          control.setAttribute("aria-pressed", String(controlMatch?.[1] === choice.value))
+        }
+      }
+      return
+    }
+    const toggleSourceInfo = target.closest(`a[onclick="${TOGGLE_SOURCE_INFO_ONCLICK}"]`)
+    if (toggleSourceInfo) {
+      event.preventDefault()
+      const info = sourceInfo()
+      if (info) {
+        info.hidden = !info.hidden
+        toggleSourceInfo.setAttribute("aria-pressed", String(info.hidden))
       }
       return
     }

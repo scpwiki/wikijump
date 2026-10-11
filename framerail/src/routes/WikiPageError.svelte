@@ -7,6 +7,7 @@
   import { errorPopupState } from "$lib/layout/stores.svelte"
   import { getPageLayoutContext } from "$lib/layout/page-layout-context"
   import { pageMutationDestinationSlug } from "$lib/page-mutation-destination"
+  import { createPageDeniedMessage } from "$lib/wikidot/wikidot-locale"
   import { superForm } from "sveltekit-superforms"
   import { untrack } from "svelte"
   import type { PageErrorData } from "$lib/page-error-data"
@@ -26,6 +27,35 @@
       noScroll: true
     })
   }
+
+  // The create decision comes from Deepwell's missing view. A denied viewer gets
+  // the permission dialog on the missing page and no editor, and never navigates.
+  const createDenied = (): boolean => errorData.can_create !== true
+
+  function showCreateDenied() {
+    errorPopupState.current = {
+      state: true,
+      message: createPageDeniedMessage(),
+      data: null
+    }
+  }
+
+  function startCreate(event: MouseEvent) {
+    event.preventDefault()
+    if (createDenied()) {
+      showCreateDenied()
+      return
+    }
+    goto(resolve(`/${missingPageSlug}/edit/true`, {}), {
+      noScroll: true
+    })
+  }
+
+  $effect(() => {
+    if (errorData.view === "missing" && errorData.options?.edit && createDenied()) {
+      showCreateDenied()
+    }
+  })
 
   const { form: editForm, enhance: editEnhance } = superForm(
     untrack(() => errorData.forms.pageEditForm),
@@ -160,7 +190,7 @@
 </script>
 
 {#if errorData.view === "missing"}
-  {#if errorData.options?.edit}
+  {#if errorData.options?.edit && !createDenied()}
     {#if errorData.data_form}
       <div id="action-area">
         {#key `create:${missingPageSlug}`}
@@ -284,14 +314,8 @@
       </p>
       <ul id="create-it-now-link">
         <li>
-          <a
-            href={resolve(`/${missingPageSlug}/edit/true`, {})}
-            onclick={(event) => {
-              event.preventDefault()
-              goto(resolve(`/${missingPageSlug}/edit/true`, {}), {
-                noScroll: true
-              })
-            }}>Create page</a
+          <a href={resolve(`/${missingPageSlug}/edit/true`, {})} onclick={startCreate}
+            >Create page</a
           >
         </li>
       </ul>

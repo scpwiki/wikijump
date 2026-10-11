@@ -63,6 +63,10 @@
     margin-bottom: 0.75rem;
   }
 
+  :global(#print-source-info[hidden]) {
+    display: none !important;
+  }
+
   @media print {
     /* The on-screen option controls and the separator generated for them
        must not reach printed or PDF output. Source attribution stays. */

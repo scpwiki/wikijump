@@ -346,7 +346,7 @@ fn render_forum_category(
     output.push_str(&escape_list_pages_html_text(category_name));
     write!(
         &mut output,
-        "</div><div class=\"description-block well\"><div class=\"statistics\">Number of threads: {thread_count}<br/>Number of posts: {post_count}<br/><span class=\"rss-icon\"><img src=\"http://www.wikidot.com/common--theme/base/images/feed/feed-icon-14x14.png\" alt=\"rss icon\"/></span> RSS: <a href=\"/feed/forum/ct-{category_id}.xml\">New threads</a> | <a href=\"/feed/forum/cp-{category_id}.xml\">New posts</a></div>{}</div>",
+        "</div><div class=\"description-block well\"><div class=\"statistics\">Number of threads: {thread_count}<br/>Number of posts: {post_count}<br/><span class=\"rss-icon\"><img src=\"/common--theme/base/images/feed/feed-icon-14x14.png\" alt=\"rss icon\"/></span> RSS: <a href=\"/feed/forum/ct-{category_id}.xml\">New threads</a> | <a href=\"/feed/forum/cp-{category_id}.xml\">New posts</a></div>{}</div>",
         escape_list_pages_html_text(category_description),
     )
     .expect("writing to a String cannot fail");
@@ -479,7 +479,7 @@ fn render_forum_thread(thread: &ForumThreadView, posts: &str) -> String {
             " &raquo; {title}</div><div class=\"description-block well\">",
             "<div class=\"statistics\">Started by: {creator}<br/>Date: {date}<br/>",
             "Number of posts: {post_count}<br/><span class=\"rss-icon\">",
-            "<img src=\"http://www.wikidot.com/common--theme/base/images/feed/feed-icon-14x14.png\" alt=\"rss icon\"/>",
+            "<img src=\"/common--theme/base/images/feed/feed-icon-14x14.png\" alt=\"rss icon\"/>",
             "</span> RSS: <a href=\"/feed/forum/t-{thread_id}.xml\">New posts</a></div>",
             "<div class=\"head\">Summary:</div>{description}</div>",
             "<div class=\"options\"><a href=\"javascript:;\" onclick=\"WIKIDOT.modules.ForumViewThreadModule.listeners.unfoldAll(event)\" class=\"btn btn-default btn-small btn-sm\">Unfold All</a> ",
@@ -1205,7 +1205,11 @@ fn forum_feed_candidate_sql(kind: WikidotForumFeedKind) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::push_forum_category_pager;
+    use super::{
+        ForumThreadView, push_forum_category_pager, render_forum_category,
+        render_forum_thread,
+    };
+    use crate::services::render::forum_modules::forum_guest_user;
 
     fn pager(page: u32) -> String {
         let mut output = String::new();
@@ -1261,5 +1265,33 @@ mod tests {
         let mut output = String::new();
         push_forum_category_pager(&mut output, 1_113_520, 1, 1);
         assert_eq!(output, "", "a single-page category must not render a pager",);
+    }
+
+    #[test]
+    fn forum_category_and_thread_rss_chrome_uses_the_same_origin_feed_icon() {
+        const ICON: &str = "<img src=\"/common--theme/base/images/feed/feed-icon-14x14.png\" alt=\"rss icon\"/>";
+
+        let category = render_forum_category(7, "Group", "Category", "", &[], 1);
+        assert!(category.contains(ICON));
+
+        let thread = ForumThreadView {
+            forum_thread_id: 11,
+            forum_category_id: 7,
+            group_name: "Group".to_owned(),
+            category_name: "Category".to_owned(),
+            title: "Thread".to_owned(),
+            description: String::new(),
+            created_at: time::OffsetDateTime::UNIX_EPOCH,
+            post_count: 0,
+            creator: forum_guest_user("Guest".to_owned(), "0".repeat(32)),
+            last_post: None,
+        };
+        let thread_html = render_forum_thread(&thread, "");
+        assert!(thread_html.contains(ICON));
+
+        // Forum user chrome still links to Wikidot profiles; only the RSS icon is pinned local here.
+        for rendered in [category, thread_html] {
+            assert!(!rendered.contains("www.wikidot.com/common--theme"));
+        }
     }
 }

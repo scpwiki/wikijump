@@ -117,6 +117,7 @@
         <span class="edit-meta-syntax">&lt;meta&nbsp;&nbsp;&nbsp;name="</span>
         <input
           class="edit-meta-input edit-meta-name-input"
+          aria-label={data.internationalization?.["wiki-page-meta-tag-name"]}
           name="metaName"
           size="20"
           type="text"
@@ -125,6 +126,7 @@
         <span class="edit-meta-syntax">"&nbsp;&nbsp;&nbsp;content="</span>
         <input
           class="edit-meta-input edit-meta-content-input"
+          aria-label={data.internationalization?.["wiki-page-meta-tag-content"]}
           name="metaContent"
           size="30"
           type="text"

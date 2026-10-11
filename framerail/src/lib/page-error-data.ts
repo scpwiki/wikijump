@@ -8,6 +8,7 @@ export type PageErrorData = {
   page_templates?: PageTemplateSummary[]
   selected_template_page_id?: number | null
   data_form?: DataFormEditor | null
+  can_create?: boolean
   site: {
     site_id: number
     default_page: string

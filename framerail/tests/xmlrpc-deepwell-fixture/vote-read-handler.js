@@ -33,5 +33,24 @@ export const handleVoteReadRpc = ({ rpcRequest, request }) => {
     headers: requestContextHeaders(request),
     params: rpcRequest.params
   })
-  return { result: [] }
+  const page = pageById(rpcRequest.params.id)
+  return {
+    result:
+      page?.slug === "vote-pane-wikijump-probe"
+        ? [
+            {
+              page_vote_id: 7002178,
+              created_at: "2026-10-10T00:00:00Z",
+              deleted_at: null,
+              disabled_at: null,
+              disabled_by: null,
+              from_wikidot: false,
+              page_id: 30002178,
+              user_id: 456,
+              rating_system: "points",
+              value: 1
+            }
+          ]
+        : []
+  }
 }
