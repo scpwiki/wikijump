@@ -357,6 +357,7 @@ export interface Locales {
   "wiki-page-revision-diff.swap": string
   "wiki-page-revision-diff.loading": string
   "wiki-page-revision-diff.no-changes": string
+  "wiki-page-revision-view-unavailable": string
   "wiki-page-revision-number": string
   "wiki-page-revision-created-at": string
   "wiki-page-revision-user": string
