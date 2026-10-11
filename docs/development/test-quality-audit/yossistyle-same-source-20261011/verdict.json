@@ -1,0 +1,40 @@
+{
+  "source_sha256": "561228038e46e76ab45e61d95570e82519bceea1aa5233addbbec324601ca4d4",
+  "scope": "first paragraph / title CSSOM and geometry only",
+  "full_page_parity": "UNVERIFIED",
+  "source_freshness": "UNVERIFIED",
+  "rows": [
+    {
+      "engine": "chromium",
+      "title_and_first_paragraph": "EXACT",
+      "body_height_delta_px": 1,
+      "stylesheet_count_live": 5,
+      "stylesheet_count_local": 8,
+      "local_resource_failures": 0
+    },
+    {
+      "engine": "firefox",
+      "title_and_first_paragraph": "EXACT",
+      "body_height_delta_px": 1,
+      "stylesheet_count_live": 9,
+      "stylesheet_count_local": 8,
+      "local_resource_failures": 1
+    },
+    {
+      "engine": "webkit",
+      "title_and_first_paragraph": "EXACT",
+      "body_height_delta_px": 1,
+      "stylesheet_count_live": 5,
+      "stylesheet_count_local": 8,
+      "local_resource_failures": 0
+    },
+    {
+      "engine": "mobile-chromium",
+      "title_and_first_paragraph": "EXACT",
+      "body_height_delta_px": 144.71875,
+      "stylesheet_count_live": 8,
+      "stylesheet_count_local": 8,
+      "local_resource_failures": 0
+    }
+  ]
+}
