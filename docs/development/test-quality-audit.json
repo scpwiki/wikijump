@@ -6494,7 +6494,7 @@
     },
     {
       "path": "framerail/src/lib/wikidot/wikidot-foldable-lists.js",
-      "sha256": "317b1c020778f9bd47e658a19a2196bd2e30020d7e94ef21503ee7b3d772d044",
+      "sha256": "e039bb6937b178596b4f573e007c0fa9d05efe0cb9429055e0134d0c7c224f51",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -9742,7 +9742,7 @@
     },
     {
       "path": "install/local/wikidot-verification/src/dependency-closure.mjs",
-      "sha256": "10420b104d1808c4d37522dbdb3fb677d52d174d13474d52351db75bb52822c7",
+      "sha256": "6478616d037c564dbbed937eabff85d375534c98a00092e71810329581915a31",
       "status": "pending",
       "anchors": [],
       "findings": [],
