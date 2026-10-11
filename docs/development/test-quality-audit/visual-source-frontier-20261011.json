@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "context": "Issue #1990 frontier visual source omission audit",
+  "base_develop_commit": "504f2f5883cfbd53f9025c3cda00dfebe3457730",
+  "source_scope": "framerail/src",
+  "inventory_report": "run: node scripts/run-test-quality-frontier-audit.mjs inventory --output-dir <fresh-outside-repo-dir>",
+  "production_total_in_new_inventory": 1328,
+  "previous_production_total": 1309,
+  "added_visual_sources": 19,
+  "visual_source_kind_counts": {
+    "scss": 18,
+    "html": 1
+  },
+  "executable_test_owner_candidates": 876,
+  "static_import_candidate_owners_for_visual_sources": 0,
+  "static_import_semantics": "candidate importer only; not behavioral coverage, test execution, or a missing-test verdict",
+  "limitations": [
+    "This static inventory does not establish whether a visual source is exercised in a browser.",
+    "SCSS @use/@forward, Svelte Vite transforms, Svelte style blocks and browser-derived computed CSS are not parsed by the current static JS import graph.",
+    "Wikidot source, DOM, CSS and interaction behavior require independent oracle and browser evidence."
+  ],
+  "sources": [
+    {
+      "path": "framerail/src/app.html",
+      "sha256": "f4f5b16332c3f2777cb6fade137d9591841fd1e5c74147f377041f2d26f6a998"
+    },
+    {
+      "path": "framerail/src/lib/css/_abstracts.scss",
+      "sha256": "22e1bcb25da9f58ba0e5f9272914e108fdd5c7f40b2e73db78e9f4abc39916e2"
+    },
+    {
+      "path": "framerail/src/lib/css/abstracts/_functions.scss",
+      "sha256": "0b226eff994c7d81dbd32b2be14d5de8beff4ca4c42bd396da3a399bf988e257"
+    },
+    {
+      "path": "framerail/src/lib/css/abstracts/_media.scss",
+      "sha256": "0bf024c16443757e1df390f9a903709a33f26df2df3eef20d5f88c2b4d090cc8"
+    },
+    {
+      "path": "framerail/src/lib/css/abstracts/_mixins.scss",
+      "sha256": "fb6900044c9b56b872cc01e4f60376fc12a996dcb4b8c1a3ca72fe0729a7dd7c"
+    },
+    {
+      "path": "framerail/src/lib/css/abstracts/_variables.scss",
+      "sha256": "1e3de67846caa5b692c40935417e6feb031247d329ab06d6960c5c111b718f51"
+    },
+    {
+      "path": "framerail/src/lib/css/base/_a11y.scss",
+      "sha256": "0db74b7896176e0cfc714f8fecf80ee21b211fa0948a907813577343c214f3ab"
+    },
+    {
+      "path": "framerail/src/lib/css/base/_base.scss",
+      "sha256": "4c2dddfcf50a646126b7a86c60b34e38791e1aaf10ef4ef970505cc4170bc41e"
+    },
+    {
+      "path": "framerail/src/lib/css/base/_font-faces-cjk.scss",
+      "sha256": "ee47bd091cff1b3d4d72e6c4e77ce5cf1ace2a78807dfa6d072967809b2b821c"
+    },
+    {
+      "path": "framerail/src/lib/css/base/_font-faces.scss",
+      "sha256": "86f0bd81662a028e3dbef179f86fa969bf16ace3fced33142fc67fddefd267ab"
+    },
+    {
+      "path": "framerail/src/lib/css/base/_reset.scss",
+      "sha256": "77414cd0ebc00c8a302755e0c8118a3e8e2b7f0209529c5e57f56d40fda695b3"
+    },
+    {
+      "path": "framerail/src/lib/css/base/_typography.scss",
+      "sha256": "159911f2c44a4dbd5367eb770fd8bf12e39c50d3e49488e683422518bc74cdc9"
+    },
+    {
+      "path": "framerail/src/lib/css/main.scss",
+      "sha256": "3a7658482da2299a31a135d43e2dd5828390bfe764cd03b7672a434f6b0ceb20"
+    },
+    {
+      "path": "framerail/src/lib/css/themes/_code.scss",
+      "sha256": "d349d50cddca5630b7111e4f98cfcbf23e341aa00c4c0c0f4dfa1f42610fb18a"
+    },
+    {
+      "path": "framerail/src/lib/css/themes/_colors.scss",
+      "sha256": "2231117d1362e9042f8fce2559eb5e35a0e85ea7a5aa794afdf3f37728afe02f"
+    },
+    {
+      "path": "framerail/src/lib/css/themes/_layout.scss",
+      "sha256": "2cc4a7f24f36d3af523347c259089c27ced919d63792bea7b3f485986a1a0f6a"
+    },
+    {
+      "path": "framerail/src/lib/css/themes/_rhythm.scss",
+      "sha256": "3eb716af3856a58fa993d781be397538c1928577efb0de8dd1c0984819dd5dbd"
+    },
+    {
+      "path": "framerail/src/lib/css/themes/_typography.scss",
+      "sha256": "cf9a49f9bc2e6951ffbb23c61b926f18959e5f88c5cf78e7a98633010d1876c1"
+    },
+    {
+      "path": "framerail/src/routes/[slug]/[...extra]/page.scss",
+      "sha256": "ae4617253dd663a4c4c140ee752945b24dce4c58cb3831ab78e936bb563a2dd1"
+    }
+  ]
+}

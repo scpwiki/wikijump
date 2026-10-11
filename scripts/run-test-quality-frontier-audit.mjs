@@ -63,8 +63,17 @@ function walk(directory, predicate) {
   return output.sort();
 }
 
+const EXECUTABLE_SOURCE_EXTENSIONS = new Set([".rs", ".js", ".mjs", ".ts", ".svelte", ".py", ".sh"]);
+const VISUAL_SOURCE_EXTENSIONS = new Set([".css", ".scss", ".sass", ".html"]);
+
 function sourceLike(path) {
-  return new Set([".rs", ".js", ".mjs", ".ts", ".svelte", ".py", ".sh"]).has(extname(path));
+  return EXECUTABLE_SOURCE_EXTENSIONS.has(extname(path));
+}
+
+function productionSourceLike(path) {
+  // Styling and HTML document shells are observable Wikidot compatibility
+  // surfaces, but are not executable test owners or proven coverage.
+  return sourceLike(path) || VISUAL_SOURCE_EXTENSIONS.has(extname(path));
 }
 
 function dedicatedTestModule(path) {
@@ -78,13 +87,13 @@ function containsInlineRustTests(path) {
 
 function productionFiles() {
   return [
-    ...walk(resolve(root, "deepwell/src"), (path) => sourceLike(path) && !dedicatedTestModule(path)),
-    ...walk(resolve(root, "deepwell/relation-impl-derive/src"), (path) => sourceLike(path) && !dedicatedTestModule(path)),
-    ...walk(resolve(root, "framerail/src"), sourceLike),
+    ...walk(resolve(root, "deepwell/src"), (path) => productionSourceLike(path) && !dedicatedTestModule(path)),
+    ...walk(resolve(root, "deepwell/relation-impl-derive/src"), (path) => productionSourceLike(path) && !dedicatedTestModule(path)),
+    ...walk(resolve(root, "framerail/src"), productionSourceLike),
     ...["article-response-fast-path.js", "server.js", "startup-readiness.js"]
       .map((name) => resolve(root, "framerail", name)).filter(existsSync),
-    ...walk(resolve(root, "install/local/wikidot-verification/src"), sourceLike),
-    ...walk(resolve(root, "install/local/wikidot-verification/scripts"), sourceLike),
+    ...walk(resolve(root, "install/local/wikidot-verification/src"), productionSourceLike),
+    ...walk(resolve(root, "install/local/wikidot-verification/scripts"), productionSourceLike),
   ];
 }
 

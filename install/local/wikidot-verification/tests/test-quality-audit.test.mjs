@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import {createHash} from "node:crypto";
-import {mkdtempSync, readFileSync, writeFileSync} from "node:fs";
+import {mkdtempSync, readFileSync, writeFileSync, rmSync} from "node:fs";
 import {tmpdir} from "node:os";
 import {dirname, join, resolve} from "node:path";
 import {spawnSync} from "node:child_process";
@@ -117,4 +117,35 @@ test("driver rejects unknown commands, missing output directory and malformed sh
   assert.equal(run("bogus").status, 2);
   assert.match(run("verify").stderr, /--output-dir/u);
   assert.match(run("mutate", "--output-dir", "x", "--shard", "8/8").stderr, /zero-based/u);
+});
+
+
+test("frontier inventory tracks all checked-in frontend visual style and shell sources", (t) => {
+  const directory = mkdtempSync(join(tmpdir(), "wj-frontier-visual-inventory-"));
+  t.after(() => rmSync(directory, {recursive: true, force: true}));
+  const inventory = spawnSync(process.execPath, [driver, "inventory", "--output-dir", directory], {
+    cwd: root,
+    encoding: "utf8",
+    timeout: 120_000,
+  });
+  assert.equal(inventory.status, 0, inventory.stderr);
+  const report = JSON.parse(readFileSync(join(directory, "inventory.json"), "utf8"));
+  const actual = new Set(report.production.map(({path}) => path));
+  const tracked = spawnSync("git", ["ls-files", "-z", "--", "framerail/src"], {
+    cwd: root,
+    encoding: "utf8",
+  });
+  assert.equal(tracked.status, 0, tracked.stderr);
+  const visualSources = tracked.stdout.split("\0").filter((name) =>
+    /\.(?:css|scss|sass|html)$/u.test(name));
+  assert.ok(visualSources.length > 0, "the visual production inventory must not be vacuously empty");
+  for (const visualSource of visualSources) {
+    assert.ok(actual.has(visualSource), `omitted visual source: ${visualSource}`);
+  }
+  // This static reachability analysis is only a candidate import graph; it
+  // must never be advertised as proof that visual output matches Wikidot.
+  assert.match(report.static_import_ownership.semantics, /not behavioral coverage/u);
+  assert.equal(report.static_import_ownership.production_file_count, actual.size);
+  assert.ok(report.executable_owners.every(({path}) => !/\.(?:css|scss|sass|html)$/u.test(path)),
+    "stylesheet and HTML files are not executable test owners");
 });
