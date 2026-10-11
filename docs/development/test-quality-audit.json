@@ -6,7 +6,7 @@
     "wikidot-verification",
     "executed shared helpers"
   ],
-  "inventory_digest": "57e2b6551f3022bf08c9b2000b84cd5a660ee33712f10425c5cedcc5cf1b61e0",
+  "inventory_digest": "e83b6526c076a1e8a1dd4719b8032170b33cd026a15a41195e51c257ca27a599",
   "inputs": [
     {
       "path": "deepwell/Cargo.toml",
@@ -639,6 +639,14 @@
     {
       "path": "deepwell/src/bin/deepwell-text-hash.rs",
       "sha256": "4d3d29386800b81ecbeed95ab3b56bd7a1fd69fdc025717ae304b80c5a1fa557",
+      "status": "pending",
+      "anchors": [],
+      "findings": [],
+      "review": null
+    },
+    {
+      "path": "deepwell/src/bin/wikidot_include_refs.rs",
+      "sha256": "ca09086b193f8ea4480332887a1839d81a0e9b07fd2557fe9d0a41dd063973d5",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -4029,6 +4037,14 @@
       "review": null
     },
     {
+      "path": "deepwell/src/services/render/site_changes_feed.rs",
+      "sha256": "129cac68f6a187b2af402fb7f0b338a5dc0fb23e7b7254bff181c2644d8f20de",
+      "status": "pending",
+      "anchors": [],
+      "findings": [],
+      "review": null
+    },
+    {
       "path": "deepwell/src/services/render/site_changes.rs",
       "sha256": "d06b5264c0c95b95c524b0da10a07d8e750f80be337e9fc93a8dbb1cb8667bd4",
       "status": "pending",
@@ -4781,6 +4797,30 @@
       "review": null
     },
     {
+      "path": "framerail/playwright.native-footer-mobile.config.ts",
+      "sha256": "188c5538fbd5a6121edb5b596ec1bab442c9b0bf3112f73f7a939e618736600e",
+      "status": "pending",
+      "anchors": [],
+      "findings": [],
+      "review": null
+    },
+    {
+      "path": "framerail/playwright.reserved-admin.config.ts",
+      "sha256": "5dfedc51a1349e14b5e4d1585e46f96b6d56df2695578d380b5df0b55f4eeb31",
+      "status": "pending",
+      "anchors": [],
+      "findings": [],
+      "review": null
+    },
+    {
+      "path": "framerail/playwright.wikidot-typography-https.config.ts",
+      "sha256": "5b3d312a031f93aa5ae87efa64cdf6a29aab058dec9efb2cc78408ae445cc060",
+      "status": "pending",
+      "anchors": [],
+      "findings": [],
+      "review": null
+    },
+    {
       "path": "framerail/prettier.config.mjs",
       "sha256": "4656c9b55ebb6306963240b6f183b9ed569fbe9c2687ee4cb931e9f5b17debfa",
       "status": "pending",
@@ -5365,6 +5405,14 @@
       "review": null
     },
     {
+      "path": "framerail/src/lib/history-compare-defaults.js",
+      "sha256": "92c998082f93e803cb3cfeff0816cf84863a5e435abe70438bf20d62c41b687c",
+      "status": "pending",
+      "anchors": [],
+      "findings": [],
+      "review": null
+    },
+    {
       "path": "framerail/src/lib/layout/page-layout-context.ts",
       "sha256": "71b6d10ad2b402778f93eb532723ee6d8913abcf1f83c874e30e9304717eb7c9",
       "status": "pending",
@@ -5415,6 +5463,14 @@
     {
       "path": "framerail/src/lib/page-mutation-destination.ts",
       "sha256": "fbeb78dfd5ae00baf847e8f3d2bdbbf1dab215b2a0a22b9ab2f81e21cc94417c",
+      "status": "pending",
+      "anchors": [],
+      "findings": [],
+      "review": null
+    },
+    {
+      "path": "framerail/src/lib/platform-footer-links.js",
+      "sha256": "852add3728d506164b51a142c744d175249ea10ba2e0ce46d6be7e5c46443d7e",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -5487,6 +5543,14 @@
     {
       "path": "framerail/src/lib/server/ajax-module-connector/response.js",
       "sha256": "b338f030054840c7d55d0517f1f552975f9faf56f258b3dfd4b889f768fc1ce2",
+      "status": "pending",
+      "anchors": [],
+      "findings": [],
+      "review": null
+    },
+    {
+      "path": "framerail/src/lib/server/audited-external-asset-origins.js",
+      "sha256": "da6979a234eb4f01bc9f0e85f89dabea7f3c4db616be6cf2977eb2d731202560",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -5877,6 +5941,14 @@
       "review": null
     },
     {
+      "path": "framerail/src/lib/server/legal-links.ts",
+      "sha256": "daecd7ddc87b10ec69fba745e7586b5ef82a98ef57ba7aa1ad76422c7edb381e",
+      "status": "pending",
+      "anchors": [],
+      "findings": [],
+      "review": null
+    },
+    {
       "path": "framerail/src/lib/server/list-pages-feed.ts",
       "sha256": "208e39dee49926bcb3f8bb547dfad61d6e058a1be2257d9ab0f57665f4f1b15e",
       "status": "pending",
@@ -5919,6 +5991,14 @@
     {
       "path": "framerail/src/lib/server/load/local-authoring-actor.ts",
       "sha256": "b60acb6659b86ce7cee48ed7eb864e4f5e6a0a489e001fafc58cc405358ce81e",
+      "status": "pending",
+      "anchors": [],
+      "findings": [],
+      "review": null
+    },
+    {
+      "path": "framerail/src/lib/server/load/login-translation.ts",
+      "sha256": "164c8ec034e063458ba7eac8ad05e862b1a1861d2a1dc1a83edfb184095406ad",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -5983,6 +6063,14 @@
     {
       "path": "framerail/src/lib/server/load/page/page-edit-actions.ts",
       "sha256": "d10608f427f9799b61b128339afdbe533415ff98503cbfb09f27ac9b7126109d",
+      "status": "pending",
+      "anchors": [],
+      "findings": [],
+      "review": null
+    },
+    {
+      "path": "framerail/src/lib/server/load/page/page-error-status.js",
+      "sha256": "6bbfccdc1b6163985b596f5ea1c4f33e6d6b05691f67e9747599ba0e1c6f553a",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -6101,6 +6189,14 @@
       "review": null
     },
     {
+      "path": "framerail/src/lib/server/page-norender-query.ts",
+      "sha256": "19a240680902984e3ec54034ed8b292b436f5b24a834b30156204ed34019f2c3",
+      "status": "pending",
+      "anchors": [],
+      "findings": [],
+      "review": null
+    },
+    {
       "path": "framerail/src/lib/server/page-redirect.ts",
       "sha256": "4c4e57d22c08958d0859382fd1ceba4017671ba697082e69afeba0d7338e7585",
       "status": "pending",
@@ -6117,6 +6213,14 @@
       "review": null
     },
     {
+      "path": "framerail/src/lib/server/reserved-admin-alias.js",
+      "sha256": "aa67f62ce0b096569e4020edb6ba70b776c5a7a2aedb85a8820d315f80e7db8c",
+      "status": "pending",
+      "anchors": [],
+      "findings": [],
+      "review": null
+    },
+    {
       "path": "framerail/src/lib/server/security-headers.js",
       "sha256": "d6ebcf4912cba01a33aee8d261039ff426c4d2f5f397186d321bed92d2fc2c76",
       "status": "pending",
@@ -6125,8 +6229,24 @@
       "review": null
     },
     {
+      "path": "framerail/src/lib/server/site-changes-feed.ts",
+      "sha256": "316d1d2770101ef4441eb928a4f04c07a6df2d2c247a8920d6f9f423b5ae5a00",
+      "status": "pending",
+      "anchors": [],
+      "findings": [],
+      "review": null
+    },
+    {
       "path": "framerail/src/lib/server/site-icon-response.ts",
       "sha256": "d596753437888dafcbe19da7dff5e5c7abf57e45dad0e0fc98f8fa47effbe72d",
+      "status": "pending",
+      "anchors": [],
+      "findings": [],
+      "review": null
+    },
+    {
+      "path": "framerail/src/lib/server/wikidot-feed-icon.ts",
+      "sha256": "9032a3f9c5bb7b425e400e37a99ce66f54f283d3ed2e209b65415cfd6fa8fd5c",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -6333,6 +6453,14 @@
       "review": null
     },
     {
+      "path": "framerail/src/lib/user-profile-action-auth-guard.js",
+      "sha256": "09a7d293e7cb0db45dc33e4e4c5e00900a077953ab60d940bddb5a130dfdb8a0",
+      "status": "pending",
+      "anchors": [],
+      "findings": [],
+      "review": null
+    },
+    {
       "path": "framerail/src/lib/user-profile-draft.js",
       "sha256": "c1de31bb289c41b609e3128a3c03428900130a5ba1835b2a3b3367225a2384ed",
       "status": "pending",
@@ -6501,6 +6629,14 @@
       "review": null
     },
     {
+      "path": "framerail/src/lib/wikidot/wikidot-email-obfuscation.js",
+      "sha256": "19c04cbca74a0a1d024ee4a8c4ad81ba61f06db028f0717e8db10ed9ed0590c3",
+      "status": "pending",
+      "anchors": [],
+      "findings": [],
+      "review": null
+    },
+    {
       "path": "framerail/src/lib/wikidot/wikidot-foldable-lists.js",
       "sha256": "e039bb6937b178596b4f573e007c0fa9d05efe0cb9429055e0134d0c7c224f51",
       "status": "pending",
@@ -6581,6 +6717,14 @@
       "review": null
     },
     {
+      "path": "framerail/src/lib/wikidot/wikidot-login-dialog.js",
+      "sha256": "00858fb96ccc5bd72a156fd3f799e8dd3d3b8ff936043fff819a01f8befa96ba",
+      "status": "pending",
+      "anchors": [],
+      "findings": [],
+      "review": null
+    },
+    {
       "path": "framerail/src/lib/wikidot/wikidot-membership-action-request.js",
       "sha256": "a0d9d3700a60d36506026ceb8fc71831650ef3ae28e261cf1208cd252f5ef296",
       "status": "pending",
@@ -6653,6 +6797,14 @@
       "review": null
     },
     {
+      "path": "framerail/src/lib/wikidot/wikidot-site-changes.js",
+      "sha256": "9ba3f476b52a50de0002a5f0d1af4eb45835849cbae0725f72b437f02c45bbc7",
+      "status": "pending",
+      "anchors": [],
+      "findings": [],
+      "review": null
+    },
+    {
       "path": "framerail/src/lib/wikidot/wikidot-site-tools.js",
       "sha256": "8eb3fbf730a96abf8d997423ebdc6843b25a4da4dc640297b8de5b3b67a47913",
       "status": "pending",
@@ -6703,6 +6855,14 @@
     {
       "path": "framerail/src/lib/wikidot/WikidotBottomToolbar.svelte",
       "sha256": "4af5a84f6d6bae8d1105a707018a09dd15f146dc9b20b8a3a11b86b604d2287f",
+      "status": "pending",
+      "anchors": [],
+      "findings": [],
+      "review": null
+    },
+    {
+      "path": "framerail/src/lib/wikidot/WikidotLoginDialog.svelte",
+      "sha256": "6849d38b5f0b280a1500738825e13efe03949e590bf9398bb82863b8e29d0be6",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -6951,6 +7111,14 @@
     {
       "path": "framerail/src/routes/[slug]/[...extra]/ParentPane.svelte",
       "sha256": "36050a7d28a1ed2330144c13bbdb28a237a9126ae4a8dccfd3116f09a367f7b2",
+      "status": "pending",
+      "anchors": [],
+      "findings": [],
+      "review": null
+    },
+    {
+      "path": "framerail/src/routes/[slug]/[...extra]/responsive-tables.css",
+      "sha256": "ca6113280118aa8174dceee14851bb674a2c76ac83c0b9abc90879a441911064",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -7373,6 +7541,14 @@
       "review": null
     },
     {
+      "path": "framerail/src/routes/common--theme/base/images/feed/feed-icon-14x14.png/+server.ts",
+      "sha256": "38f86d15abb60e92ee1b53856073c8d261593bb1217a551af00ba97ee03ed6b5",
+      "status": "pending",
+      "anchors": [],
+      "findings": [],
+      "review": null
+    },
+    {
       "path": "framerail/src/routes/feed/forum/[feed]/+server.ts",
       "sha256": "b6798d410ab3b2cc77282f2842c8511b11e230c90cf6061f277de4c50d0c22da",
       "status": "pending",
@@ -7383,6 +7559,14 @@
     {
       "path": "framerail/src/routes/feed/pages/[argument]/[...extra]/+server.ts",
       "sha256": "0fb5289871a2e6df93f6418afe3f2dfd682e1281f31c55e5e54d665921bc0c22",
+      "status": "pending",
+      "anchors": [],
+      "findings": [],
+      "review": null
+    },
+    {
+      "path": "framerail/src/routes/feed/site-changes.xml/+server.ts",
+      "sha256": "0f506ec9e48a53987e65d557de2f3594388497c4f2205107228162ad471a1f0e",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -7599,6 +7783,14 @@
     {
       "path": "framerail/vite.config.ts",
       "sha256": "8e28c2c5f97a7bd5dc8303c42c9dc3314413192454008efb095a6b0a14218f51",
+      "status": "pending",
+      "anchors": [],
+      "findings": [],
+      "review": null
+    },
+    {
+      "path": "framerail/vite.playwright-https.config.ts",
+      "sha256": "accee2b4b334e13be56f20bbd652adaf839059e878468d7011738704bbf016ef",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -8653,6 +8845,14 @@
       "review": null
     },
     {
+      "path": "install/local/wikidot-verification/scripts/inspect-browser-capture-barriers.mjs",
+      "sha256": "94ac7576c8bbd61bef33fd93027b44ea7272b81d98d82885e0ced478cd987daf",
+      "status": "pending",
+      "anchors": [],
+      "findings": [],
+      "review": null
+    },
+    {
       "path": "install/local/wikidot-verification/scripts/inventory-bfs-edge-scaling-bench.mjs",
       "sha256": "71a92774ecc7e62b6b1464f3cf5a2f74576cada60486e8f6b8b0c5c282b43de9",
       "status": "pending",
@@ -9087,6 +9287,14 @@
     {
       "path": "install/local/wikidot-verification/scripts/verify-compatibility-denominator-contract.mjs",
       "sha256": "723d5c58d481f2cd1d88e34ab1886281c1897e66c9c409c11734c0bd0a0193c6",
+      "status": "pending",
+      "anchors": [],
+      "findings": [],
+      "review": null
+    },
+    {
+      "path": "install/local/wikidot-verification/scripts/verify-corpus-import-integrity.mjs",
+      "sha256": "46a4a615793923b672e496509549dcf7f0ec29a4b4026e1aea8315ef567acbcf",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -11403,22 +11611,6 @@
       "anchors": [],
       "findings": [],
       "review": null
-    },
-    {
-      "path": "framerail/src/routes/[slug]/[...extra]/responsive-tables.css",
-      "sha256": "ca6113280118aa8174dceee14851bb674a2c76ac83c0b9abc90879a441911064",
-      "status": "pending",
-      "anchors": [],
-      "findings": [],
-      "review": null
-    },
-    {
-      "path": "framerail/vite.playwright-https.config.ts",
-      "sha256": "accee2b4b334e13be56f20bbd652adaf839059e878468d7011738704bbf016ef",
-      "status": "pending",
-      "anchors": [],
-      "findings": [],
-      "review": null
     }
   ],
   "proofs": [
@@ -11452,5 +11644,10 @@
       "resource-scanner-mutation-20261009e"
     ],
     "records": 1384
+  },
+  "snapshot": {
+    "schema": "wikijump.test_quality_snapshot.v1",
+    "commit": "64f9e95c4f0a88431a43a1817c96faf0ea1a2635",
+    "tree": "09656bca93b73acd842a3ad30542f43dddb0dc4a"
   }
 }

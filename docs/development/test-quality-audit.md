@@ -31,6 +31,38 @@ normal external-network guard and use existing locked dependencies. Prepare the
 pinned FTML and wikidot.py checkouts using the existing `WIKIJUMP_FTML_CHECKOUT`
 and `WIKIDOT_PY_CHECKOUT` contracts when their default sibling paths are absent.
 
+### Pinned source snapshot and freshness
+
+`snapshot` in the ledger pins every production source and frozen input hash to
+one exact commit and tree. The CI gate (`scripts/verify-test-quality-evidence-identities.mjs`)
+recomputes those hashes from the pinned commit's Git objects, so the snapshot is
+checked for provenance without comparing it to the working tree. Ordinary
+implementation edits never need a hand-entered hash. In a checkout whose source
+differs from the snapshot, the gate lists the changed identities as stale and still
+passes. Stale output is informational; it is not a test result and does not claim
+behavioral coverage.
+
+The gate fails for malformed or missing snapshot metadata, a pinned tree or hash
+that disagrees with its commit, an unavailable pinned commit (GitHub Actions
+fetches it by SHA with `--depth=1`; local runs must have the history), a missing
+required input, or a production source outside the declared scope. Each failure
+names the exact refresh command.
+
+Regenerate the snapshot only when recording new audit evidence, for example
+after a reviewed record or owner changes, the inventory gains or loses production
+files, the frozen lock or toolchain inputs change, or before final closure:
+
+```sh
+node scripts/refresh-test-quality-snapshot.mjs --commit <audited-commit> --check
+node scripts/refresh-test-quality-snapshot.mjs --commit <audited-commit>
+```
+
+The refresh regenerates identities from a temporary worktree at the named commit,
+verifies them against that commit's Git objects, preserves existing review and
+finding state, and refuses to drop a reviewed record or orphan an owner. Refreshing
+a hash is provenance only. It is not test evidence, and mutation or coverage
+proofs must be rerun against the new inventory.
+
 The ledger currently keeps unaudited files pending. `verify` rejects unresolved
 records and missing final acceptance. `verify --allow-incomplete` can check a
 work-in-progress ledger without authorizing issue closure. Neither passing

@@ -17,26 +17,89 @@ function invoke(t, update = () => {}) {
   update(ledger);
   const file = join(temp, "ledger.json");
   writeFileSync(file, JSON.stringify(ledger));
+  // GITHUB_ACTIONS enables a single-commit fetch of the pinned commit; tests must never reach the network.
   return spawnSync(process.execPath, [script], {
     cwd: root,
-    env: {...process.env, WIKIJUMP_TEST_QUALITY_LEDGER: file},
+    env: {...process.env, GITHUB_ACTIONS: "", WIKIJUMP_TEST_QUALITY_LEDGER: file},
     encoding: "utf8", timeout: 30_000,
   });
 }
 
-test("local identity gate accepts current source, test, and lockfile identities", (t) => {
+test("local identity gate accepts the pinned audit snapshot and its owners", (t) => {
   const result = invoke(t);
   assert.equal(result.status, 0, result.stderr);
   assert.match(result.stdout, /\d+ source files, 9 inputs, 2 owner\(s\), 1 mutation owner\(s\)/u);
+  assert.match(result.stdout, /Pinned audit snapshot [0-9a-f]{12} matches its commit tree/u);
   assert.match(result.stdout, /Mutation results not rechecked/u);
 });
 
-test("local identity gate rejects outdated production source SHA", (t) => {
+test("local identity gate rejects a claimed snapshot whose production hash differs from its pinned commit", (t) => {
   const result = invoke(t, (ledger) => {
     ledger.records[0].sha256 = "0".repeat(64);
   });
   assert.notEqual(result.status, 0);
-  assert.match(result.stderr, /production source SHA-256 drift/u);
+  assert.match(result.stderr, /pinned audit snapshot hash mismatch: .+ at [0-9a-f]{40}/u);
+  assert.match(result.stderr, /node scripts\/refresh-test-quality-snapshot\.mjs --commit [0-9a-f]{40}/u);
+});
+
+test("local identity gate rejects an altered input hash against the pinned commit", (t) => {
+  const result = invoke(t, (ledger) => {
+    ledger.inputs[0].sha256 = "1".repeat(64);
+  });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /pinned audit snapshot hash mismatch: deepwell\/Cargo\.toml/u);
+});
+
+test("local identity gate rejects a pinned commit tree that does not match", (t) => {
+  const result = invoke(t, (ledger) => {
+    ledger.snapshot.tree = "0".repeat(40);
+  });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /audit snapshot tree does not match pinned commit/u);
+});
+
+test("local identity gate rejects an unavailable pinned commit with refresh guidance", (t) => {
+  const result = invoke(t, (ledger) => {
+    ledger.snapshot.commit = "f".repeat(40);
+  });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /pinned audit commit is unavailable: f{40}/u);
+  assert.match(result.stderr, /refresh-test-quality-snapshot\.mjs --commit/u);
+});
+
+test("local identity gate rejects missing or malformed snapshot metadata", (t) => {
+  const missing = invoke(t, (ledger) => { delete ledger.snapshot; });
+  assert.notEqual(missing.status, 0);
+  assert.match(missing.stderr, /audit snapshot metadata is missing/u);
+
+  const malformed = invoke(t, (ledger) => { ledger.snapshot.commit = "HEAD"; });
+  assert.notEqual(malformed.status, 0);
+  assert.match(malformed.stderr, /malformed pinned commit or tree identity/u);
+});
+
+test("local identity gate rejects a snapshot that omits a required in-scope input", (t) => {
+  const result = invoke(t, (ledger) => {
+    ledger.inputs = ledger.inputs.filter((input) => input.path !== "rust-toolchain.toml");
+  });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /audit snapshot is missing required input: rust-toolchain\.toml/u);
+});
+
+test("local identity gate rejects production records outside the declared audit scope", (t) => {
+  const result = invoke(t, (ledger) => {
+    ledger.records.push({
+      path: "docs/development/test-quality-audit.json", sha256: "2".repeat(64),
+      status: "pending", anchors: [], findings: [], review: null,
+    });
+  });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /production source is outside audit scope: docs\/development\/test-quality-audit\.json/u);
+});
+
+test("local identity gate rejects duplicate production records", (t) => {
+  const result = invoke(t, (ledger) => { ledger.records.push(structuredClone(ledger.records[0])); });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /duplicate production source identity/u);
 });
 
 test("local identity gate rejects a missing behavioral test anchor", (t) => {
