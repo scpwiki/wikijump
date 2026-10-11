@@ -82,7 +82,7 @@ test("interwiki frame uses only the audited external style and font origins", ()
   assert.ok(!policy.includes("https://example.invalid"))
 })
 
-test("styleFrame permits only its own Wikidot runtime script", () => {
+test("styleFrame permits its fixed script and inline-style compatibility", () => {
   const styleFrame = new Response("")
   applyStaticSecurityHeaders(
     styleFrame,
@@ -96,14 +96,15 @@ test("styleFrame permits only its own Wikidot runtime script", () => {
     .digest("base64")
   assert.equal(
     policy,
-    `default-src 'none'; script-src 'sha256-${scriptHash}'; frame-ancestors 'self'`
+    `default-src 'none'; script-src 'sha256-${scriptHash}'; style-src 'unsafe-inline'; frame-ancestors 'self'`
   )
   assert.ok(
     buildWikidotStyleFrameHtml().includes(
       `<script>${WIKIDOT_STYLE_FRAME_SCRIPT}</script>`
     )
   )
-  assert.doesNotMatch(policy, /unsafe-inline|style-src/u)
+  assert.doesNotMatch(policy, /script-src[^;]*unsafe-inline/u)
+  assert.doesNotMatch(policy, /style-src[^;]*https?:/u)
 })
 
 test("interwiki frame admits localized themes from the current site's file origin", () => {

@@ -10,7 +10,7 @@ const withBaseUse = (device: (typeof devices)[keyof typeof devices]) => ({
 const config: PlaywrightTestConfig = {
   ...baseConfig,
   testMatch:
-    "**/{append-file-upload-accessible-names,append-file-upload-accessible-names-ja,auth-accessible-names,backlinks-watchers-failure,browser-support,edit-meta-newtag-mobile,file-history-mobile-containment,file-history-view-unavailable,forum-start-routes,inline-link-whitespace,module-accessible-names,page-action-localization,printer-friendly-print-toolbar,register-legal-disclosure,vote-pane-japanese-i18n,wikidot-classified-font-csp}.spec.ts",
+    "**/{append-file-upload-accessible-names,append-file-upload-accessible-names-ja,auth-accessible-names,backlinks-watchers-failure,browser-support,edit-meta-newtag-mobile,file-history-mobile-containment,file-history-view-unavailable,forum-start-routes,inline-link-whitespace,module-accessible-names,page-action-localization,printer-friendly-print-toolbar,register-legal-disclosure,vote-pane-japanese-i18n,wikidot-classified-font-csp,wikidot-styleframe}.spec.ts",
   webServer: [
     ...(baseConfig.webServer
       ? Array.isArray(baseConfig.webServer)
@@ -45,7 +45,17 @@ const config: PlaywrightTestConfig = {
     },
     {
       name: "webkit",
+      testIgnore: "**/wikidot-styleframe.spec.ts",
       use: withBaseUse(devices["Desktop Safari"])
+    },
+    {
+      name: "webkit-https-styleframe",
+      testMatch: "**/wikidot-styleframe.spec.ts",
+      use: {
+        ...withBaseUse(devices["Desktop Safari"]),
+        baseURL: `https://localhost:${process.env.PLAYWRIGHT_HTTPS_APP_PORT ?? "4373"}`,
+        ignoreHTTPSErrors: true
+      }
     },
     {
       name: "webkit-https-edit-meta",
