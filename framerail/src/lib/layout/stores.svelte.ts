@@ -4,7 +4,10 @@ class ErrorPopupState {
   current = $state<{
     state: boolean
     title?: string | null
+    leadIn?: string | null
     message: string | null
+    extraMessage?: string | null
+    actionLink?: { href: string; label: string } | null
     data: unknown | null
   }>({
     state: false,

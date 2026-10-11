@@ -4,6 +4,7 @@
   import { errorPopupState } from "$lib/layout/stores.svelte"
   import { publicErrorExtraMessage } from "$lib/popup/public-error-data.js"
   import { Layout } from "$lib/types"
+  import { onMount, tick } from "svelte"
 
   interface Props {
     exitPrompt: () => void
@@ -29,8 +30,22 @@
   }
 
   const errorExtraMessage = $derived(
-    publicErrorExtraMessage(errorPopupState.current.data)
+    errorPopupState.current.extraMessage ??
+      publicErrorExtraMessage(errorPopupState.current.data)
   )
+  let actionLink = $state<HTMLAnchorElement | undefined>(undefined)
+
+  $effect(() => {
+    if (errorPopupState.current.state && errorPopupState.current.actionLink) {
+      void tick().then(() => actionLink?.focus())
+    }
+  })
+
+  onMount(() => {
+    const returnFocusTo =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null
+    return () => returnFocusTo?.focus()
+  })
   $effect(() => {
     window.addEventListener("keydown", escKeydown)
     return () => window.removeEventListener("keydown", escKeydown)
@@ -60,12 +75,22 @@
           page.error?.internationalization?.error}
       </div>
       <div class="content modal-body">
+        {#if errorPopupState.current.leadIn}
+          <p class="modal-message-lead-in">{errorPopupState.current.leadIn}</p>
+        {/if}
         <h1 id="modal-title">
           {errorPopupState.current.message}
         </h1>
         {#if errorExtraMessage}
           <p id="model-message-extra" class="modal-message-extra">
             {errorExtraMessage}
+          </p>
+        {/if}
+        {#if errorPopupState.current.actionLink}
+          <p class="modal-action-link">
+            <a bind:this={actionLink} href={errorPopupState.current.actionLink.href}
+              >{errorPopupState.current.actionLink.label}</a
+            >
           </p>
         {/if}
       </div>

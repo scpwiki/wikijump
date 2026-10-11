@@ -12,9 +12,11 @@ export const handleSiteRpc = ({ rpcRequest }) => {
     Array.isArray(rpcRequest.params.locales) &&
     (rpcRequest.params.session_token === null ||
       rpcRequest.params.session_token === undefined ||
-      ["fixture-session-token", "fixture-authenticated-session-token"].includes(
-        rpcRequest.params.session_token
-      ))
+      [
+        "fixture-session-token",
+        "fixture-authenticated-session-token",
+        "fixture-owner-session-token"
+      ].includes(rpcRequest.params.session_token))
   ) {
     result = {
       site: {
@@ -65,18 +67,29 @@ export const handleSiteRpc = ({ rpcRequest }) => {
       license_kind: "standard",
       license_html: null,
       user_session:
-        rpcRequest.params.session_token === "fixture-authenticated-session-token"
+        rpcRequest.params.session_token === "fixture-owner-session-token"
           ? {
-              session_id: 6000008,
+              session_id: 6000009,
               user: {
-                user_id: 6000008,
+                user_id: 123,
                 user_type: "regular",
-                name: "Fixture Member",
-                slug: "fixture-member",
+                name: "Fixture Page Owner",
+                slug: "fixture-page-owner",
                 locales: ["en"]
               }
             }
-          : null
+          : rpcRequest.params.session_token === "fixture-authenticated-session-token"
+            ? {
+                session_id: 6000008,
+                user: {
+                  user_id: 6000008,
+                  user_type: "regular",
+                  name: "Fixture Member",
+                  slug: "fixture-member",
+                  locales: ["en"]
+                }
+              }
+            : null
     }
   } else if (
     rpcRequest.method === "admin_view" &&
