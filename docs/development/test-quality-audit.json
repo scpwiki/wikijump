@@ -6870,7 +6870,7 @@
     },
     {
       "path": "framerail/src/routes/[slug]/[...extra]/FilePane.svelte",
-      "sha256": "f04dbe4e333bf49d4823d8beb48701a68e805846616acf3582ebafb29708d0e8",
+      "sha256": "07f2683e15ff8a76b26273179799634a4b2cf54782d5a4de00bedc3754667716",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -6934,7 +6934,7 @@
     },
     {
       "path": "framerail/src/routes/[slug]/[...extra]/PagePaneContent.svelte",
-      "sha256": "6690eb0143afb536deb96941d29b74a2990dd9bf382da2126b165c6ad6dd5c1a",
+      "sha256": "2b4127653d955ece9595d5989be825184f2748d6974ab774c7324884446a6119",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -6942,7 +6942,7 @@
     },
     {
       "path": "framerail/src/routes/[slug]/[...extra]/PageView.svelte",
-      "sha256": "69cef6e3e6bd095a581cfa6d5b8a919585fddee36e7df9d8333cadf21c2c4b1c",
+      "sha256": "982974b05be9a3ec5abfe4d9a9c267ab265200576fc295b445fadf276443dfac",
       "status": "pending",
       "anchors": [],
       "findings": [],

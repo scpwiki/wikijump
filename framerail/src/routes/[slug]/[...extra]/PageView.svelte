@@ -52,6 +52,7 @@
   import PagePaneContent from "./PagePaneContent.svelte"
   import WikidotFoundPageTags from "./WikidotFoundPageTags.svelte"
 
+  import type { PageFile } from "$lib/server/deepwell/page-file"
   import type { PageProps } from "./$types"
   import type { Optional } from "$lib/types"
   import type { PageRevisionModelFiltered } from "$lib/server/deepwell/page"
@@ -66,6 +67,42 @@
   let showRevision = $state<boolean>(false)
   let revision = $state<Optional<PageRevisionModelFiltered>>(undefined)
   let pagePaneState = $state<PagePane>(PagePane.None)
+  // Wikidot does not reveal its Files action area while the first file-list
+  // request is pending or has failed (source SCP-9506, issue #2273).
+  let wikidotFilesListReady = $state(false)
+  let wikidotFilesPrefetched = $state<PageFile[] | null>(null)
+  let wikidotFilesRequestId = 0
+
+  async function preloadWikidotFiles() {
+    const requestId = ++wikidotFilesRequestId
+    wikidotFilesListReady = false
+    wikidotFilesPrefetched = null
+    try {
+      const response = await fetch("?/fileList", {
+        method: "POST",
+        body: JSON.stringify({
+          siteId: data.site.site_id,
+          pageId: data.page?.page_id,
+          deleted: false
+        })
+      }).then((res) => res.text())
+      if (requestId !== wikidotFilesRequestId || pagePaneState !== PagePane.File) return
+      const result = deserialize<
+        { res: PageFile[] },
+        { message: string; code: string; data: Record<string, unknown> }
+      >(response)
+      if (result.type === "success" && Array.isArray(result.data?.res)) {
+        wikidotFilesPrefetched = result.data.res
+        wikidotFilesListReady = true
+      } else {
+        console.error("Wikidot Files list did not return an authoritative result")
+      }
+    } catch (error) {
+      if (requestId === wikidotFilesRequestId) {
+        console.error("Wikidot Files list request failed", error)
+      }
+    }
+  }
   let EditorPane = $state<typeof import("./EditorPane.svelte").default>()
   let EditSectionPane = $state<typeof import("./EditSectionPane.svelte").default>()
   let editSection = $state<{
@@ -217,6 +254,11 @@
   function activatePagePane(pane: PagePane) {
     showSource = false
     editSection = undefined
+    if (pane === PagePane.File) {
+      if (pageLayoutContext.current === Layout.WIKIDOT) {
+        void preloadWikidotFiles()
+      }
+    }
     pagePaneState = pane
   }
 
@@ -801,9 +843,10 @@
 
     <div
       id="action-area"
-      class:hidden={!showSource && pagePaneState === PagePane.None && !editSection}
+      class:hidden={(!showSource && pagePaneState === PagePane.None && !editSection) ||
+        (pagePaneState === PagePane.File && !wikidotFilesListReady)}
     >
-      {#if showSource || pagePaneState !== PagePane.None || editSection}
+      {#if (showSource || pagePaneState !== PagePane.None || editSection) && (pagePaneState !== PagePane.File || wikidotFilesListReady)}
         <!-- svelte-ignore a11y_invalid_attribute -->
         <a
           class="action-area-close btn btn-danger"
@@ -829,14 +872,18 @@
         {/if}
       {/if}
 
-      <PagePaneContent
-        {props}
-        {setRevision}
-        {setShowRevision}
-        {showSource}
-        wikidot
-        bind:pagePaneState
-      />
+      {#if pagePaneState !== PagePane.File || wikidotFilesListReady}
+        <PagePaneContent
+          {props}
+          {setRevision}
+          {setShowRevision}
+          {showSource}
+          wikidot
+          initialFileList={wikidotFilesPrefetched}
+          onFileListVisibilityChange={(ready) => (wikidotFilesListReady = ready)}
+          bind:pagePaneState
+        />
+      {/if}
     </div>
   {/if}
 {:else}
