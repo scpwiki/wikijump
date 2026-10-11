@@ -610,7 +610,7 @@
             id="tags-button"
             class="btn btn-default"
             href="javascript:;"
-            onclick={() => activatePagePane(PagePane.Tags)}
+            onclick={() => void openEditTagsPane()}
             type="button"
           >
             {wikidotPageActions.tags}
