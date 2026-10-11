@@ -12,28 +12,11 @@ const AUTHENTICATED_HEADERS = {
   origin: `http://localhost:${process.env.PLAYWRIGHT_APP_PORT ?? "4173"}`
 }
 
-const DELETED_FILE_NAMES = [
-  "files-restore-race-deleted-a.txt",
-  "files-restore-race-deleted-b.txt"
-]
 const ACTIVE_FILE_NAME = "theme-lab-visual-fixture"
-// The page-workflow-probe fixture renders in the Wikidot compatibility layout,
-// so the upload/restore affordances live in `.buttons` rather than the native
-// `.action-row.file-action` row.
+// The page-workflow-probe fixture uses the Wikidot layout.
 const FILE_ACTION_ROW = ".buttons"
 
-const expectDeletedRestoreView = async (page: import("@playwright/test").Page) => {
-  await expect(
-    page
-      .locator(".file-list .file-row")
-      .getByRole("link", { name: "restore", exact: true })
-  ).toHaveCount(DELETED_FILE_NAMES.length)
-  for (const name of DELETED_FILE_NAMES) {
-    await expect(page.locator(".file-list")).toContainText(name)
-  }
-}
-
-test("a stale active file-list response cannot replace the Restore view", async ({
+test("a late first Files result cannot replace History after the viewer switches", async ({
   page
 }) => {
   await page.setExtraHTTPHeaders(AUTHENTICATED_HEADERS)
@@ -41,9 +24,10 @@ test("a stale active file-list response cannot replace the Restore view", async 
   await page.route(
     (url) => url.search === "?/fileList",
     async (route) => {
-      const body = JSON.parse(route.request().postData() ?? "{}") as { deleted?: boolean }
-      if (body.deleted === false && heldActiveLists.length === 0) {
-        // Hold the initial active-files request so it resolves after Restore.
+      if (
+        JSON.parse(route.request().postData() ?? "{}").deleted === false &&
+        heldActiveLists.length === 0
+      ) {
         heldActiveLists.push(route)
         return
       }
@@ -56,31 +40,24 @@ test("a stale active file-list response cannot replace the Restore view", async 
   await page.locator("#files-button").click()
   await expect.poll(() => heldActiveLists.length).toBe(1)
 
-  const restoreToggle = page
-    .locator(".file-panel")
-    .getByRole("button", { name: "restore", exact: true })
-    .first()
-  await restoreToggle.click()
+  // Source Wikidot cannot expose Restore while its first Files list is
+  // pending. Switch to another public option instead; a late response must
+  // never reopen the abandoned pane.
+  await expect(page.locator("#action-area")).toHaveClass(/hidden/u)
+  await expect
+    .poll(() => page.locator("#action-area").evaluate((area) => area.children.length))
+    .toBe(0)
+  await expect(page.locator(FILE_ACTION_ROW)).not.toBeVisible()
+  await page.locator("#history-button").click()
+  await expect(page.locator("#action-area .page-revision-header")).toBeVisible()
 
-  await expectDeletedRestoreView(page)
-
-  // Release the older active-files response only after the Restore view wins.
-  const staleActiveResponse = page.waitForResponse(
-    (response) =>
-      new URL(response.url()).search === "?/fileList" &&
-      (response.request().postData() ?? "").includes('"deleted":false')
-  )
   await heldActiveLists[0].continue()
-  await staleActiveResponse
-  // The stale body is read and applied a little after the headers arrive, so
-  // give that handler a moment to run before asserting the view is unchanged.
   await page.waitForTimeout(500)
-
-  await expectDeletedRestoreView(page)
-  await expect(page.locator(".file-list")).not.toContainText(ACTIVE_FILE_NAME)
+  await expect(page.locator("#action-area .page-revision-header")).toBeVisible()
+  await expect(page.locator(".file-list")).toHaveCount(0)
 })
 
-test("a stale failed file-list response cannot show an error or replace the Restore view", async ({
+test("a late failed Files response cannot replace History or show an error", async ({
   page
 }) => {
   await page.setExtraHTTPHeaders(AUTHENTICATED_HEADERS)
@@ -88,8 +65,10 @@ test("a stale failed file-list response cannot show an error or replace the Rest
   await page.route(
     (url) => url.search === "?/fileList",
     async (route) => {
-      const body = JSON.parse(route.request().postData() ?? "{}") as { deleted?: boolean }
-      if (body.deleted === false && heldActiveLists.length === 0) {
+      if (
+        JSON.parse(route.request().postData() ?? "{}").deleted === false &&
+        heldActiveLists.length === 0
+      ) {
         heldActiveLists.push(route)
         return
       }
@@ -102,20 +81,10 @@ test("a stale failed file-list response cannot show an error or replace the Rest
   await page.locator("#files-button").click()
   await expect.poll(() => heldActiveLists.length).toBe(1)
 
-  await page
-    .locator(".file-panel")
-    .getByRole("button", { name: "restore", exact: true })
-    .first()
-    .click()
-  await expectDeletedRestoreView(page)
+  await expect(page.locator("#action-area")).toHaveClass(/hidden/u)
+  await page.locator("#history-button").click()
+  await expect(page.locator("#action-area .page-revision-header")).toBeVisible()
 
-  // Answer the superseded active request with a failure in SvelteKit's
-  // devalue action-result shape; it must neither show a popup nor replace rows.
-  const staleFailure = page.waitForResponse(
-    (response) =>
-      new URL(response.url()).search === "?/fileList" &&
-      (response.request().postData() ?? "").includes('"deleted":false')
-  )
   await heldActiveLists[0].fulfill({
     status: 200,
     contentType: "application/json",
@@ -125,11 +94,11 @@ test("a stale failed file-list response cannot show an error or replace the Rest
       data: JSON.stringify([{ message: 1 }, "Stale failure"])
     })
   })
-  await staleFailure
   await page.waitForTimeout(500)
 
   await expect(page.getByText("Stale failure")).toHaveCount(0)
-  await expectDeletedRestoreView(page)
+  await expect(page.locator("#action-area .page-revision-header")).toBeVisible()
+  await expect(page.locator(".file-list")).toHaveCount(0)
 })
 
 test("an initial file-list 503 shows no result area instead of a false empty inventory", async ({
@@ -183,22 +152,67 @@ test("an initial file-list 503 shows no result area instead of a false empty inv
   await expect(page.locator(".file-list .file-list-message")).toHaveCount(0)
   await expect(page.getByRole("alert")).toHaveCount(0)
   await expect(page.getByRole("button", { name: "Retry", exact: true })).toHaveCount(0)
-  // The action affordances themselves stay available; only the result area
-  // is withheld while no authoritative list has been received.
-  await expect(page.locator(FILE_ACTION_ROW)).toBeVisible()
+  // Live Wikidot does not open the entire #action-area before an authoritative
+  // Files read succeeds; the original shows no Close, Upload or Restore.
+  await expect(page.locator("#action-area")).toHaveClass(/hidden/u)
+  await expect
+    .poll(() => page.locator("#action-area").evaluate((area) => area.children.length))
+    .toBe(0)
+  await expect(page.locator(FILE_ACTION_ROW)).not.toBeVisible()
+  await expect(page.locator("#action-area .action-area-close")).not.toBeVisible()
   expect(pageErrors).toEqual([])
   expect(mutationRequests).toEqual([])
 
-  // Reopening the pane issues a fresh read; the authoritative list then renders.
-  await page.reload({ waitUntil: "domcontentloaded" })
-  await waitForSvelteDelegatedHandler(page, "#files-button")
+  // Clicking Files again retries without an invented in-pane Retry button.
   await page.locator("#files-button").click()
+  await expect(page.locator("#action-area")).not.toHaveClass(/hidden/u)
   await expect(page.locator(".file-list .file-row")).toHaveCount(1)
   await expect(page.locator(".file-list")).toContainText(ACTIVE_FILE_NAME)
   await expect(page.getByRole("alert")).toHaveCount(0)
   expect(fileListRequests).toBe(2)
   expect(pageErrors).toEqual([])
   expect(mutationRequests).toEqual([])
+})
+
+test("a pending first Files response keeps the entire action area hidden", async ({
+  page
+}) => {
+  await page.setExtraHTTPHeaders(AUTHENTICATED_HEADERS)
+
+  let releaseInitial: (() => void) | undefined
+  let markIntercepted: (() => void) | undefined
+  const intercepted = new Promise<void>((resolve) => {
+    markIntercepted = resolve
+  })
+  const withheld = new Promise<void>((resolve) => {
+    releaseInitial = resolve
+  })
+
+  await page.route(
+    (url) => url.search === "?/fileList",
+    async (route) => {
+      markIntercepted?.()
+      await withheld
+      await route.continue()
+    }
+  )
+
+  await page.goto("/page-workflow-probe", { waitUntil: "domcontentloaded" })
+  await waitForSvelteDelegatedHandler(page, "#files-button")
+  await page.locator("#files-button").click()
+  await intercepted
+
+  await expect(page.locator("#action-area")).toHaveClass(/hidden/u)
+  await expect
+    .poll(() => page.locator("#action-area").evaluate((area) => area.children.length))
+    .toBe(0)
+  await expect(page.locator(".file-panel")).not.toBeVisible()
+  await expect(page.locator(".action-area-close")).not.toBeVisible()
+
+  releaseInitial?.()
+  await expect(page.locator("#action-area")).not.toHaveClass(/hidden/u)
+  await expect(page.locator(".file-list .file-row")).toHaveCount(1)
+  await expect(page.locator(".file-list")).toContainText(ACTIVE_FILE_NAME)
 })
 
 test("a failed file-list refresh withholds the result area without stale rows", async ({

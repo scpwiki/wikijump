@@ -26,19 +26,31 @@
     console.error(`page file list request failed: ${FILE_LIST_LOAD_ERROR}`, detail)
   }
 
-  let { data }: PageProps = $props()
+  let {
+    data,
+    initialFileList = null,
+    onFileListVisibilityChange
+  }: PageProps & {
+    initialFileList?: PageFile[] | null
+    onFileListVisibilityChange?: (ready: boolean) => void
+  } = $props()
 
   const pageLayoutContext = getPageLayoutContext()
 
   let activeFileAction = $state<FileAction | null>(null)
 
-  let fileMap = new SvelteMap<number, PageFile>()
-  let fileListLoading = $state(true)
+  let fileMap = new SvelteMap<number, PageFile>(
+    untrack(
+      () =>
+        initialFileList?.map((file) => [file.file_id, file] as [number, PageFile]) ?? []
+    )
+  )
+  let fileListLoading = $state(untrack(() => initialFileList === null))
   let fileListError = $state<string | null>(null)
   // A successful parse of an authoritative list response. The source-compatible
   // empty-list wording is only reachable once this is true, so a failed or
   // still-in-flight request can never be read as "this page has no files".
-  let fileListLoaded = $state(false)
+  let fileListLoaded = $state(untrack(() => initialFileList !== null))
   let requestedDeletedFiles = $state(false)
   let fileEditId = $state<number>(0)
   let historyRequestId = $state(0)
@@ -79,6 +91,7 @@
       if (result.type === "failure") {
         reportFileListFailure(result.data?.message)
         fileListError = FILE_LIST_LOAD_ERROR
+        onFileListVisibilityChange?.(false)
         activeFileAction = null
       } else if (result.type === "success" && Array.isArray(result.data?.res)) {
         fileMap.clear()
@@ -87,15 +100,18 @@
         })
         fileListError = null
         fileListLoaded = true
+        onFileListVisibilityChange?.(true)
       } else {
         reportFileListFailure("page files response was not an authoritative list")
         fileListError = FILE_LIST_LOAD_ERROR
+        onFileListVisibilityChange?.(false)
         activeFileAction = null
       }
     } catch (error) {
       if (requestId === fileListRequestId) {
         reportFileListFailure(error)
         fileListError = FILE_LIST_LOAD_ERROR
+        onFileListVisibilityChange?.(false)
         activeFileAction = null
       }
     } finally {
@@ -273,7 +289,11 @@
   }
 
   $effect(() => {
-    getFileList(false)
+    // Wikidot layout receives the successful initial list from PageView.
+    // Non-Wikidot panes retain their own initial fetch.
+    if (initialFileList === null) {
+      void getFileList(false)
+    }
     return () => {
       fileListRequestId += 1
     }

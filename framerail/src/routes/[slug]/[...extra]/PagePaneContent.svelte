@@ -2,6 +2,7 @@
   import { PagePane } from "$lib/types"
   import { wikidotPageSourceHtml } from "$lib/wikidot-history-contract.js"
 
+  import type { PageFile } from "$lib/server/deepwell/page-file"
   import type { PageRevisionModelFiltered } from "$lib/server/deepwell/page"
   import type { Optional } from "$lib/types"
   import type { PageProps } from "./$types"
@@ -11,6 +12,8 @@
     pagePaneState = $bindable(),
     showSource,
     wikidot,
+    initialFileList = null,
+    onFileListVisibilityChange,
     setRevision,
     setShowRevision
   }: {
@@ -18,6 +21,8 @@
     pagePaneState: PagePane
     showSource: boolean
     wikidot: boolean
+    initialFileList?: PageFile[] | null
+    onFileListVisibilityChange?: (ready: boolean) => void
     setRevision: (revision: Optional<PageRevisionModelFiltered>) => void
     setShowRevision: (state: boolean) => void
   } = $props()
@@ -159,7 +164,7 @@
     {/if}
   {:else if pagePaneState === PagePane.File}
     {#if FilePane}
-      <FilePane {...props} />
+      <FilePane {...props} {initialFileList} {onFileListVisibilityChange} />
     {:else}
       <p class="pane-loading" aria-live="polite">Loading…</p>
     {/if}
