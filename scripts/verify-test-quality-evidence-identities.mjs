@@ -1,20 +1,23 @@
 #!/usr/bin/env node
 // Repository-local source identity gate. No cargo, fixtures, network, or mutable output.
 // This is NOT the full test-quality or mutation acceptance verifier.
-import {createHash} from "node:crypto";
+// It verifies the pinned audit snapshot against Git objects and reports working-tree staleness
+// without failing ordinary implementation changes. See docs/development/test-quality-audit.md.
 import {existsSync, readFileSync, realpathSync} from "node:fs";
 import {dirname, isAbsolute, relative, resolve} from "node:path";
 import {fileURLToPath} from "node:url";
+import {
+  REFRESH_COMMAND, repositoryRelative, snapshotStaleness, verifyPinnedSnapshot,
+} from "./lib/test-quality-snapshot.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const ledgerPath = process.env.WIKIJUMP_TEST_QUALITY_LEDGER ||
   resolve(root, "docs/development/test-quality-audit.json");
 const fail = (message) => {throw new Error(message);};
+const STALE_LIMIT = 10;
 
 function repositoryFile(file, label) {
-  if (typeof file !== "string" || !file || isAbsolute(file)) {
-    fail(`${label} must be a repository-relative path`);
-  }
+  repositoryRelative(file, label);
   const target = resolve(root, file);
   const local = relative(root, target);
   if (!local || local === ".." || local.startsWith("../") || isAbsolute(local)) {
@@ -28,30 +31,14 @@ function repositoryFile(file, label) {
   return target;
 }
 
-function verifyIdentity(identity, label) {
-  if (!identity || !/^[0-9a-f]{64}$/u.test(identity.sha256 ?? "")) {
-    fail(`${label} requires a SHA-256 identity`);
-  }
-  const bytes = readFileSync(repositoryFile(identity.path, label));
-  const actual = createHash("sha256").update(bytes).digest("hex");
-  if (actual !== identity.sha256) fail(`${label} SHA-256 drift: ${identity.path}`);
-  return bytes;
-}
-
 export function verifyAuditIdentityLedger(ledger) {
   if (ledger?.schema !== "wikijump.test_quality_audit.v1" ||
       !Array.isArray(ledger.inputs) || !Array.isArray(ledger.owners) ||
       ledger.owners.length === 0 || !Array.isArray(ledger.records)) {
     fail("audit ledger is missing required collections");
   }
-  for (const input of ledger.inputs) verifyIdentity(input, "audit input");
-
-  const records = new Map();
-  for (const record of ledger.records) {
-    if (records.has(record.path)) fail(`duplicate production source identity: ${record.path}`);
-    verifyIdentity(record, "production source");
-    records.set(record.path, record);
-  }
+  const pinned = verifyPinnedSnapshot(root, ledger);
+  const records = new Map(ledger.records.map((record) => [record.path, record]));
 
   const ids = new Set();
   let mutationOwners = 0;
@@ -84,16 +71,29 @@ export function verifyAuditIdentityLedger(ledger) {
       mutationOwners++;
     }
   }
-  return {inputs: ledger.inputs.length, records: records.size, owners: ids.size, mutationOwners};
+  const stale = snapshotStaleness(root, ledger);
+  return {inputs: ledger.inputs.length, records: records.size, owners: ids.size, mutationOwners, pinned, stale};
 }
 
 try {
   const ledger = JSON.parse(readFileSync(ledgerPath, "utf8"));
   const result = verifyAuditIdentityLedger(ledger);
+  const commit = result.pinned.commit.slice(0, 12);
   process.stdout.write(
     `Verified test quality identities: ${result.records} source files, ${result.inputs} inputs, ` +
-    `${result.owners} owner(s), ${result.mutationOwners} mutation owner(s). Mutation results not rechecked.\n`,
+    `${result.owners} owner(s), ${result.mutationOwners} mutation owner(s). Mutation results not rechecked.\n` +
+    `Pinned audit snapshot ${commit} matches its commit tree.\n`,
   );
+  if (result.stale.length > 0) {
+    const listed = result.stale.slice(0, STALE_LIMIT).map((entry) => `  ${entry.reason}: ${entry.path}`);
+    const more = result.stale.length > STALE_LIMIT ? [`  ... and ${result.stale.length - STALE_LIMIT} more`] : [];
+    process.stdout.write(
+      `Audit snapshot ${commit} is stale for ${result.stale.length} identity(ies) in this checkout. ` +
+      "Ordinary implementation changes do not fail this gate.\n" +
+      `${[...listed, ...more].join("\n")}\n` +
+      `Refresh only when recording new audit evidence: ${REFRESH_COMMAND}\n`,
+    );
+  }
 } catch (error) {
   console.error(`Test quality identity check failed: ${error.message}`);
   process.exitCode = 1;
