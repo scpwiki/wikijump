@@ -38,6 +38,11 @@ test("Cancel discards a rejected profile draft and a corrected field is submitte
   await waitForSvelteDelegatedHandler(page, ".button-edit")
   await page.locator(".button-edit").click()
 
+  await expect(
+    page.getByRole("heading", { name: "User profile information" })
+  ).toBeVisible()
+  await expect(page.locator("textarea.debug")).toHaveCount(0)
+
   const email = page.locator("#email")
   await expect(email).toHaveValue("fixture-member@example.test")
   await email.fill("not-a-valid-email")

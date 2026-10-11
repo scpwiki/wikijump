@@ -267,14 +267,30 @@ impl RenderService {
         let avatar_timestamp = OffsetDateTime::now_utc().unix_timestamp();
         let mut items = Vec::with_capacity(pages.len());
         for page in pages {
-            let revision = PageRevisionService::get_latest(ctx, site_id, page.page_id)
-                .await
-                .or_raise(|| {
-                    Error::new(
-                        "failed to load a ListPages feed revision",
-                        ErrorType::Render,
-                    )
-                })?;
+            let revision = match PageRevisionService::get_latest(
+                ctx,
+                site_id,
+                page.page_id,
+            )
+            .await
+            {
+                Ok(revision) => revision,
+                Err(error) if error.error_type == ErrorType::PageRevisionNotFound => {
+                    warn!(
+                        "Skipping incomplete ListPages RSS page ID {} ({:?}): no page revision exists",
+                        page.page_id, page.slug,
+                    );
+                    continue;
+                }
+                Err(error) => {
+                    return Err(error).or_raise(|| {
+                        Error::new(
+                            "failed to load a ListPages feed revision",
+                            ErrorType::Render,
+                        )
+                    });
+                }
+            };
             let body_html = TextService::get(ctx, &revision.compiled_body_html_hash)
                 .await
                 .or_raise(|| {

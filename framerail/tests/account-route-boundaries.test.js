@@ -175,6 +175,10 @@ test("account route loads expose their public SvelteKit page data", async () => 
   assert.deepEqual(settingsTranslate?.strip_message_keys, [])
   assert.equal(user.view, "user_found")
   assert.equal(user.user.slug, "account-fixture")
+  const userTranslate = translateCalls.find(
+    (params) => params.messages?.["user-profile-info"]
+  )
+  assert.ok(userTranslate)
   assert.equal(userSlug.view, "user_found")
   assert.equal(Object.hasOwn(userSlug.user, "email"), false)
   assert.equal(Object.hasOwn(userSlug.user, "birthday"), false)

@@ -3190,7 +3190,7 @@
     },
     {
       "path": "deepwell/src/services/render/list_pages/feed.rs",
-      "sha256": "33d527cd2ffad5d846a00e2855bcac66f1917af59df5dcbe3cc6e7fda74418c2",
+      "sha256": "9f24ac1cc978610b6079f266e789b8fad36ddb3d8bab4dfeed902962310f0a60",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -4382,7 +4382,7 @@
     },
     {
       "path": "deepwell/src/services/view/service.rs",
-      "sha256": "ff0487c68cf12cb6b65c926870dcb470449b523840db44939bf735bf7db94305",
+      "sha256": "1ee88d13305d670ba0238cde5d851e25f80422671022eb22873050ac834f8d69",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -4702,7 +4702,7 @@
     },
     {
       "path": "deepwell/src/utils/slug.rs",
-      "sha256": "3aa145c90996652c30952edb39c555e537163ef5be85514a02372f5c5fdd66e0",
+      "sha256": "a93bdb410f12a4cc23e3f89b84c028f768edeb3626f7463c439ccf5ea95f595f",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -4758,7 +4758,7 @@
     },
     {
       "path": "framerail/playwright.browser-support.config.ts",
-      "sha256": "dd651291d3e9690bd9e493bb11fbac65367211e852fb12f178542483d4bda977",
+      "sha256": "82b4c07abfd6137338a5633062a1e1e27fb35f16a657cafaf73b1a1f5d87806a",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -5374,7 +5374,7 @@
     },
     {
       "path": "framerail/src/lib/layout/stores.svelte.ts",
-      "sha256": "6cd0a0c6b6621179bf6a845e6a34e944de211da4996b289d6ea458d4ad550f22",
+      "sha256": "e8a3b2e61f6a34af3d7482fda3d8614a994c3a579b1bb1cf23dbc7c4a7a58675",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -5422,7 +5422,7 @@
     },
     {
       "path": "framerail/src/lib/popup/error.svelte",
-      "sha256": "f05aa7f8eb81380a1e7179288da51b6b24822843cacef56f0044015b959d1d8c",
+      "sha256": "4e9c4668604dc8039d55058ffce72a00f1b37c7555cd06460a7fd1f81959de4a",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -6022,7 +6022,7 @@
     },
     {
       "path": "framerail/src/lib/server/load/page/page-presentation.ts",
-      "sha256": "b53499f2d8707f81ad566d4287a3bc070e566936f503957cfb54a2e546626ab0",
+      "sha256": "8f10332fc7c6b2bd4e5c60853693f69fe797e16386626de966f33c5be9d982a9",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -6046,7 +6046,7 @@
     },
     {
       "path": "framerail/src/lib/server/load/page/page.ts",
-      "sha256": "00bc9b3bff24c46fddbbcd0b0bf8566e823ec8c4e1eaf417799d63ab2c2324e7",
+      "sha256": "84463b26c7615df7906b20887809488596562de7c182cd919bf86fa1175e2c2f",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -6094,7 +6094,7 @@
     },
     {
       "path": "framerail/src/lib/server/load/user.ts",
-      "sha256": "ab4b75bfcb5c56bb1745fab6930ce51680db9fc1603db49b1fc9aa9bfc1b9b7a",
+      "sha256": "25afc2d0caf4199f5e2cdd7805ba7450c804178c76fa7b9f767362a928303e38",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -6814,7 +6814,7 @@
     },
     {
       "path": "framerail/src/routes/[slug]/[...extra]/EditMetaPane.svelte",
-      "sha256": "85fb3442f6d2eadbff08381cf1d0898a40e661b5516d2083f98e2eaeeed4338f",
+      "sha256": "55f492453bb2099a9d63ea2a6189e5aeb5b4974fbe4fd818f48b7df4ef3f7672",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -6854,7 +6854,7 @@
     },
     {
       "path": "framerail/src/routes/[slug]/[...extra]/FileList.svelte",
-      "sha256": "1b8c90340a24354206e13c10835d64103d118c4353da16b1c9ee986f215ae33f",
+      "sha256": "635fd5bf9394c75ea2246245f5849d38b81869e8226a5019196350f07924fd9b",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -6878,7 +6878,7 @@
     },
     {
       "path": "framerail/src/routes/[slug]/[...extra]/HistoryPane.svelte",
-      "sha256": "67f417ae3522c3e7d9ffc780a78ec15f10922a8e46da99a616c41e0460105ca0",
+      "sha256": "fe9db5ef1cd85135bc141708c3be2a3a38592cfa840c3d4cea9a3c7771b70145",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -7278,7 +7278,7 @@
     },
     {
       "path": "framerail/src/routes/[x+2d]/user/+page.svelte",
-      "sha256": "9c39aa6a6dacb0483636241859980228c4e084ee016a0e0f062f258d0ca89507",
+      "sha256": "4def9cb5dfa4985a732b7cf077b84ce1d0ac57dbaa94cdf192d244db105df454",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -7518,7 +7518,7 @@
     },
     {
       "path": "framerail/src/types/index.ts",
-      "sha256": "f809fd5c0783a719d180349e5d5d68fb560461a95ddb9d85d6c9b60362d5cdc9",
+      "sha256": "81abf907394ed3d00aeef20160433cf58dc44723cd2472a1e4096228ec18b6f9",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -9190,7 +9190,7 @@
     },
     {
       "path": "install/local/wikidot-verification/src/artifact-manifest-validator.mjs",
-      "sha256": "0f8cb87ba8ae1c77f24a0ba3efcb5bd679942f05444eb4c1f6a68b5b68839cba",
+      "sha256": "377ad860d64c32ed80049f23e570825c8bbaf42d78aed51a919a189c424248e0",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -9638,7 +9638,7 @@
     },
     {
       "path": "install/local/wikidot-verification/src/corpus-import-page-rpc.mjs",
-      "sha256": "11d06b07cf62f7cb67c4574ef0823d6f97e56ce57d7263080b9a0446d4dc62e2",
+      "sha256": "e1c6f4c049a45e67acfd07ae61ba771df4292ea424d5ba3213deeec348151663",
       "status": "pending",
       "anchors": [],
       "findings": [],

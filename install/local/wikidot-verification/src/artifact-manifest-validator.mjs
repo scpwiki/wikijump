@@ -1,5 +1,6 @@
 import {createHash} from "node:crypto";
 import {lstat, readFile} from "node:fs/promises";
+import {join, resolve} from "node:path";
 
 import {
   addFinding,
@@ -9,6 +10,24 @@ import {
   SHA256_RE,
   validateSchemaVersion,
 } from "./artifact-validation-common.mjs";
+
+// lstat(filePath) does not follow a symlink at the leaf, but it *does*
+// follow a symlink in any intermediate directory. Disallow both: manifest
+// entries must refer to actual files beneath the supplied artifact root.
+async function hasSymlinkedParent(artifactRoot, relativePath) {
+  let parent = resolve(artifactRoot);
+  for (const segment of relativePath.split("/").slice(0, -1)) {
+    parent = join(parent, segment);
+    try {
+      if ((await lstat(parent)).isSymbolicLink()) return true;
+    } catch (error) {
+      // Preserve the existing file-missing/not-regular diagnostics below.
+      if (error.code === "ENOENT" || error.code === "ENOTDIR") return false;
+      throw error;
+    }
+  }
+  return false;
+}
 
 function validateManifestShape(manifest, findings) {
   if (!isObject(manifest)) {
@@ -87,6 +106,21 @@ async function validateManifestEntry({artifactRoot, entry, index, seenPaths, fin
     return;
   }
 
+  try {
+    if (await hasSymlinkedParent(artifactRoot, entry.path)) {
+      addFinding(findings, "error", "manifest_path_symlink", "manifest path has a symlinked parent directory", {
+        path: entry.path,
+      });
+      return;
+    }
+  } catch (error) {
+    addFinding(findings, "error", "manifest_file_missing", "manifest-listed file cannot be inspected", {
+      path: entry.path,
+      detail: error.message,
+    });
+    return;
+  }
+
   let stat;
   try {
     stat = await lstat(filePath);
@@ -143,6 +177,12 @@ async function validateRequiredArtifactPaths({artifactRoot, requiredFiles, findi
     }
 
     try {
+      if (await hasSymlinkedParent(artifactRoot, requiredFile)) {
+        addFinding(findings, "error", "required_path_symlink", "required path has a symlinked parent directory", {
+          path: requiredFile,
+        });
+        continue;
+      }
       const stat = await lstat(filePath);
       if (!stat.isFile()) {
         addFinding(findings, "error", "required_file_not_regular", "required file must be a regular file", {

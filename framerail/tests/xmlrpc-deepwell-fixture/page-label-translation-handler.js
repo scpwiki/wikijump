@@ -1,5 +1,6 @@
 const pageLabels = {
   en: {
+    "user-profile-info": "User profile information",
     "wiki-page-append-content": "Wikitext to append",
     "wiki-page-file-upload.select": "Select file:",
     "wiki-page-file-upload.name": "File name:",
@@ -8,6 +9,7 @@ const pageLabels = {
     "wiki-page-meta-tag-content": "Meta tag content"
   },
   ja: {
+    "user-profile-info": "ユーザープロフィール情報",
     "wiki-page-append-content": "追記するWikiテキスト",
     "wiki-page-file-upload.select": "ファイルを選択:",
     "wiki-page-file-upload.name": "ファイル名:",

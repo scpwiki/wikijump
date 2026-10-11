@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { errorPopupState } from "$lib/layout/stores.svelte"
   import type { PageFile } from "$lib/server/deepwell/page-file"
   import type { SvelteMap } from "svelte/reactivity"
   import type { PageProps } from "./$types"
@@ -28,13 +29,34 @@
     fileEditId = fileId
     activeFileAction = action
   }
+
+  function openUpload() {
+    if (wikidot && !data.user_session) {
+      errorPopupState.current = {
+        state: true,
+        title: "PERMISSION ERROR",
+        leadIn: "Please note:",
+        message: "Sorry, you can not attach a new file to this page.",
+        extraMessage:
+          "Only owner (creator) of this page, site administrators and perhaps selected moderators are allowed to do it.",
+        actionLink: {
+          href: "#action:login",
+          label: "Sign in as Wikidot user"
+        },
+        data: null
+      }
+      return
+    }
+
+    activeFileAction = "upload"
+  }
 </script>
 
 {#if wikidot}
   <div class="buttons">
     <input
       class="btn btn-primary"
-      onclick={() => (activeFileAction = "upload")}
+      onclick={openUpload}
       type="button"
       value={data.internationalization?.upload}
     />
@@ -49,7 +71,7 @@
   <div class="action-row file-action">
     <button
       class="action-button upload-file clickable"
-      onclick={() => (activeFileAction = "upload")}
+      onclick={openUpload}
       type="button"
     >
       {data.internationalization?.upload}

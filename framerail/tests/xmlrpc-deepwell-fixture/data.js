@@ -584,30 +584,31 @@ x^2 + y^2 = z^2
 }
 
 /** @param {FixturePage} page */
-export const toArticleViewResult = (page) => ({
+export const toArticleViewResult = (page, siteId = 6000005) => ({
   site: {
-    site_id: 6000005,
+    site_id: siteId,
     created_at: "2026-01-01T00:00:00Z",
     updated_at: null,
     deleted_at: null,
     from_wikidot: false,
-    slug: "scp-wiki",
-    name: "SCP Foundation",
-    tagline: "Secure, Contain, Protect",
+    slug: siteId === 6000006 ? "www" : "scp-wiki",
+    name: siteId === 6000006 ? "Wikijump" : "SCP Foundation",
+    tagline: siteId === 6000006 ? "Fighting Ozone Pollution" : "Secure, Contain, Protect",
     description: "Fixture site",
     locale: "en",
     default_page: "main",
     top_bar_page: null,
     side_bar_page: null,
     preferred_domain: null,
-    layout: "wikidot",
+    layout: siteId === 6000006 ? "wikijump" : "wikidot",
     license: "cc-by-sa-3.0"
   },
-  site_file_domain: "scp-wiki.wjfiles.localhost",
+  site_file_domain:
+    siteId === 6000006 ? "www.wjfiles.localhost" : "scp-wiki.wjfiles.localhost",
   license_name: "CC BY-SA 3.0",
   license_url: "https://creativecommons.org/licenses/by-sa/3.0/",
   user_session: null,
-  article_page_cache_key: `deepwell:article-view:page:v1:site=6000005:page=${page.page_id}:rev=${page.revision_id}:updated=0:permission=site=0,user=0:body=fixture`,
+  article_page_cache_key: `deepwell:article-view:page:v1:site=${siteId}:page=${page.page_id}:rev=${page.revision_id}:updated=0:permission=site=0,user=0:body=fixture`,
   public_content_cache_fence: "0",
   anonymous_permission_cache_fence: "site=0,user=0",
   page: {
@@ -639,12 +640,12 @@ export const toArticleViewResult = (page) => ({
         updated_at: page.page_updated_at,
         deleted_at: null,
         from_wikidot: false,
-        site_id: 6000005,
+        site_id: siteId,
         latest_revision_id: page.revision_id,
         page_category_id: 1,
         slug: page.slug,
         discussion_thread_id: null,
-        layout: "wikidot"
+        layout: siteId === 6000006 ? "wikijump" : "wikidot"
       },
       page_revision: {
         revision_id: page.revision_id,
@@ -653,7 +654,7 @@ export const toArticleViewResult = (page) => ({
         updated_at: null,
         revision_number: page.page_revision_count - 1,
         page_id: page.page_id,
-        site_id: 6000005,
+        site_id: siteId,
         user_id: page.revision_user_id,
         from_wikidot: false,
         changes: [],
