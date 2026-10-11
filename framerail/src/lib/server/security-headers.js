@@ -50,7 +50,11 @@ const LOCAL_WIKIDOT_STYLEFRAME_PATHNAME = "/-/wikidot-interwiki/styleFrame.html"
 const WIKIDOT_STYLEFRAME_SCRIPT_SOURCE = `'sha256-${createHash("sha256")
   .update(WIKIDOT_STYLE_FRAME_SCRIPT)
   .digest("base64")}'`
-const WIKIDOT_STYLEFRAME_POLICY = `default-src 'none'; script-src ${WIKIDOT_STYLEFRAME_SCRIPT_SOURCE}; frame-ancestors 'self'`
+// WebKit evaluates the styleFrame document's style policy while its fixed
+// script applies the sibling interwiki frame's inline CSS declarations.
+// Keep that compatibility allowance local to inline styles in this otherwise
+// isolated frame; default-src still blocks external styles and other assets.
+const WIKIDOT_STYLEFRAME_POLICY = `default-src 'none'; script-src ${WIKIDOT_STYLEFRAME_SCRIPT_SOURCE}; style-src 'unsafe-inline'; frame-ancestors 'self'`
 
 const shouldSetHsts = (deploymentEnvironment = parseDeploymentEnvironment()) => {
   return deploymentEnvironment !== "local"

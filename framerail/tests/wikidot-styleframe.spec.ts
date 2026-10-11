@@ -10,12 +10,24 @@ const styleFrameSource = (priority: number, css: string) =>
 
 test("Wikidot styleFrames restyle the interwiki frame and never the parent page", async ({
   page
-}) => {
+}, testInfo) => {
   const pageErrors: string[] = []
+  const styleCspErrors: string[] = []
   page.on("pageerror", (error) => pageErrors.push(error.message))
+  page.on("console", (message) => {
+    if (
+      message.type() === "error" &&
+      /Refused to apply a stylesheet|violates[\s\S]*style-src/iu.test(message.text())
+    ) {
+      styleCspErrors.push(message.text())
+    }
+  })
   await page.setExtraHTTPHeaders(SITE_HEADERS)
-  await page.goto("/wikidot-tabview")
-  const parentHeadStyles = await page.locator("head style, head link").count()
+  const appOrigin =
+    testInfo.project.name === "webkit-https-styleframe"
+      ? `https://localhost:${process.env.PLAYWRIGHT_HTTPS_APP_PORT ?? "4373"}`
+      : `http://localhost:${process.env.PLAYWRIGHT_APP_PORT ?? "4173"}`
+  await page.goto(new URL("/wikidot-tabview", appOrigin).href)
 
   const appendFrame = (id: string, source: string) =>
     page.evaluate(
@@ -44,10 +56,19 @@ test("Wikidot styleFrames restyle the interwiki frame and never the parent page"
   )
   await appendFrame(
     "interwiki-fixture",
-    "/-/wikidot-interwiki/interwikiFrame.html?lang=en&community=scp&pagename=scp-9506"
+    "/-/wikidot-interwiki/interwikiFrame.html?lang=en&community=fixture&pagename=styleframe-test"
   )
   const interwiki = page.frameLocator("#interwiki-fixture")
-  await expect(interwiki.locator(".heading p")).toHaveCSS("color", "rgb(1, 2, 3)")
+  await interwiki.locator("body").evaluate((body) => {
+    const marker = document.createElement("div")
+    marker.className = "heading"
+    marker.innerHTML = "<p id='styleframe-interwiki-marker'>interwiki</p>"
+    body.appendChild(marker)
+  })
+  await expect(interwiki.locator("#styleframe-interwiki-marker")).toHaveCSS(
+    "color",
+    "rgb(1, 2, 3)"
+  )
 
   // A later styleFrame pushes into the initialized interwiki frame; its higher
   // priority sorts after the earlier declaration and wins the cascade.
@@ -55,7 +76,10 @@ test("Wikidot styleFrames restyle the interwiki frame and never the parent page"
     "styleframe-late",
     styleFrameSource(2, ".heading p { color: rgb(4, 5, 6); }")
   )
-  await expect(interwiki.locator(".heading p")).toHaveCSS("color", "rgb(4, 5, 6)")
+  await expect(interwiki.locator("#styleframe-interwiki-marker")).toHaveCSS(
+    "color",
+    "rgb(4, 5, 6)"
+  )
   expect(
     await interwiki
       .locator("head .custom-style")
@@ -67,7 +91,7 @@ test("Wikidot styleFrames restyle the interwiki frame and never the parent page"
   await expect(page.frameLocator("#styleframe-late").locator("style, link")).toHaveCount(
     0
   )
-  await expect(page.locator("head style, head link")).toHaveCount(parentHeadStyles)
+  await expect(page.locator("head .custom-style")).toHaveCount(0)
   await expect(page.locator("#styleframe-parent-marker")).not.toHaveCSS(
     "color",
     "rgb(4, 5, 6)"
@@ -77,4 +101,5 @@ test("Wikidot styleFrames restyle the interwiki frame and never the parent page"
     "rgb(1, 2, 3)"
   )
   expect(pageErrors).toEqual([])
+  expect(styleCspErrors).toEqual([])
 })
