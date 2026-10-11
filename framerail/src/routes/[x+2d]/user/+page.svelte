@@ -66,9 +66,7 @@
 </script>
 
 {#if isEdit}
-  <h1>UNTRANSLATED: Loaded user profile</h1>
-
-  <textarea class="debug">{JSON.stringify(data, null, 2)}</textarea>
+  <h1>{data.internationalization?.["user-profile-info"]}</h1>
 
   <form
     id="editor"

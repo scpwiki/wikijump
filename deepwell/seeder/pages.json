@@ -215,6 +215,11 @@
             "slug": "system:page-tags",
             "title": "Page Tags",
             "wikitext": "page-tags"
+        },
+        {
+            "slug": "system:list-all-pages",
+            "title": "List All Pages",
+            "wikitext": "list-all-pages"
         }
     ],
     "scp-wiki": [

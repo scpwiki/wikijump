@@ -1198,6 +1198,7 @@ export async function resolveEvidenceReplaySubresourceRedirect({
   sourceUrl,
   entry,
   request = route.request(),
+  cacheOnly = false,
   fetchRetainedEntry = null,
 }) {
   if (
@@ -1224,7 +1225,9 @@ export async function resolveEvidenceReplaySubresourceRedirect({
     const targetCacheKey = responseCacheRequestKey(request, target.href, requestHeaders);
     let targetEntry = responseCache.lookup(targetCacheKey, {requestHeaders});
     if (targetEntry === null) {
-      if (fetchRetainedEntry !== null) {
+      if (cacheOnly) {
+        throw new Error(`candidate response cache miss: ${target.href}`);
+      } else if (fetchRetainedEntry !== null) {
         targetEntry = await fetchRetainedEntry(target.href);
       } else {
         await gate.acquire();
@@ -1270,7 +1273,7 @@ export function evidenceReplaySubresourceFulfillment(resourceType, resolved) {
   };
 }
 
-async function fulfillRetainedEntry(route, { gate, responseCache, request, entry, fetchRetainedEntry = null }) {
+async function fulfillRetainedEntry(route, { gate, responseCache, request, entry, cacheOnly = false, fetchRetainedEntry = null }) {
   const resolved = await resolveEvidenceReplaySubresourceRedirect({
     route,
     gate,
@@ -1279,6 +1282,7 @@ async function fulfillRetainedEntry(route, { gate, responseCache, request, entry
     sourceUrl: request.url(),
     entry,
     request,
+    cacheOnly,
     fetchRetainedEntry,
   });
   if (resolved === null) {
@@ -1304,7 +1308,7 @@ async function servePublicRoute(route, {gate, responseCache, cacheOnly = false, 
     }
     const cached = responseCache.lookup(responseCacheRequestKey(request, null, requestHeaders), {requestHeaders});
     if (cached === null) throw new Error(`candidate response cache miss: ${request.url()}`);
-    await fulfillRetainedEntry(route, { gate, responseCache, request, entry: cached, fetchRetainedEntry });
+    await fulfillRetainedEntry(route, { gate, responseCache, request, entry: cached, cacheOnly: true });
     return;
   }
   if (!responseCache || !await requestCanUseResponseCache(request, responseCache, requestHeaders)) {
@@ -1351,16 +1355,14 @@ async function servePublicRoute(route, {gate, responseCache, cacheOnly = false, 
  *   responseCache?: object | null
  *   publicOriginPredicate?: ((value: string, resourceType: string, method: string) => boolean) | null
  *   cacheOnly?: boolean
- *   cacheOnlyAllowedOrigins?: string[]
  * }} [options]
  */
-export async function installBrowserRequestGate(context, {gate, exemptOrigins = [], responseCache = null, publicOriginPredicate = null, cacheOnly = false, cacheOnlyAllowedOrigins = []} = {}) {
+export async function installBrowserRequestGate(context, {gate, exemptOrigins = [], responseCache = null, publicOriginPredicate = null, cacheOnly = false} = {}) {
   if (!gate || typeof gate.acquire !== "function" || typeof gate.deferForRetryAfter !== "function" || typeof gate.failClosed !== "function" || typeof gate.recordLocalExempt !== "function" || typeof gate.recordUnsupportedRequestBlocked !== "function" || typeof gate.recordWebSocketBlocked !== "function") throw new Error("browser request gate is malformed");
   if (!context || typeof context.route !== "function" || typeof context.routeWebSocket !== "function" || typeof context.on !== "function") throw new Error("browser context cannot enforce request-level capture controls");
   if (responseCache !== null && (typeof responseCache.get !== "function" || typeof responseCache.lookup !== "function" || typeof responseCache.store !== "function" || typeof responseCache.withFill !== "function" || typeof responseCache.recordBypass !== "function" || typeof responseCache.snapshot !== "function")) throw new Error("browser response cache is malformed");
   if (publicOriginPredicate !== null && typeof publicOriginPredicate !== "function") throw new Error("browser request-gate public origin predicate is malformed");
   const exempt = normalizedOrigins(exemptOrigins);
-  const cacheOnlyAllowed = normalizedOrigins(cacheOnlyAllowedOrigins);
   const attributedAborts = new WeakMap();
   if (exempt.size > 0) {
     context.on("request", (request) => {
@@ -1422,45 +1424,11 @@ export async function installBrowserRequestGate(context, {gate, exemptOrigins = 
         gate,
         responseCache,
         cacheOnly,
-        fetchRetainedEntry: cacheOnly || responseCache?.evidenceReplay
+        fetchRetainedEntry: responseCache?.evidenceReplay
           ? (targetUrl) => fetchRetainedEntry(route, request, targetUrl)
           : null,
       });
     } catch (error) {
-      let cacheOnlyAllowedMiss = false;
-      try {
-        const request = route.request();
-        const url = new URL(request.url());
-        const cacheMiss = /^candidate response cache (?:cannot serve |miss: )/u.test(error?.message ?? "");
-        const initiatorUrl = typeof request.frame === "function" ? request.frame()?.url() : null;
-        const wikidotPublicOrigin = isWikidotCapturePublicOrigin(url, request.resourceType(), request.method(), initiatorUrl);
-        const nonWikidotDependency = isCaptureDependencyResourceType(request.resourceType()) && !wikidotPublicOrigin;
-        cacheOnlyAllowedMiss = cacheOnly &&
-          cacheMiss &&
-          responseCache !== null &&
-          await requestCanUseResponseCache(request, responseCache) &&
-          (cacheOnlyAllowed.has(url.origin) || wikidotPublicOrigin || nonWikidotDependency);
-      } catch {
-        cacheOnlyAllowedMiss = false;
-      }
-      if (cacheOnlyAllowedMiss) {
-        try {
-          const request = route.request();
-          const entry = await fetchRetainedEntry(route, request);
-          await fulfillRetainedEntry(route, {
-            gate,
-            responseCache,
-            request,
-            entry,
-            fetchRetainedEntry: (targetUrl) => fetchRetainedEntry(route, request, targetUrl),
-          });
-          return;
-        } catch (continueError) {
-          gate.failClosed(continueError);
-          await abortRoute(route);
-        }
-        return;
-      }
       gate.failClosed(error);
       await abortRoute(route);
     }

@@ -8,6 +8,7 @@ import {
 } from "$lib/server/load/action-error"
 import { getRequestContext } from "$lib/server/request-context"
 import { parseUserLocalePreferences } from "$lib/user-settings.js"
+import { uniqueLocales } from "$lib/locales.js"
 import {
   USER_INTERFACE_LOCALES,
   isSupportedUserInterfaceLocale
@@ -26,7 +27,8 @@ export async function loadUserSettings(parent: PreloadDataAsync) {
     redirect(303, "/-/login")
   }
 
-  const locales = parentData.user_session.user.locales ?? ["en"]
+  const savedLocales = uniqueLocales(parentData.user_session.user.locales ?? ["en"])
+  const locales = savedLocales.length > 0 ? savedLocales : ["en"]
   const userInterfaceLocales = [
     ...USER_INTERFACE_LOCALES,
     ...locales

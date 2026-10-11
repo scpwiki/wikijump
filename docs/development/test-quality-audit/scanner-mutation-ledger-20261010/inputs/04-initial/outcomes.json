@@ -1,0 +1,1163 @@
+{
+  "outcomes": [
+    {
+      "scenario": "Baseline",
+      "summary": "Success",
+      "log_path": "log/baseline.log",
+      "diff_path": null,
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 24.12968922,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 5.57085276,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/services/render/list_pages/scanner.rs:1627:50: replace + with - in find_list_pages_module_matches_with_cursor_work_context_lowercase",
+          "package": "deepwell",
+          "file": "src/services/render/list_pages/scanner.rs",
+          "function": {
+            "function_name": "find_list_pages_module_matches_with_cursor_work_context_lowercase",
+            "return_type": "-> (Vec<ListPagesModuleMatch<'a>>, usize, usize)",
+            "span": {
+              "start": {
+                "line": 1420,
+                "column": 1
+              },
+              "end": {
+                "line": 1939,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 1627,
+              "column": 50
+            },
+            "end": {
+              "line": 1627,
+              "column": 51
+            }
+          },
+          "replacement": "-",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/src__services__render__list_pages__scanner.rs_line_1627_col_50.log",
+      "diff_path": "diff/src__services__render__list_pages__scanner.rs_line_1627_col_50.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 18.37432206,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 5.57129268,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/services/render/list_pages/scanner.rs:1627:50: replace + with * in find_list_pages_module_matches_with_cursor_work_context_lowercase",
+          "package": "deepwell",
+          "file": "src/services/render/list_pages/scanner.rs",
+          "function": {
+            "function_name": "find_list_pages_module_matches_with_cursor_work_context_lowercase",
+            "return_type": "-> (Vec<ListPagesModuleMatch<'a>>, usize, usize)",
+            "span": {
+              "start": {
+                "line": 1420,
+                "column": 1
+              },
+              "end": {
+                "line": 1939,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 1627,
+              "column": 50
+            },
+            "end": {
+              "line": 1627,
+              "column": 51
+            }
+          },
+          "replacement": "*",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/src__services__render__list_pages__scanner.rs_line_1627_col_50_001.log",
+      "diff_path": "diff/src__services__render__list_pages__scanner.rs_line_1627_col_50_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 18.4232808,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 5.57531721,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/services/render/list_pages/scanner.rs:1627:33: replace + with - in find_list_pages_module_matches_with_cursor_work_context_lowercase",
+          "package": "deepwell",
+          "file": "src/services/render/list_pages/scanner.rs",
+          "function": {
+            "function_name": "find_list_pages_module_matches_with_cursor_work_context_lowercase",
+            "return_type": "-> (Vec<ListPagesModuleMatch<'a>>, usize, usize)",
+            "span": {
+              "start": {
+                "line": 1420,
+                "column": 1
+              },
+              "end": {
+                "line": 1939,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 1627,
+              "column": 33
+            },
+            "end": {
+              "line": 1627,
+              "column": 34
+            }
+          },
+          "replacement": "-",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/src__services__render__list_pages__scanner.rs_line_1627_col_33.log",
+      "diff_path": "diff/src__services__render__list_pages__scanner.rs_line_1627_col_33.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 18.70643241,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 5.81411673,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/services/render/list_pages/scanner.rs:1627:33: replace + with * in find_list_pages_module_matches_with_cursor_work_context_lowercase",
+          "package": "deepwell",
+          "file": "src/services/render/list_pages/scanner.rs",
+          "function": {
+            "function_name": "find_list_pages_module_matches_with_cursor_work_context_lowercase",
+            "return_type": "-> (Vec<ListPagesModuleMatch<'a>>, usize, usize)",
+            "span": {
+              "start": {
+                "line": 1420,
+                "column": 1
+              },
+              "end": {
+                "line": 1939,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 1627,
+              "column": 33
+            },
+            "end": {
+              "line": 1627,
+              "column": 34
+            }
+          },
+          "replacement": "*",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/src__services__render__list_pages__scanner.rs_line_1627_col_33_001.log",
+      "diff_path": "diff/src__services__render__list_pages__scanner.rs_line_1627_col_33_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 18.52340454,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 5.46513795,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/services/render/list_pages/scanner.rs:1628:45: replace + with - in find_list_pages_module_matches_with_cursor_work_context_lowercase",
+          "package": "deepwell",
+          "file": "src/services/render/list_pages/scanner.rs",
+          "function": {
+            "function_name": "find_list_pages_module_matches_with_cursor_work_context_lowercase",
+            "return_type": "-> (Vec<ListPagesModuleMatch<'a>>, usize, usize)",
+            "span": {
+              "start": {
+                "line": 1420,
+                "column": 1
+              },
+              "end": {
+                "line": 1939,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 1628,
+              "column": 45
+            },
+            "end": {
+              "line": 1628,
+              "column": 46
+            }
+          },
+          "replacement": "-",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/src__services__render__list_pages__scanner.rs_line_1628_col_45.log",
+      "diff_path": "diff/src__services__render__list_pages__scanner.rs_line_1628_col_45.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 18.37329669,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 5.56001298,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/services/render/list_pages/scanner.rs:1628:45: replace + with * in find_list_pages_module_matches_with_cursor_work_context_lowercase",
+          "package": "deepwell",
+          "file": "src/services/render/list_pages/scanner.rs",
+          "function": {
+            "function_name": "find_list_pages_module_matches_with_cursor_work_context_lowercase",
+            "return_type": "-> (Vec<ListPagesModuleMatch<'a>>, usize, usize)",
+            "span": {
+              "start": {
+                "line": 1420,
+                "column": 1
+              },
+              "end": {
+                "line": 1939,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 1628,
+              "column": 45
+            },
+            "end": {
+              "line": 1628,
+              "column": 46
+            }
+          },
+          "replacement": "*",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/src__services__render__list_pages__scanner.rs_line_1628_col_45_001.log",
+      "diff_path": "diff/src__services__render__list_pages__scanner.rs_line_1628_col_45_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 18.4736538,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 5.47155765,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/services/render/list_pages/scanner.rs:1645:21: replace && with || in find_list_pages_module_matches_with_cursor_work_context_lowercase",
+          "package": "deepwell",
+          "file": "src/services/render/list_pages/scanner.rs",
+          "function": {
+            "function_name": "find_list_pages_module_matches_with_cursor_work_context_lowercase",
+            "return_type": "-> (Vec<ListPagesModuleMatch<'a>>, usize, usize)",
+            "span": {
+              "start": {
+                "line": 1420,
+                "column": 1
+              },
+              "end": {
+                "line": 1939,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 1645,
+              "column": 21
+            },
+            "end": {
+              "line": 1645,
+              "column": 23
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/src__services__render__list_pages__scanner.rs_line_1645_col_21.log",
+      "diff_path": "diff/src__services__render__list_pages__scanner.rs_line_1645_col_21.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 18.47824083,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 5.52959649,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/services/render/list_pages/scanner.rs:1652:40: replace += with -= in find_list_pages_module_matches_with_cursor_work_context_lowercase",
+          "package": "deepwell",
+          "file": "src/services/render/list_pages/scanner.rs",
+          "function": {
+            "function_name": "find_list_pages_module_matches_with_cursor_work_context_lowercase",
+            "return_type": "-> (Vec<ListPagesModuleMatch<'a>>, usize, usize)",
+            "span": {
+              "start": {
+                "line": 1420,
+                "column": 1
+              },
+              "end": {
+                "line": 1939,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 1652,
+              "column": 40
+            },
+            "end": {
+              "line": 1652,
+              "column": 42
+            }
+          },
+          "replacement": "-=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/src__services__render__list_pages__scanner.rs_line_1652_col_40.log",
+      "diff_path": "diff/src__services__render__list_pages__scanner.rs_line_1652_col_40.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 18.32340384,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 5.52760911,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/services/render/list_pages/scanner.rs:1652:40: replace += with *= in find_list_pages_module_matches_with_cursor_work_context_lowercase",
+          "package": "deepwell",
+          "file": "src/services/render/list_pages/scanner.rs",
+          "function": {
+            "function_name": "find_list_pages_module_matches_with_cursor_work_context_lowercase",
+            "return_type": "-> (Vec<ListPagesModuleMatch<'a>>, usize, usize)",
+            "span": {
+              "start": {
+                "line": 1420,
+                "column": 1
+              },
+              "end": {
+                "line": 1939,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 1652,
+              "column": 40
+            },
+            "end": {
+              "line": 1652,
+              "column": 42
+            }
+          },
+          "replacement": "*=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/src__services__render__list_pages__scanner.rs_line_1652_col_40_001.log",
+      "diff_path": "diff/src__services__render__list_pages__scanner.rs_line_1652_col_40_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 19.12771026,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 5.56394364,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/services/render/list_pages/scanner.rs:1653:48: replace + with - in find_list_pages_module_matches_with_cursor_work_context_lowercase",
+          "package": "deepwell",
+          "file": "src/services/render/list_pages/scanner.rs",
+          "function": {
+            "function_name": "find_list_pages_module_matches_with_cursor_work_context_lowercase",
+            "return_type": "-> (Vec<ListPagesModuleMatch<'a>>, usize, usize)",
+            "span": {
+              "start": {
+                "line": 1420,
+                "column": 1
+              },
+              "end": {
+                "line": 1939,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 1653,
+              "column": 48
+            },
+            "end": {
+              "line": 1653,
+              "column": 49
+            }
+          },
+          "replacement": "-",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/src__services__render__list_pages__scanner.rs_line_1653_col_48.log",
+      "diff_path": "diff/src__services__render__list_pages__scanner.rs_line_1653_col_48.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 18.72438111,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 5.42551554,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/services/render/list_pages/scanner.rs:1653:48: replace + with * in find_list_pages_module_matches_with_cursor_work_context_lowercase",
+          "package": "deepwell",
+          "file": "src/services/render/list_pages/scanner.rs",
+          "function": {
+            "function_name": "find_list_pages_module_matches_with_cursor_work_context_lowercase",
+            "return_type": "-> (Vec<ListPagesModuleMatch<'a>>, usize, usize)",
+            "span": {
+              "start": {
+                "line": 1420,
+                "column": 1
+              },
+              "end": {
+                "line": 1939,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 1653,
+              "column": 48
+            },
+            "end": {
+              "line": 1653,
+              "column": 49
+            }
+          },
+          "replacement": "*",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/src__services__render__list_pages__scanner.rs_line_1653_col_48_001.log",
+      "diff_path": "diff/src__services__render__list_pages__scanner.rs_line_1653_col_48_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 18.57451005,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 5.56933212,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/services/render/list_pages/scanner.rs:1665:28: replace + with - in find_list_pages_module_matches_with_cursor_work_context_lowercase",
+          "package": "deepwell",
+          "file": "src/services/render/list_pages/scanner.rs",
+          "function": {
+            "function_name": "find_list_pages_module_matches_with_cursor_work_context_lowercase",
+            "return_type": "-> (Vec<ListPagesModuleMatch<'a>>, usize, usize)",
+            "span": {
+              "start": {
+                "line": 1420,
+                "column": 1
+              },
+              "end": {
+                "line": 1939,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 1665,
+              "column": 28
+            },
+            "end": {
+              "line": 1665,
+              "column": 29
+            }
+          },
+          "replacement": "-",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/src__services__render__list_pages__scanner.rs_line_1665_col_28.log",
+      "diff_path": "diff/src__services__render__list_pages__scanner.rs_line_1665_col_28.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 18.52338951,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 5.79414528,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/services/render/list_pages/scanner.rs:1665:28: replace + with * in find_list_pages_module_matches_with_cursor_work_context_lowercase",
+          "package": "deepwell",
+          "file": "src/services/render/list_pages/scanner.rs",
+          "function": {
+            "function_name": "find_list_pages_module_matches_with_cursor_work_context_lowercase",
+            "return_type": "-> (Vec<ListPagesModuleMatch<'a>>, usize, usize)",
+            "span": {
+              "start": {
+                "line": 1420,
+                "column": 1
+              },
+              "end": {
+                "line": 1939,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 1665,
+              "column": 28
+            },
+            "end": {
+              "line": 1665,
+              "column": 29
+            }
+          },
+          "replacement": "*",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/src__services__render__list_pages__scanner.rs_line_1665_col_28_001.log",
+      "diff_path": "diff/src__services__render__list_pages__scanner.rs_line_1665_col_28_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 18.32667381,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 5.61661137,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/services/render/list_pages/scanner.rs:1701:25: replace != with == in find_list_pages_module_matches_with_cursor_work_context_lowercase",
+          "package": "deepwell",
+          "file": "src/services/render/list_pages/scanner.rs",
+          "function": {
+            "function_name": "find_list_pages_module_matches_with_cursor_work_context_lowercase",
+            "return_type": "-> (Vec<ListPagesModuleMatch<'a>>, usize, usize)",
+            "span": {
+              "start": {
+                "line": 1420,
+                "column": 1
+              },
+              "end": {
+                "line": 1939,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 1701,
+              "column": 25
+            },
+            "end": {
+              "line": 1701,
+              "column": 27
+            }
+          },
+          "replacement": "==",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/src__services__render__list_pages__scanner.rs_line_1701_col_25.log",
+      "diff_path": "diff/src__services__render__list_pages__scanner.rs_line_1701_col_25.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 18.62261559,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 5.45932548,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/services/render/list_pages/scanner.rs:1733:30: replace -= with += in find_list_pages_module_matches_with_cursor_work_context_lowercase",
+          "package": "deepwell",
+          "file": "src/services/render/list_pages/scanner.rs",
+          "function": {
+            "function_name": "find_list_pages_module_matches_with_cursor_work_context_lowercase",
+            "return_type": "-> (Vec<ListPagesModuleMatch<'a>>, usize, usize)",
+            "span": {
+              "start": {
+                "line": 1420,
+                "column": 1
+              },
+              "end": {
+                "line": 1939,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 1733,
+              "column": 30
+            },
+            "end": {
+              "line": 1733,
+              "column": 32
+            }
+          },
+          "replacement": "+=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/src__services__render__list_pages__scanner.rs_line_1733_col_30.log",
+      "diff_path": "diff/src__services__render__list_pages__scanner.rs_line_1733_col_30.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 18.32467572,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 5.5269324,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/services/render/list_pages/scanner.rs:1733:30: replace -= with /= in find_list_pages_module_matches_with_cursor_work_context_lowercase",
+          "package": "deepwell",
+          "file": "src/services/render/list_pages/scanner.rs",
+          "function": {
+            "function_name": "find_list_pages_module_matches_with_cursor_work_context_lowercase",
+            "return_type": "-> (Vec<ListPagesModuleMatch<'a>>, usize, usize)",
+            "span": {
+              "start": {
+                "line": 1420,
+                "column": 1
+              },
+              "end": {
+                "line": 1939,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 1733,
+              "column": 30
+            },
+            "end": {
+              "line": 1733,
+              "column": 32
+            }
+          },
+          "replacement": "/=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/src__services__render__list_pages__scanner.rs_line_1733_col_30_001.log",
+      "diff_path": "diff/src__services__render__list_pages__scanner.rs_line_1733_col_30_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 18.3757674,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 5.623860601,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/services/render/list_pages/scanner.rs:1734:33: replace == with != in find_list_pages_module_matches_with_cursor_work_context_lowercase",
+          "package": "deepwell",
+          "file": "src/services/render/list_pages/scanner.rs",
+          "function": {
+            "function_name": "find_list_pages_module_matches_with_cursor_work_context_lowercase",
+            "return_type": "-> (Vec<ListPagesModuleMatch<'a>>, usize, usize)",
+            "span": {
+              "start": {
+                "line": 1420,
+                "column": 1
+              },
+              "end": {
+                "line": 1939,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 1734,
+              "column": 33
+            },
+            "end": {
+              "line": 1734,
+              "column": 35
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/src__services__render__list_pages__scanner.rs_line_1734_col_33.log",
+      "diff_path": "diff/src__services__render__list_pages__scanner.rs_line_1734_col_33.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 19.078351666,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 5.51882078,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib"
+          ]
+        }
+      ]
+    }
+  ],
+  "total_mutants": 17,
+  "missed": 11,
+  "caught": 6,
+  "timeout": 0,
+  "unviable": 0,
+  "success": 0,
+  "start_time": "2026-10-08T00:18:35.720675389Z",
+  "end_time": "2026-10-08T00:26:43.705860946Z",
+  "cargo_mutants_version": "27.1.0"
+}

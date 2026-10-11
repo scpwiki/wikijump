@@ -410,6 +410,33 @@ test("WIKIDOT History View Version and View Source actions still load selected r
   )
 })
 
+test("WIKIDOT Page Source links only the same-site component include target", async ({
+  page
+}) => {
+  await page.setExtraHTTPHeaders(SITE_HEADERS)
+  await page.goto("/page-source-include-probe")
+  await page.waitForLoadState("networkidle")
+  await page.locator("#more-options-button").click()
+  await page.locator("#view-source-button").click()
+
+  const source = page.locator("div.page-source").first()
+  expect(await source.textContent()).toBe(
+    '[[include component:image-block\n|caption=fixture\n]]\n[[include component:image-block]]\n [[include component:spaced-literal]]\n[[include :scp-wiki:component:license-box]]\n@@[[include component:literal]]@@\n<img src=x onerror="alert(1)">'
+  )
+  await expect(source.locator("a")).toHaveCount(2)
+  const includes = source.getByRole("link", { name: "component:image-block" })
+  await expect(includes).toHaveCount(2)
+  await expect(includes.nth(0)).toHaveAttribute("href", "/component%3Aimage-block")
+  await expect(includes.nth(1)).toHaveAttribute("href", "/component%3Aimage-block")
+  const include = includes.nth(0)
+  await expect(source.locator("img")).toHaveCount(0)
+  await expect(source.locator("a").nth(0)).toHaveText("component:image-block")
+
+  await include.click()
+  await expect(page).toHaveURL(/\/component%3Aimage-block$/u)
+  await expect(page.locator("#page-content")).toContainText("Component target.")
+})
+
 test("history diff keeps added and removed source readable against its semantic colors", async ({
   page,
   request
@@ -479,14 +506,20 @@ test("WIKIDOT History keeps the seven-cell source table contract at phone widths
     await page.getByRole("link", { name: "history", exact: true }).click()
     const table = page.locator("#action-area table.page-history")
     await expect(table).toBeVisible()
-    await expect(table.locator("tbody > tr").first().locator("td")).toHaveCount(7)
+    const headerRow = table.locator("tbody > tr").first()
+    await expect(headerRow.locator("td")).toHaveCount(7)
+    await expect(headerRow.getByRole("columnheader")).toHaveCount(7)
+    await expect(
+      headerRow.getByRole("columnheader", { name: "rev.", exact: true })
+    ).toBeVisible()
+    await expect(
+      headerRow.getByRole("columnheader", { name: /from.*to/iu })
+    ).toBeVisible()
 
     const rows = table.locator('tbody > tr[id^="revision-row-"]')
     await expect(rows.first().locator("td")).toHaveCount(7)
     const currentRow = rows.first()
     const currentCells = currentRow.locator("td")
-    const revisionId =
-      (await currentRow.getAttribute("id"))?.replace("revision-row-", "") ?? ""
     await expect(
       currentCells.nth(1).locator('input[type="radio"][name="from"]')
     ).toBeVisible()
@@ -502,12 +535,25 @@ test("WIKIDOT History keeps the seven-cell source table contract at phone widths
     )
     await expect(currentCells.nth(6)).toHaveAttribute("style", "font-size: 90%")
     await expect(currentCells.nth(1).locator('input[type="radio"]')).toHaveCount(2)
-    await expect(
-      currentCells.nth(1).locator('input[type="radio"]').nth(0)
-    ).toHaveAttribute("id", revisionId)
-    await expect(
-      currentCells.nth(1).locator('input[type="radio"]').nth(1)
-    ).toHaveAttribute("id", revisionId)
+    const fromRadio = currentCells.nth(1).locator('input[type="radio"][name="from"]')
+    const toRadio = currentCells.nth(1).locator('input[type="radio"][name="to"]')
+    const fromId = await fromRadio.getAttribute("id")
+    const toId = await toRadio.getAttribute("id")
+    expect(fromId).toContain("-from-")
+    expect(toId).toContain("-to-")
+    expect(fromId).not.toBe(toId)
+    await expect(page.locator(`[id="${fromId}"]`)).toHaveCount(1)
+    await expect(page.locator(`[id="${toId}"]`)).toHaveCount(1)
+    const radioIds = await table
+      .locator('input[type="radio"]')
+      .evaluateAll((inputs) => inputs.map((input) => input.id))
+    expect(new Set(radioIds).size).toBe(radioIds.length)
+    await expect(fromRadio).toHaveAccessibleName(/: \d+$/u)
+    await expect(toRadio).toHaveAccessibleName(/: \d+$/u)
+    await fromRadio.check()
+    await toRadio.check()
+    await expect(fromRadio).toBeChecked()
+    await expect(toRadio).toBeChecked()
     await expect(
       currentCells.nth(3).locator("a").filter({ hasText: /^V$/u })
     ).toBeVisible()

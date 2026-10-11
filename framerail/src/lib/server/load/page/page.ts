@@ -4,6 +4,7 @@ import {
   WIKIDOT_LAYOUT
 } from "$lib/layout/wikidot-shell-decision"
 import { resolvePageRedirect } from "$lib/server/page-redirect"
+import { pageErrorStatus } from "$lib/server/load/page/page-error-status.js"
 import { translate } from "$lib/server/deepwell/translate"
 import { articleView } from "$lib/server/deepwell/views"
 import { buildPageLoadData } from "$lib/server/load/page-data"
@@ -113,19 +114,6 @@ export async function loadPage(
     locals.wikidotDocument = resolveShellLayoutValue(loadData) === WIKIDOT_LAYOUT
   }
   return loadData
-}
-
-function pageErrorStatus(
-  type: Exclude<PageView["type"], "found">,
-  slug: Optional<string>
-): number {
-  if (
-    type === "permissions" &&
-    slug?.replace(/^\/+|\/+$/gu, "").toLowerCase() === "_admin"
-  ) {
-    return 401
-  }
-  return type === "missing" ? 404 : 403
 }
 
 function runRedirect(

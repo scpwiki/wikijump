@@ -1,6 +1,10 @@
 import { createServer } from "node:http"
 
-import { fixtureState, resetRequestGroups } from "./xmlrpc-deepwell-fixture/context.js"
+import {
+  createAuthenticatedUser,
+  fixtureState,
+  resetRequestGroups
+} from "./xmlrpc-deepwell-fixture/context.js"
 import { dispatchFixtureRpc } from "./xmlrpc-deepwell-fixture/dispatch.js"
 import { sendRpcError } from "./xmlrpc-deepwell-fixture/response.js"
 
@@ -42,9 +46,14 @@ const handleUpload = (request, response) => {
  * @param {import("node:http").ServerResponse} response
  */
 const handleDiagnosticRequest = (request, response) => {
-  if (request.method !== "GET") return false
   const url = new URL(request.url ?? "/", `http://127.0.0.1:${PORT}`)
 
+  if (request.method === "POST" && url.pathname === "/reset-authenticated-profile") {
+    fixtureState.authenticatedUser = createAuthenticatedUser()
+    sendJson(response, { reset: true })
+    return true
+  }
+  if (request.method !== "GET") return false
   if (request.url === "/last-page-tags-request") {
     sendJson(response, fixtureState.lastPageTagsSelectRequest)
     return true

@@ -28,17 +28,27 @@ test("printer-friendly loader preserves the required empty route suffix", async 
   const calls = []
   const load = new Function(
     "loadPage",
-    `${source.replace(/^import .*\n/u, "").replace("export async function", "async function")}\nreturn load`
-  )((...args) => calls.push(args))
+    "isReservedAdminAliasSlug",
+    "redirect",
+    `${source
+      .split(/\r?\n/u)
+      .filter((line) => !line.startsWith("import "))
+      .join("\n")
+      .replace("export async function", "async function")}\nreturn load`
+  )(
+    (...args) => calls.push(args),
+    (slug) => slug?.replace(/^\/+|\/+$/gu, "").toLowerCase() === "_admin",
+    (status, location) => {
+      throw Object.assign(new Error("redirect"), { status, location })
+    }
+  )
   const request = {}
   const cookies = {}
   const locals = {}
   for (const [path, slug, extra] of [
     ["start", "start", ""],
     ["category:page", "category:page", ""],
-    ["category:page/revision/2", "category:page", "revision/2"],
-    ["/_admin", "_admin", ""],
-    ["//_admin", "_admin", ""]
+    ["category:page/revision/2", "category:page", "revision/2"]
   ]) {
     await load({ params: { path }, request, cookies, locals })
     assert.deepEqual(calls.pop(), [slug, extra, request, cookies, locals])

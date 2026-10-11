@@ -9421,6 +9421,7 @@
           "deepwell/tests/page/page_modules.rs#site_tools_wanted_pages_filters_sources_before_grouping_ordered_targets",
           "deepwell/tests/page/page_modules.rs#wantedpages_module_groups_missing_internal_links_by_target",
           "deepwell/tests/page/page_modules.rs#wikidot_listpages_feed_queries_newest_viewable_pages",
+          "deepwell/tests/page/page_modules.rs#wikidot_listpages_feed_skips_imported_pages_without_revisions",
           "deepwell/tests/page/page_modules.rs#wikidot_listpages_feed_uses_imported_creator_identity_provenance",
           "deepwell/tests/page/page_move.rs#basic_move",
           "deepwell/tests/page/page_move.rs#page_move_renders_with_destination_category_context",
@@ -11099,6 +11100,7 @@
         "kind": "endpoint_behavioral",
         "reference": "deepwell/tests/page/page_modules.rs#wikidot_listpages_feed_queries_newest_viewable_pages",
         "alternatives": [
+          "deepwell/tests/page/page_modules.rs#wikidot_listpages_feed_skips_imported_pages_without_revisions",
           "deepwell/tests/page/page_modules.rs#wikidot_listpages_feed_uses_imported_creator_identity_provenance"
         ],
         "source_contract_reference": "install/local/wikidot-verification/tests/deepwell-jsonrpc-contract-manifest.test.mjs#Deepwell JSON-RPC manifest exactly covers the current registered contract"

@@ -1,0 +1,181 @@
+{
+  "schema": 1,
+  "as_of": "2026-10-10T06:40:11+09:00",
+  "subject": "ListPages scanner mutation IDs",
+  "scanner_source_sha256": "41c1f5132bd938cf8fb0fb4228767583b59b7529a1ad0fd7740376ebbdb9d30e",
+  "distinct_mutants": 136,
+  "reconciled": {
+    "caught": 132,
+    "missed": 0,
+    "unviable": 4,
+    "timeout": 0
+  },
+  "unresolved_survivors": [],
+  "source_files": [
+    {
+      "role": "initial",
+      "path": "inputs/01-initial/outcomes.json",
+      "sha256": "873eb6eb69f6f405251d2b70e79733c7da7d73f19dffdb98b5b5fcb7438f32a5"
+    },
+    {
+      "role": "initial",
+      "path": "inputs/02-initial/outcomes.json",
+      "sha256": "2f7eb8b32fe9e14f7a577d8b3cf939c77c69cb86d28845837bc434ee25717e2e"
+    },
+    {
+      "role": "initial",
+      "path": "inputs/03-initial/outcomes.json",
+      "sha256": "b49810de55adc9e75391b9b5a9809edcd05b4141bf425aa14cec9caeac9438a6"
+    },
+    {
+      "role": "initial",
+      "path": "inputs/04-initial/outcomes.json",
+      "sha256": "6cc02e2a87037e2e38728c3edbb473b7259098e9e2d705ab9a51c75cdc8f535e"
+    },
+    {
+      "role": "initial",
+      "path": "inputs/05-initial/outcomes.json",
+      "sha256": "c4dac6870632f8f9f8eddad66d3f7c92759d1b711c66c445fb54301ac8a22122"
+    },
+    {
+      "role": "initial",
+      "path": "inputs/06-initial/outcomes.json",
+      "sha256": "680ffb1740c3033f987ccd040e5d864330d19aa6f4c8290c2a69658bec7dcd27"
+    },
+    {
+      "role": "initial",
+      "path": "inputs/07-initial/outcomes.json",
+      "sha256": "bd8b3dd8e2c81b73dbfb6cb37050ee1e1262c27ef0db9ef7b878c18f8a7b27b0"
+    },
+    {
+      "role": "initial",
+      "path": "inputs/08-initial/outcomes.json",
+      "sha256": "d26ad365d573922b0da513de37128842f385b5bd9da2346f655c79d04ff56fae"
+    },
+    {
+      "role": "replay",
+      "path": "inputs/09-replay/outcomes.json",
+      "sha256": "8fbb4db6445731c1683506ecb5087600b9f9468d5b25a3c41641390d32b61c40"
+    },
+    {
+      "role": "replay",
+      "path": "inputs/10-replay/outcomes.json",
+      "sha256": "43d71136f50d5cba63264cd2d57fbae03b75bd6dcfe195bd10f8ecd725a9bd22"
+    },
+    {
+      "role": "replay",
+      "path": "inputs/11-replay/outcomes.json",
+      "sha256": "103cc58b887039caa8b7b5b9b92ef46848120c6cce5a50e165f0156af306b2b9"
+    },
+    {
+      "role": "replay",
+      "path": "inputs/12-replay/outcomes.json",
+      "sha256": "4c11536790e5a1f503b1a652167efb2c5a42597e9e939349d6aacfc9c4ce77a5"
+    },
+    {
+      "role": "replay",
+      "path": "inputs/13-replay/outcomes.json",
+      "sha256": "4f6f3c946ac7bc6c4346af201cc2208362de15987a54cf7715d90f9442576df9"
+    },
+    {
+      "role": "replay",
+      "path": "inputs/14-replay/outcomes.json",
+      "sha256": "9d067a2a7d236cb6a13a4640840ed60b2efd4d03dad67c67555610c609aa5fd6"
+    },
+    {
+      "role": "replay",
+      "path": "inputs/15-replay/outcomes.json",
+      "sha256": "8602e31dd8791c0fc7940ddf940d9cf24f61060a0412f8c7e01bd4070a3381dd"
+    },
+    {
+      "role": "replay",
+      "path": "inputs/16-replay/outcomes.json",
+      "sha256": "e5f7384846964d15811b1beac225c92d0c5421ceff2a1019c6c511fc0486fe2e"
+    },
+    {
+      "role": "replay",
+      "path": "inputs/17-replay/outcomes.json",
+      "sha256": "e1ccd4f5b0e5518f079debb8b0cbf5381ba31a028b8763c3174ec7fdbefcff31"
+    },
+    {
+      "role": "replay",
+      "path": "inputs/18-replay/outcomes.json",
+      "sha256": "2892c7340be37592b429e67b224bae6eecbc9bf7f8b4ee44163f9100ec5d9a4b"
+    },
+    {
+      "role": "replay",
+      "path": "inputs/19-replay/outcomes.json",
+      "sha256": "e48c921551315185ec9528984c574e10ccc6ea2a5ffd2203f29f4335f4a3cc0b"
+    },
+    {
+      "role": "replay",
+      "path": "inputs/20-replay/outcomes.json",
+      "sha256": "8e1c46aa0891b0011505bd1cbe5e40887b284c530c5fb2c7891438798e5c3685"
+    },
+    {
+      "role": "replay",
+      "path": "inputs/21-replay/outcomes.json",
+      "sha256": "50744529dfe6bf852e2722b0bef42e36a2020231db32a84545c8606cfb1564ad"
+    },
+    {
+      "role": "replay",
+      "path": "inputs/22-replay/outcomes.json",
+      "sha256": "c49076de3597c4106352cdca0098f4360475c63bf1da80d04f901024643eb68b"
+    },
+    {
+      "role": "replay",
+      "path": "inputs/23-replay/outcomes.json",
+      "sha256": "203a3f5067d134af183477139c65ea78abdef6d97cb99b298cd75a7e4678f817"
+    },
+    {
+      "role": "replay",
+      "path": "inputs/24-replay/outcomes.json",
+      "sha256": "267bee267706f679c62a73f5d92453e67bd75571efc1cc90a6741183364dd566"
+    },
+    {
+      "role": "replay",
+      "path": "inputs/25-replay/outcomes.json",
+      "sha256": "d1160f075c2fe3455d73409a687d4db61824fc1e58c13203b1b6b43a54841848"
+    },
+    {
+      "role": "replay",
+      "path": "inputs/26-replay/outcomes.json",
+      "sha256": "87097903ed736f97389ba421dae9f89181443f8df1e84ced86323c1ee38f5fba"
+    },
+    {
+      "role": "replay",
+      "path": "inputs/27-replay/outcomes.json",
+      "sha256": "4bf509e242c934d63e727a4b370ea829fbe67a1958360c1e7731d6bd7797706f"
+    },
+    {
+      "role": "replay",
+      "path": "inputs/28-replay/outcomes.json",
+      "sha256": "5e44833e7e982c0ed4b1094948ceb9e123010ca99c9a10d938dbbca0cf05ca7d"
+    },
+    {
+      "role": "replay",
+      "path": "inputs/29-replay/outcomes.json",
+      "sha256": "3fbf6b5f7517518e8b6b910ffa12baad203c0d5b65d4695d7e4e9d7bde36d353"
+    },
+    {
+      "role": "replay",
+      "path": "inputs/30-replay/outcomes.json",
+      "sha256": "ce004384650aa35c7c68bc921c3468f57196065100e2849df77cb4730690ea8c"
+    },
+    {
+      "role": "replay",
+      "path": "inputs/31-replay/outcomes.json",
+      "sha256": "7ee880de033536f64ee314687149e27875e11b54a43139cc3bb0cb229b969ce4"
+    },
+    {
+      "role": "replay",
+      "path": "inputs/32-replay/outcomes.json",
+      "sha256": "300d01a8bda3730da1cfb1fa1f71c57915e021e0b2a34be3f1d60fd0b75352e9"
+    },
+    {
+      "role": "replay",
+      "path": "inputs/33-replay/outcomes.json",
+      "sha256": "ff62f8350fbcc6ddb8dab3dc1a1cfceefd2e7e2f5c63ebae30dd789e91099a82"
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "outcomes": [
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/services/render/list_pages/scanner.rs:1912:21: replace || with && in find_list_pages_module_matches_with_cursor_work_context_lowercase",
+          "package": "deepwell",
+          "file": "src/services/render/list_pages/scanner.rs",
+          "function": {
+            "function_name": "find_list_pages_module_matches_with_cursor_work_context_lowercase",
+            "return_type": "-> (Vec<ListPagesModuleMatch<'a>>, usize, usize)",
+            "span": {
+              "start": {
+                "line": 1420,
+                "column": 1
+              },
+              "end": {
+                "line": 1939,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 1912,
+              "column": 21
+            },
+            "end": {
+              "line": 1912,
+              "column": 23
+            }
+          },
+          "replacement": "&&",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/src__services__render__list_pages__scanner.rs_line_1912_col_21.log",
+      "diff_path": "diff/src__services__render__list_pages__scanner.rs_line_1912_col_21.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 103.864473002,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=deepwell@2026.8.20"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 2.359490353,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib",
+            "services::render::list_pages::scanner::tests::stress::recovered_dangling_quote_without_closer_keeps_default_template_tail_ownership",
+            "--",
+            "--exact"
+          ]
+        }
+      ]
+    }
+  ],
+  "total_mutants": 1,
+  "missed": 0,
+  "caught": 1,
+  "timeout": 0,
+  "unviable": 0,
+  "success": 0,
+  "start_time": "2026-10-09T19:50:40.524159593Z",
+  "end_time": "2026-10-09T19:52:35.542072408Z",
+  "cargo_mutants_version": "27.1.0"
+}

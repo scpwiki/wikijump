@@ -589,7 +589,6 @@ export async function launchParityBrowser({
       exemptOrigins: local ? controls.localOrigins : [],
       responseCache,
       cacheOnly: local,
-      cacheOnlyAllowedOrigins: local ? controls.publicOrigins : [],
       publicOriginPredicate: (url, resourceType, method, initiatorUrl) =>
         isParityBrowserPublicOrigin(
           url,

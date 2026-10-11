@@ -239,6 +239,23 @@ node install/local/wikidot-verification/scripts/apply-corpus-import-manifest.mjs
 
 After import, run the saved-page rerender command above for the same case IDs and exact runtime identity, then run the HTTPS differential.
 
+### Verify imported source integrity
+
+After materializing corpus pages, compare the selected local page's current revision source, stored corpus snapshot hash, latest import state, and (for selected complex canaries) compiled body length against the exact manifest source files. The command is read-only and exits nonzero for missing pages, changed or blank source, absent/mismatched provenance, incomplete import state, or a required empty body. Select the correct site ID explicitly when the local stack has more than one site:
+
+```sh
+node install/local/wikidot-verification/scripts/verify-corpus-import-integrity.mjs \
+  --manifest /absolute/path/to/import-manifest.jsonl \
+  --site-id 6000006 \
+  --db-container wikijump-local-development-database-1 \
+  --slug scp-5382 \
+  --slug scp-7000 \
+  --require-rendered-body scp-5382 \
+  --require-rendered-body scp-7000
+```
+
+The manifest's source paths are re-hashed before querying the database. The report includes page and revision IDs plus source/provenance booleans, body character counts, and latest import state; it never prints the imported wikitext. The SQL client can instead use `DEEPWELL_VERIFY_DB_URL` or `--db-url` when a direct database connection is appropriate.
+
 Corpus attachment rows use descriptor-bearing direct staging as their canonical import path. Run `apply-corpus-import-manifest.mjs` with `--attachment-create-mode direct`, or use `--skip-attachments` to defer them. The command rejects RPC attachment creation for selected corpus attachments because `file_create` would first commit the current host's libmagic descriptor and its post-commit outdate worker could make that approximation servable before corpus provenance replaced it.
 
 ## Standing file descriptor backfill

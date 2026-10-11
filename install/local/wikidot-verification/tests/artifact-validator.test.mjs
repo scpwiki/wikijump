@@ -405,6 +405,33 @@ test("quarantines bad hashes and size mismatches", async (t) => {
   assert.ok(findingCodes(report).includes("manifest_sha256_mismatch"));
 });
 
+test("quarantines manifest entries and required files traversing a symlinked parent", async (t) => {
+  const root = await createValidProArtifact(t);
+  const external = await temporaryDirectory(t, "wikijump-artifact-external-");
+  const content = "outside the submitted artifact\n";
+  await writeFile(path.join(external, "external.md"), content);
+  await symlink(external, path.join(root, "alias"), "dir");
+  const resultEntry = await writeArtifactFile(root, "result.json", `${JSON.stringify({
+    schema_version: 1,
+    status: "strategy_ready",
+    repository: "Rokurolize/wikijump",
+    outputs: ["alias/external.md"],
+    artifacts: ["alias/external.md"],
+  })}\n`);
+  const reportEntry = await writeArtifactFile(root, "report.md", "strategy report\n");
+  await writeManifest(root, [
+    resultEntry,
+    reportEntry,
+    {path: "alias/external.md", size: Buffer.byteLength(content), sha256: sha256(content)},
+  ]);
+
+  const report = await validateArtifactDirectory({artifactRoot: root, kind: "pro"});
+  assert.equal(report.status, "quarantine");
+  assert.equal(artifactValidatorExitCode(report), 2);
+  assert.ok(findingCodes(report).includes("manifest_path_symlink"));
+  assert.ok(findingCodes(report).includes("required_path_symlink"));
+});
+
 test("quarantines Codex task and assignment mismatches", async (t) => {
   const root = await createValidCodexArtifact(t);
 

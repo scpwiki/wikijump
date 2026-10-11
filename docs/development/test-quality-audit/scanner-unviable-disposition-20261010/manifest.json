@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "frozen_ledger": "../scanner-mutation-ledger-20261010",
+  "compiler": "rustc via cargo-mutants",
+  "frozen_scanner_source_sha256": "41c1f5132bd938cf8fb0fb4228767583b59b7529a1ad0fd7740376ebbdb9d30e",
+  "classification": "Unviable (compile-time type error; not equivalent mutant)",
+  "entries": [
+    {
+      "mutation": "src/services/render/list_pages/scanner.rs:1426:5: replace find_list_pages_module_matches_with_cursor_work_context_lowercase -> (Vec<ListPagesModuleMatch<'a>>, usize, usize) with (vec![Default::default()], 0, 0)",
+      "file": "compiler-logs/1426-return-default-00.log.gz",
+      "sha256": "d8f7f9e97952f89b658ba7430613687cabda69c4f474b379f692db54b3dde0e7",
+      "diagnostic": "E0277",
+      "reason": "ListPagesModuleMatch does not implement Default",
+      "gzip_sha256": "e322e84bbc823a2b42d42219b0bfc3ad76c6894d2efd5c7c33e35929ab3952a6"
+    },
+    {
+      "mutation": "src/services/render/list_pages/scanner.rs:1426:5: replace find_list_pages_module_matches_with_cursor_work_context_lowercase -> (Vec<ListPagesModuleMatch<'a>>, usize, usize) with (vec![Default::default()], 0, 1)",
+      "file": "compiler-logs/1426-return-default-01.log.gz",
+      "sha256": "38236903786b1fd76b01e54277bbcafa4e106a225eb203bbb7afe5d8dbd1ff2b",
+      "diagnostic": "E0277",
+      "reason": "ListPagesModuleMatch does not implement Default",
+      "gzip_sha256": "ecdcc0a6258171f8bff1f66a57e3650f42a85e87816c320d8814dc792c342220"
+    },
+    {
+      "mutation": "src/services/render/list_pages/scanner.rs:1426:5: replace find_list_pages_module_matches_with_cursor_work_context_lowercase -> (Vec<ListPagesModuleMatch<'a>>, usize, usize) with (vec![Default::default()], 1, 0)",
+      "file": "compiler-logs/1426-return-default-02.log.gz",
+      "sha256": "bb18405236e3f0d2de16739ea428ed26933ec89d91b748c84db86b64803f7da2",
+      "diagnostic": "E0277",
+      "reason": "ListPagesModuleMatch does not implement Default",
+      "gzip_sha256": "85e3f7012887276da31293f56ba94a71b90d9f9448bfc9a7044828cbc1f82bd1"
+    },
+    {
+      "mutation": "src/services/render/list_pages/scanner.rs:1426:5: replace find_list_pages_module_matches_with_cursor_work_context_lowercase -> (Vec<ListPagesModuleMatch<'a>>, usize, usize) with (vec![Default::default()], 1, 1)",
+      "file": "compiler-logs/1426-return-default-03.log.gz",
+      "sha256": "7272a2030317221909c9217019cbb4f46410965b21a88cd5e07dc9c116eeaf3e",
+      "diagnostic": "E0277",
+      "reason": "ListPagesModuleMatch does not implement Default",
+      "gzip_sha256": "f9f092a92dbf27a10a4e0e55f2d9b214c75ade23e8a7bfe538304272d543e6ca"
+    }
+  ]
+}

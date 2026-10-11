@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { canReuseExistingPageForDbImport } from '../src/corpus-import-apply-policy.mjs';
+import {
+  canReuseExistingPageForDbImport,
+  initialImportItemState,
+} from '../src/corpus-import-apply-policy.mjs';
 
 test('canReuseExistingPageForDbImport reuses matching pages under replace-existing', () => {
   assert.equal(canReuseExistingPageForDbImport({ adoptExisting: false, replaceExisting: false }), false);
@@ -14,4 +17,10 @@ test('canReuseExistingPageForDbImport reuses matching pages under replace-existi
     ),
     true,
   );
+});
+
+test('DB shell imports stay explicitly incomplete until rerender', () => {
+  assert.equal(initialImportItemState({ createMode: 'db', skipRerender: true }), 'shell_ready');
+  assert.equal(initialImportItemState({ createMode: 'db', skipRerender: false }), 'render_pending');
+  assert.equal(initialImportItemState({ createMode: 'rpc', skipRerender: true }), 'render_pending');
 });

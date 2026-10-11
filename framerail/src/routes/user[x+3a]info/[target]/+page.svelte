@@ -1,4 +1,8 @@
 <script lang="ts">
+  import { page } from "$app/state"
+  import { errorPopupState } from "$lib/layout/stores.svelte"
+  import { showUserContactAuthenticationGuard } from "$lib/user-contact-auth-guard.js"
+
   import type { PageProps } from "./$types"
 
   let { data }: PageProps = $props()
@@ -11,6 +15,24 @@
     <span data-redacted-control="private-message">
       {data.privateMessageControl.label}
     </span>
+
+    {#if !page.data.user_session}
+      <!-- svelte-ignore a11y_invalid_attribute -->
+      <a
+        class="btn btn-default btn-xs"
+        href="javascript:;"
+        role="button"
+        data-action="add-to-contacts"
+        data-target-user-id={data.user.userId}
+        onclick={(event) => {
+          event.preventDefault()
+          showUserContactAuthenticationGuard(errorPopupState)
+        }}
+      >
+        <i class="icon-book" aria-hidden="true"></i>
+        Add to contacts
+      </a>
+    {/if}
 
     <h1 class="profile-title">
       {#if data.user.avatar}

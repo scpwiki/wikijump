@@ -38,6 +38,13 @@
     }
   }
 
+  function cancelAdding() {
+    adding = false
+    metaName = ""
+    metaContent = ""
+    error = ""
+  }
+
   function save(allPages: boolean) {
     if (!data.page || metaName.length === 0) return
     return runMutation(() =>
@@ -129,20 +136,26 @@
         <button
           class="btn btn-danger btn-small btn-sm"
           disabled={busy}
-          onclick={() => (adding = false)}
+          onclick={cancelAdding}
           type="button">Cancel</button
         >
-        <button
-          class="btn btn-primary btn-small btn-sm"
-          disabled={busy || metaName.length === 0}
-          onclick={() => save(true)}
-          type="button">Add to All Pages</button
+        <!-- svelte-ignore a11y_invalid_attribute -->
+        <a
+          class="button btn btn-primary btn-small btn-sm"
+          href="javascript:;"
+          onclick={(event) => {
+            event.preventDefault()
+            void save(true)
+          }}>Add to All Pages</a
         >
-        <button
-          class="btn btn-primary btn-small btn-sm"
-          disabled={busy || metaName.length === 0}
-          onclick={() => save(false)}
-          type="button">Add to This Page</button
+        <!-- svelte-ignore a11y_invalid_attribute -->
+        <a
+          class="button btn btn-primary btn-small btn-sm"
+          href="javascript:;"
+          onclick={(event) => {
+            event.preventDefault()
+            void save(false)
+          }}>Add to This Page</a
         >
       </div>
     </form>

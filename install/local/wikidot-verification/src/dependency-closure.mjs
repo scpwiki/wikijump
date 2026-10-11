@@ -10,7 +10,10 @@
 const INCLUDE_REGEX = /\[\[include\s+(:?)([^\s\]|]+)/gi;
 const CSS_MODULE_REGEX = /\[\[module\s+css\b/gi;
 const DATA_MODULE_REGEX = /\[\[module\s+(listpages|countpages|backlinks)\b/gi;
-const LOCAL_FILE_REGEX = /\/local--files\/(?<page>[^/\s"'\]]+)\/(?<file>[^\s"'\])?]+)/gi;
+const LOCAL_FILE_REGEX =
+  /\/local--files\/(?<page>[^/\s"'\]]+)\/(?<file>[^\s"'\])?]+)/gi;
+const LOCAL_CODE_REGEX =
+  /(?:(?<scheme>https?):\/\/(?<host>[^/\s"'<>)]*))?(?:\/local--code\/|\/-\/code\/)(?<page>[^/?#\s"'<>)]*?)\/(?<index>[0-9]+)(?:[?#][^\s"'<>)]*)?/giu;
 
 // Regions whose contents are display-only and must not contribute
 // dependencies: @@raw@@ spans and [[code]] blocks.
@@ -26,7 +29,7 @@ const ESCAPED_REGION_PATTERNS = [
 export function stripEscapedRegions(wikitext) {
   let stripped = wikitext;
   for (const pattern of ESCAPED_REGION_PATTERNS) {
-    stripped = stripped.replace(pattern, '');
+    stripped = stripped.replace(pattern, "");
   }
   return stripped;
 }
@@ -35,11 +38,14 @@ export function stripEscapedRegions(wikitext) {
 // (`[[include :scp-wiki:component:foo]]`); everything else is same-site,
 // where colons are category separators (`[[include component:foo]]`).
 export function parseIncludeTarget(rawTarget, leadingColon) {
-  const target = rawTarget.replace(/\|.*$/, '').trim();
+  const target = rawTarget.replace(/\|.*$/, "").trim();
   if (leadingColon) {
-    const separator = target.indexOf(':');
+    const separator = target.indexOf(":");
     if (separator > 0) {
-      return { site: target.slice(0, separator), page: target.slice(separator + 1) };
+      return {
+        site: target.slice(0, separator),
+        page: target.slice(separator + 1),
+      };
     }
   }
   return { site: null, page: target };
@@ -50,21 +56,40 @@ export function isThemeOrComponentSlug(slug) {
 }
 
 export function scanWikitextDependencies(wikitext) {
-  const stripped = stripEscapedRegions(wikitext ?? '');
+  const stripped = stripEscapedRegions(wikitext ?? "");
   const includes = [];
   for (const match of stripped.matchAll(INCLUDE_REGEX)) {
-    const { site, page } = parseIncludeTarget(match[2], match[1] === ':');
+    const { site, page } = parseIncludeTarget(match[2], match[1] === ":");
     includes.push({ site, page, raw: match[0] });
   }
   const localFiles = [];
   for (const match of stripped.matchAll(LOCAL_FILE_REGEX)) {
     localFiles.push({ page: match.groups.page, file: match.groups.file });
   }
+  const localCode = [];
+  for (const match of stripped.matchAll(LOCAL_CODE_REGEX)) {
+    let page;
+    try {
+      page = decodeURIComponent(match.groups.page);
+    } catch {
+      page = match.groups.page;
+    }
+    const host = match.groups.host?.toLowerCase() ?? null;
+    const site = host?.endsWith(".wdfiles.com")
+      ? host.slice(0, -".wdfiles.com".length)
+      : host === null
+        ? null
+        : `external:${host}`;
+    localCode.push({ site, page, index: Number(match.groups.index) });
+  }
   return {
     includes,
     cssModuleCount: (stripped.match(CSS_MODULE_REGEX) ?? []).length,
-    dataModules: [...stripped.matchAll(DATA_MODULE_REGEX)].map((m) => m[1].toLowerCase()),
+    dataModules: [...stripped.matchAll(DATA_MODULE_REGEX)].map((m) =>
+      m[1].toLowerCase(),
+    ),
     localFiles,
+    localCode,
   };
 }
 
@@ -73,13 +98,17 @@ export function scanWikitextDependencies(wikitext) {
 // cross-site includes); on key collisions the native row must win so EN
 // pages resolve against EN sources.
 const NATIVE_SITE_FAMILY = new Map([
-  ['scp-wiki', 'EN'],
-  ['scp-jp', 'JP'],
+  ["scp-wiki", "EN"],
+  ["scp-jp", "JP"],
 ]);
 
 function isNativeRow(row, site) {
   const nativeFamily = NATIVE_SITE_FAMILY.get(site);
-  return nativeFamily === undefined || row.family === undefined || row.family === nativeFamily;
+  return (
+    nativeFamily === undefined ||
+    row.family === undefined ||
+    row.family === nativeFamily
+  );
 }
 
 // Registry over the registered source bundles: key `${site}:${slug}`.
@@ -113,13 +142,21 @@ export function buildBundleRegistry(rows) {
 }
 
 function dependencyLabel(row) {
-  return row.fixture_id ?? `${row.local_site ?? row.source_site}:${row.slug ?? row.fullname}`;
+  return (
+    row.fixture_id ??
+    `${row.local_site ?? row.source_site}:${row.slug ?? row.fullname}`
+  );
 }
 
 // Resolve the closure for one target row. Walks includes transitively
 // (bounded by maxDepth), collecting an import order of
 // parents -> theme/component -> other includes -> target.
-export function resolveDependencyClosure({ row, registry, readSource, maxDepth = 8 }) {
+export function resolveDependencyClosure({
+  row,
+  registry,
+  readSource,
+  maxDepth = 8,
+}) {
   const site = row.local_site ?? row.source_site;
   const inBundle = [];
   const outOfBundle = [];
@@ -143,29 +180,42 @@ export function resolveDependencyClosure({ row, registry, readSource, maxDepth =
       return;
     }
     if (depth >= maxDepth) {
-      outOfBundle.push({ dependency: key, kind: 'max-depth-exceeded' });
+      outOfBundle.push({ dependency: key, kind: "max-depth-exceeded" });
       return;
     }
     activePath.push(key);
     expand(depRow, depth + 1);
     activePath.pop();
-    inBundle.push({ label: dependencyLabel(depRow), kind, site: depSite, slug: depSlug });
+    inBundle.push({
+      label: dependencyLabel(depRow),
+      kind,
+      site: depSite,
+      slug: depSlug,
+    });
   }
 
   function expand(pageRow, depth) {
     const pageSite = pageRow.local_site ?? pageRow.source_site;
     const parent = pageRow.parent_fullname ?? null;
-    if (parent) visit(pageSite, parent, 'parent', depth);
+    if (parent) visit(pageSite, parent, "parent", depth);
     const source = readSource(pageRow);
     if (source === null) {
-      outOfBundle.push({ dependency: dependencyLabel(pageRow), kind: 'source-unreadable' });
+      outOfBundle.push({
+        dependency: dependencyLabel(pageRow),
+        kind: "source-unreadable",
+      });
       return;
     }
     const scan = scanWikitextDependencies(source);
     for (const include of scan.includes) {
       const includeSite = include.site ?? pageSite;
-      const kind = isThemeOrComponentSlug(include.page) ? 'theme-component' : 'include';
+      const kind = isThemeOrComponentSlug(include.page)
+        ? "theme-component"
+        : "include";
       visit(includeSite, include.page, kind, depth);
+    }
+    for (const code of scan.localCode) {
+      visit(code.site ?? pageSite, code.page, "local-code", depth);
     }
     for (const moduleName of scan.dataModules) dataModules.add(moduleName);
     for (const ref of scan.localFiles) {
@@ -180,7 +230,12 @@ export function resolveDependencyClosure({ row, registry, readSource, maxDepth =
   activePath.pop();
 
   // Import order: parents first, then theme/component, then other includes.
-  const kindRank = { parent: 0, 'theme-component': 1, include: 2 };
+  const kindRank = {
+    parent: 0,
+    "theme-component": 1,
+    "local-code": 2,
+    include: 3,
+  };
   const importOrder = [...inBundle]
     .sort((a, b) => (kindRank[a.kind] ?? 3) - (kindRank[b.kind] ?? 3))
     .map((dep) => dep.label);
@@ -191,9 +246,10 @@ export function resolveDependencyClosure({ row, registry, readSource, maxDepth =
   // cap; classify separately from genuine multi-page cycles.
   const selfIncludesOnly =
     cycles.length > 0 && cycles.every((cycle) => new Set(cycle).size === 1);
-  let status = 'closure_complete';
-  if (cycles.length > 0) status = selfIncludesOnly ? 'self_include_cycle' : 'cycle';
-  else if (outOfBundle.length > 0) status = 'out_of_bundle';
+  let status = "closure_complete";
+  if (cycles.length > 0)
+    status = selfIncludesOnly ? "self_include_cycle" : "cycle";
+  else if (outOfBundle.length > 0) status = "out_of_bundle";
 
   return {
     fixture_id: dependencyLabel(row),
@@ -210,11 +266,12 @@ export function resolveDependencyClosure({ row, registry, readSource, maxDepth =
 }
 
 const CLASSIFIED_OUT_OF_BUNDLE_KINDS = new Set([
-  'include',
-  'theme-component',
-  'parent',
-  'max-depth-exceeded',
-  'source-unreadable',
+  "include",
+  "theme-component",
+  "parent",
+  "max-depth-exceeded",
+  "source-unreadable",
+  "local-code",
 ]);
 
 export function summarizeClosureReports(reports) {

@@ -4,23 +4,31 @@ const SITE_HEADERS = {
   "X-Wikijump-Site-Id": "6000005",
   "X-Wikijump-Site-Slug": "scp-wiki"
 }
+const PLATFORM_HEADERS = {
+  "X-Wikijump-Site-Id": "6000006",
+  "X-Wikijump-Site-Slug": "www"
+}
 const APP_URL = `http://localhost:${process.env.PLAYWRIGHT_APP_PORT ?? "4173"}`
 const PAGES = [
   { path: "/-/about", widths: [320, 375, 390, 768] },
+  { path: "/-/register", widths: [375] },
   { path: "/-/login", widths: [280, 320, 360, 375] },
-  { path: "/-/user/guest", widths: [280, 320, 360, 375] }
+  { path: "/-/user/guest", widths: [280, 320, 360, 375] },
+  { path: "/platform:search", widths: [280, 320, 360, 375] }
 ]
 
-test("native footer and About diagnostics stay within narrow viewports", async ({
+test("native layout and About diagnostics stay within narrow viewports", async ({
   page
 }) => {
-  await page.setExtraHTTPHeaders(SITE_HEADERS)
-
   for (const { path, widths } of PAGES) {
+    await page.setExtraHTTPHeaders(
+      path === "/platform:search" ? PLATFORM_HEADERS : SITE_HEADERS
+    )
     for (const width of widths) {
       await page.setViewportSize({ width, height: 812 })
       const response = await page.goto(`${APP_URL}${path}`)
       expect(response?.status(), `${path} at ${width}px`).toBe(200)
+      if (path === "/-/register") await expect(page.locator("#register")).toBeVisible()
 
       const dimensions = await page.evaluate(() => ({
         viewport: document.documentElement.clientWidth,
@@ -82,6 +90,19 @@ test("native footer and About diagnostics stay within narrow viewports", async (
           ])
           expect(text?.trim()).toBe(href)
         }
+      }
+
+      if (path === "/platform:search" && width === 280) {
+        await page.waitForLoadState("networkidle")
+        await page.route("**/search:all/a/pf/q/responsive", async (route) =>
+          route.fulfill({ status: 200, body: "Search route reached" })
+        )
+        const searchForm = page.locator("#search-form-all")
+        await searchForm.locator("#search-form-all-input").fill("responsive")
+        await Promise.all([
+          page.waitForURL(/\/search:all\/a\/pf\/q\/responsive$/u),
+          searchForm.locator("input[type='submit']").click()
+        ])
       }
 
       if (width === 320) {

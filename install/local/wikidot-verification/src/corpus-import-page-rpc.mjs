@@ -21,6 +21,7 @@ export async function createCorpusImportPage(args, rpc, row, source) {
     wikitext: source,
     title: row.title || row.title_shown || row.fullname,
     alt_title: null,
+    tags: row.tags,
     slug: row.fullname,
     layout: 'wikidot',
     revision_comments: 'local scp-wiki mirror import from scp-wiki-translation corpus',

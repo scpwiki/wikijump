@@ -1,0 +1,151 @@
+{
+  "outcomes": [
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/services/render/list_pages/scanner.rs:1590:71: replace + with - in find_list_pages_module_matches_with_cursor_work_context_lowercase",
+          "package": "deepwell",
+          "file": "src/services/render/list_pages/scanner.rs",
+          "function": {
+            "function_name": "find_list_pages_module_matches_with_cursor_work_context_lowercase",
+            "return_type": "-> (Vec<ListPagesModuleMatch<'a>>, usize, usize)",
+            "span": {
+              "start": {
+                "line": 1420,
+                "column": 1
+              },
+              "end": {
+                "line": 1939,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 1590,
+              "column": 71
+            },
+            "end": {
+              "line": 1590,
+              "column": 72
+            }
+          },
+          "replacement": "-",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/src__services__render__list_pages__scanner.rs_line_1590_col_71.log",
+      "diff_path": "diff/src__services__render__list_pages__scanner.rs_line_1590_col_71.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 214.49514348,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=deepwell@2026.8.20"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 3.46156695,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib",
+            "services::render::list_pages::scanner::tests::stress::projected_quoted_recovery_counts_literal_region_cursor_before_fail_closed",
+            "--",
+            "--exact"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "src/services/render/list_pages/scanner.rs:1591:41: replace + with - in find_list_pages_module_matches_with_cursor_work_context_lowercase",
+          "package": "deepwell",
+          "file": "src/services/render/list_pages/scanner.rs",
+          "function": {
+            "function_name": "find_list_pages_module_matches_with_cursor_work_context_lowercase",
+            "return_type": "-> (Vec<ListPagesModuleMatch<'a>>, usize, usize)",
+            "span": {
+              "start": {
+                "line": 1420,
+                "column": 1
+              },
+              "end": {
+                "line": 1939,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 1591,
+              "column": 41
+            },
+            "end": {
+              "line": 1591,
+              "column": 42
+            }
+          },
+          "replacement": "-",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/src__services__render__list_pages__scanner.rs_line_1591_col_41.log",
+      "diff_path": "diff/src__services__render__list_pages__scanner.rs_line_1591_col_41.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 70.84172097,
+          "process_status": "Success",
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=deepwell@2026.8.20"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 1.61593353,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/roku/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=deepwell@2026.8.20",
+            "--lib",
+            "services::render::list_pages::scanner::tests::stress::projected_quoted_recovery_counts_literal_region_cursor_before_fail_closed",
+            "--",
+            "--exact"
+          ]
+        }
+      ]
+    }
+  ],
+  "total_mutants": 2,
+  "missed": 0,
+  "caught": 2,
+  "timeout": 0,
+  "unviable": 0,
+  "success": 0,
+  "start_time": "2026-10-08T08:24:28.249267335Z",
+  "end_time": "2026-10-08T08:29:50.966815874Z",
+  "cargo_mutants_version": "27.1.0"
+}

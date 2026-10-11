@@ -16,7 +16,21 @@ test('corpus import page RPC operations preserve their request contracts', async
     return null;
   };
   const args = { siteId: 6000005, userId: 17, ipAddress: '127.0.0.1' };
-  const row = { fullname: 'component:page', title_shown: 'Shown title' };
+  const tags = [
+    '_cc',
+    '_cc4',
+    '_licensebox',
+    'airborne',
+    'dystopian',
+    'esoteric-class',
+    'gaseous',
+    'horror',
+    'illustrated',
+    'scp',
+    'transfiguration',
+    'uncontained',
+  ];
+  const row = { fullname: 'component:page', title_shown: 'Shown title', tags };
 
   await getCorpusImportPage(args, rpc, row.fullname);
   await getCorpusImportFile(args, rpc, 173, 'fixture.txt');
@@ -27,6 +41,7 @@ test('corpus import page RPC operations preserve their request contracts', async
   assert.deepEqual(calls[1][3], { siteId: 6000005, pageRef: 173 });
   assert.equal(calls[2][2].title, 'Shown title');
   assert.equal(calls[2][2].wikitext, '[[module]]');
+  assert.deepEqual(calls[2][2].tags, tags);
   assert.deepEqual(calls[3][2], { site_id: 6000005, category_id: 44, page_id: 173 });
   assert.equal(corpusImportCategoryName('component:page'), 'component');
   assert.equal(corpusImportCategoryName('page'), '_default');

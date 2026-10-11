@@ -1,4 +1,5 @@
 import { handleIdentityRpc } from "./identity-handler.js"
+import { handlePageLabelTranslationRpc } from "./page-label-translation-handler.js"
 import { handleSiteRpc } from "./site-handler.js"
 
 /**
@@ -8,5 +9,9 @@ import { handleSiteRpc } from "./site-handler.js"
  * }} input
  */
 export const handleAuthRpc = (input) => {
-  return handleIdentityRpc(input) ?? handleSiteRpc(input)
+  return (
+    handleIdentityRpc(input) ??
+    handlePageLabelTranslationRpc(input) ??
+    handleSiteRpc(input)
+  )
 }

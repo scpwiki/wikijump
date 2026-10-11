@@ -24,7 +24,39 @@ import { pages } from "./data.js"
  * }} RecordedRpcRequest
  */
 
+export const createAuthenticatedUser = () => ({
+  user_id: 6000008,
+  user_type: "regular",
+  created_at: "2026-01-01T00:00:00Z",
+  updated_at: null,
+  deleted_at: null,
+  from_wikidot: false,
+  name: "Fixture Member",
+  slug: "fixture-member",
+  name_changes_left: 0,
+  last_name_change_added_at: "2026-01-01T00:00:00Z",
+  last_renamed_at: null,
+  email: "fixture-member@example.test",
+  email_verified_at: null,
+  email_validation_info: null,
+  email_validation_at: null,
+  password: "",
+  multi_factor_secret: null,
+  multi_factor_recovery_codes: null,
+  locales: ["en"],
+  avatar_s3_hash: [17, 34, 51],
+  forum_signature: null,
+  real_name: null,
+  gender: null,
+  birthday: null,
+  location: null,
+  biography: null,
+  website: null,
+  user_page: null
+})
+
 export const fixtureState = {
+  authenticatedUser: createAuthenticatedUser(),
   /** @type {RecordedRpcRequest | null} */
   lastPageTagsSelectRequest: null,
   /** @type {RpcParams | null} */
@@ -73,10 +105,11 @@ export const fixtureState = {
     parentUpdate: [],
     sessionGet: [],
     userGet: [],
+    userEdit: [],
     voteSet: [],
     voteRemove: []
   },
-  /** @type {Array<Record<string, unknown>>} */
+  /** @type {Record<string, unknown>[]} */
   userCreateRequests: [],
   /** @type {Record<string, RecordedRpcRequest[]>} */
   fileRequests: {
@@ -105,6 +138,8 @@ export const fixtureState = {
   /** @type {Record<number, number>} */
   voteValues: {}
 }
+
+export const isFixtureSiteId = (siteId) => siteId === 6000005 || siteId === 6000006
 
 const MIN_I64 = -(1n << 63n)
 const MAX_I64 = (1n << 63n) - 1n

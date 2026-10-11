@@ -66,6 +66,73 @@ test("native foldable menus preserve independent controls, replacement initializ
   expect(await page.evaluate(() => location.hash)).toBe("")
 })
 
+test("Info/Credit controls keep the panel hidden until opened and support keyboard and close controls", async ({
+  page
+}) => {
+  const infoBox =
+    '<li class="rateBox folded"><ul><li>' +
+    '<div id="credit-view"><div class="fader foldable-list-container">close</div>' +
+    '<div class="modalcontainer"><div class="modalbox">' +
+    '<div class="close-credits foldable-list-container">X</div><div class="credit">Author credits</div>' +
+    "</div></div></div></li></ul>" +
+    '<div class="creditButton foldable-list-container">Info</div></li>'
+  await page.setContent(`<main><ul class="creditRate">${infoBox}${infoBox}</ul></main>`)
+  await page.addScriptTag({
+    content: `window.foldableAction = (${wikidotFoldableLists.toString()})(document.querySelector("main"));`
+  })
+
+  const owner = page.locator(".creditRate > li").nth(0)
+  const otherOwner = page.locator(".creditRate > li").nth(1)
+  const opener = owner.getByRole("button", { name: "Info", exact: true })
+  const panel = owner.locator("#credit-view")
+  const content = owner.locator("ul").first()
+  await expect(owner).toHaveClass("rateBox folded")
+  await expect(otherOwner).toHaveClass("rateBox folded")
+  await expect(content).toBeHidden()
+  await expect(otherOwner.locator("ul").first()).toBeHidden()
+  await expect(panel).toHaveAttribute("role", "dialog")
+  await expect(panel).toHaveAttribute("aria-hidden", "true")
+  await expect(opener).toHaveAttribute("aria-expanded", "false")
+
+  await opener.focus()
+  await page.keyboard.press("Enter")
+  await expect(owner).toHaveClass("rateBox unfolded")
+  await expect(content).toBeVisible()
+  await expect(panel).toHaveAttribute("aria-hidden", "false")
+  await expect(opener).toHaveAttribute("aria-expanded", "true")
+  await expect(owner.getByText("X", { exact: true })).toBeFocused()
+  await page.keyboard.press("Tab")
+  await expect(owner.getByText("X", { exact: true })).toBeFocused()
+  await page.keyboard.press("Shift+Tab")
+  await expect(owner.getByText("X", { exact: true })).toBeFocused()
+  await expect(otherOwner).toHaveClass("rateBox folded")
+  await expect(otherOwner.locator("ul").first()).toBeHidden()
+  await page.keyboard.press("Escape")
+  await expect(owner).toHaveClass("rateBox folded")
+  await expect(content).toBeHidden()
+  await expect(opener).toBeFocused()
+
+  await opener.click()
+  await owner.getByText("close", { exact: true }).click()
+  await expect(owner).toHaveClass("rateBox folded")
+  await expect(content).toBeHidden()
+  await expect(opener).toBeFocused()
+
+  await opener.click()
+  await owner.getByText("X", { exact: true }).click()
+  await expect(owner).toHaveClass("rateBox folded")
+  await expect(content).toBeHidden()
+  await expect(opener).toBeFocused()
+
+  const otherOpener = otherOwner.getByRole("button", { name: "Info", exact: true })
+  await otherOpener.press("Space")
+  await expect(otherOwner).toHaveClass("rateBox unfolded")
+  await expect(otherOwner.locator("ul").first()).toBeVisible()
+  await page.keyboard.press("Escape")
+  await expect(otherOwner).toHaveClass("rateBox folded")
+  await expect(otherOwner.locator("ul").first()).toBeHidden()
+})
+
 test("PageView initializes replacement menus and unfolds ancestors of the current page", async ({
   page
 }) => {

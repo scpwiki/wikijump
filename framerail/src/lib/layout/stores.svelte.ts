@@ -1,7 +1,15 @@
 import { Layout } from "$lib/types"
 
 class ErrorPopupState {
-  current = $state<{ state: boolean; message: string | null; data: unknown | null }>({
+  current = $state<{
+    state: boolean
+    title?: string | null
+    leadIn?: string | null
+    message: string | null
+    extraMessage?: string | null
+    actionLink?: { href: string; label: string } | null
+    data: unknown | null
+  }>({
     state: false,
     message: null,
     data: null

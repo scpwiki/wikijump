@@ -628,9 +628,25 @@ impl ViewService {
             Some(PageRoute { slug, extra }) => (slug, extra),
         };
 
-        let redirect_page = Self::should_redirect_page(page_full_slug);
         let page_lookup_alias = observed_wikidot_page_url_alias(page_full_slug);
-        let page_lookup_slug = page_lookup_alias.as_deref().unwrap_or(page_full_slug);
+        let exact_page_exists = if page_lookup_alias.is_some() {
+            PageService::get_optional(ctx, site_id, Reference::Slug(cow!(page_full_slug)))
+                .await
+                .or_raise(make_error)?
+                .is_some()
+        } else {
+            false
+        };
+        let page_lookup_slug = if exact_page_exists {
+            page_full_slug
+        } else {
+            page_lookup_alias.as_deref().unwrap_or(page_full_slug)
+        };
+        let redirect_page = if exact_page_exists {
+            None
+        } else {
+            Self::should_redirect_page(page_full_slug)
+        };
         let options = PageOptions::parse(page_extra);
         let module_arguments = PageModuleArguments::parse(page_extra);
 

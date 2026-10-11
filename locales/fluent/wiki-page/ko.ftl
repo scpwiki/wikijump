@@ -1,5 +1,7 @@
 ### Wiki Page View
 
+wiki-page-append-content = 추가할 위키 텍스트
+
 wiki-page-category = 카테고리: { $category }
 
 wiki-page-revision = 리비전: { $revision }

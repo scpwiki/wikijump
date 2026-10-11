@@ -370,31 +370,41 @@ test("candidate cache misses for unsupported scripts abort without an external r
   assert.equal(responseCache.snapshot().misses, 1);
 });
 
-test("candidate cache misses for explicit provider origins fetch once and reuse the cached response", async () => {
+test("candidate cacheOnly misses for public assets fail closed without fetch or manifest mutation", async (t) => {
+  const cacheDir = await fs.mkdtemp(path.join(os.tmpdir(), "wikijump-browser-cacheonly-miss-"));
+  t.after(() => fs.rm(cacheDir, {recursive: true, force: true}));
   const gate = createBrowserRequestGate({intervalMs: 0});
-  const responseCache = createBrowserResponseCache();
+  const responseCache = createBrowserResponseCache({
+    persistentDir: cacheDir,
+    persistentIdentity: "candidate-cacheonly-miss",
+    evidenceReplay: true,
+  });
+  await responseCache.load();
+  assert.equal(responseCache.store("https://cached.example.test/retained.css", {
+    status: 200,
+    headers: {"content-type": "text/css"},
+    body: Buffer.from("retained"),
+  }), true);
+  await responseCache.flush();
+  const manifestPath = path.join(cacheDir, "manifest.json");
+  const manifestBefore = await fs.readFile(manifestPath);
+  const storesBefore = responseCache.snapshot().stores;
   const context = createContext();
-  await installBrowserRequestGate(context, {gate, responseCache, cacheOnly: true, cacheOnlyAllowedOrigins: ["https://www.youtube.com"]});
-  const url = "https://www.youtube.com/embed/example";
+  await installBrowserRequestGate(context, {gate, responseCache, cacheOnly: true});
+  const url = "https://scp-wiki.wdfiles.com/local--files/component:theme/missing.css";
   const miss = createRoute(url, {
     resourceType: "stylesheet",
-    fetchResponse: createFetchResponse({headers: {"cache-control": "public, max-age=600"}, body: "cached-provider-asset"}),
+    fetchResponse: createFetchResponse({headers: {"cache-control": "public, max-age=600"}, body: "must-not-be-fetched"}),
   });
 
   await context.routes[0].handler(miss);
-  const hit = createRoute(url, {resourceType: "stylesheet"});
-  await context.routes[0].handler(hit);
-
-  assert.deepEqual(miss.actions, [
-    {type: "fetch", options: {maxRedirects: 0}},
-    {type: "fulfill", status: 200},
-  ]);
-  assert.deepEqual(hit.actions, [{type: "fulfill", status: 200}]);
-  assert.equal(gate.snapshot().public_requests, 1);
-  assert.equal(gate.snapshot().enforcement_failed, false);
+  assert.deepEqual(miss.actions, [{type: "abort", reason: "blockedbyclient"}]);
+  assert.equal(gate.snapshot().public_requests, 0);
+  assert.equal(gate.snapshot().external_network_requests, 0);
+  assert.equal(gate.snapshot().enforcement_failed, true);
   assert.equal(responseCache.snapshot().misses, 1);
-  assert.equal(responseCache.snapshot().hits, 1);
-  assert.equal(responseCache.snapshot().stores, 1);
+  assert.equal(responseCache.snapshot().stores, storesBefore);
+  assert.deepEqual(await fs.readFile(manifestPath), manifestBefore);
 });
 
 test("a fetched persistent evidence entry is durable before the routed response completes", async (t) => {
@@ -413,7 +423,6 @@ test("a fetched persistent evidence entry is durable before the routed response 
   await installBrowserRequestGate(firstContext, {
     gate: firstGate,
     responseCache: firstCache,
-    cacheOnly: true,
   });
 
   await firstContext.routes[0].handler(createRoute(url, {
@@ -488,32 +497,26 @@ test("persistent cache instances fail closed when one request identity resolves 
   assert.equal(reloaded.get(url)?.body.toString(), "first");
 });
 
-test("concurrent candidate cache misses for one request identity perform one external fetch", async () => {
+test("concurrent candidate cache misses abort without external fetch or evidence write", async () => {
   const gate = createBrowserRequestGate({intervalMs: 0});
   const responseCache = createBrowserResponseCache({evidenceReplay: true});
   const context = createContext();
   await installBrowserRequestGate(context, {gate, responseCache, cacheOnly: true});
   const url = "https://scp-wiki.wdfiles.com/local--files/component:theme/shared.css";
-  let releaseFetch;
-  const pendingResponse = new Promise((resolve) => {
-    releaseFetch = () => resolve(createFetchResponse({body: "single-flight"}));
-  });
-  const first = createRoute(url, {resourceType: "stylesheet", fetchResponse: pendingResponse});
-  const second = createRoute(url, {resourceType: "stylesheet"});
+  const routes = [
+    createRoute(url, {resourceType: "stylesheet", fetchResponse: createFetchResponse({body: "must-not-be-fetched"})}),
+    createRoute(url, {resourceType: "stylesheet", fetchResponse: createFetchResponse({body: "must-not-be-fetched"})}),
+  ];
 
-  const firstRun = context.routes[0].handler(first);
-  const secondRun = context.routes[0].handler(second);
-  await new Promise((resolve) => setImmediate(resolve));
-  releaseFetch();
-  await Promise.all([firstRun, secondRun]);
+  await Promise.all(routes.map((route) => context.routes[0].handler(route)));
 
-  assert.deepEqual(first.actions, [
-    {type: "fetch", options: {maxRedirects: 0}},
-    {type: "fulfill", status: 200},
+  assert.deepEqual(routes.map(({actions}) => actions), [
+    [{type: "abort", reason: "blockedbyclient"}],
+    [{type: "abort", reason: "blockedbyclient"}],
   ]);
-  assert.deepEqual(second.actions, [{type: "fulfill", status: 200}]);
-  assert.equal(gate.snapshot().external_network_requests, 1);
-  assert.equal(responseCache.snapshot().stores, 1);
+  assert.equal(gate.snapshot().external_network_requests, 0);
+  assert.equal(gate.snapshot().public_requests, 0);
+  assert.equal(responseCache.snapshot().stores, 0);
 });
 
 test("separate gate installations sharing one cache single-flight the same evidence identity", async () => {
@@ -521,8 +524,8 @@ test("separate gate installations sharing one cache single-flight the same evide
   const responseCache = createBrowserResponseCache({evidenceReplay: true});
   const firstContext = createContext();
   const secondContext = createContext();
-  await installBrowserRequestGate(firstContext, {gate, responseCache, cacheOnly: true});
-  await installBrowserRequestGate(secondContext, {gate, responseCache, cacheOnly: true});
+  await installBrowserRequestGate(firstContext, {gate, responseCache});
+  await installBrowserRequestGate(secondContext, {gate, responseCache});
   const url = "https://scp-wiki.wdfiles.com/local--files/component:theme/cross-context.css";
   let releaseFetch;
   const pendingResponse = new Promise((resolve) => {
@@ -574,11 +577,11 @@ test("concurrent live evidence misses for one request identity perform one exter
   assert.equal(responseCache.snapshot().stores, 1);
 });
 
-test("candidate evidence replay caches Range GETs by exact range identity", async () => {
+test("evidence acquisition caches Range GETs by exact range identity", async () => {
   const gate = createBrowserRequestGate({intervalMs: 0});
   const responseCache = createBrowserResponseCache({evidenceReplay: true});
   const context = createContext();
-  await installBrowserRequestGate(context, {gate, responseCache, cacheOnly: true});
+  await installBrowserRequestGate(context, {gate, responseCache});
   const url = "https://scp-wiki.wdfiles.com/local--files/scp-173/video.bin";
   const first = createRoute(url, {
     resourceType: "image",
@@ -612,11 +615,11 @@ test("candidate evidence replay caches Range GETs by exact range identity", asyn
   assert.equal(responseCache.snapshot().entries, 2);
 });
 
-test("candidate evidence replay keys HTTP conditional headers independently of response Vary", async () => {
+test("evidence acquisition keys HTTP conditional headers independently of response Vary", async () => {
   const gate = createBrowserRequestGate({intervalMs: 0});
   const responseCache = createBrowserResponseCache({evidenceReplay: true});
   const context = createContext();
-  await installBrowserRequestGate(context, {gate, responseCache, cacheOnly: true});
+  await installBrowserRequestGate(context, {gate, responseCache});
   const conditionalHeaders = [
     "if-match",
     "if-none-match",
@@ -817,7 +820,7 @@ test("persistent evidence replay binds Vary Origin to the exact anonymous reques
   await firstCache.load();
   const firstGate = createBrowserRequestGate({intervalMs: 0});
   const firstContext = createContext();
-  await installBrowserRequestGate(firstContext, {gate: firstGate, responseCache: firstCache, cacheOnly: true});
+  await installBrowserRequestGate(firstContext, {gate: firstGate, responseCache: firstCache});
 
   const originA = createRoute(url, {
     resourceType: "stylesheet",
@@ -868,7 +871,7 @@ test("Vary bindings distinguish an absent request header from an explicitly empt
   const gate = createBrowserRequestGate({intervalMs: 0});
   const responseCache = createBrowserResponseCache({evidenceReplay: true});
   const context = createContext();
-  await installBrowserRequestGate(context, {gate, responseCache, cacheOnly: true});
+  await installBrowserRequestGate(context, {gate, responseCache});
   const url = "https://cdn.example.test/optional-origin.css";
   const absent = createRoute(url, {
     resourceType: "stylesheet",
@@ -895,7 +898,7 @@ test("Vary binds the complete CORS preflight header tuple", async () => {
   const gate = createBrowserRequestGate({intervalMs: 0});
   const responseCache = createBrowserResponseCache({evidenceReplay: true});
   const context = createContext();
-  await installBrowserRequestGate(context, {gate, responseCache, cacheOnly: true});
+  await installBrowserRequestGate(context, {gate, responseCache});
   const url = "https://cdn.example.test/cors-font.woff2";
   const vary = "Origin, Access-Control-Request-Headers, Access-Control-Request-Method";
   const firstHeaders = {
@@ -925,7 +928,7 @@ test("Vary binds Sec-Fetch request context without collapsing distinct destinati
   const gate = createBrowserRequestGate({intervalMs: 0});
   const responseCache = createBrowserResponseCache({evidenceReplay: true});
   const context = createContext();
-  await installBrowserRequestGate(context, {gate, responseCache, cacheOnly: true});
+  await installBrowserRequestGate(context, {gate, responseCache});
   const url = "https://cdn.example.test/context.svg";
   const vary = "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site";
   const imageHeaders = {"sec-fetch-dest": "image", "sec-fetch-mode": "no-cors", "sec-fetch-site": "cross-site"};
@@ -949,8 +952,8 @@ test("Vary binds Sec-Fetch request context without collapsing distinct destinati
 test("Vary star is retained once but fails closed instead of being reacquired or replayed", async () => {
   const gate = createBrowserRequestGate({intervalMs: 0});
   const responseCache = createBrowserResponseCache({evidenceReplay: true});
-  const context = createContext();
-  await installBrowserRequestGate(context, {gate, responseCache, cacheOnly: true});
+  const acquisitionContext = createContext();
+  await installBrowserRequestGate(acquisitionContext, {gate, responseCache});
   const url = "https://cdn.example.test/vary-star.css";
   const firstHeaders = {accept: "text/css", "sec-fetch-mode": "no-cors"};
   const first = createRoute(url, {
@@ -963,8 +966,10 @@ test("Vary star is retained once but fails closed instead of being reacquired or
     allHeaders: firstHeaders,
     fetchResponse: createFetchResponse({headers: {vary: "*"}, body: "must-not-refetch"}),
   });
-  await context.routes[0].handler(first);
-  await context.routes[0].handler(second);
+  await acquisitionContext.routes[0].handler(first);
+  const replayContext = createContext();
+  await installBrowserRequestGate(replayContext, {gate, responseCache, cacheOnly: true});
+  await replayContext.routes[0].handler(second);
 
   assert.deepEqual(first.actions, [
     {type: "fetch", options: {maxRedirects: 0}},
@@ -1000,7 +1005,7 @@ test("legacy Vary evidence is retained without bulk reacquisition and is replace
 
   const gate = createBrowserRequestGate({intervalMs: 0});
   const context = createContext();
-  await installBrowserRequestGate(context, {gate, responseCache: cache, cacheOnly: true});
+  await installBrowserRequestGate(context, {gate, responseCache: cache});
   const exact = createRoute(url, {
     resourceType: "stylesheet",
     allHeaders: {origin: "https://a.example.test"},
@@ -1028,8 +1033,8 @@ test("separate persistent cache instances coalesce the same exact miss before ex
   const secondGate = createBrowserRequestGate({intervalMs: 0});
   const firstContext = createContext();
   const secondContext = createContext();
-  await installBrowserRequestGate(firstContext, {gate: firstGate, responseCache: firstCache, cacheOnly: true});
-  await installBrowserRequestGate(secondContext, {gate: secondGate, responseCache: secondCache, cacheOnly: true});
+  await installBrowserRequestGate(firstContext, {gate: firstGate, responseCache: firstCache});
+  await installBrowserRequestGate(secondContext, {gate: secondGate, responseCache: secondCache});
   const url = "https://cdn.example.test/cross-process.css";
   let releaseFetch;
   const pendingResponse = new Promise((resolve) => {
@@ -1654,33 +1659,60 @@ test("candidate evidence replay resolves cached subresource redirects before Chr
         headers: {location: targetUrl},
         body: Buffer.alloc(0),
       });
+      responseCache.store(targetUrl, {
+        status: 200,
+        headers: {"content-type": resourceType === "stylesheet" ? "text/css" : "application/octet-stream"},
+        body: Buffer.from(resourceType === "stylesheet" ? ".target { display: block }" : "retained-target"),
+      });
       const context = createContext();
       await installBrowserRequestGate(context, {
         gate,
         responseCache,
         cacheOnly: true,
       });
-      const first = createRoute(sourceUrl, {
-        resourceType,
-        fetchResponse: createFetchResponse({
-          headers: {"content-type": resourceType === "stylesheet" ? "text/css" : "application/octet-stream"},
-          body: resourceType === "stylesheet" ? ".target { display: block }" : "retained-target",
-        }),
-      });
+      const first = createRoute(sourceUrl, {resourceType});
 
       await context.routes[0].handler(first);
 
-      assert.deepEqual(first.actions, [
-        {type: "fetch", options: {url: targetUrl, maxRedirects: 0}},
-        {type: "fulfill", status: 200},
-      ]);
-      assert.equal(gate.snapshot().public_requests, 1);
+      assert.deepEqual(first.actions, [{type: "fulfill", status: 200}]);
+      assert.equal(gate.snapshot().public_requests, 0);
+      assert.equal(gate.snapshot().external_network_requests, 0);
       assert.equal(responseCache.get(targetUrl)?.status, 200);
 
       const second = createRoute(sourceUrl, {resourceType});
       await context.routes[0].handler(second);
       assert.deepEqual(second.actions, [{type: "fulfill", status: 200}]);
-      assert.equal(gate.snapshot().public_requests, 1);
+      assert.equal(gate.snapshot().public_requests, 0);
+    });
+  }
+});
+
+test("candidate cache-only redirect target misses fail closed without external fetch", async (t) => {
+  for (const resourceType of ["stylesheet", "image", "font"]) {
+    await t.test(resourceType, async () => {
+      const gate = createBrowserRequestGate({intervalMs: 0});
+      const responseCache = createBrowserResponseCache({evidenceReplay: true});
+      const sourceUrl = `https://cdn.example.test/${resourceType}/source`;
+      const targetUrl = `https://assets.example.test/${resourceType}/missing`;
+      responseCache.store(sourceUrl, {
+        status: 301,
+        headers: {location: targetUrl},
+        body: Buffer.alloc(0),
+      });
+      const context = createContext();
+      await installBrowserRequestGate(context, {gate, responseCache, cacheOnly: true});
+      const route = createRoute(sourceUrl, {
+        resourceType,
+        fetchResponse: createFetchResponse({body: "must-not-be-fetched"}),
+      });
+
+      await context.routes[0].handler(route);
+
+      assert.deepEqual(route.actions, [{type: "abort", reason: "blockedbyclient"}]);
+      assert.equal(gate.snapshot().public_requests, 0);
+      assert.equal(gate.snapshot().external_network_requests, 0);
+      assert.equal(gate.snapshot().enforcement_failed, true);
+      assert.equal(responseCache.snapshot().stores, 1);
     });
   }
 });

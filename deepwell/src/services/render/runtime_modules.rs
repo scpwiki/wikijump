@@ -58,7 +58,8 @@ use super::service::{
     MAX_LISTPAGES_RENDER_SCAN_ROWS, PAGECALENDAR_MODULE_REGEX, RATE_MODULE_REGEX,
     RATEDPAGES_MODULE_REGEX, REGISTRY_MODULE_REGEX, RenderService, TAGCLOUD_MODULE_REGEX,
     escape_list_pages_html_attr, escape_list_pages_html_text,
-    localized_runtime_module_label, render_clone_module,
+    localized_runtime_module_label, localized_runtime_module_label_from_localizations,
+    render_clone_module,
 };
 use super::site_changes::expand_site_changes_modules;
 use super::site_utility_modules::expand_site_utility_modules;
@@ -1867,5 +1868,58 @@ mod simpletodo_security_tests {
             html.contains(r#"<span id="simpletodo-data-edit-permission">false</span>"#)
         );
         assert_eq!(html.matches(r#"aria-disabled="true""#).count(), 2);
+    }
+}
+
+#[cfg(test)]
+mod localized_module_accessible_name_tests {
+    use std::path::PathBuf;
+
+    use super::{
+        NewPageTemplateRendering, localized_runtime_module_label_from_localizations,
+        render_new_page_module,
+    };
+    use crate::locales::Localizations;
+    use crate::services::render::compat::CompatHtmlFragments;
+    use crate::services::render::search_feed::expand_search_feed_modules;
+    use crate::services::render::url_arguments::UrlArguments;
+    use ftml::layout::Layout;
+    use ftml::settings::{WikitextMode, WikitextSettings};
+
+    #[tokio::test]
+    async fn japanese_accessible_names_flow_from_fluent_catalogs_into_module_renderers() {
+        let locale_root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../locales");
+        let localizations = Localizations::open(locale_root).await.unwrap();
+        let new_page_name = localized_runtime_module_label_from_localizations(
+            &localizations,
+            "ja",
+            "wiki-page-module-new-page-name",
+            "Name of the new page",
+        );
+        let search_all_name = localized_runtime_module_label_from_localizations(
+            &localizations,
+            "ja",
+            "wiki-page-module-search-all-query",
+            "Search all Wikis",
+        );
+
+        assert_eq!(new_page_name, "新しいページ名");
+        assert_eq!(search_all_name, "すべてのWikiを検索");
+        let new_page_html =
+            render_new_page_module("", NewPageTemplateRendering::None, &new_page_name);
+        assert!(new_page_html.contains(r#"aria-label="新しいページ名""#));
+
+        let source = "[[module SearchAll]]";
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut compat_html = CompatHtmlFragments::new(source);
+        let expanded = expand_search_feed_modules(
+            source.to_owned(),
+            &settings,
+            UrlArguments::default(),
+            &search_all_name,
+            &mut compat_html,
+        );
+        let search_all_html = compat_html.restore(&expanded);
+        assert!(search_all_html.contains(r#"aria-label="すべてのWikiを検索""#));
     }
 }

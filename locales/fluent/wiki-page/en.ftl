@@ -27,6 +27,8 @@ wiki-page-revision-diff = Compare revisions
   .loading = Loading comparison…
   .no-changes = No differences.
 
+wiki-page-revision-view-unavailable = Historical page snapshot unavailable
+
 wiki-page-revision-number = Revision #
 
 wiki-page-revision-created-at = Edit time
@@ -60,6 +62,8 @@ wiki-page-vote = Page rating
 
 wiki-page-edit = Edit the page
   .toast = Page saved.
+
+wiki-page-append-content = Wikitext to append
 
 wiki-page-create = Create new page
 

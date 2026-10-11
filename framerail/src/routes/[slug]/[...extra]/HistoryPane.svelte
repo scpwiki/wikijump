@@ -32,6 +32,7 @@
   }
 
   let { setShowRevision, setRevision, data }: Props = $props()
+  const historyPaneId = $props.id()
 
   const pageLayoutContext = getPageLayoutContext()
 
@@ -198,14 +199,22 @@
     ]
   }
 
+  function revisionUnavailableLabel() {
+    const key = "wiki-page-revision-view-unavailable"
+    const translated = data.internationalization?.[key]
+    return translated && translated !== key
+      ? translated
+      : "Historical page snapshot unavailable"
+  }
+
   async function getRevision(
     timelineNumber: number,
     compiledHtml: boolean,
     wikitext: boolean
-  ) {
+  ): Promise<boolean> {
     const entry = revisionMap.get(timelineNumber)
     const revisionNumber = entry?.page_revision_number
-    if (revisionNumber === undefined || revisionNumber === null) return
+    if (revisionNumber === undefined || revisionNumber === null) return false
 
     const res = await fetch("?/revision", {
       method: "POST",
@@ -224,7 +233,7 @@
       { message: string; code: string; data: Record<string, unknown> }
     >(res)
 
-    if (!active) return
+    if (!active) return false
 
     if (result.type === "failure" && result.data?.message) {
       errorPopupState.current = {
@@ -235,12 +244,20 @@
     } else if (result.type === "success" && result.data?.res) {
       setRevision(result.data.res)
       revision = result.data.res
+      return true
     }
+    return false
   }
 
   async function rollbackRevision(timelineNumber: number, comments?: string) {
     const entry = revisionMap.get(timelineNumber)
     if (!entry || entry.history_kind !== "page") return
+    if (!canEditPage) return
+    // A rollback writes a new page revision. Ask before sending it; cancelling
+    // sends no request.
+    const label = data.internationalization?.["wiki-page-revision-rollback"] ?? "Revert"
+    // eslint-disable-next-line no-alert
+    if (!globalThis.confirm(`${label} ${entry.revision_number}?`)) return
 
     const res = await fetch("?/rollback", {
       method: "POST",
@@ -272,8 +289,33 @@
     }
   }
 
+  // Revert is offered only to viewers who may edit the page. The server still
+  // revalidates every rollback; this keeps a submitting control away from
+  // viewers who can never complete it.
+  let canEditPage = $state(false)
+
+  async function fetchEditPermission() {
+    const res = await fetch("?/editPermission", {
+      method: "POST",
+      headers: SVELTEKIT_ACTION_HEADERS,
+      body: JSON.stringify({})
+    }).then((res) => res.text())
+
+    const result = deserialize<
+      { res: { can_edit: boolean } },
+      { message: string; code: string; data: Record<string, unknown> }
+    >(res)
+
+    if (!active) return
+    canEditPage = result.type === "success" && result.data?.res?.can_edit === true
+  }
+
   $effect(() => {
     fetchHistory()
+  })
+
+  $effect(() => {
+    void fetchEditPermission()
   })
 </script>
 
@@ -286,7 +328,13 @@
       <tbody>
         <tr>
           {#each wikidotHistoryHeaders(data.site.locale) as heading, index (index)}
-            <td>{heading || " "}</td>
+            <td
+              role="columnheader"
+              aria-label={heading
+                ? undefined
+                : `${data.internationalization?.["wiki-page-revision-diff.from"]} / ${data.internationalization?.["wiki-page-revision-diff.to"]}`}
+              >{heading || " "}</td
+            >
           {/each}
         </tr>
         <!-- Here we sort the list in descending order. -->
@@ -296,7 +344,7 @@
             <td>{revisionItem.timeline_number + 1}.</td>
             <td style="width: 5em">
               <input
-                id={revisionItem.history_row_id}
+                id={`${historyPaneId}-from-${revisionItem.timeline_number}`}
                 type="radio"
                 name="from"
                 value={revisionItem.revision_id}
@@ -308,7 +356,7 @@
                 }}
               />
               <input
-                id={revisionItem.history_row_id}
+                id={`${historyPaneId}-to-${revisionItem.timeline_number}`}
                 type="radio"
                 name="to"
                 value={revisionItem.revision_id}
@@ -327,20 +375,31 @@
             </td>
             <td style="width: 5em" class="optionstd">
               <!-- svelte-ignore a11y_invalid_attribute -->
-              <a
-                href="javascript:;"
-                title={wikidotHistoryActionTitles(data.site.locale).view}
-                onclick={(event) => {
-                  event.stopPropagation()
-                  getRevision(revisionItem.timeline_number, true, false).then(() => {
+              {#if revisionItem.history_kind === "file" && (revisionItem.page_revision_number === null || revisionItem.page_revision_number === undefined)}
+                <span
+                  class="revision-view-unavailable"
+                  aria-label={revisionUnavailableLabel()}
+                  title={revisionUnavailableLabel()}
+                >
+                  {revisionUnavailableLabel()}
+                </span>
+              {:else}
+                <a
+                  href="javascript:;"
+                  title={wikidotHistoryActionTitles(data.site.locale).view}
+                  onclick={async (event) => {
+                    event.stopPropagation()
+                    if (!(await getRevision(revisionItem.timeline_number, true, false))) {
+                      return
+                    }
                     if (!active) return
                     setShowRevision(true)
                     showRevisionSource = false
-                  })
-                }}
-              >
-                V
-              </a>
+                  }}
+                >
+                  V
+                </a>
+              {/if}
               <!-- svelte-ignore a11y_invalid_attribute -->
               <a
                 href="javascript:;"
@@ -356,7 +415,7 @@
               >
                 S
               </a>
-              {#if revisionItem.history_kind === "page" && revisionItem.timeline_number < latestRevisionNumber}
+              {#if canEditPage && revisionItem.history_kind === "page" && revisionItem.timeline_number < latestRevisionNumber}
                 <!-- svelte-ignore a11y_invalid_attribute -->
                 <a
                   href="javascript:;"
@@ -450,16 +509,18 @@
               >
                 {data.internationalization?.["wiki-page-view-source"]}
               </button>
-              <button
-                class="action-button revision-rollback clickable"
-                onclick={(event) => {
-                  event.stopPropagation()
-                  rollbackRevision(revisionItem.timeline_number)
-                }}
-                type="button"
-              >
-                {data.internationalization?.["wiki-page-revision-rollback"]}
-              </button>
+              {#if canEditPage}
+                <button
+                  class="action-button revision-rollback clickable"
+                  onclick={(event) => {
+                    event.stopPropagation()
+                    rollbackRevision(revisionItem.timeline_number)
+                  }}
+                  type="button"
+                >
+                  {data.internationalization?.["wiki-page-revision-rollback"]}
+                </button>
+              {/if}
             {/if}
           {/if}
         </div>

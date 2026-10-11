@@ -7125,6 +7125,92 @@ async fn wikidot_listpages_feed_queries_newest_viewable_pages() {
 }
 
 #[tokio::test]
+async fn wikidot_listpages_feed_skips_imported_pages_without_revisions() {
+    const IMPORT_RUN_ID: i64 = 944_210;
+    const CATEGORY: &str = "fixture-listpages-feed-incomplete";
+    const HEALTHY_SLUG: &str = "fixture-listpages-feed-incomplete:healthy";
+    const INCOMPLETE_SLUG: &str = "fixture-listpages-feed-incomplete:no-revision";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        HEALTHY_SLUG,
+        "Healthy RSS item",
+        "The valid feed item remains available.",
+    )
+    .await;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INCOMPLETE_SLUG,
+        "Incomplete imported RSS item",
+        "This imported page will have no revision row.",
+    )
+    .await;
+    create_listpages_test_import_run(&runner, site_id, IMPORT_RUN_ID, 1).await;
+    let incomplete_page_id =
+        listpages_test_page_id(&runner, site_id, INCOMPLETE_SLUG).await;
+    mark_imported_page_with_author_snapshot(
+        &runner,
+        site_id,
+        IMPORT_RUN_ID,
+        (
+            incomplete_page_id,
+            INCOMPLETE_SLUG,
+            IMPORT_RUN_ID as u64,
+            "fixture-imported-author",
+        ),
+    )
+    .await;
+    let incomplete_page = PageTable::find_by_id(incomplete_page_id)
+        .one(runner.context().transaction())
+        .await
+        .expect("incomplete imported RSS page lookup should not fail")
+        .expect("incomplete imported RSS page should exist");
+    let mut incomplete_page = incomplete_page.into_active_model();
+    incomplete_page.latest_revision_id = Set(None);
+    incomplete_page
+        .update(runner.context().transaction())
+        .await
+        .expect("the incomplete imported page should have no current revision pointer");
+    PageRevisionTable::delete_many()
+        .filter(page_revision::Column::PageId.eq(incomplete_page_id))
+        .exec(runner.context().transaction())
+        .await
+        .expect("the incomplete imported page revision should be removed");
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: None,
+        site_id: Some(site_id),
+        page_reference: None,
+    });
+    let output = run_endpoint!(
+        runner,
+        wikidot_list_pages_feed,
+        json!({"site_id": site_id, "category": CATEGORY}),
+    );
+
+    assert_eq!(output.items.len(), 1);
+    assert_eq!(output.items[0].slug, HEALTHY_SLUG);
+    assert!(
+        output.items[0]
+            .body_html
+            .contains("The valid feed item remains available.")
+    );
+    assert!(
+        !output.items.iter().any(|item| item.slug == INCOMPLETE_SLUG),
+        "incomplete imported pages must not poison the whole RSS response",
+    );
+}
+
+#[tokio::test]
 async fn wikidot_listpages_feed_uses_imported_creator_identity_provenance() {
     const IMPORT_RUN_ID: i64 = 944_004;
     const TARGET_SLUG: &str = "fixture-listpages-imported-feed-target";

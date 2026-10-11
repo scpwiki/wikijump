@@ -6,6 +6,7 @@ import {
   WIKIDOT_USER_INFO_MISSING,
   loadWikidotUserInfo
 } from "../src/lib/server/wikidot-user-info.js"
+import { showUserContactAuthenticationGuard } from "../src/lib/user-contact-auth-guard.js"
 
 /**
  * @typedef {{
@@ -81,8 +82,6 @@ test("UserInfo calls the typed user view with the route target and no session", 
 
   assert.deepEqual(calls, [[7, ["en"], undefined, "the-administrator"]])
 })
-
-
 
 test("UserInfo rejects unsupported user-view response variants", async () => {
   await assert.rejects(
@@ -190,15 +189,33 @@ for (const target of ["0", "-1"]) {
   })
 }
 
-test("UserInfo view escapes identity data and leaves private messaging noninteractive", async () => {
+test("UserInfo view escapes identity data and guards the anonymous contact action", async () => {
   const source = await readFile(
     new URL("../src/routes/user[x+3a]info/[target]/+page.svelte", import.meta.url),
     "utf8"
   )
 
   assert.doesNotMatch(source, /\{@html\}|innerHTML/u)
-  assert.doesNotMatch(source, /href\s*=|onclick\s*=|<form\b/u)
+  assert.match(source, /data-action="add-to-contacts"/u)
+  assert.match(source, /data-target-user-id=\{data\.user\.userId\}/u)
+  assert.match(source, /if !page\.data\.user_session/u)
+  assert.match(source, /showUserContactAuthenticationGuard\(errorPopupState\)/u)
   assert.match(source, /\{data\.user\.name\}/u)
   assert.match(source, /data-redacted-control="private-message"/u)
   assert.match(source, /<div class="error-block">\{data\.error\}<\/div>/u)
+})
+
+test("anonymous Add to contacts opens the observed permission error without a write", () => {
+  const popupState = {
+    current: { state: false, title: null, message: null, data: null }
+  }
+
+  showUserContactAuthenticationGuard(popupState)
+
+  assert.deepEqual(popupState.current, {
+    state: true,
+    title: "Permission error",
+    message: "Please note:",
+    data: "Please create a Wikidot account and/or sign in first"
+  })
 })

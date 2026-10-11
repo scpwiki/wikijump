@@ -1,4 +1,4 @@
-import { fixtureState, hasExactKeys, pageById } from "./context.js"
+import { fixtureState, hasExactKeys, isFixtureSiteId, pageById } from "./context.js"
 import { pages, toPageResult } from "./data.js"
 import { sendRpcError, sendRpcResult } from "./response.js"
 
@@ -19,7 +19,7 @@ export const handlePageLookupRpc = ({ rpcRequest, request, response }) => {
   const pageReference = rpcRequest.params?.page
   const isStringPageViewPermission =
     typeof pageReference === "string" &&
-    request.headers["x-deepwell-site-id"] === "6000005" &&
+    isFixtureSiteId(Number(request.headers["x-deepwell-site-id"])) &&
     request.headers["x-deepwell-page"] === pageReference &&
     (request.headers["x-deepwell-session-token"] === undefined ||
       request.headers["x-deepwell-session-token"] === "fixture-session-token")
@@ -30,7 +30,7 @@ export const handlePageLookupRpc = ({ rpcRequest, request, response }) => {
   if (
     rpcRequest.method === "page_view_permission" &&
     hasExactKeys(rpcRequest.params, ["page", "site_id"]) &&
-    rpcRequest.params.site_id === 6000005 &&
+    isFixtureSiteId(rpcRequest.params.site_id) &&
     (isStringPageViewPermission || isXmlRpcParentViewPermission)
   ) {
     if (isXmlRpcParentViewPermission) {
