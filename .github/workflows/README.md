@@ -4,16 +4,13 @@ Every workflow here costs wall-clock time on a pull request, so each one needs a
 
 ## Pull-request validation
 
-GitHub Actions intentionally runs **no test suites, package installs, builds,
-linters, browsers, or live compatibility acquisition**. `ci-gate.yaml` checks
-out the exact source and runs one dependency-free repository consistency
-verifier. That verifier fails closed when the tracked Deepwell JSON-RPC
-manifest, WWS route denominator, compatibility surface inventory, or semantic
-owner registry disagree. This small guard exists because these JSON files are
-machine authority, not documentation, and a stale generated contract must not
-be able to inherit a green PR status. Substantive validation stays in the
-maintained WSL workspace, where persistent evidence caches survive retries and
-repeated campaign runs.
+There is no automatic pull-request or merge-queue CI validation workflow.
+The former `CI / gate` workflow was removed because its narrow repository
+metadata checks neither established behavioral correctness nor justified an
+automatic repository checkout for every PR. GitHub Actions does not run tests,
+installs, builds, linters, browsers, or compatibility acquisition for PRs.
+Validation belongs in the maintained WSL workspace, where persistent evidence
+caches survive retries and repeated runs.
 
 Run `scripts/preflight.sh` explicitly when a lightweight local checkpoint is useful. It classifies the current working tree and branch changes against the selected base and runs only the path-relevant local checks. Machine-readable `docs/development/*.json` authority selects the verification group even though ordinary documentation remains cheap. Every verification, Deepwell, WWS, or Framerail checkpoint also runs the repository generated-contract verifier. Pushes do not invoke validation implicitly; automatic Git hooks were removed because they can accidentally mix unrelated uncommitted work into branch delivery.
 
@@ -21,14 +18,13 @@ Theme Lab has its own path-owned group: its tests, adaptation-authority gate, ma
 
 Run `scripts/preflight.sh --final` before declaring a candidate ready. This is the one local final barrier and adds dependency hygiene, every selected Clippy pass, full test suite, validator, and the Framerail production build. Its generated-contract check also regenerates the compatibility surface inventory from the inventory's exact pinned source revision and requires byte-for-byte reproduction; this deliberately avoids the inventory's self-reference trap where pinning it to the commit that contains itself can never converge. Verification tooling and Wikidot specification inputs select the verifier package tests, standing promotion precondition, specification generator check, and implementation-ledger check without selecting a Rust component. Campaign closure additionally requires the digest-bound consolidated-validation receipt consumed by final-zero.
 
-The gate also listens for `merge_group`, so a merge queue gets the same
-`CI / gate` context as a pull request. It proves only repository-local
-generated-contract consistency, not behavioral correctness. External actions
-stay pinned to full commit SHAs.
+No `CI / gate` status is produced for pull requests or merge queues. Do not
+configure that removed status as a required branch-protection check. External
+actions in the remaining workflows stay pinned to full commit SHAs.
 
-GitHub Actions may be delayed or unavailable without changing the acceptance
-decision. Development, regression testing, and integration rehearsals must be
-runnable locally, and landing must not wait for an Actions result.
+GitHub Actions availability does not determine acceptance. Development,
+regression testing, and integration rehearsals run locally, and landing does
+not wait for an Actions validation result.
 
 `full-ci.yaml` is retained only as a manual policy notice. It never runs
 Playwright in GitHub Actions. Browser validation is local WSL work.

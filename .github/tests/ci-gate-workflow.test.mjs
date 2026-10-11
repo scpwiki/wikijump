@@ -13,7 +13,6 @@ const triggerBlock = (source) =>
   source.slice(source.indexOf("on:\n"), source.indexOf("\npermissions:"))
 
 const validationWorkflows = [
-  "ci-gate.yaml",
   "codex-cloud.yaml",
   "full-ci.yaml",
   "wikidot-verification.yaml"
@@ -33,25 +32,13 @@ const forbiddenCiCommands = [
   /\bpnpm\s+[^\n]*\blint\b/u
 ]
 
-test("central CI runs only repository-local generated-contract consistency", () => {
-  const source = workflow("ci-gate.yaml")
-  const trigger = triggerBlock(source)
-
-  assert.match(trigger, /^\s*pull_request:$/mu)
-  assert.match(trigger, /^\s*merge_group:\s*$/mu)
-  assert.match(trigger, /^\s*push:$/mu)
-  assert.match(trigger, /^\s*workflow_dispatch:\s*$/mu)
-  assert.match(source, /^permissions:\n  contents: read$/mu)
-  assert.match(source, /^  gate:$/mu)
-  assert.match(source, /^    name: CI \/ gate$/mu)
-  assert.match(source, /actions\/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10/u)
-  assert.match(
-    source,
-    /node install\/local\/wikidot-verification\/scripts\/verify-repository-generated-contracts\.mjs/u
-  )
-  assert.match(source, /installs no packages and performs no live compatibility acquisition/u)
-  assert.doesNotMatch(source, /^  (?:classify|workflow_policy|deepwell|wws|framerail|locales|verification):$/mu)
-  assert.equal((source.match(/^\s*uses:/gmu) ?? []).length, 1)
+test("automatic CI gate is absent", () => {
+  const names = readdirSync(path.join(root, ".github/workflows"))
+  assert.equal(names.includes("ci-gate.yaml"), false)
+  for (const name of validationWorkflows) {
+    const trigger = triggerBlock(workflow(name))
+    assert.doesNotMatch(trigger, /pull_request:|merge_group:|push:/u, name)
+  }
 })
 
 test("Browser CI is manual-only and runs no browser validation", () => {
@@ -112,7 +99,7 @@ test("local classifier still selects complete component validation", () => {
 
 test("local classifier keeps workflow and verification ownership", () => {
   for (const file of [
-    ".github/workflows/ci-gate.yaml",
+    ".github/workflows/README.md",
     ".github/scripts/classify-changes.mjs",
     ".github/tests/ci-gate-workflow.test.mjs"
   ]) {
