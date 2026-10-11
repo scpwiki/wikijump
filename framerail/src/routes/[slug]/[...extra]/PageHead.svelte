@@ -1,13 +1,9 @@
 <script lang="ts">
   let {
-    title,
-    siteName,
     fontPreloadHrefs,
     compiledBodyStylesHead,
     metaTags
   }: {
-    title: string | null | undefined
-    siteName: string
     fontPreloadHrefs: string[]
     compiledBodyStylesHead: string
     metaTags: { name: string; content: string; all_pages: boolean }[]
@@ -15,7 +11,6 @@
 </script>
 
 <svelte:head>
-  <title>{title} | {siteName}</title>
   {#each metaTags as metaTag (`${metaTag.all_pages}:${metaTag.name}`)}
     <meta name={metaTag.name} content={metaTag.content} />
   {/each}

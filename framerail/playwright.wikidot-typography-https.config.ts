@@ -5,7 +5,7 @@ import browserSupport from "./playwright.browser-support.config"
 // fixture WebKit obeys CSP upgrade-insecure-requests and loses local CSS.
 const config: PlaywrightTestConfig = {
   ...browserSupport,
-  testMatch: "**/wikidot-typography-https.spec.ts",
+  testMatch: "**/{wikidot-typography-https,wikidot-document-title-https}.spec.ts",
   projects: [
     {
       name: "chromium-https",

@@ -526,8 +526,6 @@
   {compiledBodyStylesHead}
   fontPreloadHrefs={pageFontPreloadHrefs}
   metaTags={showRevision ? [] : (data.meta_tags ?? [])}
-  siteName={data.site.name}
-  title={data.page_revision?.title}
 />
 
 {#if pageLayoutContext.current === Layout.WIKIDOT}
