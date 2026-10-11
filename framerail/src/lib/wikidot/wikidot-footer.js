@@ -15,6 +15,7 @@ import { isJapaneseWikidotLocale } from "./wikidot-locale.js"
  * https://www.wikidot.com/legal:privacy-policy Report a bug javascript:;
  * Flag as objectionable javascript:;
  *
+ * Each anchor carries Wikidot's control id, which its hovertips attach to.
  * `Report a bug` and `Flag as objectionable` are inert anchors on Wikidot
  * too. The click runs `WIKIDOT.page.listeners.pageBugReport` /
  * `flagPageObjectionable`, which request the in-page
@@ -24,14 +25,19 @@ import { isJapaneseWikidotLocale } from "./wikidot-locale.js"
  * replaces.
  */
 export const WIKIDOT_FOOTER_LINKS = Object.freeze([
-  { label: "Help", href: "https://www.wikidot.com/doc" },
+  { label: "Help", href: "https://www.wikidot.com/doc", id: "wikidot-help-button" },
   {
     label: "Terms of Service",
-    href: "https://www.wikidot.com/legal:terms-of-service"
+    href: "https://www.wikidot.com/legal:terms-of-service",
+    id: "wikidot-tos-button"
   },
-  { label: "Privacy", href: "https://www.wikidot.com/legal:privacy-policy" },
-  { label: "Report a bug", href: "javascript:;" },
-  { label: "Flag as objectionable", href: "javascript:;" }
+  {
+    label: "Privacy",
+    href: "https://www.wikidot.com/legal:privacy-policy",
+    id: "wikidot-privacy-button"
+  },
+  { label: "Report a bug", href: "javascript:;", id: "bug-report-button" },
+  { label: "Flag as objectionable", href: "javascript:;", id: "abuse-report-button" }
 ])
 
 /**
@@ -39,11 +45,19 @@ export const WIKIDOT_FOOTER_LINKS = Object.freeze([
  * 2026-09-29 emits the same targets with the Japanese labels.
  */
 export const WIKIDOT_FOOTER_LINKS_JA = Object.freeze([
-  { label: "ヘルプ", href: "https://www.wikidot.com/doc" },
-  { label: "利用規約", href: "https://www.wikidot.com/legal:terms-of-service" },
-  { label: "プライバシー", href: "https://www.wikidot.com/legal:privacy-policy" },
-  { label: "バグを報告", href: "javascript:;" },
-  { label: "不快フラグを立てる", href: "javascript:;" }
+  { label: "ヘルプ", href: "https://www.wikidot.com/doc", id: "wikidot-help-button" },
+  {
+    label: "利用規約",
+    href: "https://www.wikidot.com/legal:terms-of-service",
+    id: "wikidot-tos-button"
+  },
+  {
+    label: "プライバシー",
+    href: "https://www.wikidot.com/legal:privacy-policy",
+    id: "wikidot-privacy-button"
+  },
+  { label: "バグを報告", href: "javascript:;", id: "bug-report-button" },
+  { label: "不快フラグを立てる", href: "javascript:;", id: "abuse-report-button" }
 ])
 
 export const WIKIDOT_POWERED_BY = "Powered by Wikidot.com"

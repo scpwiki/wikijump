@@ -152,3 +152,21 @@ test("selects Wikidot footer branding only for imported Wikidot views", () => {
   assert.equal(isImportedWikidotView({ page: { from_wikidot: true } }), true)
   assert.equal(isImportedWikidotView({ page_revision: { from_wikidot: true } }), true)
 })
+
+test("carries Wikidot's footer control ids for their hovertips", () => {
+  const ids = [
+    "wikidot-help-button",
+    "wikidot-tos-button",
+    "wikidot-privacy-button",
+    "bug-report-button",
+    "abuse-report-button"
+  ]
+  assert.deepEqual(
+    WIKIDOT_FOOTER_LINKS.map((link) => link.id),
+    ids
+  )
+  assert.deepEqual(
+    WIKIDOT_FOOTER_LINKS_JA.map((link) => link.id),
+    ids
+  )
+})
