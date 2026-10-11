@@ -173,4 +173,5 @@ test("imported page-info remains sourced from its retained Wikidot snapshot", ()
   }).body
 
   assert.match(body, /<a[^>]*id="discuss-button"[^>]*>Discuss \(2\)<\/a>/u)
+  assert.doesNotMatch(body, /id="discuss-button"[^>]*onclick=/u)
 })
