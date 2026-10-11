@@ -1314,6 +1314,77 @@ fn rate_module_block_fragment_restores_only_at_root_and_div_contexts() {
     );
 }
 
+fn render_rate_module_through_ftml(source: &str) -> String {
+    let mut page_info = fallback_test_page_info("rate-containers", "Rate containers");
+    page_info.score = ftml::data::ScoreValue::Integer(0);
+    let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+    let mut fragments = CompatHtmlFragments::new(source);
+    let mut compat_text = CompatTextFragments::new(source);
+    let mut protected = RenderService::expand_rate_modules_with_registry(
+        source.to_owned(),
+        &page_info,
+        &settings,
+        RateModuleContext {
+            rating_type: PageRatingType::PlusMinus,
+            score: page_info.score,
+            rating_votes: None,
+        },
+        &mut fragments,
+        &mut compat_text,
+    );
+    ftml::preprocess_for_layout(&mut protected, settings.layout);
+    let tokens = ftml::tokenize(&protected);
+    let (tree, _) = ftml::parse(&tokens, &page_info, &settings).into();
+    let rendered = HtmlRender.render(&tree, &page_info, &settings).body;
+    fragments.restore(&rendered)
+}
+
+#[test]
+fn rate_module_renders_directly_inside_header_cells_and_list_items() {
+    // Anonymous Wikidot PagePreviewModule (scp-wiki, 2026-10-11, issue #2348):
+    // [[module Rate]] inside [[hcell]], [[cell]], [[ul]][[li]], and [[ol]][[li]]
+    // renders <th>/<td>/<li><div class="page-rate-widget-box">…</div></th|td|li>
+    // with no paragraph between the container and the widget.
+    for (source, parent) in [
+        (
+            "[[table]]\n[[row]]\n[[hcell]]\n[[module Rate]]\n[[/hcell]]\n[[/row]]\n[[/table]]\n",
+            "<th>",
+        ),
+        (
+            "[[table]]\n[[row]]\n[[hcell class=\"namerow\" colspan=\"2\"]]\n[[module Rate]]\n[[/hcell]]\n[[/row]]\n[[/table]]\n",
+            r#"<th class="namerow" colspan="2">"#,
+        ),
+        (
+            "[[table]]\n[[row]]\n[[cell]]\n[[module Rate]]\n[[/cell]]\n[[/row]]\n[[/table]]\n",
+            "<td>",
+        ),
+        (
+            "[[ul]]\n[[li]]\n[[module Rate]]\n[[/li]]\n[[/ul]]\n",
+            "<li>",
+        ),
+        (
+            "[[ol]]\n[[li]]\n[[module Rate]]\n[[/li]]\n[[/ol]]\n",
+            "<li>",
+        ),
+    ] {
+        let rendered = render_rate_module_through_ftml(source);
+
+        assert!(
+            rendered.contains(&format!(r#"{parent}<div class="page-rate-widget-box">"#)),
+            "{source}\n{rendered}"
+        );
+        assert_eq!(
+            rendered.matches(r#"class="page-rate-widget-box""#).count(),
+            1,
+            "{rendered}"
+        );
+        assert!(
+            !rendered.contains(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX),
+            "{source}\n{rendered}"
+        );
+    }
+}
+
 #[test]
 fn rate_module_expansion_leaves_wikidot_quote_depths_literal() {
     let source = concat!(

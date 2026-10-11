@@ -913,6 +913,9 @@ fn is_void_html_element(name: &str) -> bool {
     )
 }
 
+/// Parents that may directly contain a restored block fragment. Table cells
+/// and list items are included because Wikidot places block module output
+/// (ListPages, Rate) directly in `<td>`, `<th>`, and `<li>`.
 fn is_safe_block_html_container(name: &str) -> bool {
     matches!(
         name,
@@ -923,9 +926,11 @@ fn is_safe_block_html_container(name: &str) -> bool {
             | "div"
             | "footer"
             | "header"
+            | "li"
             | "main"
             | "section"
             | "td"
+            | "th"
     )
 }
 
@@ -1248,6 +1253,35 @@ mod tests {
             fragments.restore(&format!("<div><p>before</p>{marker}</div>")),
             "<div><p>before</p><ul><li>trusted</li></ul></div>",
         );
+    }
+
+    #[test]
+    fn block_html_restores_as_a_direct_child_of_header_cells_and_list_items() {
+        // Anonymous Wikidot PagePreviewModule (scp-wiki, 2026-10-11): ListPages
+        // and Rate output inside [[hcell]] and [[li]] is a direct child of
+        // <th>/<li>, exactly like the [[cell]] (<td>) and [[div]] controls.
+        let mut fragments = CompatHtmlFragments::new("");
+        let marker = fragments.push_block_html(
+            r#"<div class="list-pages-box"><p>row</p></div>"#.to_owned(),
+        );
+        let block = r#"<div class="list-pages-box"><p>row</p></div>"#;
+
+        for (open, close) in [
+            ("<table>\n<tr>\n<th>", "</th>\n</tr>\n</table>"),
+            (
+                r#"<table><tr><th class="namerow" colspan="2">"#,
+                "</th></tr></table>",
+            ),
+            ("<table><tr><td>", "</td></tr></table>"),
+            ("<ul>\n<li>", "</li>\n</ul>"),
+            ("<ol><li>", "</li></ol>"),
+        ] {
+            for body in [format!("<p>{marker}</p>"), marker.clone()] {
+                let restored = fragments.restore(&format!("{open}{body}{close}"));
+                assert_eq!(restored, format!("{open}{block}{close}"));
+                assert!(!restored.contains(COMPAT_HTML_MARKER_PREFIX), "{restored}");
+            }
+        }
     }
 
     #[test]
