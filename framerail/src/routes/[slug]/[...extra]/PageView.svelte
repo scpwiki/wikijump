@@ -115,6 +115,10 @@
   let wikidotPageActions = $derived(data.wikidot_page_actions)
   let wikidotPageWatch = $derived(data.wikidot_page_watch)
   let dataFormEditing = $derived(!!data.options?.edit && !!data.data_form)
+  let actionAreaHidden = $derived(
+    (!showSource && pagePaneState === PagePane.None && !editSection) ||
+      (pagePaneState === PagePane.File && !wikidotFilesListReady)
+  )
   let isDirectWikidotFragmentPage = $derived(
     pageLayoutContext.current === Layout.WIKIDOT &&
       !data.options?.debug &&
@@ -842,10 +846,11 @@
       </div>
     {/if}
 
+    <!-- Wikidot hides this inline so theme #action-area rules cannot expose an empty pane. -->
     <div
       id="action-area"
-      class:hidden={(!showSource && pagePaneState === PagePane.None && !editSection) ||
-        (pagePaneState === PagePane.File && !wikidotFilesListReady)}
+      class:hidden={actionAreaHidden}
+      style:display={actionAreaHidden ? "none" : undefined}
     >
       {#if (showSource || pagePaneState !== PagePane.None || editSection) && (pagePaneState !== PagePane.File || wikidotFilesListReady)}
         <!-- svelte-ignore a11y_invalid_attribute -->

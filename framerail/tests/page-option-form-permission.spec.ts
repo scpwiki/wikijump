@@ -89,6 +89,32 @@ const expectNoWritableSurface = async (page: Page, formSelector: string) => {
   await expect(page.locator("#action-area")).toHaveClass(/hidden/u)
 }
 
+test("hidden action area does not reserve space against a theme ID selector", async ({
+  page
+}) => {
+  await page.setExtraHTTPHeaders(SITE_HEADERS)
+  await page.goto("/page-workflow-probe", { waitUntil: "domcontentloaded" })
+
+  const actionArea = page.locator("#action-area")
+  await expect(actionArea).toHaveClass(/hidden/u)
+  const footerTop = await page
+    .locator("#footer")
+    .evaluate((element) => element.getBoundingClientRect().top)
+
+  // Imported Wikidot themes may target #action-area directly. That selector
+  // outranks the shell's `.hidden` class unless the hidden state is inline.
+  await page.addStyleTag({
+    content: "#action-area { display: grid; margin-top: 16px; padding: 0; }"
+  })
+
+  await expect(actionArea).toHaveCSS("display", "none")
+  await expect
+    .poll(() =>
+      page.locator("#footer").evaluate((element) => element.getBoundingClientRect().top)
+    )
+    .toBe(footerTop)
+})
+
 test.describe("anonymous existing-page Append and Parent options", () => {
   test("Append answers with the edit-permission dialog and opens no form", async ({
     page
