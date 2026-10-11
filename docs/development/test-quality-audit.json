@@ -8174,7 +8174,7 @@
     },
     {
       "path": "install/local/wikidot-verification/scripts/capture-browser-rendering.mjs",
-      "sha256": "cfc68f8ec31a0f88269d680425f1c7188c2bf90554e1a17cf080f6baf3de4317",
+      "sha256": "ac2132ecff1be7eae12b3505da2ec7f74a78f2e442d0addbd6a1371350d58da0",
       "status": "pending",
       "anchors": [],
       "findings": [],

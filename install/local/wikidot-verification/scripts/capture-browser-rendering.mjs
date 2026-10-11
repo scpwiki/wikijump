@@ -182,6 +182,22 @@ Anonymous source responses use a persistent evidence-replay cache under XDG_CACH
 `);
 }
 
+// The CLI used to log only AggregateError.message, hiding both independent
+// reasons when capture and cleanup fail. Keep them separately attributable.
+// Avoid exposing URL query strings or access tokens in diagnostics.
+export function browserCaptureFailureDiagnostic(error) {
+  const redact = (value) => String(value)
+    .replace(/(https?:\/\/[^\s?#]+)(?:[?#][^\s]*)?/giu, "$1?[redacted]")
+    .replace(/(token|password|secret|authorization|cookie)\s*[:=]\s*[^\s,;]+/giu, "$1=[redacted]");
+  const message = (value) => redact(value instanceof Error ? value.message : value);
+  if (!(error instanceof AggregateError)) return message(error);
+  return [
+    message(error),
+    ...error.errors.map((cause, index) =>
+      `${index === 0 ? "capture" : index === 1 ? "cleanup" : `cause ${index + 1}`}: ${message(cause)}`),
+  ].join("\n");
+}
+
 export function browserCaptureFailure(captureError, cleanupError) {
   if (captureError !== null && cleanupError !== null) {
     return new AggregateError([captureError, cleanupError], "browser capture and cleanup both failed");
@@ -791,7 +807,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === SCRIPT_PATH) {
   run().then((code) => {
     process.exitCode = code;
   }).catch((error) => {
-    console.error(error.message);
+    console.error(browserCaptureFailureDiagnostic(error));
     process.exitCode = 1;
   });
 }
