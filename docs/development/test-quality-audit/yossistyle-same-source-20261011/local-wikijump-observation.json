@@ -1,0 +1,387 @@
+[
+  {
+    "engine": "chromium",
+    "url": "https://scp-wiki.wikijump.localhost/theme:yossistyle",
+    "status": 200,
+    "viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "title": "YOSSISTYLE CSS THEME | SCP Foundation",
+    "body": {
+      "text": "SCP Foundation Secure, Contain, Protect    \nAbout\n\nAbout Us\nSite Rules\nFAQ\nLicensing\nCriticism Polic",
+      "css": {
+        "font-family": "InterVariable, RedactRect, Inter, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen, Ubuntu, Cantarell, \"Fira Sans\", \"Droid Sans\", \"Helvetica Neue\", sans-serif",
+        "font-size": "15.2px",
+        "font-weight": "400",
+        "line-height": "normal",
+        "text-rendering": "auto"
+      },
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 3609.703125
+      }
+    },
+    "content": {
+      "text": "Good question, generic rhetorical sentence used on every single style page for some reason. This is ",
+      "css": {
+        "font-family": "InterVariable, RedactRect, Inter, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen, Ubuntu, Cantarell, \"Fira Sans\", \"Droid Sans\", \"Helvetica Neue\", sans-serif",
+        "font-size": "15.2px",
+        "font-weight": "400",
+        "line-height": "22.8px",
+        "text-rendering": "auto"
+      },
+      "rect": {
+        "x": 384,
+        "y": 360.34375,
+        "width": 760,
+        "height": 68.921875
+      }
+    },
+    "titleElement": {
+      "text": "YOSSISTYLE CSS THEME",
+      "css": {
+        "font-family": "InterVariable, RedactRect, Inter, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen, Ubuntu, Cantarell, \"Fira Sans\", \"Droid Sans\", \"Helvetica Neue\", sans-serif",
+        "font-size": "30.4px",
+        "font-weight": "400",
+        "line-height": "normal",
+        "text-rendering": "auto"
+      },
+      "rect": {
+        "x": 384,
+        "y": 198,
+        "width": 760,
+        "height": 44.59375
+      }
+    },
+    "stylesheets": 8,
+    "articleText": "Rating: +145+–X\nWhat Is This????????\n\nGood question, generic rhetorical sentence used on every single style page for some reason. This is the YOSSISTYLE, my own personal customized component/theme completely and utterly different from the other personal customized component/theme pages on this hellhole site!\n\nThe YOSSISTYLE is different though: instead of merely being some aesthetic changes designed to suit the whims of the author (like my contemporaries did), I instead designed this page to serve the masses, the people, the individual. Each person in of themselves. As Lenin once said, \"You look for the person who will benefit, and, uh, uh…\", and those words touched me. That is now my philosophy, and I'm proud to bring my glorious CSS revolution to the Wiki.\n\nBut Yossi, I pretend to hear you cry, surely this will make you many political enemies! How will you possibly win the upcoming SCP elections if you are providing free Sigma-9 edits to everyone? How will you afford to pay for the massive amounts of [[include]]s surely to follow the YOSSISTYLE's publishing? Are you going to address the upvote gap which separates the 1% from the rest of the Wiki? And to that I say shut up and don't worry about it I got it under control.\n\nThe YOSSISTYLE may or may not be compatible with Black HighLighter. I, personally, have no fucking clue as to whether or not the two work together. You're fr",
+    "sourceStyles": [
+      {
+        "href": "https://scp-wiki.wikijump.localhost/wikidot/styles/wikidot-base-165bc434fd1d.css",
+        "loaded": true
+      },
+      {
+        "href": "https://scp-wiki.wikijump.localhost/wikidot/styles/pagerate-db0bffe086ed.css",
+        "loaded": true
+      },
+      {
+        "href": "https://scp-wiki.wikijump.localhost/wikidot/styles/sigma-fe5388a32e12.css",
+        "loaded": true
+      },
+      {
+        "href": "https://cdn.scpwiki.com/theme/en/sigma/css/sigma.min.css",
+        "loaded": true
+      },
+      {
+        "href": "https://scp-wiki.wikijump.localhost/_app/immutable/assets/0.DTuZsE2_.css",
+        "loaded": true
+      },
+      {
+        "href": "https://scp-wiki.wikijump.localhost/_app/immutable/assets/PageView.34RcAXTA.css",
+        "loaded": true
+      },
+      {
+        "href": "https://scp-wiki.wikijump.localhost/_app/immutable/assets/DataFormEditor.A11OQHIO.css",
+        "loaded": true
+      },
+      {
+        "href": "https://scp-wiki.wikijump.localhost/_app/immutable/assets/1.DTCtpvHC.css",
+        "loaded": true
+      }
+    ],
+    "requestFailures": []
+  },
+  {
+    "engine": "firefox",
+    "url": "https://scp-wiki.wikijump.localhost/theme:yossistyle",
+    "status": 200,
+    "viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "title": "YOSSISTYLE CSS THEME | SCP Foundation",
+    "body": {
+      "text": "SCP Foundation Secure, Contain, Protect    \nAbout\n\nAbout Us\nSite Rules\nFAQ\nLicensing\nCriticism Polic",
+      "css": {
+        "font-family": "InterVariable, RedactRect, Inter, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif",
+        "font-size": "15.2031px",
+        "font-weight": "400",
+        "line-height": "normal",
+        "text-rendering": "auto"
+      },
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 3623.0166015625
+      }
+    },
+    "content": {
+      "text": "Good question, generic rhetorical sentence used on every single style page for some reason. This is ",
+      "css": {
+        "font-family": "InterVariable, RedactRect, Inter, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif",
+        "font-size": "15.2031px",
+        "font-weight": "400",
+        "line-height": "22.8px",
+        "text-rendering": "auto"
+      },
+      "rect": {
+        "x": 384,
+        "y": 362.3999938964844,
+        "width": 760,
+        "height": 69.66667175292969
+      }
+    },
+    "titleElement": {
+      "text": "YOSSISTYLE CSS THEME",
+      "css": {
+        "font-family": "InterVariable, RedactRect, Inter, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif",
+        "font-size": "30.4063px",
+        "font-weight": "400",
+        "line-height": "normal",
+        "text-rendering": "auto"
+      },
+      "rect": {
+        "x": 384,
+        "y": 198,
+        "width": 760,
+        "height": 45.600006103515625
+      }
+    },
+    "stylesheets": 8,
+    "articleText": "Rating: +145+–X\nWhat Is This????????\n\nGood question, generic rhetorical sentence used on every single style page for some reason. This is the YOSSISTYLE, my own personal customized component/theme completely and utterly different from the other personal customized component/theme pages on this hellhole site!\n\nThe YOSSISTYLE is different though: instead of merely being some aesthetic changes designed to suit the whims of the author (like my contemporaries did), I instead designed this page to serve the masses, the people, the individual. Each person in of themselves. As Lenin once said, \"You look for the person who will benefit, and, uh, uh…\", and those words touched me. That is now my philosophy, and I'm proud to bring my glorious CSS revolution to the Wiki.\n\nBut Yossi, I pretend to hear you cry, surely this will make you many political enemies! How will you possibly win the upcoming SCP elections if you are providing free Sigma-9 edits to everyone? How will you afford to pay for the massive amounts of [[include]]s surely to follow the YOSSISTYLE's publishing? Are you going to address the upvote gap which separates the 1% from the rest of the Wiki? And to that I say shut up and don't worry about it I got it under control.\n\nThe YOSSISTYLE may or may not be compatible with Black HighLighter. I, personally, have no fucking clue as to whether or not the two work together. You're fr",
+    "sourceStyles": [
+      {
+        "href": "https://scp-wiki.wikijump.localhost/wikidot/styles/wikidot-base-165bc434fd1d.css",
+        "loaded": true
+      },
+      {
+        "href": "https://scp-wiki.wikijump.localhost/wikidot/styles/pagerate-db0bffe086ed.css",
+        "loaded": true
+      },
+      {
+        "href": "https://scp-wiki.wikijump.localhost/wikidot/styles/sigma-fe5388a32e12.css",
+        "loaded": true
+      },
+      {
+        "href": "https://cdn.scpwiki.com/theme/en/sigma/css/sigma.min.css",
+        "loaded": true
+      },
+      {
+        "href": "https://scp-wiki.wikijump.localhost/_app/immutable/assets/0.DTuZsE2_.css",
+        "loaded": true
+      },
+      {
+        "href": "https://scp-wiki.wikijump.localhost/_app/immutable/assets/PageView.34RcAXTA.css",
+        "loaded": true
+      },
+      {
+        "href": "https://scp-wiki.wikijump.localhost/_app/immutable/assets/DataFormEditor.A11OQHIO.css",
+        "loaded": true
+      },
+      {
+        "href": "https://scp-wiki.wikijump.localhost/_app/immutable/assets/1.DTCtpvHC.css",
+        "loaded": true
+      }
+    ],
+    "requestFailures": [
+      {
+        "url": "https://scp-wiki.wdfiles.com/local--files/site/favicon.gif",
+        "reason": "NS_ERROR_DOM_NETWORK_ERR"
+      }
+    ]
+  },
+  {
+    "engine": "webkit",
+    "url": "https://scp-wiki.wikijump.localhost/theme:yossistyle",
+    "status": 200,
+    "viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "title": "YOSSISTYLE CSS THEME | SCP Foundation",
+    "body": {
+      "text": "SCP Foundation Secure, Contain, Protect    \nAbout\n\nAbout Us\nSite Rules\nFAQ\nLicensing\nCriticism Polic",
+      "css": {
+        "font-family": "InterVariable, RedactRect, Inter, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif",
+        "font-size": "15.2px",
+        "font-weight": "400",
+        "line-height": "normal",
+        "text-rendering": "auto"
+      },
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 3608.5
+      }
+    },
+    "content": {
+      "text": "Good question, generic rhetorical sentence used on every single style page for some reason. This is ",
+      "css": {
+        "font-family": "InterVariable, RedactRect, Inter, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif",
+        "font-size": "15.2px",
+        "font-weight": "400",
+        "line-height": "22.799999px",
+        "text-rendering": "auto"
+      },
+      "rect": {
+        "x": 384,
+        "y": 355.34375,
+        "width": 760,
+        "height": 68.34375
+      }
+    },
+    "titleElement": {
+      "text": "YOSSISTYLE CSS THEME",
+      "css": {
+        "font-family": "InterVariable, RedactRect, Inter, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif",
+        "font-size": "30.4px",
+        "font-weight": "400",
+        "line-height": "normal",
+        "text-rendering": "auto"
+      },
+      "rect": {
+        "x": 384,
+        "y": 198,
+        "width": 760,
+        "height": 44.59375
+      }
+    },
+    "stylesheets": 8,
+    "articleText": "Rating: +145+–X\nWhat Is This????????\n\nGood question, generic rhetorical sentence used on every single style page for some reason. This is the YOSSISTYLE, my own personal customized component/theme completely and utterly different from the other personal customized component/theme pages on this hellhole site!\n\nThe YOSSISTYLE is different though: instead of merely being some aesthetic changes designed to suit the whims of the author (like my contemporaries did), I instead designed this page to serve the masses, the people, the individual. Each person in of themselves. As Lenin once said, \"You look for the person who will benefit, and, uh, uh…\", and those words touched me. That is now my philosophy, and I'm proud to bring my glorious CSS revolution to the Wiki.\n\nBut Yossi, I pretend to hear you cry, surely this will make you many political enemies! How will you possibly win the upcoming SCP elections if you are providing free Sigma-9 edits to everyone? How will you afford to pay for the massive amounts of [[include]]s surely to follow the YOSSISTYLE's publishing? Are you going to address the upvote gap which separates the 1% from the rest of the Wiki? And to that I say shut up and don't worry about it I got it under control.\n\nThe YOSSISTYLE may or may not be compatible with Black HighLighter. I, personally, have no fucking clue as to whether or not the two work together. You're fr",
+    "sourceStyles": [
+      {
+        "href": "https://scp-wiki.wikijump.localhost/wikidot/styles/wikidot-base-165bc434fd1d.css",
+        "loaded": true
+      },
+      {
+        "href": "https://scp-wiki.wikijump.localhost/wikidot/styles/pagerate-db0bffe086ed.css",
+        "loaded": true
+      },
+      {
+        "href": "https://scp-wiki.wikijump.localhost/wikidot/styles/sigma-fe5388a32e12.css",
+        "loaded": true
+      },
+      {
+        "href": "https://cdn.scpwiki.com/theme/en/sigma/css/sigma.min.css",
+        "loaded": true
+      },
+      {
+        "href": "https://scp-wiki.wikijump.localhost/_app/immutable/assets/0.DTuZsE2_.css",
+        "loaded": true
+      },
+      {
+        "href": "https://scp-wiki.wikijump.localhost/_app/immutable/assets/PageView.34RcAXTA.css",
+        "loaded": true
+      },
+      {
+        "href": "https://scp-wiki.wikijump.localhost/_app/immutable/assets/DataFormEditor.A11OQHIO.css",
+        "loaded": true
+      },
+      {
+        "href": "https://scp-wiki.wikijump.localhost/_app/immutable/assets/1.DTCtpvHC.css",
+        "loaded": true
+      }
+    ],
+    "requestFailures": []
+  },
+  {
+    "engine": "mobile-chromium",
+    "url": "https://scp-wiki.wikijump.localhost/theme:yossistyle",
+    "status": 200,
+    "viewport": {
+      "width": 412,
+      "height": 839
+    },
+    "title": "YOSSISTYLE CSS THEME | SCP Foundation",
+    "body": {
+      "text": "SCP Foundation Secure, Contain, Protect    \nAbout\n\nAbout Us\nSite Rules\nFAQ\nLicensing\nCriticism Polic",
+      "css": {
+        "font-family": "InterVariable, RedactRect, Inter, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen, Ubuntu, Cantarell, \"Fira Sans\", \"Droid Sans\", \"Helvetica Neue\", sans-serif",
+        "font-size": "15.2px",
+        "font-weight": "400",
+        "line-height": "normal",
+        "text-rendering": "auto"
+      },
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 412,
+        "height": 4545.109375
+      }
+    },
+    "content": {
+      "text": "Good question, generic rhetorical sentence used on every single style page for some reason. This is ",
+      "css": {
+        "font-family": "InterVariable, RedactRect, Inter, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen, Ubuntu, Cantarell, \"Fira Sans\", \"Droid Sans\", \"Helvetica Neue\", sans-serif",
+        "font-size": "13.68px",
+        "font-weight": "400",
+        "line-height": "20.52px",
+        "text-rendering": "auto"
+      },
+      "rect": {
+        "x": 20.59375,
+        "y": 339.609375,
+        "width": 370.796875,
+        "height": 125.765625
+      }
+    },
+    "titleElement": {
+      "text": "YOSSISTYLE CSS THEME",
+      "css": {
+        "font-family": "InterVariable, RedactRect, Inter, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen, Ubuntu, Cantarell, \"Fira Sans\", \"Droid Sans\", \"Helvetica Neue\", sans-serif",
+        "font-size": "30.4px",
+        "font-weight": "400",
+        "line-height": "normal",
+        "text-rendering": "auto"
+      },
+      "rect": {
+        "x": 20.59375,
+        "y": 186,
+        "width": 370.796875,
+        "height": 44.59375
+      }
+    },
+    "stylesheets": 8,
+    "articleText": "Rating: +145+–X\nWhat Is This????????\n\nGood question, generic rhetorical sentence used on every single style page for some reason. This is the YOSSISTYLE, my own personal customized component/theme completely and utterly different from the other personal customized component/theme pages on this hellhole site!\n\nThe YOSSISTYLE is different though: instead of merely being some aesthetic changes designed to suit the whims of the author (like my contemporaries did), I instead designed this page to serve the masses, the people, the individual. Each person in of themselves. As Lenin once said, \"You look for the person who will benefit, and, uh, uh…\", and those words touched me. That is now my philosophy, and I'm proud to bring my glorious CSS revolution to the Wiki.\n\nBut Yossi, I pretend to hear you cry, surely this will make you many political enemies! How will you possibly win the upcoming SCP elections if you are providing free Sigma-9 edits to everyone? How will you afford to pay for the massive amounts of [[include]]s surely to follow the YOSSISTYLE's publishing? Are you going to address the upvote gap which separates the 1% from the rest of the Wiki? And to that I say shut up and don't worry about it I got it under control.\n\nThe YOSSISTYLE may or may not be compatible with Black HighLighter. I, personally, have no fucking clue as to whether or not the two work together. You're fr",
+    "sourceStyles": [
+      {
+        "href": "https://scp-wiki.wikijump.localhost/wikidot/styles/wikidot-base-165bc434fd1d.css",
+        "loaded": true
+      },
+      {
+        "href": "https://scp-wiki.wikijump.localhost/wikidot/styles/pagerate-db0bffe086ed.css",
+        "loaded": true
+      },
+      {
+        "href": "https://scp-wiki.wikijump.localhost/wikidot/styles/sigma-fe5388a32e12.css",
+        "loaded": true
+      },
+      {
+        "href": "https://cdn.scpwiki.com/theme/en/sigma/css/sigma.min.css",
+        "loaded": true
+      },
+      {
+        "href": "https://scp-wiki.wikijump.localhost/_app/immutable/assets/0.DTuZsE2_.css",
+        "loaded": true
+      },
+      {
+        "href": "https://scp-wiki.wikijump.localhost/_app/immutable/assets/PageView.34RcAXTA.css",
+        "loaded": true
+      },
+      {
+        "href": "https://scp-wiki.wikijump.localhost/_app/immutable/assets/DataFormEditor.A11OQHIO.css",
+        "loaded": true
+      },
+      {
+        "href": "https://scp-wiki.wikijump.localhost/_app/immutable/assets/1.DTCtpvHC.css",
+        "loaded": true
+      }
+    ],
+    "requestFailures": []
+  }
+]
