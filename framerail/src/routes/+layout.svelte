@@ -124,6 +124,15 @@
     })
   )
   const isImportedWikidotLayout = $derived(isImportedWikidotView(viewData))
+  // Imported page tab titles follow the observed Wikidot `page - site` format.
+  // Resolve during SSR too, instead of displaying the site-only title until hydration.
+  const documentTitle = $derived.by(() => {
+    const siteName = viewData?.site?.name ?? ""
+    const pageTitle = viewData?.page_revision?.title
+    if (page.route.id !== "/[slug]/[...extra]" || !pageTitle) return siteName
+    const separator = isImportedWikidotLayout ? " - " : " | "
+    return `${pageTitle}${separator}${siteName}`
+  })
   const useWikidotLicenseHtml = $derived(
     shouldUseWikidotLicenseHtml(isImportedWikidotLayout, canonicalView.licenseKind)
   )
@@ -222,7 +231,7 @@
 {/if}
 
 <svelte:head>
-  <title>{viewData?.site?.name}</title>
+  <title>{documentTitle}</title>
   {#if analyticsProfile}
     <meta
       name="wikidot-site-analytics-profile"
