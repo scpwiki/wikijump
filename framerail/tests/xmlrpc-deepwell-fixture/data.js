@@ -430,6 +430,47 @@ x^2 + y^2 = z^2
     compiled_body_html:
       '<p>Authoring history probe</p><a id="navigate-history-target" href="/scp-173" data-sveltekit-reload="off">Navigate to history target</a>'
   },
+  "page-source-include-probe": {
+    page_id: 3000417,
+    revision_id: 9000417,
+    page_created_at: "2026-10-10T00:00:00Z",
+    page_updated_at: null,
+    page_revision_count: 1,
+    revision_created_at: "2026-10-10T00:00:00Z",
+    revision_user_id: 123,
+    creator_user_id: 123,
+    title: "Page Source Include Probe",
+    slug: "page-source-include-probe",
+    tags: ["fixture"],
+    rating: 0,
+    wikitext: [
+      "[[include component:image-block",
+      "|caption=fixture",
+      "]]",
+      "[[include component:image-block]]",
+      " [[include component:spaced-literal]]",
+      "[[include :scp-wiki:component:license-box]]",
+      "@@[[include component:literal]]@@",
+      '<img src=x onerror="alert(1)">'
+    ].join("\n"),
+    compiled_body_html: "<p>Page Source Include Probe</p>"
+  },
+  "component:image-block": {
+    page_id: 3000418,
+    revision_id: 9000418,
+    page_created_at: "2026-10-10T00:00:00Z",
+    page_updated_at: null,
+    page_revision_count: 1,
+    revision_created_at: "2026-10-10T00:00:00Z",
+    revision_user_id: 123,
+    creator_user_id: 123,
+    title: "Image Block Component",
+    slug: "component:image-block",
+    tags: ["component"],
+    rating: 0,
+    wikitext: "Component target.",
+    compiled_body_html: "<p>Component target.</p>"
+  },
   "navigation-style-a": {
     page_id: 3000360,
     revision_id: 9000360,

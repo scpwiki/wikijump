@@ -16,6 +16,86 @@ export const wikidotRevisionSourceHtml = (source) =>
     .replaceAll("\r\n", "\n")
     .replaceAll("\n", "<br />\n")}</div>`
 
+const escapePageSourceHtml = (source) =>
+  source
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;")
+
+const SOURCE_COMPONENT_INCLUDE =
+  /^(\[\[include[\t ]+)(component:[a-z0-9][a-z0-9_-]*)(\]\][\t ]*)$/u
+const SOURCE_COMPONENT_INCLUDE_OPEN =
+  /^(\[\[include[\t ]+)(component:[a-z0-9][a-z0-9_-]*)([\t ]*)$/u
+
+const sourceLineContent = (line) => line.replace(/\r?\n$/u, "")
+
+const parameterBlockEnd = (lines, start) => {
+  for (let index = start + 1; index < lines.length; index += 1) {
+    const line = sourceLineContent(lines[index])
+    if (line.includes("[[") || line.includes("[!--") || line.includes("@@")) return -1
+    if (/^[\t ]*\|[A-Za-z_][A-Za-z0-9_]*=[^\n]*\]\][\t ]*$/u.test(line)) return index
+    if (/^[\t ]*\|[A-Za-z_][A-Za-z0-9_]*=[^\n]*$/u.test(line)) continue
+    if (/^[\t ]*\]\][\t ]*$/u.test(line)) return index
+    return -1
+  }
+  return -1
+}
+
+/**
+ * Render only the narrowly evidenced same-site component include form as a
+ * link. All other source remains escaped text so the read-only source view
+ * cannot execute authored markup or guess cross-site routing.
+ *
+ * @param {string} source
+ */
+export const wikidotPageSourceHtml = (source) => {
+  let inComment = false
+  let inCode = false
+  const lines = source.match(/[^\n]*\n|[^\n]+$/gu) ?? []
+
+  return lines
+    .map((line, index) => {
+      const content = sourceLineContent(line)
+      const simpleInclude =
+        !inComment && !inCode && SOURCE_COMPONENT_INCLUDE.exec(content)
+      const openInclude =
+        !inComment && !inCode && SOURCE_COMPONENT_INCLUDE_OPEN.exec(content)
+      const candidate =
+        simpleInclude ??
+        (openInclude && parameterBlockEnd(lines, index) >= 0 ? openInclude : null)
+
+      let rendered = escapePageSourceHtml(content)
+      if (candidate) {
+        const [, before, target, after] = candidate
+        const href = `/${encodeURIComponent(target)}`
+        rendered = `${escapePageSourceHtml(before)}<a href="${escapePageSourceHtml(href)}">${escapePageSourceHtml(target)}</a>${escapePageSourceHtml(after)}`
+      }
+
+      // Source examples and comments stay literal. Do not decorate a matching
+      // line until the enclosing region has ended.
+      const commentOpen = content.indexOf("[!--")
+      const commentClose = content.indexOf("--]")
+      if (inComment) {
+        if (commentClose >= 0) inComment = false
+      } else if (commentOpen >= 0 && (commentClose < 0 || commentClose < commentOpen)) {
+        inComment = true
+      }
+
+      const codeOpen = content.indexOf("[[code]]")
+      const codeClose = content.indexOf("[[/code]]")
+      if (inCode) {
+        if (codeClose >= 0) inCode = false
+      } else if (codeOpen >= 0 && (codeClose < 0 || codeClose < codeOpen)) {
+        inCode = true
+      }
+
+      return rendered + line.slice(content.length)
+    })
+    .join("")
+}
+
 const FLAG_TITLES = {
   en: {
     create: "New page",
