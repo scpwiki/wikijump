@@ -4758,7 +4758,7 @@
     },
     {
       "path": "framerail/playwright.browser-support.config.ts",
-      "sha256": "dc6959ed82a73b96ed3dc546b004d86838e6e693ceb9e7059c716567aa9a6da0",
+      "sha256": "d38eab631cea89dd445b8a1351e040857935c28efd51bf788a906d4c39b7002c",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -6782,7 +6782,7 @@
     },
     {
       "path": "framerail/src/routes/[slug]/[...extra]/BacklinksPane.svelte",
-      "sha256": "c05b1011b63fca439c7f6072bd94fded9cac47fcf96bc5d7aa7bf5f0a3433f66",
+      "sha256": "ed9d43918a3d8f58c0849aa255b2067f4bf8256444130e00fe1f5e570dc323db",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -6998,7 +6998,7 @@
     },
     {
       "path": "framerail/src/routes/[slug]/[...extra]/WatchersPane.svelte",
-      "sha256": "a3e85838aa6f97af430a6e04c1fc21f36437cc8b8261fdead6a6530bf410e9dc",
+      "sha256": "43bdda9739449fe7c28d99ae55842343de9bbd9f8499a5a6341a9edec86750d1",
       "status": "pending",
       "anchors": [],
       "findings": [],
