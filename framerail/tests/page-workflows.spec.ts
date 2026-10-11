@@ -499,7 +499,7 @@ test("WIKIDOT History keeps the seven-cell source table contract at phone widths
   page
 }) => {
   await page.setExtraHTTPHeaders(AUTHENTICATED_HEADERS)
-  for (const width of [390, 320]) {
+  for (const width of [390, 320, 280]) {
     await page.setViewportSize({ width, height: 844 })
     await page.goto("/authoring-history-probe")
     await waitForSvelteDelegatedHandler(page, "#history-button")
@@ -508,6 +508,12 @@ test("WIKIDOT History keeps the seven-cell source table contract at phone widths
     await expect(table).toBeVisible()
     const headerRow = table.locator("tbody > tr").first()
     await expect(headerRow.locator("td")).toHaveCount(7)
+    await expect(page.locator("#revision-list")).toHaveAttribute("role", "region")
+    await expect(page.locator("#revision-list")).toHaveAttribute("tabindex", "0")
+    await expect(page.locator("#revision-list")).toHaveAttribute(
+      "aria-labelledby",
+      "wikidot-history-heading"
+    )
     await expect(headerRow.getByRole("columnheader")).toHaveCount(7)
     await expect(
       headerRow.getByRole("columnheader", { name: "rev.", exact: true })
@@ -588,6 +594,33 @@ test("WIKIDOT History keeps the seven-cell source table contract at phone widths
     await expect(page.locator("#revision-diff-from")).toHaveValue(
       String(selectedRevisionNumber)
     )
+
+    if (width <= 320) {
+      await currentCells.nth(6).evaluate((cell) => {
+        // Exercise the min-content case seen with long localized history text.
+        cell.textContent = "LongHistoryValueWithoutBreaks_".repeat(12)
+      })
+      const dimensions = await page.evaluate(() => {
+        const region = document.querySelector("#revision-list")
+        if (!(region instanceof HTMLElement)) {
+          throw new Error("History table scroll region is missing")
+        }
+        return {
+          documentWidth: document.documentElement.scrollWidth,
+          viewportWidth: document.documentElement.clientWidth,
+          regionWidth: region.clientWidth,
+          regionContentWidth: region.scrollWidth
+        }
+      })
+      expect(
+        dimensions.documentWidth,
+        `${width}px viewport: ${JSON.stringify(dimensions)}`
+      ).toBeLessThanOrEqual(dimensions.viewportWidth + 1)
+      expect(
+        dimensions.regionContentWidth,
+        `${width}px viewport: ${JSON.stringify(dimensions)}`
+      ).toBeGreaterThan(dimensions.regionWidth)
+    }
   }
 })
 

@@ -320,10 +320,16 @@
 </script>
 
 {#if pageLayoutContext.current === Layout.WIKIDOT}
-  <h1 class="page-revision-header">
+  <h1 id="wikidot-history-heading" class="page-revision-header">
     {data.internationalization?.["wiki-page-revision-history"]}
   </h1>
-  <div id="revision-list" class="revision-list">
+  <div
+    id="revision-list"
+    class="revision-list"
+    role="region"
+    aria-labelledby="wikidot-history-heading"
+    tabindex="0"
+  >
     <table class="page-history">
       <tbody>
         <tr>
@@ -624,6 +630,15 @@
 
   .revision-list {
     max-width: 100%;
+  }
+
+  #revision-list {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    box-sizing: border-box;
   }
 
   .revision-diff-panel {
