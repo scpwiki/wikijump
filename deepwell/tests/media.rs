@@ -882,17 +882,28 @@ async fn source_less_local_images_keep_original_and_resized_asset_identities() {
         .expect("seeded SCP Wiki site should exist");
     let site_id = site.site.site_id;
 
-    for (case_id, slug, source, expected_class) in [
+    // Wikidot shows a bare .png/.jpg/.gif attachment as the original and any
+    // other file type as the linked medium resize (#2349).
+    for (case_id, slug, filename, source, expected_class) in [
         (
             "issue-776-source-less-floating-image",
             "fixture-source-less-image-776",
+            "image-one.png",
             r#"[[f<image image-one.png]]"#,
             "image-container floatleft",
         ),
         (
             "issue-806-source-less-centered-image",
             "fixture-source-less-image-806",
+            "image-two.png",
             r#"[[=image image-two.png]]"#,
+            "image-container aligncenter",
+        ),
+        (
+            "issue-2349-source-less-resized-image",
+            "fixture-source-less-image-2349",
+            "image-three.jpeg",
+            r#"[[=image image-three.jpeg]]"#,
             "image-container aligncenter",
         ),
     ] {
@@ -932,11 +943,6 @@ async fn source_less_local_images_keep_original_and_resized_asset_identities() {
             .compiled_body_html
             .expect("source-less local image fixture should have compiled HTML");
 
-        let filename = if case_id.contains("776") {
-            "image-one.png"
-        } else {
-            "image-two.png"
-        };
         let original =
             format!("https://scp-wiki.wjfiles.com/local--files/{slug}/{filename}");
         let resized = format!(
@@ -946,14 +952,23 @@ async fn source_less_local_images_keep_original_and_resized_asset_identities() {
             rendered.contains(&format!(r#"<div class="{expected_class}">"#)),
             "{case_id}: {rendered}",
         );
-        assert!(
-            rendered.contains(&format!(r#"<a href="{original}">"#)),
-            "{case_id}: {rendered}",
-        );
-        assert!(
-            rendered.contains(&format!(r#"<img src="{resized}""#)),
-            "{case_id}: {rendered}",
-        );
+        if filename.ends_with(".png") {
+            assert!(
+                rendered.contains(&format!(r#"<img src="{original}""#)),
+                "{case_id}: {rendered}",
+            );
+            assert!(!rendered.contains("<a "), "{case_id}: {rendered}");
+            assert!(!rendered.contains(&resized), "{case_id}: {rendered}");
+        } else {
+            assert!(
+                rendered.contains(&format!(r#"<a href="{original}">"#)),
+                "{case_id}: {rendered}",
+            );
+            assert!(
+                rendered.contains(&format!(r#"<img src="{resized}""#)),
+                "{case_id}: {rendered}",
+            );
+        }
     }
 }
 
@@ -1018,5 +1033,5 @@ async fn embedvideo_preview_and_saved_page_share_rendered_body() {
         saved.compiled_body_html.as_deref(),
         Some(preview.body.as_str()),
     );
-    assert!(saved.compiled_generator.ends_with("; deepwell-render/v15"));
+    assert!(saved.compiled_generator.ends_with("; deepwell-render/v16"));
 }
