@@ -43,7 +43,8 @@ pub fn normalize_page_slug<S: Into<String>>(name: S) -> String {
 /// This intentionally does not use `normalize_page_slug`: that function also
 /// applies Unicode compatibility normalization and rewrites arbitrary
 /// punctuation, which is too broad for resolving an incoming URL to stored
-/// content. The caller still has to verify that the returned slug exists.
+/// content. The caller checks for an exact stored slug first, then looks up
+/// this alias and applies the resolved page's normal permission checks.
 pub fn observed_wikidot_page_url_alias(slug: &str) -> Option<String> {
     if slug.is_empty() || !slug.is_ascii() {
         return None;
@@ -53,18 +54,64 @@ pub fn observed_wikidot_page_url_alias(slug: &str) -> Option<String> {
     if input.is_empty() {
         return None;
     }
+    if matches!(input.as_str(), "forum" | "local--files" | "local--code") {
+        return None;
+    }
 
+    let chars: Vec<_> = input.chars().collect();
     let mut colon_count = 0;
     let mut canonical = String::with_capacity(input.len());
     let mut at_segment_start = true;
-    for ch in input.chars() {
+    let mut observed_punctuation_aliases = 0;
+    let mut index = 0;
+    while index < chars.len() {
+        let ch = chars[index];
         match ch {
             ':' => {
                 colon_count += 1;
                 at_segment_start = true;
-            }
-            'a'..='z' | '0'..='9' | '-' => {
                 canonical.push(ch);
+            }
+            'a'..='z' | '0'..='9' => {
+                canonical.push(ch);
+                at_segment_start = false;
+            }
+            '-' => {
+                let run_end = chars[index..]
+                    .iter()
+                    .position(|next| *next != '-')
+                    .map_or(chars.len(), |offset| index + offset);
+                let run_length = run_end - index;
+
+                // The source observation confirms one internal doubled
+                // hyphen and one trailing hyphen. Leave leading, longer, and
+                // trailing doubled runs unresolved.
+                if at_segment_start
+                    || run_length > 2
+                    || (run_length == 2 && run_end == chars.len())
+                    || (run_length == 2
+                        && !matches!(chars.get(run_end), Some('a'..='z' | '0'..='9')))
+                {
+                    return None;
+                }
+
+                if run_length == 2 {
+                    observed_punctuation_aliases += 1;
+                }
+
+                canonical.push('-');
+                at_segment_start = false;
+                index = run_end - 1;
+            }
+            '+' | '.' => {
+                if at_segment_start
+                    || canonical.ends_with('-')
+                    || !matches!(chars.get(index + 1), Some('a'..='z' | '0'..='9'))
+                {
+                    return None;
+                }
+                observed_punctuation_aliases += 1;
+                canonical.push('-');
                 at_segment_start = false;
             }
             '_' => {
@@ -76,9 +123,18 @@ pub fn observed_wikidot_page_url_alias(slug: &str) -> Option<String> {
         if colon_count > 1 {
             return None;
         }
-        if ch == ':' {
-            canonical.push(ch);
-        }
+        index += 1;
+    }
+
+    // A single trailing hyphen was observed to resolve to the unhyphenated
+    // page slug. Do not trim a longer run (rejected above).
+    if canonical.ends_with('-') && input.ends_with('-') {
+        observed_punctuation_aliases += 1;
+        canonical.pop();
+    }
+
+    if observed_punctuation_aliases > 1 {
+        return None;
     }
 
     if matches!(canonical.as_str(), "forum" | "local--files" | "local--code") {
@@ -129,6 +185,22 @@ fn observed_page_url_aliases_are_narrow_and_category_aware() {
         Some("scp-9506".to_owned())
     );
     assert_eq!(
+        observed_wikidot_page_url_alias("scp+9506"),
+        Some("scp-9506".to_owned())
+    );
+    assert_eq!(
+        observed_wikidot_page_url_alias("scp.9506"),
+        Some("scp-9506".to_owned())
+    );
+    assert_eq!(
+        observed_wikidot_page_url_alias("scp--9506"),
+        Some("scp-9506".to_owned())
+    );
+    assert_eq!(
+        observed_wikidot_page_url_alias("scp-9506-"),
+        Some("scp-9506".to_owned())
+    );
+    assert_eq!(
         observed_wikidot_page_url_alias("scp-9506 "),
         Some("scp-9506".to_owned())
     );
@@ -140,7 +212,14 @@ fn observed_page_url_aliases_are_narrow_and_category_aware() {
         observed_wikidot_page_url_alias("_TEMPLATE"),
         Some("_template".to_owned())
     );
-    assert_eq!(observed_wikidot_page_url_alias("scp--9506"), None);
+    assert_eq!(observed_wikidot_page_url_alias("scp---9506"), None);
+    assert_eq!(observed_wikidot_page_url_alias("-scp-9506"), None);
+    assert_eq!(observed_wikidot_page_url_alias("scp-9506--"), None);
+    assert_eq!(observed_wikidot_page_url_alias("scp-.9506"), None);
+    assert_eq!(observed_wikidot_page_url_alias("scp+9506-"), None);
+    assert_eq!(observed_wikidot_page_url_alias("local--files"), None);
+    assert_eq!(observed_wikidot_page_url_alias("local--code"), None);
+    assert_eq!(observed_wikidot_page_url_alias("local++files"), None);
     assert_eq!(observed_wikidot_page_url_alias("scp/%2fadmin"), None);
     assert_eq!(observed_wikidot_page_url_alias("ѕср-9506"), None);
 }

@@ -324,7 +324,7 @@ async fn public_page_view_resolves_observed_url_aliases_to_the_canonical_page() 
         site.site_id,
         Reference::Slug(Cow::Owned(slug.clone())),
     );
-    run_endpoint!(
+    let created = run_endpoint!(
         runner,
         page_create,
         json!({
@@ -340,6 +340,70 @@ async fn public_page_view_resolves_observed_url_aliases_to_the_canonical_page() 
         }),
     );
 
+    // Imported rows can contain a slug that aliases another page. An exact
+    // stored slug must keep precedence over the alias target.
+    let canonical_page = PageTable::find_by_id(created.page_id)
+        .one(runner.context().transaction())
+        .await
+        .expect("canonical page lookup should not fail")
+        .expect("canonical page should exist");
+    let canonical_revision = PageRevisionTable::find_by_id(
+        canonical_page
+            .latest_revision_id
+            .expect("canonical page should have a revision"),
+    )
+    .one(runner.context().transaction())
+    .await
+    .expect("canonical revision lookup should not fail")
+    .expect("canonical page revision should exist");
+    let collision_slug = slug.replacen('-', "+", 1);
+    let collision_page = page::ActiveModel {
+        created_at: Set(canonical_page.created_at),
+        from_wikidot: Set(canonical_page.from_wikidot),
+        site_id: Set(canonical_page.site_id),
+        page_category_id: Set(canonical_page.page_category_id),
+        slug: Set(collision_slug.clone()),
+        discussion_thread_id: Set(canonical_page.discussion_thread_id),
+        layout: Set(canonical_page.layout),
+        ..Default::default()
+    }
+    .insert(runner.context().transaction())
+    .await
+    .expect("exact alias-shaped page should be inserted");
+    let collision_revision = page_revision::ActiveModel {
+        revision_type: Set(canonical_revision.revision_type),
+        created_at: Set(canonical_revision.created_at),
+        revision_number: Set(canonical_revision.revision_number),
+        page_id: Set(collision_page.page_id),
+        site_id: Set(canonical_revision.site_id),
+        user_id: Set(canonical_revision.user_id),
+        from_wikidot: Set(canonical_revision.from_wikidot),
+        changes: Set(canonical_revision.changes),
+        wikitext_hash: Set(canonical_revision.wikitext_hash),
+        compiled_body_html_hash: Set(canonical_revision.compiled_body_html_hash),
+        compiled_body_styles_hash: Set(canonical_revision.compiled_body_styles_hash),
+        compiled_top_bar_html_hash: Set(canonical_revision.compiled_top_bar_html_hash),
+        compiled_side_bar_html_hash: Set(canonical_revision.compiled_side_bar_html_hash),
+        compiled_at: Set(canonical_revision.compiled_at),
+        compiled_generator: Set(canonical_revision.compiled_generator),
+        comments: Set("exact alias collision fixture".to_owned()),
+        hidden: Set(canonical_revision.hidden),
+        title: Set("Exact alias collision".to_owned()),
+        alt_title: Set(canonical_revision.alt_title),
+        slug: Set(collision_slug.clone()),
+        tags: Set(canonical_revision.tags),
+        ..Default::default()
+    }
+    .insert(runner.context().transaction())
+    .await
+    .expect("exact alias-shaped revision should be inserted");
+    let mut collision_page = collision_page.into_active_model();
+    collision_page.latest_revision_id = Set(Some(collision_revision.revision_id));
+    collision_page
+        .update(runner.context().transaction())
+        .await
+        .expect("exact alias-shaped page should reference its revision");
+
     runner.set_request_context(RequestContext {
         site_id: Some(site.site_id),
         ..Default::default()
@@ -348,6 +412,9 @@ async fn public_page_view_resolves_observed_url_aliases_to_the_canonical_page() 
     let aliases = [
         format!("URL-{alias_name}"),
         slug.replacen('-', "_", 1),
+        slug.replacen('-', ".", 1),
+        slug.replacen('-', "--", 1),
+        format!("{slug}-"),
         format!("{slug}."),
         format!("{slug} "),
     ];
@@ -374,6 +441,26 @@ async fn public_page_view_resolves_observed_url_aliases_to_the_canonical_page() 
             other => panic!("expected canonical page for URL alias, got {other:?}"),
         }
     }
+
+    let collision = run_endpoint!(
+        runner,
+        page_view,
+        json!({
+            "site_id": site.site_id,
+            "session_token": null,
+            "route": {"slug": collision_slug.clone(), "extra": ""},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    let GetPageViewOutput::Found {
+        page,
+        redirect_page: None,
+        ..
+    } = collision
+    else {
+        panic!("an exact stored alias-shaped page should win without redirecting");
+    };
+    assert_eq!(page.slug, collision_slug);
 }
 
 async fn import_cacheable_page_attribution_fixture(
@@ -4520,7 +4607,7 @@ async fn article_view_cache_respects_anonymous_permission_revocation() {
         .expect("seeded test site should exist");
     let site_id = site.site.site_id;
     let category_slug = "article-cache-permission-revocation";
-    let slug = "article-cache-permission-revocation:source";
+    let slug = "article-cache-permission-revocation:source-page";
     let category_id =
         CategoryService::get_or_create(runner.context(), site_id, category_slug)
             .await
@@ -4680,6 +4767,29 @@ async fn article_view_cache_respects_anonymous_permission_revocation() {
     else {
         panic!(
             "a missing page in a category without page:view permission must not expose the missing-page action surface"
+        );
+    };
+
+    let alias = run_endpoint!(
+        runner,
+        article_view,
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": {
+                "slug": "article-cache-permission-revocation:source+page",
+                "extra": "",
+            },
+            "locales": ["en-US", "en"],
+        }),
+    );
+    let GetArticleViewOutput {
+        page: GetPageViewOutput::Permissions { banned: false, .. },
+        ..
+    } = alias
+    else {
+        panic!(
+            "an observed URL alias must preserve the canonical page's view permission"
         );
     };
 }
