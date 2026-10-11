@@ -630,7 +630,7 @@
     },
     {
       "path": "deepwell/src/api.rs",
-      "sha256": "f984618edcd5769093d450e97b99a1254042daab419dda9ef288d90309b68f8f",
+      "sha256": "f9e5fa2d75908e1fe4279c1a029cfcfbf2b878ecb7b50b1696bc3d3609206362",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -902,7 +902,7 @@
     },
     {
       "path": "deepwell/src/endpoints/page.rs",
-      "sha256": "ee5ec6b96f083dd4259ef4f488c1543aa618932b115591e4cccc853ad3dd5a2a",
+      "sha256": "7c03c65294eab67c56f616cbbad53a23c50c2a30a46330596105fab55c4daa78",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -1150,7 +1150,7 @@
     },
     {
       "path": "deepwell/src/middleware.rs",
-      "sha256": "4e277f785184b522f57f6add098219f76f5fad66b1e614eced20a841caaf7340",
+      "sha256": "fc8586618e6dc9dff4cdac5c1c3c6822521ed0f51b478c1d190f060784fdb540",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -5758,7 +5758,7 @@
     },
     {
       "path": "framerail/src/lib/server/deepwell/index.ts",
-      "sha256": "f5fba0ec67e2f03fe66265304a0d741c9fc37a4783cf385480faa4a69833fd14",
+      "sha256": "8f7b737f1ff2f9ce83b19f302142ccc64c70566aa5c20c6d85929fcec933ac4b",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -5950,7 +5950,7 @@
     },
     {
       "path": "framerail/src/lib/server/load/page/page-action-context.ts",
-      "sha256": "e4c6f4b52ab604e2678a8bdd3128523c49d978c4f09f02c0e99dfeef53d1e85d",
+      "sha256": "8c79dccedeed04f9fab8da3e13095107f5e1cfa98f6e787198c63ba4a349aec4",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -6110,7 +6110,7 @@
     },
     {
       "path": "framerail/src/lib/server/request-context.ts",
-      "sha256": "282babc1af3fa9e55e65e62127b9dca5b60aff5632d9a674e41a6eedd0cfdda9",
+      "sha256": "dcca8c41ab211e2b37caff3f447d36517762baddd0cdc8fafa7770a5ef878bbc",
       "status": "pending",
       "anchors": [],
       "findings": [],
