@@ -770,6 +770,7 @@ export function isWikidotCapturePublicOrigin(value, resourceType, method, initia
   const interwikiScript = url.protocol === "https:" && hostname === "interwiki.scpwiki.com" && method === "GET" && resourceType === "script" && ["/interwiki.js", "/resizeIframe.js"].includes(url.pathname);
   // Firefox can report no initiator while an iframe is still navigating. Keep
   // that case scoped to the exact interwiki script URLs above.
+  const initiatorUnreported = initiatorUrl === null || initiatorUrl === "";
   let initiatedByInterwikiFrame = false;
   if (interwikiScript && typeof initiatorUrl === "string") {
     try {
@@ -790,7 +791,7 @@ export function isWikidotCapturePublicOrigin(value, resourceType, method, initia
         hostname === "interwiki.scpwiki.com" &&
         method === "GET" &&
         WIKIDOT_INTERWIKI_GET_PATH_TYPES.get(url.pathname) === resourceType &&
-        (resourceType !== "script" || initiatedByInterwikiFrame || initiatorUrl === null)));
+        (resourceType !== "script" || initiatedByInterwikiFrame || initiatorUnreported)));
 }
 
 export function isCaptureDependencyResourceType(resourceType) {
