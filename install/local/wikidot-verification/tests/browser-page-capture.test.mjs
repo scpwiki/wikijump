@@ -258,3 +258,42 @@ test("capturePage bounds post-navigation load-state waits", async () => {
 
   assert.deepEqual(loadStateTimeouts, [2_000, 2_000]);
 });
+
+test("capturePage delegates non-excluded requests to context request gates", async () => {
+  let pageRouteHandler;
+  const mainFrame = {async evaluate() { return "visible"; }};
+  const page = {
+    on() {},
+    mainFrame() { return mainFrame; },
+    route(_pattern, handler) { pageRouteHandler = handler; },
+    async goto() { return {status: () => 200}; },
+    async waitForLoadState() {},
+    frames() { return [mainFrame]; },
+    async content() { return "<html>visible</html>"; },
+    url() { return "https://scp-wiki.wikidot.com/scp-9506"; },
+  };
+
+  await capturePage(page, "https://scp-wiki.wikidot.com/scp-9506", {
+    timeoutMs: 100,
+    waitUntil: "domcontentloaded",
+    settleMs: 0,
+    screenshotPath: null,
+    blockedRequestPrefixes: ["https://stats.g.doubleclick.net/r/"],
+  });
+
+  const delegated = [];
+  const aborted = [];
+  await pageRouteHandler({
+    request() { return {url: () => "https://scp-wiki.wikidot.com/scp-9506"}; },
+    async fallback() { delegated.push("https://scp-wiki.wikidot.com/scp-9506"); },
+    async abort() { assert.fail("the Wikidot page must not be excluded"); },
+  });
+  await pageRouteHandler({
+    request() { return {url: () => "https://stats.g.doubleclick.net/r/track.gif"}; },
+    async fallback() { assert.fail("excluded ad requests must not reach the context gate"); },
+    async abort(reason) { aborted.push(reason); },
+  });
+
+  assert.deepEqual(delegated, ["https://scp-wiki.wikidot.com/scp-9506"]);
+  assert.deepEqual(aborted, ["blockedbyclient"]);
+});
