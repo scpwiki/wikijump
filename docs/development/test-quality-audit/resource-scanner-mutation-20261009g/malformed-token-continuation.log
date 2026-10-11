@@ -1,0 +1,50 @@
+✖ malformed URL tokens and authority-shaped paths do not hide subsequent resources (1.52307ms)
+✔ resource output order is independent of authored order (7.1307ms)
+✔ detects CSS @import local--files URL (0.29457ms)
+✔ detects CSS url(...) local--files URL (0.19737ms)
+✔ detects bare local--files URL (0.21591ms)
+✔ uses distinct target paths for query variants (0.5769ms)
+✔ deduplicates duplicate resource references deterministically (0.19845ms)
+✔ non-local external URLs are ignored or out-of-scope (0.20457ms)
+✔ trims sentence-ending punctuation from bare local--files URLs (0.26451ms)
+✔ canonicalization preserves path double slashes (0.26001ms)
+✔ deduplicates repeated out-of-scope local--files URLs (0.18351ms)
+✔ trims a Wikidot image-option pipe after a local--files URL (0.1215ms)
+✔ keeps wdfiles.com local-file resources in scope (0.10287ms)
+✔ unsafe in-scope resource paths do not abort later scan results (0.18828ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 13
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 70.28082
+
+✖ failing tests:
+
+test at install/local/wikidot-verification/tests/resource-scanner.test.mjs:6:1
+✖ malformed URL tokens and authority-shaped paths do not hide subsequent resources (1.52307ms)
+  AssertionError [ERR_ASSERTION]: Got unwanted exception.
+  Actual message: "mutated token continuation"
+      at TestContext.<anonymous> (file:///home/roku/src/Rokurolize/wikijump/install/local/wikidot-verification/tests/resource-scanner.test.mjs:8:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: Error: mutated token continuation
+        at scanForFixtureLocalResources (file:///home/roku/src/Rokurolize/wikijump/install/local/wikidot-verification/src/resource-scanner.mjs:67:13)
+        at file:///home/roku/src/Rokurolize/wikijump/install/local/wikidot-verification/tests/resource-scanner.test.mjs:8:40
+        at getActual (node:assert:611:5)
+        at strict.doesNotThrow (node:assert:779:32)
+        at TestContext.<anonymous> (file:///home/roku/src/Rokurolize/wikijump/install/local/wikidot-verification/tests/resource-scanner.test.mjs:8:10)
+        at Test.runInAsyncScope (node:async_hooks:227:14)
+        at Test.run (node:internal/test_runner/test:1402:25)
+        at Test.start (node:internal/test_runner/test:1262:17)
+        at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17),
+    expected: undefined,
+    operator: 'doesNotThrow',
+    diff: 'simple'
+  }

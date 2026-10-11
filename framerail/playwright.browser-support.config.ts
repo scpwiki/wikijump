@@ -10,7 +10,7 @@ const withBaseUse = (device: (typeof devices)[keyof typeof devices]) => ({
 const config: PlaywrightTestConfig = {
   ...baseConfig,
   testMatch:
-    "**/{append-file-upload-accessible-names,append-file-upload-accessible-names-ja,auth-accessible-names,backlinks-watchers-failure,browser-support,edit-meta-newtag-mobile,file-history-view-unavailable,forum-start-routes,module-accessible-names,page-action-localization,printer-friendly-print-toolbar,vote-pane-japanese-i18n}.spec.ts",
+    "**/{append-file-upload-accessible-names,append-file-upload-accessible-names-ja,auth-accessible-names,backlinks-watchers-failure,browser-support,edit-meta-newtag-mobile,file-history-view-unavailable,forum-start-routes,inline-link-whitespace,module-accessible-names,page-action-localization,printer-friendly-print-toolbar,vote-pane-japanese-i18n}.spec.ts",
   webServer: [
     ...(baseConfig.webServer
       ? Array.isArray(baseConfig.webServer)

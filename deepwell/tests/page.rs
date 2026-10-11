@@ -3664,7 +3664,7 @@ async fn rerender_uses_latest_navigation_page_revision() {
     assert!(
         rerendered_home
             .compiled_generator
-            .ends_with("; deepwell-render/v13")
+            .ends_with("; deepwell-render/v14")
     );
 }
 
@@ -4481,11 +4481,11 @@ async fn renderer_epoch_invalidates_pre_freeze_compiled_artifacts() {
         .article_page_cache_key
         .expect("imported static page should have an anonymous cache key");
     assert!(
-        current_key.starts_with("deepwell:article-view:page:v13:"),
+        current_key.starts_with("deepwell:article-view:page:v14:"),
         "source-freeze cache key must carry the final renderer epoch: {current_key}",
     );
     let stale_key = current_key.replacen(
-        "deepwell:article-view:page:v13:",
+        "deepwell:article-view:page:v14:",
         "deepwell:article-view:page:v11:",
         1,
     );
@@ -4615,7 +4615,7 @@ async fn page_view_rerenders_stale_persisted_compiled_artifact() {
     assert!(
         page_revision
             .compiled_generator
-            .ends_with("; deepwell-render/v13")
+            .ends_with("; deepwell-render/v14")
     );
     assert!(compiled_body_html.contains(CURRENT_BODY));
     assert!(!compiled_body_html.contains(STALE_BODY));
@@ -4640,7 +4640,7 @@ async fn page_view_rerenders_stale_persisted_compiled_artifact() {
     assert!(
         page_revision
             .compiled_generator
-            .ends_with("; deepwell-render/v13"),
+            .ends_with("; deepwell-render/v14"),
         "page view must expose the current compiled generator",
     );
     assert!(compiled_body_html.contains(CURRENT_BODY));
@@ -4654,7 +4654,7 @@ async fn page_view_rerenders_stale_persisted_compiled_artifact() {
     assert!(
         persisted
             .compiled_generator
-            .ends_with("; deepwell-render/v13"),
+            .ends_with("; deepwell-render/v14"),
         "read-time refresh should persist the current compiled generator",
     );
     let persisted_body =

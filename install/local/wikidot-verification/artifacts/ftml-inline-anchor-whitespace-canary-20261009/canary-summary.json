@@ -1,0 +1,278 @@
+{
+  "run_id": "ftml-marker-e82b6909-86368b28",
+  "owner": "ftml-marker-contract-canary",
+  "expires_at": "2026-10-09T09:45:18.547Z",
+  "baseline_ftml": "bf49d32fe980611fed368661396a3d6c1f02c51f",
+  "candidate_ftml": "e82b6909b7c7d0c2d5cef7514dea0ad3c469c2fb",
+  "required_surfaces": [
+    "heading",
+    "separator",
+    "div",
+    "span",
+    "alignment"
+  ],
+  "resource_disposition": "delete-on-close",
+  "status": "pass",
+  "baseline": {
+    "manifest": "/home/roku/.codex/worktrees/wikijump-ftml-canary/install/local/wikidot-verification/artifacts/ftml-inline-anchor-whitespace-canary-20261009/artifact-manifests/baseline.json",
+    "seeded": {
+      "site_id": 6000006,
+      "results": [
+        {
+          "fixture_id": "marker-heading",
+          "slug": "marker-canary-heading",
+          "compiled_generator": "ftml v1.42.0+roku.20260630.1; deepwell-render/v13"
+        },
+        {
+          "fixture_id": "marker-separator",
+          "slug": "marker-canary-separator",
+          "compiled_generator": "ftml v1.42.0+roku.20260630.1; deepwell-render/v13"
+        },
+        {
+          "fixture_id": "marker-div",
+          "slug": "marker-canary-div",
+          "compiled_generator": "ftml v1.42.0+roku.20260630.1; deepwell-render/v13"
+        },
+        {
+          "fixture_id": "marker-span",
+          "slug": "marker-canary-span",
+          "compiled_generator": "ftml v1.42.0+roku.20260630.1; deepwell-render/v13"
+        },
+        {
+          "fixture_id": "marker-alignment",
+          "slug": "marker-canary-alignment",
+          "compiled_generator": "ftml v1.42.0+roku.20260630.1; deepwell-render/v13"
+        }
+      ]
+    },
+    "records": {
+      "schema": "wikijump_full_parity.browser_rendering_evidence.v1",
+      "stage": "baseline",
+      "selected_count": 5,
+      "evidence": [
+        {
+          "schema": "wikijump_full_parity.browser_rendering_record.v1",
+          "evidence_type": "browser_rendering",
+          "fixture_id": "marker-heading",
+          "family": "ftml-marker-contract",
+          "slug": "marker-canary-heading",
+          "source_url": "http://127.0.0.1:54372/marker-canary-heading",
+          "local_url": "http://127.0.0.1:54372/marker-canary-heading",
+          "source_browser_artifact": "/home/roku/.codex/worktrees/wikijump-ftml-canary/install/local/wikidot-verification/artifacts/ftml-inline-anchor-whitespace-canary-20261009/baseline/marker-heading/local.dom.html",
+          "local_browser_artifact": "/home/roku/.codex/worktrees/wikijump-ftml-canary/install/local/wikidot-verification/artifacts/ftml-inline-anchor-whitespace-canary-20261009/baseline/marker-heading/local.dom.html",
+          "source_visible_text": "MARKER_HEADING",
+          "local_visible_text": "MARKER_HEADING",
+          "source_status": 200,
+          "local_status": 200,
+          "capture_errors": [],
+          "marker_count": 2
+        },
+        {
+          "schema": "wikijump_full_parity.browser_rendering_record.v1",
+          "evidence_type": "browser_rendering",
+          "fixture_id": "marker-separator",
+          "family": "ftml-marker-contract",
+          "slug": "marker-canary-separator",
+          "source_url": "http://127.0.0.1:54372/marker-canary-separator",
+          "local_url": "http://127.0.0.1:54372/marker-canary-separator",
+          "source_browser_artifact": "/home/roku/.codex/worktrees/wikijump-ftml-canary/install/local/wikidot-verification/artifacts/ftml-inline-anchor-whitespace-canary-20261009/baseline/marker-separator/local.dom.html",
+          "local_browser_artifact": "/home/roku/.codex/worktrees/wikijump-ftml-canary/install/local/wikidot-verification/artifacts/ftml-inline-anchor-whitespace-canary-20261009/baseline/marker-separator/local.dom.html",
+          "source_visible_text": "MARKER_BEFORE_SEPARATOR MARKER_AFTER_SEPARATOR",
+          "local_visible_text": "MARKER_BEFORE_SEPARATOR MARKER_AFTER_SEPARATOR",
+          "source_status": 200,
+          "local_status": 200,
+          "capture_errors": [],
+          "marker_count": 1
+        },
+        {
+          "schema": "wikijump_full_parity.browser_rendering_record.v1",
+          "evidence_type": "browser_rendering",
+          "fixture_id": "marker-div",
+          "family": "ftml-marker-contract",
+          "slug": "marker-canary-div",
+          "source_url": "http://127.0.0.1:54372/marker-canary-div",
+          "local_url": "http://127.0.0.1:54372/marker-canary-div",
+          "source_browser_artifact": "/home/roku/.codex/worktrees/wikijump-ftml-canary/install/local/wikidot-verification/artifacts/ftml-inline-anchor-whitespace-canary-20261009/baseline/marker-div/local.dom.html",
+          "local_browser_artifact": "/home/roku/.codex/worktrees/wikijump-ftml-canary/install/local/wikidot-verification/artifacts/ftml-inline-anchor-whitespace-canary-20261009/baseline/marker-div/local.dom.html",
+          "source_visible_text": "MARKER_DIV",
+          "local_visible_text": "MARKER_DIV",
+          "source_status": 200,
+          "local_status": 200,
+          "capture_errors": [],
+          "marker_count": 1
+        },
+        {
+          "schema": "wikijump_full_parity.browser_rendering_record.v1",
+          "evidence_type": "browser_rendering",
+          "fixture_id": "marker-span",
+          "family": "ftml-marker-contract",
+          "slug": "marker-canary-span",
+          "source_url": "http://127.0.0.1:54372/marker-canary-span",
+          "local_url": "http://127.0.0.1:54372/marker-canary-span",
+          "source_browser_artifact": "/home/roku/.codex/worktrees/wikijump-ftml-canary/install/local/wikidot-verification/artifacts/ftml-inline-anchor-whitespace-canary-20261009/baseline/marker-span/local.dom.html",
+          "local_browser_artifact": "/home/roku/.codex/worktrees/wikijump-ftml-canary/install/local/wikidot-verification/artifacts/ftml-inline-anchor-whitespace-canary-20261009/baseline/marker-span/local.dom.html",
+          "source_visible_text": "MARKER_SPAN",
+          "local_visible_text": "MARKER_SPAN",
+          "source_status": 200,
+          "local_status": 200,
+          "capture_errors": [],
+          "marker_count": 1
+        },
+        {
+          "schema": "wikijump_full_parity.browser_rendering_record.v1",
+          "evidence_type": "browser_rendering",
+          "fixture_id": "marker-alignment",
+          "family": "ftml-marker-contract",
+          "slug": "marker-canary-alignment",
+          "source_url": "http://127.0.0.1:54372/marker-canary-alignment",
+          "local_url": "http://127.0.0.1:54372/marker-canary-alignment",
+          "source_browser_artifact": "/home/roku/.codex/worktrees/wikijump-ftml-canary/install/local/wikidot-verification/artifacts/ftml-inline-anchor-whitespace-canary-20261009/baseline/marker-alignment/local.dom.html",
+          "local_browser_artifact": "/home/roku/.codex/worktrees/wikijump-ftml-canary/install/local/wikidot-verification/artifacts/ftml-inline-anchor-whitespace-canary-20261009/baseline/marker-alignment/local.dom.html",
+          "source_visible_text": "MARKER_ALIGNMENT",
+          "local_visible_text": "MARKER_ALIGNMENT",
+          "source_status": 200,
+          "local_status": 200,
+          "capture_errors": [],
+          "marker_count": 1
+        }
+      ]
+    },
+    "ports": {
+      "deepwell": 55380,
+      "framerail": 54372
+    }
+  },
+  "candidate": {
+    "manifest": "/home/roku/.codex/worktrees/wikijump-ftml-canary/install/local/wikidot-verification/artifacts/ftml-inline-anchor-whitespace-canary-20261009/artifact-manifests/candidate.json",
+    "seeded": {
+      "site_id": 6000006,
+      "results": [
+        {
+          "fixture_id": "marker-heading",
+          "slug": "marker-canary-heading",
+          "compiled_generator": "ftml v1.42.0+roku.20260630.1; deepwell-render/v13"
+        },
+        {
+          "fixture_id": "marker-separator",
+          "slug": "marker-canary-separator",
+          "compiled_generator": "ftml v1.42.0+roku.20260630.1; deepwell-render/v13"
+        },
+        {
+          "fixture_id": "marker-div",
+          "slug": "marker-canary-div",
+          "compiled_generator": "ftml v1.42.0+roku.20260630.1; deepwell-render/v13"
+        },
+        {
+          "fixture_id": "marker-span",
+          "slug": "marker-canary-span",
+          "compiled_generator": "ftml v1.42.0+roku.20260630.1; deepwell-render/v13"
+        },
+        {
+          "fixture_id": "marker-alignment",
+          "slug": "marker-canary-alignment",
+          "compiled_generator": "ftml v1.42.0+roku.20260630.1; deepwell-render/v13"
+        }
+      ]
+    },
+    "records": {
+      "schema": "wikijump_full_parity.browser_rendering_evidence.v1",
+      "stage": "candidate",
+      "selected_count": 5,
+      "evidence": [
+        {
+          "schema": "wikijump_full_parity.browser_rendering_record.v1",
+          "evidence_type": "browser_rendering",
+          "fixture_id": "marker-heading",
+          "family": "ftml-marker-contract",
+          "slug": "marker-canary-heading",
+          "source_url": "http://127.0.0.1:55120/marker-canary-heading",
+          "local_url": "http://127.0.0.1:55120/marker-canary-heading",
+          "source_browser_artifact": "/home/roku/.codex/worktrees/wikijump-ftml-canary/install/local/wikidot-verification/artifacts/ftml-inline-anchor-whitespace-canary-20261009/candidate/marker-heading/local.dom.html",
+          "local_browser_artifact": "/home/roku/.codex/worktrees/wikijump-ftml-canary/install/local/wikidot-verification/artifacts/ftml-inline-anchor-whitespace-canary-20261009/candidate/marker-heading/local.dom.html",
+          "source_visible_text": "MARKER_HEADING",
+          "local_visible_text": "MARKER_HEADING",
+          "source_status": 200,
+          "local_status": 200,
+          "capture_errors": [],
+          "marker_count": 2
+        },
+        {
+          "schema": "wikijump_full_parity.browser_rendering_record.v1",
+          "evidence_type": "browser_rendering",
+          "fixture_id": "marker-separator",
+          "family": "ftml-marker-contract",
+          "slug": "marker-canary-separator",
+          "source_url": "http://127.0.0.1:55120/marker-canary-separator",
+          "local_url": "http://127.0.0.1:55120/marker-canary-separator",
+          "source_browser_artifact": "/home/roku/.codex/worktrees/wikijump-ftml-canary/install/local/wikidot-verification/artifacts/ftml-inline-anchor-whitespace-canary-20261009/candidate/marker-separator/local.dom.html",
+          "local_browser_artifact": "/home/roku/.codex/worktrees/wikijump-ftml-canary/install/local/wikidot-verification/artifacts/ftml-inline-anchor-whitespace-canary-20261009/candidate/marker-separator/local.dom.html",
+          "source_visible_text": "MARKER_BEFORE_SEPARATOR MARKER_AFTER_SEPARATOR",
+          "local_visible_text": "MARKER_BEFORE_SEPARATOR MARKER_AFTER_SEPARATOR",
+          "source_status": 200,
+          "local_status": 200,
+          "capture_errors": [],
+          "marker_count": 1
+        },
+        {
+          "schema": "wikijump_full_parity.browser_rendering_record.v1",
+          "evidence_type": "browser_rendering",
+          "fixture_id": "marker-div",
+          "family": "ftml-marker-contract",
+          "slug": "marker-canary-div",
+          "source_url": "http://127.0.0.1:55120/marker-canary-div",
+          "local_url": "http://127.0.0.1:55120/marker-canary-div",
+          "source_browser_artifact": "/home/roku/.codex/worktrees/wikijump-ftml-canary/install/local/wikidot-verification/artifacts/ftml-inline-anchor-whitespace-canary-20261009/candidate/marker-div/local.dom.html",
+          "local_browser_artifact": "/home/roku/.codex/worktrees/wikijump-ftml-canary/install/local/wikidot-verification/artifacts/ftml-inline-anchor-whitespace-canary-20261009/candidate/marker-div/local.dom.html",
+          "source_visible_text": "MARKER_DIV",
+          "local_visible_text": "MARKER_DIV",
+          "source_status": 200,
+          "local_status": 200,
+          "capture_errors": [],
+          "marker_count": 1
+        },
+        {
+          "schema": "wikijump_full_parity.browser_rendering_record.v1",
+          "evidence_type": "browser_rendering",
+          "fixture_id": "marker-span",
+          "family": "ftml-marker-contract",
+          "slug": "marker-canary-span",
+          "source_url": "http://127.0.0.1:55120/marker-canary-span",
+          "local_url": "http://127.0.0.1:55120/marker-canary-span",
+          "source_browser_artifact": "/home/roku/.codex/worktrees/wikijump-ftml-canary/install/local/wikidot-verification/artifacts/ftml-inline-anchor-whitespace-canary-20261009/candidate/marker-span/local.dom.html",
+          "local_browser_artifact": "/home/roku/.codex/worktrees/wikijump-ftml-canary/install/local/wikidot-verification/artifacts/ftml-inline-anchor-whitespace-canary-20261009/candidate/marker-span/local.dom.html",
+          "source_visible_text": "MARKER_SPAN",
+          "local_visible_text": "MARKER_SPAN",
+          "source_status": 200,
+          "local_status": 200,
+          "capture_errors": [],
+          "marker_count": 1
+        },
+        {
+          "schema": "wikijump_full_parity.browser_rendering_record.v1",
+          "evidence_type": "browser_rendering",
+          "fixture_id": "marker-alignment",
+          "family": "ftml-marker-contract",
+          "slug": "marker-canary-alignment",
+          "source_url": "http://127.0.0.1:55120/marker-canary-alignment",
+          "local_url": "http://127.0.0.1:55120/marker-canary-alignment",
+          "source_browser_artifact": "/home/roku/.codex/worktrees/wikijump-ftml-canary/install/local/wikidot-verification/artifacts/ftml-inline-anchor-whitespace-canary-20261009/candidate/marker-alignment/local.dom.html",
+          "local_browser_artifact": "/home/roku/.codex/worktrees/wikijump-ftml-canary/install/local/wikidot-verification/artifacts/ftml-inline-anchor-whitespace-canary-20261009/candidate/marker-alignment/local.dom.html",
+          "source_visible_text": "MARKER_ALIGNMENT",
+          "local_visible_text": "MARKER_ALIGNMENT",
+          "source_status": 200,
+          "local_status": 200,
+          "capture_errors": [],
+          "marker_count": 1
+        }
+      ]
+    },
+    "ports": {
+      "deepwell": 55660,
+      "framerail": 55120
+    }
+  },
+  "comparator": {
+    "script": "install/local/wikidot-verification/scripts/compare-render-evidence.mjs",
+    "verdict": "/home/roku/.codex/worktrees/wikijump-ftml-canary/install/local/wikidot-verification/artifacts/ftml-inline-anchor-whitespace-canary-20261009/comparison/verdict.json"
+  }
+}
