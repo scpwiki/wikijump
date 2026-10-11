@@ -6,7 +6,7 @@ import {
   WIKIDOT_USER_INFO_MISSING,
   loadWikidotUserInfo
 } from "../src/lib/server/wikidot-user-info.js"
-import { showUserContactAuthenticationGuard } from "../src/lib/user-contact-auth-guard.js"
+import { showUserProfileActionAuthenticationGuard } from "../src/lib/user-profile-action-auth-guard.js"
 
 /**
  * @typedef {{
@@ -115,8 +115,10 @@ test("UserInfo projects only evidenced public identity fields", async () => {
     },
     privateMessageControl: {
       label: "Write private message",
-      redacted: true
-    }
+      authenticationPath: "/-/login"
+    },
+    contactControl: { label: "Add to contacts" },
+    abuseReportControl: { label: "flag user as abusive" }
   })
   assert.equal(JSON.stringify(result).includes("not-public"), false)
 })
@@ -184,33 +186,47 @@ for (const target of ["0", "-1"]) {
       error: WIKIDOT_USER_INFO_MISSING
     })
     assert.equal(JSON.stringify(result).includes("privateMessage"), false)
+    assert.equal(JSON.stringify(result).includes("abuseReport"), false)
+    assert.equal(JSON.stringify(result).includes("contact"), false)
     assert.equal(JSON.stringify(result).includes("avatar"), false)
     assert.equal(JSON.stringify(result).includes("href"), false)
   })
 }
 
-test("UserInfo view escapes identity data and guards the anonymous contact action", async () => {
+test("UserInfo view renders the evidenced action row for anonymous viewers only", async () => {
   const source = await readFile(
     new URL("../src/routes/user[x+3a]info/[target]/+page.svelte", import.meta.url),
     "utf8"
   )
 
   assert.doesNotMatch(source, /\{@html\}|innerHTML/u)
+  // The action row is gated on the merged layout session, so the control is
+  // never rendered as a dead anchor for an authenticated viewer.
+  assert.match(source, /if !data\.user_session/u)
+  assert.doesNotMatch(source, /page\.data\.user_session/u)
+  // Wikidot links the private-message action to its own message surface; the
+  // local control reaches the authentication boundary instead.
+  assert.match(
+    source,
+    /href=\{resolve\(data\.privateMessageControl\.authenticationPath, \{\}\)\}/u
+  )
+  assert.match(source, /data-action="write-private-message"/u)
   assert.match(source, /data-action="add-to-contacts"/u)
+  assert.match(source, /data-action="flag-user-as-abusive"/u)
   assert.match(source, /data-target-user-id=\{data\.user\.userId\}/u)
-  assert.match(source, /if !page\.data\.user_session/u)
-  assert.match(source, /showUserContactAuthenticationGuard\(errorPopupState\)/u)
+  assert.match(source, /showUserProfileActionAuthenticationGuard\(errorPopupState\)/u)
   assert.match(source, /\{data\.user\.name\}/u)
-  assert.match(source, /data-redacted-control="private-message"/u)
   assert.match(source, /<div class="error-block">\{data\.error\}<\/div>/u)
+  // The label is no longer an inert redacted span.
+  assert.doesNotMatch(source, /data-redacted-control/u)
 })
 
-test("anonymous Add to contacts opens the observed permission error without a write", () => {
+test("an anonymous profile action opens the observed permission error without a write", () => {
   const popupState = {
     current: { state: false, title: null, message: null, data: null }
   }
 
-  showUserContactAuthenticationGuard(popupState)
+  showUserProfileActionAuthenticationGuard(popupState)
 
   assert.deepEqual(popupState.current, {
     state: true,

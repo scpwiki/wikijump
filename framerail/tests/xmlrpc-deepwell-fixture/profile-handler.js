@@ -11,6 +11,12 @@ const AVATAR_OWNER_SESSION_TOKEN = "fixture-authenticated-session-token"
 const AVATAR_HASH_HEX = "ab".repeat(64)
 const AVATAR_HASH_BYTES = Array.from(Buffer.from(AVATAR_HASH_HEX, "hex"))
 
+/**
+ * Route target whose public user view resolves to `user_missing`, matching
+ * the missing-user branch of the public profile route.
+ */
+const MISSING_PROFILE_FIXTURE = "missing-profile-action-probe"
+
 /** A 1x1 PNG served for the stored avatar hash through `blob_get`. */
 const AVATAR_PNG = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
@@ -97,6 +103,12 @@ export const handleProfileRpc = ({ rpcRequest, request, response }) => {
   }
 
   if (params.session_token !== undefined) return undefined
+
+  // A named missing target keeps the public profile route's HTTP 200
+  // missing-user body observable in the browser.
+  if (params.user === MISSING_PROFILE_FIXTURE) {
+    return { result: { type: "user_missing" } }
+  }
 
   // Only exact roster slugs resolve; inherited Object.prototype keys such as
   // "constructor" must keep failing closed instead of serving a bogus profile.
@@ -197,6 +209,11 @@ const PROFILE_FIXTURES = {
     user_id: 987656,
     name: "Website Unsafe Probe",
     website: ["javascript", "alert(1)"].join(":")
+  },
+  "profile-action-probe": {
+    user_id: 987658,
+    name: "Profile Action Probe",
+    website: null
   },
   // Owned by the authenticated fixture session (user 6000008) and stored with an
   // avatar, so the own and public profiles both render the avatar image.

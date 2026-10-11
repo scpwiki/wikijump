@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { page } from "$app/state"
+  import { resolve } from "$app/paths"
   import { errorPopupState } from "$lib/layout/stores.svelte"
-  import { showUserContactAuthenticationGuard } from "$lib/user-contact-auth-guard.js"
+  import { showUserProfileActionAuthenticationGuard } from "$lib/user-profile-action-auth-guard.js"
 
   import type { PageProps } from "./$types"
 
@@ -12,11 +12,15 @@
   <div class="error-block">{data.error}</div>
 {:else if "user" in data && "privateMessageControl" in data}
   <div class="col-md-9" data-user-id={data.user.userId}>
-    <span data-redacted-control="private-message">
-      {data.privateMessageControl.label}
-    </span>
+    {#if !data.user_session}
+      <a
+        href={resolve(data.privateMessageControl.authenticationPath, {})}
+        data-action="write-private-message"
+        data-target-user-id={data.user.userId}
+      >
+        {data.privateMessageControl.label}
+      </a>
 
-    {#if !page.data.user_session}
       <!-- svelte-ignore a11y_invalid_attribute -->
       <a
         class="btn btn-default btn-xs"
@@ -26,11 +30,26 @@
         data-target-user-id={data.user.userId}
         onclick={(event) => {
           event.preventDefault()
-          showUserContactAuthenticationGuard(errorPopupState)
+          showUserProfileActionAuthenticationGuard(errorPopupState)
         }}
       >
         <i class="icon-book" aria-hidden="true"></i>
-        Add to contacts
+        {data.contactControl.label}
+      </a>
+
+      <!-- svelte-ignore a11y_invalid_attribute -->
+      <a
+        class="btn btn-danger btn-xs pull-right"
+        href="javascript:;"
+        role="button"
+        data-action="flag-user-as-abusive"
+        data-target-user-id={data.user.userId}
+        onclick={(event) => {
+          event.preventDefault()
+          showUserProfileActionAuthenticationGuard(errorPopupState)
+        }}
+      >
+        {data.abuseReportControl.label}
       </a>
     {/if}
 

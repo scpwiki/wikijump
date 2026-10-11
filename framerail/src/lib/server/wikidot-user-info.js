@@ -28,30 +28,60 @@ export const WIKIDOT_USER_INFO_MISSING = "User does not exist."
  * }} PublicUser
  *
  *
- * @typedef {{ label: string; redacted: true }} PrivateMessageControl
+ * @typedef {{
+ *   label: string
+ *   authenticationPath: string
+ * }} PrivateMessageControl
+ *
+ *
+ * @typedef {{ label: string }} ProfileActionControl
  *
  * @typedef {{
  *   status: 200
  *   view: "user_found"
  *   user: PublicUser
  *   privateMessageControl: PrivateMessageControl
+ *   contactControl: ProfileActionControl
+ *   abuseReportControl: ProfileActionControl
  * }} UserInfoFound
  *
  *
  * @typedef {{ status: 200; view: "user_missing"; error: string }} UserInfoMissing
  */
 
-/** @type {PrivateMessageControl} */
+/**
+ * The live public profile action row. Anonymous viewers reach the Wikidot
+ * authentication boundary: the private-message action navigates to the
+ * sign-in surface (live Wikidot links to `/account/messages#/new/<id>`,
+ * which asks an anonymous visitor to sign in), while `Add to contacts` and
+ * `flag user as abusive` open the same-page permission error recorded in
+ * `user-profile-action-auth-guard.js`.
+ *
+ * The authenticated compose/contact/report lifecycles are not implemented,
+ * so the controls are only rendered for viewers without a session instead
+ * of being exposed as dead controls. No Wikidot numeric user ID is encoded
+ * into a local URL: the recipient or report subject is addressed by the
+ * stable projected user ID carried on the rendered controls.
+ *
+ * @type {PrivateMessageControl}
+ */
 const PRIVATE_MESSAGE_CONTROL = Object.freeze({
   label: "Write private message",
-  redacted: true
+  authenticationPath: "/-/login"
 })
+
+/** @type {ProfileActionControl} */
+const CONTACT_CONTROL = Object.freeze({ label: "Add to contacts" })
+
+/** @type {ProfileActionControl} */
+const ABUSE_REPORT_CONTROL = Object.freeze({ label: "flag user as abusive" })
 
 /**
  * @param {UserViewUser} user
  * @param {LoadAvatar | undefined} loadAvatar
  * @returns {Promise<PublicUser>}
- * @throws {Error} If a found user has no public name or slug, or avatar loading fails.
+ * @throws {Error} If a found user has no public name or slug, or avatar
+ *   loading fails.
  */
 const projectPublicUser = async (user, loadAvatar) => {
   if (user.name === null || user.slug === null) {
@@ -96,7 +126,8 @@ const projectPublicUser = async (user, loadAvatar) => {
  *   loadAvatar?: LoadAvatar
  * }} options
  * @returns {Promise<UserInfoFound | UserInfoMissing>}
- * @throws {Error} If the user-view response type is unsupported or a found user cannot be projected.
+ * @throws {Error} If the user-view response type is unsupported or a found
+ *   user cannot be projected.
  */
 export const loadWikidotUserInfo = async ({
   siteId,
@@ -124,6 +155,8 @@ export const loadWikidotUserInfo = async ({
     status: 200,
     view: "user_found",
     user: await projectPublicUser(response.data.user, loadAvatar),
-    privateMessageControl: PRIVATE_MESSAGE_CONTROL
+    privateMessageControl: PRIVATE_MESSAGE_CONTROL,
+    contactControl: CONTACT_CONTROL,
+    abuseReportControl: ABUSE_REPORT_CONTROL
   }
 }
