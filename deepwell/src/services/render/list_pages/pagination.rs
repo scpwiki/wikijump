@@ -149,7 +149,9 @@ pub(in crate::services::render) fn list_pages_feed_info_html(
         .rss_title
         .as_deref()
         .filter(|title| !title.is_empty())?;
-    let mut url = format!("http://{}.wikidot.com/feed/pages", page_info.site);
+    // Keep generated feed links on the current site's origin. The feed route
+    // derives its own canonical origin from the incoming request.
+    let mut url = String::from("/feed/pages");
 
     if let Some(pagetype) = arguments.rss_path.pagetype.as_deref() {
         push_list_pages_feed_path_argument(&mut url, "pagetype", pagetype);
@@ -352,5 +354,37 @@ mod tests {
             ),
             "/ajax-module-connector.php/日本語_p/2",
         );
+    }
+
+    #[test]
+    fn list_pages_feed_link_uses_same_origin_route_and_preserves_selectors() {
+        let page_info = PageInfo {
+            page: Cow::Borrowed("holder"),
+            category: None,
+            site: Cow::Borrowed("template-en"),
+            title: Cow::Borrowed("Holder"),
+            alt_title: None,
+            score: ftml::data::ScoreValue::Integer(0),
+            tags: Vec::new(),
+            language: Cow::Borrowed("en"),
+        };
+        let arguments = super::super::parse_list_pages_arguments(
+            r#"category="*" tags="+red,blue" limit="5" rss="Recent updates""#,
+        )
+        .expect("the RSS ListPages arguments should parse");
+
+        let html = list_pages_feed_info_html(&page_info, &arguments)
+            .expect("a non-empty RSS title should produce a feed link");
+
+        assert!(html.contains(r#"<a href="/feed/pages/"#), "{html}");
+        assert!(html.contains("tags/%2Bred%2Cblue"), "{html}");
+        assert!(html.contains("limit/5"), "{html}");
+        assert!(html.contains("t/Recent+updates"), "{html}");
+        assert!(
+            !html.contains("/category/"),
+            "wildcard category is omitted: {html}"
+        );
+        assert!(!html.contains("wikidot.com"));
+        assert!(html.contains("/common--theme/base/images/feed/feed-icon-14x14.png"));
     }
 }
