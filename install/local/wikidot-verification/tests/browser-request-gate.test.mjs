@@ -239,7 +239,9 @@ test("the public gate admits Wikidot and css.wikidot.com but blocks unrelated pu
   assert.equal(isWikidotCapturePublicOrigin("https://interwiki.scpwiki.com/styleFrame.html", "document", "POST"), false);
   assert.equal(isWikidotCapturePublicOrigin("https://interwiki.scpwiki.com/interwiki.js", "script", "GET", "https://interwiki.scpwiki.com/interwikiFrame.html"), true);
   assert.equal(isWikidotCapturePublicOrigin("https://interwiki.scpwiki.com/resizeIframe.js", "script", "GET", "https://interwiki.scpwiki.com/styleFrame.html"), true);
-  assert.equal(isWikidotCapturePublicOrigin("https://interwiki.scpwiki.com/interwiki.js", "script", "GET"), false);
+  assert.equal(isWikidotCapturePublicOrigin("https://interwiki.scpwiki.com/interwiki.js", "script", "GET"), true);
+  assert.equal(isWikidotCapturePublicOrigin("https://interwiki.scpwiki.com/resizeIframe.js", "script", "GET", null), true);
+  assert.equal(isWikidotCapturePublicOrigin("https://interwiki.scpwiki.com/interwiki.js", "script", "GET", "https://scp-wiki.wikidot.com/scp-173"), false);
   assert.equal(isWikidotCapturePublicOrigin("https://interwiki.scpwiki.com/other.js", "script", "GET"), false);
   assert.equal(isWikidotCapturePublicOrigin("https://interwiki.scpwiki.com/other.html", "document", "GET"), false);
   assert.equal(isWikidotCapturePublicOrigin("http://interwiki.scpwiki.com/styleFrame.html", "document", "GET"), false);
