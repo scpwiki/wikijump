@@ -147,12 +147,30 @@ test("imported page-info remains sourced from its retained Wikidot snapshot", ()
     }
   }
 
+  const presentation = buildWikidotPagePresentation(response, {
+    hasSession: false,
+    siteLocale: "en",
+    now: Date.parse("2024-03-28T07:18:44+09:00")
+  })
+
   assert.equal(
-    buildWikidotPagePresentation(response, {
-      hasSession: false,
-      siteLocale: "en",
-      now: Date.parse("2024-03-28T07:18:44+09:00")
-    }).wikidot_page_info,
+    presentation.wikidot_page_info,
     "page revision: 17, last edited: 28 Mar 2024, 05:18 (2 hours ago)"
   )
+  assert.equal(presentation.wikidot_page_actions?.discuss, "Discuss (2)")
+  assert.equal(presentation.wikidot_page_actions?.showDiscuss, true)
+
+  const body = render(pageComponent, {
+    props: {
+      data: {
+        ...response.data,
+        ...presentation,
+        site: { locale: "en" },
+        internationalization: {}
+      }
+    },
+    context: new Map([[PAGE_LAYOUT_CONTEXT_KEY, { current: Layout.WIKIDOT }]])
+  }).body
+
+  assert.match(body, /<a[^>]*id="discuss-button"[^>]*>Discuss \(2\)<\/a>/u)
 })

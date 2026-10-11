@@ -57,18 +57,21 @@ export const sourceShowsStandardWikidotPageActions = (sourceSite) => {
  *   ratingEnabled: boolean
  *   discussionEnabled: boolean
  *   discussionThreadId?: number | null
+ *   sourceCommentCount?: number | null
  * }} input
  * @returns {{ showRate: boolean; showDiscuss: boolean }}
  */
 export const wikidotPageActionVisibility = ({
   sourceSite,
   ratingEnabled,
-  discussionEnabled
+  discussionEnabled,
+  sourceCommentCount
 }) => {
   const sourceShowsActions = sourceShowsStandardWikidotPageActions(sourceSite)
   return {
     showRate: sourceShowsActions && ratingEnabled,
-    showDiscuss: sourceShowsActions && discussionEnabled
+    showDiscuss:
+      sourceShowsActions && (discussionEnabled || (sourceCommentCount ?? 0) > 0)
   }
 }
 
