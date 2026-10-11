@@ -6086,7 +6086,7 @@
     },
     {
       "path": "framerail/src/lib/server/load/user-settings.ts",
-      "sha256": "ab48a5af804ca882ac32f4e85807888473ed1b1240dd55c21ec55ca966e7ee10",
+      "sha256": "60b7995b86f5038db4ed8bd3e68b02806241b3c75d3f6aecdc3ecb05f50591b2",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -6319,6 +6319,14 @@
     {
       "path": "framerail/src/lib/user-interface-locales.ts",
       "sha256": "002491950d1e4935b4953c12f8169711088357fe83bb6129649c3f7e9dd88f08",
+      "status": "pending",
+      "anchors": [],
+      "findings": [],
+      "review": null
+    },
+    {
+      "path": "framerail/src/lib/user-locale-order.js",
+      "sha256": "dbe9e637067792c2773147c569c27cc1c3fa8e95244dd5f05f2a67c25f03c8b6",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -7230,7 +7238,7 @@
     },
     {
       "path": "framerail/src/routes/[x+2d]/settings/+page.svelte",
-      "sha256": "9d03e03419e9db2f06e097b997c125e9a3e45d6d486e42072567b6776b167def",
+      "sha256": "d9c5296c4037e2f6772625e11153bce32a88d09e67cd834f86e313c53c574aa3",
       "status": "pending",
       "anchors": [],
       "findings": [],

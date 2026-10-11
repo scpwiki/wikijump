@@ -151,6 +151,31 @@ test("user settings bind persistence to the server session actor", async () => {
       }
     }))
     assert.deepEqual(reloaded.displaySettingsForm.data.locales, ["ja-JP", "en-US"])
+
+    const duplicatePreferences = await loadUserSettings(async () => ({
+      locales: ["en-US", "en"],
+      user_session: {
+        user: {
+          user_id: 41,
+          locales: ["ja-JP", "en-US", "ja-JP"]
+        }
+      }
+    }))
+    assert.deepEqual(duplicatePreferences.displaySettingsForm.data.locales, [
+      "ja-JP",
+      "en-US"
+    ])
+
+    const emptyPreferences = await loadUserSettings(async () => ({
+      locales: ["en-US", "en"],
+      user_session: {
+        user: {
+          user_id: 41,
+          locales: []
+        }
+      }
+    }))
+    assert.deepEqual(emptyPreferences.displaySettingsForm.data.locales, ["en"])
   } finally {
     if (client && originalRequest) client.request = originalRequest
     if (vite) await vite.close()
