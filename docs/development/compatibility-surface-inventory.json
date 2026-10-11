@@ -11400,7 +11400,7 @@
   },
   "provenance": {
     "wikijump": {
-      "source_input_set_sha256": "9b0dba1631960f0322d65293ac9b58c9f0a9bc50ff6d19287519d7111d48ec1e"
+      "source_input_set_sha256": "81a9507360be8f1c691912dc034f889debbb6fbc1693280f8dc2b1c0079db756"
     },
     "ftml": {
       "commit": "bf49d32fe980611fed368661396a3d6c1f02c51f",
@@ -11849,7 +11849,7 @@
       },
       {
         "path": "framerail/src/routes/printer--friendly/[...path]/+page.svelte",
-        "sha256": "ac11588f94706805f2bf8f117bb96d6265cac3b54235fcf7a0e5d5a1d762af66"
+        "sha256": "48ea625cdf3e2eeb0dece65b257e1c2d806dde855391125bcd82cf677fa66478"
       },
       {
         "path": "framerail/src/routes/user[x+3a]info/[target]/+page.server.ts",
