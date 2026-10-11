@@ -366,6 +366,22 @@ x^2 + y^2 = z^2
     compiled_body_html:
       '<p>Page workflow probe</p><a id="navigate-history-target" href="/scp-173" data-sveltekit-reload="off">Navigate to history target</a>'
   },
+  "edit-section-permission-probe": {
+    page_id: 3000500,
+    revision_id: 9000500,
+    page_created_at: "2026-10-10T00:00:00Z",
+    page_updated_at: null,
+    page_revision_count: 1,
+    revision_created_at: "2026-10-10T00:00:00Z",
+    revision_user_id: 123,
+    creator_user_id: 123,
+    title: "Edit Section Permission Probe",
+    slug: "edit-section-permission-probe",
+    tags: ["fixture"],
+    rating: 0,
+    wikitext: "++ Permission probe section\nSection body.",
+    compiled_body_html: '<h2 id="toc0">Permission probe section</h2><p>Section body.</p>'
+  },
   "page-workflow-star-probe": {
     page_id: 3000341,
     revision_id: 9000341,

@@ -6830,7 +6830,7 @@
     },
     {
       "path": "framerail/src/routes/[slug]/[...extra]/EditSectionPane.svelte",
-      "sha256": "eea2fbd782ce3fd3ca68738d9bde232869d821adaffc2521da39d074750efa07",
+      "sha256": "3f8c7fe5852196ef26eabd0115317fa0ae46eb9484915860465d52c8ced4f8b3",
       "status": "pending",
       "anchors": [],
       "findings": [],
