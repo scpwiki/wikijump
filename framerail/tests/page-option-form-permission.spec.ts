@@ -48,7 +48,8 @@ const openOptionsMenu = async (
   page: Page,
   canEdit: boolean,
   permissionRequests: Route[],
-  headers: Record<string, string>
+  headers: Record<string, string>,
+  pagePath = "/page-workflow-probe"
 ) => {
   await page.setExtraHTTPHeaders(headers)
   await page.route(
@@ -77,7 +78,7 @@ const openOptionsMenu = async (
     }
   )
 
-  await page.goto("/page-workflow-probe", { waitUntil: "domcontentloaded" })
+  await page.goto(pagePath, { waitUntil: "domcontentloaded" })
   await waitForSvelteDelegatedHandler(page, "#more-options-button")
   await page.locator("#more-options-button").click()
   await expect(page.locator("#edit-append-button")).toBeVisible()
@@ -138,6 +139,51 @@ test.describe("authorized existing-page Append and Parent options", () => {
     await page.locator("#parent-page-button").click()
 
     await expect(page.locator("#page-parent")).toBeVisible()
+    await expect(page.locator("#odialog-container")).toHaveCount(0)
+    expect(permissionRequests).toHaveLength(1)
+  })
+})
+
+// The visible Tags option must obey the same Wikidot edit-permission boundary
+// as the #_edittags route. The real anonymous SCP-9506 Tags click shows a
+// permission modal without mounting any writable tag form (issue #2329).
+test.describe("Wikidot Tags option permission parity", () => {
+  test("anonymous Tags opens the edit denial dialog, not an editable form", async ({
+    page
+  }) => {
+    const permissionRequests: Route[] = []
+    await openOptionsMenu(
+      page,
+      false,
+      permissionRequests,
+      SITE_HEADERS,
+      "/wikidot-login-probe"
+    )
+
+    await page.locator("#tags-button").click()
+
+    await expect(page.locator("#odialog-container .owindow.error")).toBeVisible()
+    await expect(page.locator("#modal-title")).toHaveText(PERMISSION_MESSAGE)
+    await expectNoWritableSurface(page, "#page-tags")
+    expect(permissionRequests).toHaveLength(1)
+  })
+
+  test("authorized Tags opens its source-style edit form after the server gate", async ({
+    page
+  }) => {
+    const permissionRequests: Route[] = []
+    await openOptionsMenu(
+      page,
+      true,
+      permissionRequests,
+      AUTHENTICATED_HEADERS,
+      "/wikidot-login-probe"
+    )
+
+    await page.locator("#tags-button").click()
+
+    await expect(page.locator("#page-tags")).toBeVisible()
+    await expect(page.locator("#page-tags-input")).toBeVisible()
     await expect(page.locator("#odialog-container")).toHaveCount(0)
     expect(permissionRequests).toHaveLength(1)
   })
