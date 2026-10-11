@@ -76,6 +76,11 @@ export interface Locales {
   "logout.toast": string
   register: string
   "register.toast": string
+  "register.legal-notice": string
+  "register.legal-terms": string
+  "register.legal-conjunction": string
+  "register.legal-privacy": string
+  "register.legal-suffix": string
   specifier: string
   "specifier.placeholder": string
   "mfa-code": string
@@ -328,10 +333,10 @@ export interface Locales {
   "user-profile-info.website": string
   "user-profile-info.user-page": string
   "user-profile-info.locales": string
+  "user-profile-info.toast": string
   "user-profile-info.remove-avatar": string
   "user-profile-info.remove-avatar-pending": string
   "user-profile-info.keep-avatar": string
-  "user-profile-info.toast": string
   "user-not-exist": string
   "user-not-logged-in": string
   "wiki-auth-verify-email": string
@@ -395,8 +400,8 @@ export interface Locales {
   "wiki-page-vote.toast-set": string
   "wiki-page-vote.toast-remove": string
   "wiki-page-edit": string
-  "wiki-page-append-content": string
   "wiki-page-edit.toast": string
+  "wiki-page-append-content": string
   "wiki-page-create": string
   "wiki-page-move": string
   "wiki-page-move.new-slug": string
@@ -433,6 +438,7 @@ export interface Locales {
   "wiki-page-file.mime": string
   "wiki-page-file.size": string
   "wiki-page-file.page": string
+  "wiki-page-file-history": string
   "wiki-page-file-revision-type": string
   "wiki-page-file-revision-type.create": string
   "wiki-page-file-revision-type.regular": string

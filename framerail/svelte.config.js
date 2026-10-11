@@ -8,6 +8,7 @@ import {
   csrfTrustedOrigins,
   parseDeploymentEnvironment
 } from "./src/lib/server/deployment-environment.js"
+import { auditedExternalAssetOrigins } from "./src/lib/server/audited-external-asset-origins.js"
 
 // The former only works on node 20.11+
 const __dirname = import.meta.dirname ?? dirname(fileURLToPath(import.meta.url))
@@ -53,32 +54,13 @@ const WIKIDOT_IMAGE_SOURCES = [
   "https://d2qhngyckgiutd.cloudfront.net"
 ]
 /** @type {CspSources} */
-const WIKIDOT_STYLE_SOURCES = [
-  "https://*.wdfiles.com",
-  "https://cdn.scpwiki.com",
-  "https://cdn.jsdelivr.net",
-  "https://d3g0gp89917ko0.cloudfront.net",
-  "https://fonts.bunny.net",
-  "https://fonts.googleapis.com",
-  "https://maxcdn.bootstrapcdn.com",
-  "https://nu-scptheme.github.io",
-  "https://rsms.me",
-  "https://scp-wiki-cdn.nyc3.cdn.digitaloceanspaces.com"
-]
-/** @type {CspSources} */
-const WIKIDOT_FONT_SOURCES = [
-  "https://*.wdfiles.com",
-  "https://cdn.scpwiki.com",
-  "https://cdn.jsdelivr.net",
-  "https://fonts.bunny.net",
-  "https://fonts.gstatic.com",
-  "https://maxcdn.bootstrapcdn.com",
-  "https://nu-scptheme.github.io",
-  "https://rsms.me",
-  "https://scp-wiki-cdn.nyc3.cdn.digitaloceanspaces.com"
-]
-/** @type {CspSources} */
 const WIKIDOT_MEDIA_FRAME_SOURCES = ["https://www.youtube.com", "https://embed.acast.com"]
+// External stylesheet and font origins are not maintained inline: they come
+// from the audited registry so every allowlisted origin carries its own
+// retained provenance and the policy can never be widened by an
+// author-supplied `@import` URL.
+const WIKIDOT_STYLE_SOURCES = auditedExternalAssetOrigins("styles")
+const WIKIDOT_FONT_SOURCES = auditedExternalAssetOrigins("fonts")
 
 const deploymentEnvironment = parseDeploymentEnvironment()
 const testOutDir = process.env.NODE_TEST_CONTEXT

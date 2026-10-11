@@ -118,6 +118,7 @@ wiki-page-file-delete =
   .confirmation = Delete this file?
   .filename = File
   .page = Page
+
   .confirm = Confirm delete
 
 wiki-page-file-move-destination-page = Destination page
@@ -129,6 +130,8 @@ wiki-page-file = Page files
   .mime = File type
   .size = File size
   .page = Page
+
+wiki-page-file-history = File history
 
 wiki-page-file-revision-type = Type
   .create = Create

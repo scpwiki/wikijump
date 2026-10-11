@@ -147,6 +147,27 @@
       </select>
     </div>
 
+    <!--
+      Wikidot states the account-creation contract directly above the Sign up
+      action: "By creating an account you accept our Terms of Service and
+      Privacy Policy." A generic footer link is not that disclosure, so the
+      sentence is part of the form, adjacent to Create Account, and the
+      Create Account button names it with `aria-describedby`. Links come from
+      the instance's authoritative legal destinations, never from the wiki
+      being viewed.
+    -->
+    <p class="register-legal" id="register-legal-notice">
+      {data.internationalization?.["register.legal-notice"]}<a
+        class="register-legal-link"
+        href={data.legalDestinations.termsOfService}
+        rel="external">{data.internationalization?.["register.legal-terms"]}</a
+      >{data.internationalization?.["register.legal-conjunction"]}<a
+        class="register-legal-link"
+        href={data.legalDestinations.privacyPolicy}
+        rel="external">{data.internationalization?.["register.legal-privacy"]}</a
+      >{data.internationalization?.["register.legal-suffix"]}
+    </p>
+
     <div class="action-row auth-actions">
       <button
         class="action-button auth-button button-cancel clickable"
@@ -155,7 +176,11 @@
       >
         {data.internationalization?.cancel}
       </button>
-      <button class="action-button auth-button button-create clickable" type="submit">
+      <button
+        class="action-button auth-button button-create clickable"
+        aria-describedby="register-legal-notice"
+        type="submit"
+      >
         {data.internationalization?.["create-account"]}
       </button>
     </div>
@@ -186,6 +211,19 @@
       }
     }
 
+    .register-legal {
+      grid-column: span 2;
+      margin: 0;
+      font-size: 0.8rem;
+      color: #666;
+      text-align: center;
+
+      .register-legal-link {
+        color: inherit;
+        text-decoration: underline;
+      }
+    }
+
     .action-row {
       grid-column: span 2;
       justify-self: center;
@@ -199,8 +237,13 @@
         min-width: 0;
       }
 
-      .action-row {
+      .action-row,
+      .register-legal {
         grid-column: auto;
+      }
+
+      .register-legal {
+        text-align: start;
       }
     }
   }

@@ -63,6 +63,7 @@ upload = 업로드
 search = 검색
   .placeholder = 검색...
 
+
 ## Generic Authentication
 
 login = 로그인
@@ -73,6 +74,11 @@ logout = 로그아웃
 
 register = 가입하기
   .toast = 가입되었습니다.
+  .legal-notice = 계정을 만들면 다음에 동의하는 것으로 간주됩니다:{ " " }
+  .legal-terms = 이용약관
+  .legal-conjunction = { " " }및{ " " }
+  .legal-privacy = 개인정보 처리방침
+  .legal-suffix = .
 
 specifier = 이메일 또는 사용자명
   .placeholder = 이메일 또는 사용자명을 입력하세요.

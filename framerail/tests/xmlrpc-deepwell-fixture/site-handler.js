@@ -232,7 +232,12 @@ export const handleSiteRpc = ({ rpcRequest }) => {
     const authLabels = isJapanese
       ? {
           "error-form.password-mismatch": "パスワードが一致しません。",
-          "error-form.password-too-short": "パスワードは15文字以上で入力してください。"
+          "error-form.password-too-short": "パスワードは15文字以上で入力してください。",
+          "register.legal-notice": "アカウントを作成すると、",
+          "register.legal-terms": "利用規約",
+          "register.legal-conjunction": "および",
+          "register.legal-privacy": "プライバシーポリシー",
+          "register.legal-suffix": "に同意したものとみなされます。"
         }
       : {
           specifier: "Email or Username",
@@ -240,6 +245,11 @@ export const handleSiteRpc = ({ rpcRequest }) => {
           "password.placeholder": "Enter password...",
           "confirm-password": "Confirm Password",
           "mfa-code": "MFA code",
+          "register.legal-notice": "By creating an account you accept our ",
+          "register.legal-terms": "Terms of Service",
+          "register.legal-conjunction": " and ",
+          "register.legal-privacy": "Privacy Policy",
+          "register.legal-suffix": ".",
           "user-profile-info.remove-avatar": "Remove profile image",
           "user-profile-info.remove-avatar-pending":
             "The profile image will be removed when you save.",

@@ -63,6 +63,7 @@ upload = Tải lên
 search = Tìm kiếm
   .placeholder = Tìm...
 
+
 ## Generic Authentication
 
 login = Đăng nhập
@@ -73,6 +74,11 @@ logout = Đăng xuất
 
 register = Đăng ký
   .toast = Bạn đã được đăng ký.
+  .legal-notice = Bằng cách tạo tài khoản, bạn chấp nhận{ " " }
+  .legal-terms = Điều khoản dịch vụ
+  .legal-conjunction = { " " }và{ " " }
+  .legal-privacy = Chính sách bảo mật
+  .legal-suffix = { " " }của chúng tôi.
 
 specifier = Email hoặc Tên người dùng
   .placeholder = Nhập email hoặc tên người dùng...

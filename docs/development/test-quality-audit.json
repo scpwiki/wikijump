@@ -4758,7 +4758,7 @@
     },
     {
       "path": "framerail/playwright.browser-support.config.ts",
-      "sha256": "c9fd455d02af58ead5971a16c6ef29b61daacf41f9b3fab17dbddb28ef4583fd",
+      "sha256": "10e823ca608ab3d3b33e9171dc2754d05751730e65430452c3040994b64e0a9f",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -6022,7 +6022,7 @@
     },
     {
       "path": "framerail/src/lib/server/load/page/page-presentation.ts",
-      "sha256": "d8c2aac4d3664076a3407307472937cf09fd1497083324a436c0210abc3fbd35",
+      "sha256": "df0690e214f27b6bae20334d6dfa89de4df5f57db6253f1a97880503c3f141a8",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -6070,7 +6070,7 @@
     },
     {
       "path": "framerail/src/lib/server/load/register.ts",
-      "sha256": "fe95310c16faa7a770f687c9c99ddcdb5048df9b4d13a3ebd33cf20471fc22b4",
+      "sha256": "37a7c38d281ac76b4d93a7794c4ca05870e4d29a4b37bc020d3ec9f8cfa18ddb",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -6854,7 +6854,7 @@
     },
     {
       "path": "framerail/src/routes/[slug]/[...extra]/FileHistoryPanel.svelte",
-      "sha256": "e4ee5d3523a0f720f66c0b4a98c2aa457045082f6c1d70487d4f2e913a2d3267",
+      "sha256": "6ccc072a41b8d7d353afe39fd46aedfbabc0eff6671745e01d2158938b9f95f0",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -7222,7 +7222,7 @@
     },
     {
       "path": "framerail/src/routes/[x+2d]/register/+page.svelte",
-      "sha256": "84e8cc7e4eb5f62fda9f2546cd9aee78f1843d64270fe33eacfff833a611426b",
+      "sha256": "6e3b2193ca0ea83026f6b5246e69c871a0d9ca5ac9683b1d787f24d4e2220835",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -7526,7 +7526,7 @@
     },
     {
       "path": "framerail/src/types/index.ts",
-      "sha256": "dce9620ea9a6615dd01d01cc696d3f1bb252ca0b4325752f8bb50387d9a8c4f2",
+      "sha256": "8cf9549e0d804448461d20ff65ed1fb1e82461ca073362b68c9e9889ab1f6f95",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -7590,7 +7590,7 @@
     },
     {
       "path": "framerail/svelte.config.js",
-      "sha256": "206ee49c6f52cd0f0cdbd786b7a9a55d5c6548d401c2ad4906aefc8b3304df28",
+      "sha256": "d746a5a913bc570313d4674aee572d0533d04f8dcbe84470f923e3df7c2189e3",
       "status": "pending",
       "anchors": [],
       "findings": [],

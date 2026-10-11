@@ -89,6 +89,11 @@ logout = Logout
 
 register = Register
   .toast = You have been registered.
+  .legal-notice = By creating an account you accept our{ " " }
+  .legal-terms = Terms of Service
+  .legal-conjunction = { " " }and{ " " }
+  .legal-privacy = Privacy Policy
+  .legal-suffix = .
 
 specifier = Email or Username
   .placeholder = Enter email or username...
