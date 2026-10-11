@@ -28,6 +28,15 @@ From an isolated `504f2f5883cf` develop checkout, adding visual production exten
 | `framerail/src/lib/css/themes/_typography.scss` | `cf9a49f9bc2e6951` |
 | `framerail/src/routes/[slug]/[...extra]/page.scss` | `ae4617253dd663a4` |
 
+## Existing partial test owners (not identified by static JS imports)
+
+The **zero** static importer edges above do **not** mean visual sources have no existing tests. Independently inspected examples of already committed source-level tests:
+
+- `framerail/tests/wikidot-static-styles.test.ts` reads `_typography.scss` and `page.scss` and checks shell/style namespace boundaries. Its other cases verify hashes of pinned Wikidot CSS and local style links.
+- `framerail/tests/wikidot-request-info.test.js` reads `app.html` and checks the transitional doctype, body shell, nonce and document-language marker.
+
+These are genuine **source-assertion owners for parts of the visual surface**. They do **not** substitute for browser pixel/layout/interaction parity with live Wikidot. The automated static graph neither observes Sass dependencies nor infers file reads from URL expressions, so its zero value is an instrumentation limitation, not a missing-test verdict.
+
 ## Reproduction and acceptance
 
 Run in a checkout with all scoped production sources available:

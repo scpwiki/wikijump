@@ -15,6 +15,7 @@
   "static_import_candidate_owners_for_visual_sources": 0,
   "static_import_semantics": "candidate importer only; not behavioral coverage, test execution, or a missing-test verdict",
   "limitations": [
+    "Zero static JS import edges does not imply no test owners: test suites can read source text directly, as listed in existing_known_test_references.",
     "This static inventory does not establish whether a visual source is exercised in a browser.",
     "SCSS @use/@forward, Svelte Vite transforms, Svelte style blocks and browser-derived computed CSS are not parsed by the current static JS import graph.",
     "Wikidot source, DOM, CSS and interaction behavior require independent oracle and browser evidence."
@@ -95,6 +96,23 @@
     {
       "path": "framerail/src/routes/[slug]/[...extra]/page.scss",
       "sha256": "ae4617253dd663a4c4c140ee752945b24dce4c58cb3831ab78e936bb563a2dd1"
+    }
+  ],
+  "existing_known_test_references": [
+    {
+      "visual_source": "framerail/src/lib/css/base/_typography.scss",
+      "test": "framerail/tests/wikidot-static-styles.test.ts",
+      "contract": "source-level modern typography scoping away from imported Wikidot shell"
+    },
+    {
+      "visual_source": "framerail/src/routes/[slug]/[...extra]/page.scss",
+      "test": "framerail/tests/wikidot-static-styles.test.ts",
+      "contract": "source-level page-tag layout selectors must be namespaced"
+    },
+    {
+      "visual_source": "framerail/src/app.html",
+      "test": "framerail/tests/wikidot-request-info.test.js",
+      "contract": "doctype, body shell, nonce, and language marker checks"
     }
   ]
 }
