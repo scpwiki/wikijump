@@ -542,8 +542,22 @@ const optionValue = (extra, name) => {
   return null
 }
 
-/** @param {{ slug: string; extra: string }} route */
-const pageForArticleRoute = (route) => {
+// Mirrors Deepwell's PageOptions no-render argument: a route whose extra is
+// exactly `norender/<value>` looks up the page as if it had no extra. The
+// value is truthy unless it is `0` or `false`.
+const NORENDER_ONLY_EXTRA = /^norender\/([^/]+)$/u
+const noRenderOptionFromExtra = (extra) => {
+  const match = NORENDER_ONLY_EXTRA.exec(extra)
+  if (!match) return null
+  return !(match[1] === "0" || match[1].toLowerCase() === "false")
+}
+
+/** @param {{ slug: string; extra: string }} requestRoute */
+const pageForArticleRoute = (requestRoute) => {
+  const route = {
+    ...requestRoute,
+    extra: noRenderOptionFromExtra(requestRoute.extra) === null ? requestRoute.extra : ""
+  }
   const aliases = {
     "PAGE-WORKFLOW-PROBE": "page-workflow-probe",
     "page_workflow-probe": "page-workflow-probe",
@@ -775,6 +789,8 @@ export const handleArticleRpc = ({ rpcRequest, request }) => {
     const page = pageForArticleRoute(articleRoute)
     if (page) {
       result = toArticleViewResult(page, rpcRequest.params.site_id)
+      result.page.data.options.no_render =
+        noRenderOptionFromExtra(articleRoute.extra) === true
       if (rpcRequest.params.session_token === "fixture-owner-session-token") {
         result.user_session = {
           session_id: 6000009,
