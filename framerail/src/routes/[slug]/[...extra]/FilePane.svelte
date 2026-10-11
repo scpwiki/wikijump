@@ -200,10 +200,53 @@
     }
   )
 
+  // The File Move form is offered only to viewers who may edit the page, as
+  // the Files pane's other mutations require. Deepwell still checks both the
+  // current and destination page on every move; this keeps an interactive form
+  // away from viewers who can never complete it. Any failure fails closed.
+  const SVELTEKIT_ACTION_HEADERS = {
+    accept: "application/json",
+    "content-type": "text/plain;charset=UTF-8",
+    "x-sveltekit-action": "true"
+  }
+
+  let canMoveFile = $state(false)
+  let movePermissionRequestId = 0
+
+  async function fetchMovePermission() {
+    const requestId = ++movePermissionRequestId
+    let allowed = false
+    try {
+      const res = await fetch("?/editPermission", {
+        method: "POST",
+        headers: SVELTEKIT_ACTION_HEADERS,
+        body: JSON.stringify({})
+      }).then((res) => res.text())
+
+      const result = deserialize<
+        { res: { can_edit: boolean } },
+        { message: string; code: string; data: Record<string, unknown> }
+      >(res)
+      allowed = result.type === "success" && result.data?.res?.can_edit === true
+    } catch {
+      allowed = false
+    }
+
+    if (requestId !== movePermissionRequestId) return
+    canMoveFile = allowed
+  }
+
   $effect(() => {
     getFileList(false)
     return () => {
       fileListRequestId += 1
+    }
+  })
+
+  $effect(() => {
+    void fetchMovePermission()
+    return () => {
+      movePermissionRequestId += 1
     }
   })
 </script>
@@ -314,7 +357,7 @@
     </form>
   {/if}
 
-  {#if activeFileAction === "move"}
+  {#if activeFileAction === "move" && canMoveFile}
     <form
       id="file-move"
       class="file-move"
