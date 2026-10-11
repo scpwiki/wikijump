@@ -257,7 +257,10 @@ export async function capturePage(page, url, {
         await route.abort("blockedbyclient");
         return;
       }
-      await route.continue();
+      // Delegate non-excluded requests to context routes. `continue()` skips
+      // the context-level request gate and response cache installed by
+      // browser-session, allowing an unrecorded direct network request.
+      await route.fallback();
     });
   }
   page.on("console", (message) => {
