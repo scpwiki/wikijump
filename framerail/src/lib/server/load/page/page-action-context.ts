@@ -49,6 +49,9 @@ export function requirePageMutationUserId(
   if (userId === undefined) {
     throw new PageActionContextMismatchError("Permission denied.")
   }
+  if (userId === -1 && context.sessionUserId === undefined) {
+    context.requestContext.localPageMutationActor = true
+  }
   return userId
 }
 

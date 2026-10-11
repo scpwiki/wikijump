@@ -1,0 +1,3 @@
+[[module ListPages separate="@URL" category="@URL|*" order="@URL|title" perPage="@URL|50"]]
+%%title_linked%%
+[[/module]]

@@ -1,0 +1,159 @@
+✖ malformed URL tokens and authority-shaped paths do not hide subsequent resources (9.32751ms)
+✔ resource output order is independent of authored order (0.39267ms)
+✖ detects CSS @import local--files URL (1.15659ms)
+✖ detects CSS url(...) local--files URL (0.30114ms)
+✖ detects bare local--files URL (0.29475ms)
+✔ uses distinct target paths for query variants (0.58365ms)
+✔ deduplicates duplicate resource references deterministically (0.18675ms)
+✔ non-local external URLs are ignored or out-of-scope (0.13527ms)
+✔ trims sentence-ending punctuation from bare local--files URLs (0.19971ms)
+✔ canonicalization preserves path double slashes (0.36063ms)
+✔ deduplicates repeated out-of-scope local--files URLs (0.15696ms)
+✖ trims a Wikidot image-option pipe after a local--files URL (0.24129ms)
+✖ keeps wdfiles.com local-file resources in scope (0.16272ms)
+✔ unsafe in-scope resource paths do not abort later scan results (0.162ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 8
+ℹ fail 6
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 72.15129
+
+✖ failing tests:
+
+test at install/local/wikidot-verification/tests/resource-scanner.test.mjs:6:1
+✖ malformed URL tokens and authority-shaped paths do not hide subsequent resources (9.32751ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      [
+        'plainfile',
+        'unknown'
+      ],
+      [
+        'UPPER.PNG',
+  +     'unknown'
+  -     'image'
+      ]
+    ]
+  
+      at TestContext.<anonymous> (file:///home/roku/src/Rokurolize/wikijump/install/local/wikidot-verification/tests/resource-scanner.test.mjs:18:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ [ 'plainfile', 'unknown' ], [ 'UPPER.PNG', 'unknown' ] ],
+    expected: [ [ 'plainfile', 'unknown' ], [ 'UPPER.PNG', 'image' ] ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at install/local/wikidot-verification/tests/resource-scanner.test.mjs:37:1
+✖ detects CSS @import local--files URL (1.15659ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'unknown' !== 'css'
+  
+      at TestContext.<anonymous> (file:///home/roku/src/Rokurolize/wikijump/install/local/wikidot-verification/tests/resource-scanner.test.mjs:51:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'unknown',
+    expected: 'css',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at install/local/wikidot-verification/tests/resource-scanner.test.mjs:57:1
+✖ detects CSS url(...) local--files URL (0.30114ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'unknown' !== 'image'
+  
+      at TestContext.<anonymous> (file:///home/roku/src/Rokurolize/wikijump/install/local/wikidot-verification/tests/resource-scanner.test.mjs:71:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'unknown',
+    expected: 'image',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at install/local/wikidot-verification/tests/resource-scanner.test.mjs:74:1
+✖ detects bare local--files URL (0.29475ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'unknown' !== 'image'
+  
+      at TestContext.<anonymous> (file:///home/roku/src/Rokurolize/wikijump/install/local/wikidot-verification/tests/resource-scanner.test.mjs:88:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'unknown',
+    expected: 'image',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at install/local/wikidot-verification/tests/resource-scanner.test.mjs:200:1
+✖ trims a Wikidot image-option pipe after a local--files URL (0.24129ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'unknown' !== 'image'
+  
+      at TestContext.<anonymous> (file:///home/roku/src/Rokurolize/wikijump/install/local/wikidot-verification/tests/resource-scanner.test.mjs:212:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'unknown',
+    expected: 'image',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at install/local/wikidot-verification/tests/resource-scanner.test.mjs:219:1
+✖ keeps wdfiles.com local-file resources in scope (0.16272ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'unknown' !== 'audio'
+  
+      at TestContext.<anonymous> (file:///home/roku/src/Rokurolize/wikijump/install/local/wikidot-verification/tests/resource-scanner.test.mjs:232:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'unknown',
+    expected: 'audio',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

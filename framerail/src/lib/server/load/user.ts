@@ -15,7 +15,7 @@ import { loadSiteInfo } from "$lib/server/load/site-info"
 import { error, redirect } from "@sveltejs/kit"
 import { fail, superValidate, withFiles } from "sveltekit-superforms"
 import { valibot } from "sveltekit-superforms/adapters"
-import { file, object, optional, string } from "valibot"
+import { boolean, file, object, optional, string } from "valibot"
 
 import type { PreloadData, PreloadDataAsync } from "$lib/server/deepwell/views"
 import type { TranslateKeys, TranslatedKeys, UserModel } from "$lib/types"
@@ -144,6 +144,9 @@ export async function loadUser(
       "edit": {},
       "save": {},
       "cancel": {},
+      "user-profile-info.remove-avatar": {},
+      "user-profile-info.remove-avatar-pending": {},
+      "user-profile-info.keep-avatar": {},
 
       // User profile attributes
       "user-profile-info": {},
@@ -276,6 +279,7 @@ export async function userEditAction({
       realName,
       email,
       avatar,
+      removeAvatar,
       gender,
       birthday,
       location,
@@ -284,6 +288,16 @@ export async function userEditAction({
       userPage,
       locales
     } = form.data
+
+    // Removal is an explicit flag, never inferred from a missing or empty file.
+    // A real new image plus a removal request is contradictory, so reject it.
+    const hasNewImage = avatar instanceof File && avatar.size > 0
+    if (removeAvatar === true && hasNewImage) {
+      return fail(400, {
+        form,
+        message: "Choose a new profile image or remove the current one, not both."
+      })
+    }
 
     await userEdit(
       session.user_id,
@@ -297,6 +311,7 @@ export async function userEditAction({
             )
           : undefined,
         avatar,
+        removeAvatar: removeAvatar === true,
         realName,
         gender,
         birthday,
@@ -320,6 +335,7 @@ export const userEditSchema = object({
   realName: optional(string()),
   email: optional(string()),
   avatar: optional(file()),
+  removeAvatar: optional(boolean()),
   gender: optional(string()),
   birthday: optional(string()),
   location: optional(string()),

@@ -2,19 +2,16 @@
 set -eu
 umask 077
 
-tls_dir="/tmp/wikijump-playwright-tls-2242"
-if [ -e "$tls_dir" ]; then
-  echo "Reserved Playwright TLS directory already exists: $tls_dir" >&2
-  exit 1
-fi
-mkdir -m 700 "$tls_dir"
+tls_dir="${WIKIJUMP_PLAYWRIGHT_TLS_DIR:-/tmp/wikijump-playwright-tls-2242}"
+tls_owner_token="${WIKIJUMP_PLAYWRIGHT_TLS_OWNER_TOKEN:-$(node -e 'process.stdout.write(require("node:crypto").randomUUID())')}"
+node tests/playwright-https-tls.js create "$tls_dir" "$tls_owner_token" >/dev/null
 vite_pid=""
 cleanup() {
   if [ -n "$vite_pid" ]; then
     kill "$vite_pid" 2>/dev/null || true
     wait "$vite_pid" 2>/dev/null || true
   fi
-  rm -rf -- "$tls_dir"
+  node tests/playwright-https-tls.js cleanup "$tls_dir" "$tls_owner_token"
 }
 trap cleanup EXIT
 trap 'exit 130' INT

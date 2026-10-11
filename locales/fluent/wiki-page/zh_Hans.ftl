@@ -13,6 +13,7 @@ wiki-page-last-edit = 最后编辑于: { $date } ({ $days ->
 wiki-page-source = 页面源代码
 
 wiki-page-view-source = 检视源代码
+wiki-page-action-rename-move = 移动
 
 wiki-page-revision-history = 页面修订历史
 
@@ -72,6 +73,9 @@ wiki-page-layout = 页面布局
   .wikijump = Wikijump
   .toast = 页面布局保存成功。
 
+wiki-page-meta-tag-name = 元标签名称
+wiki-page-meta-tag-content = 元标签内容
+
 wiki-page-delete = 删除页面
   .toast = 页面删除成功。
 
@@ -92,6 +96,10 @@ wiki-page-file-upload =
 
 wiki-page-file-delete =
   .toast = 档案删除成功。
+  .confirmation = 删除文件？
+  .filename = 文件
+  .page = 页面
+  .confirm = 确认删除
 
 wiki-page-file-move-destination-page = 新页面网址
 
@@ -120,6 +128,7 @@ wiki-page-file-restore = 恢复
 ### 维基页面锁定
 
 wiki-page-lock = 锁定页面
+wiki-page-action-lock = 锁定页面
   .permission-only = 仅权限用户
   .author-or-permission-only = 仅权限用户或发布者
   .permission-only-text = 仅具有越过锁定权限的用户可以编辑。

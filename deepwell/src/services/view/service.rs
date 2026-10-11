@@ -747,6 +747,7 @@ impl ViewService {
             page_templates: Vec<PageTemplateSummary>,
             selected_template_page_id: Option<i64>,
             data_form: Option<DataFormEditor>,
+            can_create: bool,
             compiled_body_html: String,
             compiled_body_styles: Vec<String>,
             compiled_top_bar_html: Option<String>,
@@ -761,6 +762,7 @@ impl ViewService {
             page_templates,
             selected_template_page_id,
             data_form,
+            can_create,
             mut compiled_body_html,
             compiled_body_styles,
             compiled_top_bar_html,
@@ -1036,6 +1038,7 @@ impl ViewService {
                         new_page_wikitext: None,
                         page_templates: Vec::new(),
                         selected_template_page_id: None,
+                        can_create: false,
                         data_form,
                         compiled_body_html,
                         compiled_body_styles,
@@ -1112,6 +1115,7 @@ impl ViewService {
                         new_page_wikitext: None,
                         page_templates: Vec::new(),
                         selected_template_page_id: None,
+                        can_create: false,
                         data_form: None,
                         compiled_body_html,
                         compiled_body_styles,
@@ -1197,6 +1201,7 @@ impl ViewService {
                         new_page_wikitext: None,
                         page_templates: Vec::new(),
                         selected_template_page_id: None,
+                        can_create: false,
                         data_form: None,
                         compiled_body_html,
                         compiled_body_styles,
@@ -1234,94 +1239,90 @@ impl ViewService {
                     } = SettingsService::get_nav_page_html(ctx, site_id, category_id)
                         .await
                         .or_raise(make_error)?;
-                    let (page_templates, category_template_page_id, data_form) =
-                        if options.edit {
-                            let create_category = CategoryService::get_optional(
-                                ctx,
+                    // The create decision is the same authority page_create enforces.
+                    // It is exposed on every missing view so the editor and the
+                    // "Create page" entry point can both gate on it. Templates and
+                    // data-form source are only instantiated for an allowed actor.
+                    let create_category = CategoryService::get_optional(
+                        ctx,
+                        site_id,
+                        Reference::Slug(cow!(get_category_name(page_full_slug))),
+                    )
+                    .await
+                    .or_raise(make_error)?;
+                    let user_can_create_page = match user_session.as_ref() {
+                        Some(session) => PermissionService::check_user_can(
+                            ctx,
+                            &CheckPermissionContext {
+                                user_id: Some(session.user.user_id),
                                 site_id,
-                                Reference::Slug(cow!(get_category_name(page_full_slug))),
-                            )
-                            .await
-                            .or_raise(make_error)?;
-                            let user_can_create_page = match user_session.as_ref() {
-                                Some(session) => PermissionService::check_user_can(
+                                page_reference: None,
+                            },
+                            Permission {
+                                resource_type: Resource::Page,
+                                resource_category: create_category
+                                    .as_ref()
+                                    .map(|category| Reference::Id(category.category_id)),
+                                action: Action::Create,
+                            },
+                        )
+                        .await
+                        .or_raise(make_error)?,
+                        None => false,
+                    };
+
+                    let (page_templates, category_template_page_id, data_form) =
+                        if options.edit && user_can_create_page {
+                            let data_form = match create_category.as_ref() {
+                                Some(category) => {
+                                    let definition = load_data_form_definitions(
+                                        ctx,
+                                        std::slice::from_ref(category),
+                                    )
+                                    .await
+                                    .or_raise(make_error)?
+                                    .remove(&category.category_id)
+                                    .filter(|definition| {
+                                        definition.supports_observed_editor()
+                                    });
+                                    match definition {
+                                        Some(definition) => {
+                                            let pagepaths =
+                                                load_wikidot_data_form_pagepaths(
+                                                    ctx,
+                                                    site_id,
+                                                    &definition,
+                                                    user_session.as_ref().map(
+                                                        |session| session.user.user_id,
+                                                    ),
+                                                )
+                                                .await
+                                                .or_raise(make_error)?;
+                                            Some(DataFormEditor {
+                                                definition,
+                                                values: Default::default(),
+                                                pagepaths,
+                                            })
+                                        }
+                                        None => None,
+                                    }
+                                }
+                                None => None,
+                            };
+                            (
+                                Self::get_page_templates(
                                     ctx,
-                                    &CheckPermissionContext {
-                                        user_id: Some(session.user.user_id),
-                                        site_id,
-                                        page_reference: None,
-                                    },
-                                    Permission {
-                                        resource_type: Resource::Page,
-                                        resource_category: create_category.as_ref().map(
-                                            |category| {
-                                                Reference::Id(category.category_id)
-                                            },
-                                        ),
-                                        action: Action::Create,
-                                    },
+                                    site_id,
+                                    user_session
+                                        .as_ref()
+                                        .map(|session| session.user.user_id),
                                 )
                                 .await
                                 .or_raise(make_error)?,
-                                None => false,
-                            };
-
-                            if user_can_create_page {
-                                let data_form = match create_category.as_ref() {
-                                    Some(category) => {
-                                        let definition = load_data_form_definitions(
-                                            ctx,
-                                            std::slice::from_ref(category),
-                                        )
-                                        .await
-                                        .or_raise(make_error)?
-                                        .remove(&category.category_id)
-                                        .filter(|definition| {
-                                            definition.supports_observed_editor()
-                                        });
-                                        match definition {
-                                            Some(definition) => {
-                                                let pagepaths =
-                                                    load_wikidot_data_form_pagepaths(
-                                                        ctx,
-                                                        site_id,
-                                                        &definition,
-                                                        user_session.as_ref().map(
-                                                            |session| {
-                                                                session.user.user_id
-                                                            },
-                                                        ),
-                                                    )
-                                                    .await
-                                                    .or_raise(make_error)?;
-                                                Some(DataFormEditor {
-                                                    definition,
-                                                    values: Default::default(),
-                                                    pagepaths,
-                                                })
-                                            }
-                                            None => None,
-                                        }
-                                    }
-                                    None => None,
-                                };
-                                (
-                                    Self::get_page_templates(
-                                        ctx,
-                                        site_id,
-                                        user_session
-                                            .as_ref()
-                                            .map(|session| session.user.user_id),
-                                    )
-                                    .await
-                                    .or_raise(make_error)?,
-                                    create_category
-                                        .and_then(|category| category.template_page_id),
-                                    data_form,
-                                )
-                            } else {
-                                (Vec::new(), None, None)
-                            }
+                                create_category
+                                    .and_then(|category| category.template_page_id),
+                                data_form,
+                            )
                         } else {
                             (Vec::new(), None, None)
                         };
@@ -1354,6 +1355,7 @@ impl ViewService {
                         page_templates,
                         selected_template_page_id,
                         data_form,
+                        can_create: user_can_create_page,
                         compiled_body_html,
                         compiled_body_styles,
                         compiled_top_bar_html,
@@ -1498,6 +1500,7 @@ impl ViewService {
                 page_templates,
                 selected_template_page_id,
                 data_form,
+                can_create,
                 compiled_body_html,
                 compiled_body_styles,
                 compiled_top_bar_html,

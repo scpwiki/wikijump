@@ -35,6 +35,7 @@ pub struct RequestContextHeaders {
     pub session_token: Option<String>,
     pub site_id: Option<i64>,
     pub page_ref: Option<Reference<'static>>,
+    pub local_page_mutation_actor: bool,
 }
 
 /// tower middleware layer to extract relevant headers from the request
@@ -101,6 +102,11 @@ fn request_context_headers<Body>(request: &Request<Body>) -> RequestContextHeade
         session_token,
         site_id,
         page_ref,
+        local_page_mutation_actor: request
+            .headers()
+            .get("X-Deepwell-Local-Page-Mutation-Actor")
+            .and_then(|value| value.to_str().ok())
+            == Some("-1"),
     }
 }
 
@@ -114,16 +120,32 @@ mod tests {
             .header("X-Deepwell-Session-Token", "session-token")
             .header("X-Deepwell-Site-Id", "42")
             .header("X-Deepwell-Page", "category:page")
+            .header("X-Deepwell-Local-Page-Mutation-Actor", "-1")
             .body(())
             .expect("request should build");
 
         let headers = request_context_headers(&request);
         assert_eq!(headers.session_token.as_deref(), Some("session-token"));
         assert_eq!(headers.site_id, Some(42));
+        assert!(headers.local_page_mutation_actor);
         assert_eq!(
             headers.page_ref,
             Some(Reference::Slug(Cow::Borrowed("category:page")))
         );
+    }
+
+    #[test]
+    fn local_page_mutation_actor_header_requires_the_exact_marker() {
+        for value in [None, Some("true"), Some("0"), Some("42")] {
+            let mut request = Request::new(());
+            if let Some(value) = value {
+                request.headers_mut().insert(
+                    "X-Deepwell-Local-Page-Mutation-Actor",
+                    value.parse().unwrap(),
+                );
+            }
+            assert!(!request_context_headers(&request).local_page_mutation_actor);
+        }
     }
 
     #[test]

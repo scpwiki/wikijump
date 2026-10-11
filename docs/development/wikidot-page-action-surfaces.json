@@ -248,7 +248,7 @@
           "sha256": "13bfc494f60d509442ab91ae58fdfc0b8509c281bb992d78cdfea4ea55adf813"
         }
       ],
-      "issues": [1371, 1372],
+      "issues": [1371, 1372, 2090],
       "test_references": [
         "framerail/tests/new-page-helper.spec.ts",
         "framerail/tests/data-form-create-flow.spec.ts"
@@ -301,12 +301,17 @@
           "sha256": "13bfc494f60d509442ab91ae58fdfc0b8509c281bb992d78cdfea4ea55adf813"
         },
         {
+          "path": "framerail/src/lib/server/load/page/page.ts",
+          "sha256": "c629e553760a339e39129d239fc91a5f8738232fe02010d2d0b82c6e88a5ab07"
+        },
+        {
           "path": "framerail/src/lib/server/load/page/page-revision-actions.ts",
           "sha256": "03bf8790bbd004ed6094ee9c5fa043bb1241fabebbb1881f420c7363b4c2f3ee"
         }
       ],
-      "issues": [1371, 1372],
+      "issues": [1371, 1372, 2090],
       "test_references": [
+        "framerail/tests/data-form-create-flow.spec.ts",
         "framerail/tests/page-deleted-authorization.test.js"
       ]
     }

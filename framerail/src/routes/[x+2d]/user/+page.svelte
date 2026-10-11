@@ -14,9 +14,10 @@
   let { data }: PageProps = $props()
 
   let isEdit = $state<boolean>(false)
+  let avatarInput = $state<HTMLInputElement | null>(null)
 
   // avatar will always be undefined if not uploaded a new avatar
-  type checkFormType = Omit<InferOutput<typeof userEditSchema>, "avatar">
+  type checkFormType = Omit<InferOutput<typeof userEditSchema>, "avatar" | "removeAvatar">
 
   // The last accepted account state. It is the baseline for partial patches and
   // the value shown in the profile view, so it changes only after the server
@@ -25,7 +26,7 @@
 
   // Cancel and reopening the editor always start from the accepted state.
   const discardDraft = () => {
-    $form = { ...lastSubmitted, avatar: undefined }
+    $form = { ...lastSubmitted, avatar: undefined, removeAvatar: false }
   }
 
   const { form, enhance } = superForm(
@@ -33,8 +34,11 @@
     {
       dataType: "json",
       onSubmit: ({ jsonData }) => {
-        const { avatar, ...rest } = $form
-        jsonData(partialPatch(rest, lastSubmitted, avatar))
+        const { avatar, removeAvatar, ...rest } = $form
+        jsonData({
+          ...partialPatch(rest, lastSubmitted, avatar),
+          ...(removeAvatar === true ? { removeAvatar: true } : {})
+        })
       },
       onResult: async ({ result, cancel }) => {
         if (result.type === "success" && result.data) {
@@ -58,10 +62,22 @@
   )
   const avatar = fileProxy(form, "avatar")
 
+  // Removing the stored image is a draft choice that takes effect on Save.
+  // It clears any picked file so the request never carries both instructions.
+  const requestAvatarRemoval = () => {
+    $form.avatar = undefined
+    $form.removeAvatar = true
+    if (avatarInput) avatarInput.value = ""
+  }
+  const keepStoredAvatar = () => {
+    $form.removeAvatar = false
+  }
+
   // Only update the form once when page is loaded
   $form = untrack(() => ({
     ...lastSubmitted,
-    avatar: undefined
+    avatar: undefined,
+    removeAvatar: false
   }))
 </script>
 
@@ -109,8 +125,31 @@
       class="user-attribute avatar"
       accept="image/png,image/jpeg,image/bmp"
       type="file"
+      bind:this={avatarInput}
       bind:files={$avatar}
+      onchange={() => ($form.removeAvatar = false)}
     />
+    {#if data.user?.avatar_s3_hash && !$form.removeAvatar}
+      <button
+        class="action-button editor-button button-remove-avatar clickable"
+        onclick={requestAvatarRemoval}
+        type="button"
+      >
+        {data.internationalization?.["user-profile-info.remove-avatar"]}
+      </button>
+    {/if}
+    {#if $form.removeAvatar}
+      <p class="editor-avatar-removal" role="status">
+        {data.internationalization?.["user-profile-info.remove-avatar-pending"]}
+      </p>
+      <button
+        class="action-button editor-button button-keep-avatar clickable"
+        onclick={keepStoredAvatar}
+        type="button"
+      >
+        {data.internationalization?.["user-profile-info.keep-avatar"]}
+      </button>
+    {/if}
     <label for="gender">{data.internationalization?.["user-profile-info.gender"]}</label>
     <input
       id="gender"

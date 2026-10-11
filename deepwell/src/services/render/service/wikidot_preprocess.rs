@@ -326,6 +326,7 @@ impl RenderService {
                 line_index += 1;
                 continue;
             }
+            let image_block_include = Self::is_wikidot_image_block_include_head(trimmed);
 
             let mut include_lines = vec![trimmed.to_owned()];
             let mut end_line_index = line_index;
@@ -337,7 +338,11 @@ impl RenderService {
                     break;
                 }
                 let continuation = Self::trim_wikitext_line(lines[end_line_index].2);
-                if !continuation.ends_with("]]") && !continuation.starts_with('|') {
+                if !continuation.ends_with("]]")
+                    && !continuation.starts_with('|')
+                    && !(image_block_include
+                        && Self::is_wikidot_image_block_parameter_line(continuation))
+                {
                     valid = false;
                     break;
                 }
@@ -421,6 +426,24 @@ impl RenderService {
         target_end > 0
     }
 
+    fn is_wikidot_image_block_include_head(line: &str) -> bool {
+        let Some(rest) = line.strip_prefix("[[include") else {
+            return false;
+        };
+        let rest = rest.trim_start();
+        let target_end = rest
+            .find(|character: char| character.is_ascii_whitespace() || character == '|')
+            .unwrap_or(rest.len());
+        &rest[..target_end] == "component:image-block"
+    }
+
+    fn is_wikidot_image_block_parameter_line(line: &str) -> bool {
+        let Some(parameter) = line.strip_suffix('|') else {
+            return false;
+        };
+        parse_wikidot_include_argument(parameter).is_some()
+    }
+
     pub(super) fn expand_wikidot_image_block_includes(
         wikitext: &mut String,
         page_info: &PageInfo<'_>,
@@ -461,9 +484,11 @@ impl RenderService {
                 (match_end - 2, match_end)
             } else {
                 let args_start = match_end - after.len();
-                let Some(include_end) =
-                    find_wikidot_directive_end(&source, match_end, source.len())
-                else {
+                let Some(include_end) = find_wikidot_image_block_directive_end(
+                    &source,
+                    match_end,
+                    source.len(),
+                ) else {
                     search_start = match_end;
                     continue;
                 };
@@ -774,7 +799,7 @@ impl RenderService {
         args: &str,
         attachment_provenance: Option<&AttachmentProvenanceRegistry>,
     ) -> Option<BTreeMap<String, WikidotImageBlockArgument>> {
-        let segments = split_wikidot_include_argument_segments(args)?;
+        let segments = split_wikidot_image_block_argument_segments(args)?;
         let mut arguments = BTreeMap::new();
 
         for segment in segments {

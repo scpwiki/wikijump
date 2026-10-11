@@ -9,6 +9,47 @@ const headers = {
   "X-Wikijump-Site-Id": "6000005",
   "X-Wikijump-Site-Slug": "scp-wiki"
 }
+const inertWikidotHref = ["java", "script:;"].join("")
+
+test("authenticated account toggle preserves its Wikidot URL without a CSP violation", async ({
+  page
+}) => {
+  const cspMessages: string[] = []
+  page.on("console", (message) => {
+    if (/Content Security Policy/i.test(message.text())) {
+      cspMessages.push(message.text())
+    }
+  })
+  await installNativeEventListenerProbe(page)
+  await page.context().addCookies([
+    {
+      name: "wikijump_token",
+      value: "fixture-authenticated-session-token",
+      url: `http://localhost:${process.env.PLAYWRIGHT_APP_PORT ?? "4173"}`
+    }
+  ])
+  await page.setExtraHTTPHeaders(headers)
+  await page.goto("/wikidot-tabview", { waitUntil: "domcontentloaded" })
+  await waitForNativeEventListener(page, null, "click")
+
+  const toggle = page.locator("#account-topbutton")
+  const menu = page.locator("#account-options")
+  await expect(toggle).toHaveCount(1)
+  await expect(toggle).toHaveAttribute("href", inertWikidotHref)
+  await expect(toggle).toHaveText("▼")
+  await expect(menu).toBeHidden()
+
+  // The hermetic imported theme has an external-script CSP message at load;
+  // scope this assertion to the top-bar action.
+  cspMessages.length = 0
+  const beforeClick = page.url()
+  await toggle.click()
+
+  await expect(menu).toBeVisible()
+  expect(page.url()).toBe(beforeClick)
+  await expect(toggle).toHaveAttribute("href", inertWikidotHref)
+  expect(cspMessages).toEqual([])
+})
 
 test("Wikidot header extension hooks exist at the initial no-script paint", async ({
   browser

@@ -12,6 +12,9 @@ user-profile-info =
   .user-page = 用户页：
   .locales = 语言：
   .toast = 个人资料储存成功。
+  .remove-avatar = Remove profile image
+  .remove-avatar-pending = The profile image will be removed when you save.
+  .keep-avatar = Keep profile image
 
 user-not-exist = 此用户并不存在。
 

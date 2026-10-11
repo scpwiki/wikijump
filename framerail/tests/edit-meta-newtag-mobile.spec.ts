@@ -356,15 +356,11 @@ test("Edit Meta cancel discards drafts across pane close, pane switch, and reloa
   await expectBlankDraft()
 
   await fillDraft("pane-switch-draft")
-  const appendButton = page.locator("#edit-append-button")
-  if (!(await appendButton.isVisible())) {
-    await waitForSvelteDelegatedHandler(page, "#more-options-button")
-    await page.locator("#more-options-button").click()
-  }
-  await expect(appendButton).toBeVisible()
-  await waitForSvelteDelegatedHandler(page, "#edit-append-button")
-  await page.locator("#edit-append-button").click()
-  await expect(page.locator("#action-area .page-append-header")).toBeVisible()
+  // View Source is the pane switch here. It replaces the Edit Meta pane without
+  // a request, while the Append form is permission-gated for this anonymous actor (#2177).
+  await waitForSvelteDelegatedHandler(page, "#view-source-button")
+  await page.locator("#view-source-button").click()
+  await expect(page.locator("#action-area .page-source-header")).toBeVisible()
   await openEditMetaPaneFromOptions(page)
   await expectPersistedFixtureRow()
   await expectBlankDraft()

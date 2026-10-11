@@ -57,7 +57,12 @@
 {/if}
 
 <form id="page-layout" class="page-layout" action="?/layout" method="POST" use:enhance>
-  <select name="layout" class="page-layout-select" bind:value={$form.layout}>
+  <select
+    aria-label={data.internationalization?.["wiki-page-layout"]}
+    name="layout"
+    class="page-layout-select"
+    bind:value={$form.layout}
+  >
     <option value={null}>
       {data.internationalization?.["wiki-page-layout.default"]}
     </option>

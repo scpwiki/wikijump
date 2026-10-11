@@ -16,6 +16,8 @@
   import type { PageFile, PageFileDelete } from "$lib/server/deepwell/page-file"
   import type { FileAction } from "./file-pane-state"
 
+  const FILE_LIST_LOAD_ERROR = "Unable to load files."
+
   let { data }: PageProps = $props()
 
   const pageLayoutContext = getPageLayoutContext()
@@ -23,6 +25,9 @@
   let activeFileAction = $state<FileAction | null>(null)
 
   let fileMap = new SvelteMap<number, PageFile>()
+  let fileListLoading = $state(true)
+  let fileListError = $state<string | null>(null)
+  let requestedDeletedFiles = $state(false)
   let fileEditId = $state<number>(0)
   let historyRequestId = $state(0)
 
@@ -39,33 +44,48 @@
 
   async function getFileList(deleted = false) {
     const requestId = ++fileListRequestId
-    const res = await fetch("?/fileList", {
-      method: "POST",
-      body: JSON.stringify({
-        siteId: data.site.site_id,
-        pageId: data.page?.page_id,
-        deleted
-      })
-    }).then((res) => res.text())
+    requestedDeletedFiles = deleted
+    fileListLoading = true
 
-    if (requestId !== fileListRequestId) return
+    try {
+      const res = await fetch("?/fileList", {
+        method: "POST",
+        body: JSON.stringify({
+          siteId: data.site.site_id,
+          pageId: data.page?.page_id,
+          deleted
+        })
+      }).then((res) => res.text())
 
-    const result = deserialize<
-      { res: PageFile[] },
-      { message: string; code: string; data: Record<string, unknown> }
-    >(res)
+      if (requestId !== fileListRequestId) return
 
-    if (result.type === "failure" && result.data?.message) {
-      errorPopupState.current = {
-        state: true,
-        message: result.data.message,
-        data: result.data
+      const result = deserialize<
+        { res: PageFile[] },
+        { message: string; code: string; data: Record<string, unknown> }
+      >(res)
+
+      if (result.type === "failure") {
+        fileListError = FILE_LIST_LOAD_ERROR
+        activeFileAction = null
+      } else if (result.type === "success" && Array.isArray(result.data?.res)) {
+        fileMap.clear()
+        result.data.res.forEach((file: PageFile) => {
+          fileMap.set(file.file_id, file)
+        })
+        fileListError = null
+      } else {
+        fileListError = FILE_LIST_LOAD_ERROR
+        activeFileAction = null
       }
-    } else if (result.type === "success" && result.data?.res) {
-      fileMap.clear()
-      result.data.res.forEach((file: PageFile) => {
-        fileMap.set(file.file_id, file)
-      })
+    } catch {
+      if (requestId === fileListRequestId) {
+        fileListError = FILE_LIST_LOAD_ERROR
+        activeFileAction = null
+      }
+    } finally {
+      if (requestId === fileListRequestId) {
+        fileListLoading = false
+      }
     }
   }
 
@@ -200,10 +220,53 @@
     }
   )
 
+  // The File Move form is offered only to viewers who may edit the page, as
+  // the Files pane's other mutations require. Deepwell still checks both the
+  // current and destination page on every move; this keeps an interactive form
+  // away from viewers who can never complete it. Any failure fails closed.
+  const SVELTEKIT_ACTION_HEADERS = {
+    accept: "application/json",
+    "content-type": "text/plain;charset=UTF-8",
+    "x-sveltekit-action": "true"
+  }
+
+  let canMoveFile = $state(false)
+  let movePermissionRequestId = 0
+
+  async function fetchMovePermission() {
+    const requestId = ++movePermissionRequestId
+    let allowed = false
+    try {
+      const res = await fetch("?/editPermission", {
+        method: "POST",
+        headers: SVELTEKIT_ACTION_HEADERS,
+        body: JSON.stringify({})
+      }).then((res) => res.text())
+
+      const result = deserialize<
+        { res: { can_edit: boolean } },
+        { message: string; code: string; data: Record<string, unknown> }
+      >(res)
+      allowed = result.type === "success" && result.data?.res?.can_edit === true
+    } catch {
+      allowed = false
+    }
+
+    if (requestId !== movePermissionRequestId) return
+    canMoveFile = allowed
+  }
+
   $effect(() => {
     getFileList(false)
     return () => {
       fileListRequestId += 1
+    }
+  })
+
+  $effect(() => {
+    void fetchMovePermission()
+    return () => {
+      movePermissionRequestId += 1
     }
   })
 </script>
@@ -224,6 +287,9 @@
     {deleteFile}
     {fileMap}
     {getFileList}
+    {fileListLoading}
+    {fileListError}
+    {requestedDeletedFiles}
     {openFileHistory}
     wikidot={pageLayoutContext.current === Layout.WIKIDOT}
     bind:activeFileAction
@@ -314,7 +380,7 @@
     </form>
   {/if}
 
-  {#if activeFileAction === "move"}
+  {#if activeFileAction === "move" && canMoveFile}
     <form
       id="file-move"
       class="file-move"

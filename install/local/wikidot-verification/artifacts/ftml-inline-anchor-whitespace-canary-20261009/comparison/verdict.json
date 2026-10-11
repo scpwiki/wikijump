@@ -1,0 +1,82 @@
+{
+ "schema": "wikijump_local_lab.render_compare.v1",
+ "run_id": "ftml-marker-e82b6909-86368b28",
+ "pairs": [
+  {
+   "fixture_id": "marker-heading",
+   "verdict": "match",
+   "findings": [],
+   "normalization_channels": [
+    "hostname_map",
+    "request_id",
+    "semantic_timestamp",
+    "cache_buster",
+    "env_id"
+   ],
+   "ledger_refs": []
+  },
+  {
+   "fixture_id": "marker-separator",
+   "verdict": "match",
+   "findings": [],
+   "normalization_channels": [
+    "hostname_map",
+    "request_id",
+    "semantic_timestamp",
+    "cache_buster",
+    "env_id"
+   ],
+   "ledger_refs": []
+  },
+  {
+   "fixture_id": "marker-div",
+   "verdict": "match",
+   "findings": [],
+   "normalization_channels": [
+    "hostname_map",
+    "request_id",
+    "semantic_timestamp",
+    "cache_buster",
+    "env_id"
+   ],
+   "ledger_refs": []
+  },
+  {
+   "fixture_id": "marker-span",
+   "verdict": "match",
+   "findings": [],
+   "normalization_channels": [
+    "hostname_map",
+    "request_id",
+    "semantic_timestamp",
+    "cache_buster",
+    "env_id"
+   ],
+   "ledger_refs": []
+  },
+  {
+   "fixture_id": "marker-alignment",
+   "verdict": "match",
+   "findings": [],
+   "normalization_channels": [
+    "hostname_map",
+    "request_id",
+    "semantic_timestamp",
+    "cache_buster",
+    "env_id"
+   ],
+   "ledger_refs": []
+  }
+ ],
+ "aggregate": {
+  "pairs_total": 5,
+  "counts": {
+   "match": 5,
+   "accepted-diff": 0,
+   "regression": 0
+  },
+  "regressions": []
+ },
+ "mode": "records",
+ "skipped": []
+}

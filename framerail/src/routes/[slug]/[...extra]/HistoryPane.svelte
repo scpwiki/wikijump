@@ -3,6 +3,7 @@
   import { invalidateAll } from "$app/navigation"
   import { errorPopupState } from "$lib/layout/stores.svelte"
   import { getPageLayoutContext } from "$lib/layout/page-layout-context"
+  import { defaultHistoryComparePair } from "$lib/history-compare-defaults"
 
   import { Layout } from "$lib/types"
   import {
@@ -44,12 +45,14 @@
   let revisionDiffLoading = $state(false)
   let revisionDiffCompareButton = $state<HTMLButtonElement | undefined>(undefined)
   let revisionDiffRequestId = 0
+  let revisionRequestId = 0
   let active = true
   let latestRevisionNumber = $derived(Math.max(...revisionMap.keys()))
 
   onDestroy(() => {
     active = false
     revisionDiffRequestId += 1
+    revisionRequestId += 1
   })
 
   const SVELTEKIT_ACTION_HEADERS = {
@@ -99,14 +102,12 @@
         }
         revisionMap.set(rev.timeline_number, rev)
       })
-      const revisionNumbers = result.data.res
-        .map((rev) => rev.timeline_number)
-        .sort((a, b) => a - b)
+      const defaultPair = defaultHistoryComparePair([...revisionMap.values()])
       if (fromRevisionNumber === undefined) {
-        fromRevisionNumber = revisionNumbers.at(-2)
+        fromRevisionNumber = defaultPair?.[0]
       }
       if (toRevisionNumber === undefined) {
-        toRevisionNumber = revisionNumbers.at(-1)
+        toRevisionNumber = defaultPair?.[1]
       }
     }
   }
@@ -214,6 +215,7 @@
     const entry = revisionMap.get(timelineNumber)
     const revisionNumber = entry?.page_revision_number
     if (revisionNumber === undefined || revisionNumber === null) return false
+    const requestId = ++revisionRequestId
 
     const res = await fetch("?/revision", {
       method: "POST",
@@ -232,7 +234,7 @@
       { message: string; code: string; data: Record<string, unknown> }
     >(res)
 
-    if (!active) return false
+    if (!active || requestId !== revisionRequestId) return false
 
     if (result.type === "failure" && result.data?.message) {
       errorPopupState.current = {
@@ -240,11 +242,13 @@
         message: result.data.message,
         data: result.data
       }
+      return false
     } else if (result.type === "success" && result.data?.res) {
       setRevision(result.data.res)
       revision = result.data.res
       return true
     }
+
     return false
   }
 
@@ -319,15 +323,21 @@
 </script>
 
 {#if pageLayoutContext.current === Layout.WIKIDOT}
-  <h1 class="page-revision-header">
+  <h1 id="wikidot-history-heading" class="page-revision-header">
     {data.internationalization?.["wiki-page-revision-history"]}
   </h1>
-  <div id="revision-list" class="revision-list">
+  <div
+    id="revision-list"
+    class="revision-list"
+    role="region"
+    aria-labelledby="wikidot-history-heading"
+    tabindex="0"
+  >
     <table class="page-history">
       <tbody>
         <tr>
           {#each wikidotHistoryHeaders(data.site.locale) as heading, index (index)}
-            <td>{heading || " "}</td>
+            <td>{heading || " "}</td>
           {/each}
         </tr>
         <!-- Here we sort the list in descending order. -->
@@ -397,13 +407,15 @@
               <a
                 href="javascript:;"
                 title={wikidotHistoryActionTitles(data.site.locale).source}
-                onclick={(event) => {
+                onclick={async (event) => {
                   event.stopPropagation()
-                  getRevision(revisionItem.timeline_number, false, true).then(() => {
-                    if (!active) return
-                    setShowRevision(false)
-                    showRevisionSource = true
-                  })
+                  if (
+                    !(await getRevision(revisionItem.timeline_number, false, true)) ||
+                    !active
+                  )
+                    return
+                  setShowRevision(false)
+                  showRevisionSource = true
                 }}
               >
                 S
@@ -476,13 +488,15 @@
             {#if revisionItem.history_kind === "page"}
               <button
                 class="action-button view-revision clickable"
-                onclick={(event) => {
+                onclick={async (event) => {
                   event.stopPropagation()
-                  getRevision(revisionItem.timeline_number, true, false).then(() => {
-                    if (!active) return
-                    setShowRevision(true)
-                    showRevisionSource = false
-                  })
+                  if (
+                    !(await getRevision(revisionItem.timeline_number, true, false)) ||
+                    !active
+                  )
+                    return
+                  setShowRevision(true)
+                  showRevisionSource = false
                 }}
                 type="button"
               >
@@ -490,13 +504,15 @@
               </button>
               <button
                 class="action-button view-revision-source clickable"
-                onclick={(event) => {
+                onclick={async (event) => {
                   event.stopPropagation()
-                  getRevision(revisionItem.timeline_number, false, true).then(() => {
-                    if (!active) return
-                    setShowRevision(false)
-                    showRevisionSource = true
-                  })
+                  if (
+                    !(await getRevision(revisionItem.timeline_number, false, true)) ||
+                    !active
+                  )
+                    return
+                  setShowRevision(false)
+                  showRevisionSource = true
                 }}
                 type="button"
               >
@@ -557,7 +573,7 @@
         bind:value={fromRevisionNumber}
       >
         {#each [...revisionMap.keys()].sort((a, b) => a - b) as revisionNumber (revisionNumber)}
-          <option value={revisionNumber}>{revisionNumber}</option>
+          <option value={revisionNumber}>{revisionNumber + 1}</option>
         {/each}
       </select>
       <label for="revision-diff-to">
@@ -569,7 +585,7 @@
         bind:value={toRevisionNumber}
       >
         {#each [...revisionMap.keys()].sort((a, b) => a - b) as revisionNumber (revisionNumber)}
-          <option value={revisionNumber}>{revisionNumber}</option>
+          <option value={revisionNumber}>{revisionNumber + 1}</option>
         {/each}
       </select>
       <button class="action-button clickable" onclick={swapRevisionDiff} type="button">
@@ -617,6 +633,15 @@
 
   .revision-list {
     max-width: 100%;
+  }
+
+  #revision-list {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    box-sizing: border-box;
   }
 
   .revision-diff-panel {

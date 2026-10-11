@@ -309,6 +309,31 @@ mod tests {
             .expect("default site manager page");
         assert_eq!(manage.wikitext.trim(), "[[module ManageSite]]");
 
+        let list_all_pages = pages
+            .iter()
+            .find(|page| page.slug == "system:list-all-pages")
+            .expect("default list-all-pages page");
+        assert_eq!(list_all_pages.title, "List All Pages");
+        // Frozen source: shared EN corpus capture run-20260816-100230,
+        // entity 1c9408e8-ca66-4d9e-8913-122cbb9aca6b; payload SHA-256
+        // e4e03500edf018fe7784750eaf8c78a3dbf408a0aa90bc55d0c6bb5fbfeab27a,
+        // source file SHA-256 14da20ce7b6208b5552361e71a09d214c8b5823e00c4e603d797fcf1023549a5.
+        assert_eq!(
+            list_all_pages.wikitext,
+            "[[module ListPages separate=\"@URL\" category=\"@URL|*\" order=\"@URL|title\" perPage=\"@URL|50\"]]\n%%title_linked%%\n[[/module]]"
+        );
+        for (site_slug, site_pages) in &seed.pages {
+            if site_slug == "template-en" {
+                continue;
+            }
+            assert!(
+                !site_pages
+                    .iter()
+                    .any(|page| page.slug == "system:list-all-pages"),
+                "the default-only inventory must not be seeded into {site_slug}",
+            );
+        }
+
         let join = pages
             .iter()
             .find(|page| page.slug == "system:join")

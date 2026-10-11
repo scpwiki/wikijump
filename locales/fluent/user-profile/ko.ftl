@@ -4,3 +4,6 @@ user-profile-info =
   .birthday = 생일:
   .location = 위치:
   .since = 사이트 회원 등록:
+  .remove-avatar = Remove profile image
+  .remove-avatar-pending = The profile image will be removed when you save.
+  .keep-avatar = Keep profile image

@@ -10,7 +10,7 @@ const withBaseUse = (device: (typeof devices)[keyof typeof devices]) => ({
 const config: PlaywrightTestConfig = {
   ...baseConfig,
   testMatch:
-    "**/{append-file-upload-accessible-names,append-file-upload-accessible-names-ja,auth-accessible-names,browser-support,edit-meta-newtag-mobile,file-history-view-unavailable,forum-start-routes,module-accessible-names,printer-friendly-print-toolbar}.spec.ts",
+    "**/{append-file-upload-accessible-names,append-file-upload-accessible-names-ja,auth-accessible-names,backlinks-watchers-failure,browser-support,edit-meta-newtag-mobile,file-history-view-unavailable,forum-start-routes,inline-link-whitespace,module-accessible-names,page-action-localization,printer-friendly-print-toolbar,vote-pane-japanese-i18n}.spec.ts",
   webServer: [
     ...(baseConfig.webServer
       ? Array.isArray(baseConfig.webServer)
@@ -26,6 +26,10 @@ const config: PlaywrightTestConfig = {
         FRAMERAIL_VITE_TEST_CACHE: "1",
         PLAYWRIGHT_HTTPS_APP_PORT: process.env.PLAYWRIGHT_HTTPS_APP_PORT ?? "4373",
         PLAYWRIGHT_FIXTURE_PORT: process.env.PLAYWRIGHT_FIXTURE_PORT ?? "42747",
+        WIKIJUMP_PLAYWRIGHT_TLS_DIR:
+          process.env.WIKIJUMP_PLAYWRIGHT_TLS_DIR ?? "/tmp/wikijump-playwright-tls-2242",
+        WIKIJUMP_PLAYWRIGHT_TLS_OWNER_TOKEN:
+          process.env.WIKIJUMP_PLAYWRIGHT_TLS_OWNER_TOKEN ?? "",
         DEEPWELL_RPC_TOKEN: process.env.DEEPWELL_RPC_TOKEN ?? "0".repeat(64)
       }
     }
@@ -46,9 +50,18 @@ const config: PlaywrightTestConfig = {
     {
       name: "webkit-https-edit-meta",
       testMatch:
-        "**/{append-file-upload-accessible-names,append-file-upload-accessible-names-ja,edit-meta-newtag-mobile,file-history-view-unavailable}.spec.ts",
+        "**/{append-file-upload-accessible-names,append-file-upload-accessible-names-ja,edit-meta-newtag-mobile,file-history-view-unavailable,module-accessible-names,page-action-localization,vote-pane-japanese-i18n}.spec.ts",
       use: {
         ...withBaseUse(devices["Desktop Safari"]),
+        ignoreHTTPSErrors: true
+      }
+    },
+    {
+      name: "webkit-https-backlinks-watchers",
+      testMatch: "**/backlinks-watchers-failure.spec.ts",
+      use: {
+        ...withBaseUse(devices["Desktop Safari"]),
+        baseURL: `https://localhost:${process.env.PLAYWRIGHT_HTTPS_APP_PORT ?? "4373"}`,
         ignoreHTTPSErrors: true
       }
     },

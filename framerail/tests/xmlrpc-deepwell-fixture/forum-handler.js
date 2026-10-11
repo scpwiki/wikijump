@@ -35,9 +35,11 @@ export const handleForumRpc = (input) => {
     return {
       result: {
         status: "ok",
+        // The RSS paragraph mirrors the fragment render_forum_start emits in
+        // deepwell/src/services/render/forum_modules.rs; the Rust test pins that markup.
         body: hidden
-          ? '<div data-forum-mode="hidden"><h2>Hidden</h2><h3>Per page discussions</h3><h3>Deleted threads</h3><h3>Changelog</h3><a href="/forum/start">Back to ordinary categories</a></div>'
-          : '<div data-forum-mode="ordinary"><h2>Changelog</h2><a href="/forum/start/hidden/show">Show hidden</a></div>',
+          ? '<div data-forum-mode="hidden"><h2>Hidden</h2><h3>Per page discussions</h3><h3>Deleted threads</h3><h3>Changelog</h3><a href="/forum/start">Back to ordinary categories</a></div><p style="text-align: right"><span class="rss-icon"><img src="/common--theme/base/images/feed/feed-icon-14x14.png" alt="rss icon"/></span> RSS: <a href="/feed/forum/threads.xml">New threads</a> | <a href="/feed/forum/posts.xml">New posts</a></p>'
+          : '<div data-forum-mode="ordinary"><h2>Changelog</h2><a href="/forum/start/hidden/show">Show hidden</a></div><p style="text-align: right"><span class="rss-icon"><img src="/common--theme/base/images/feed/feed-icon-14x14.png" alt="rss icon"/></span> RSS: <a href="/feed/forum/threads.xml">New threads</a> | <a href="/feed/forum/posts.xml">New posts</a></p>',
         js_include: []
       }
     }

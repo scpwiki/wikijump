@@ -1,4 +1,6 @@
 <script lang="ts">
+  import "./responsive-tables.css"
+
   import { page } from "$app/state"
   import { goto } from "$app/navigation"
   import { getPageLayoutContext } from "$lib/layout/page-layout-context"
@@ -16,9 +18,11 @@
     openWikidotPrinterFriendly
   } from "$lib/wikidot/wikidot-page-actions"
   import {
+    materializeWikidotRateActionHtml,
     updateWikidotRateWidget,
     wikidotLegacyActions
   } from "$lib/wikidot/wikidot-legacy-actions"
+  import { wikidotSiteChanges } from "$lib/wikidot/wikidot-site-changes.js"
   import {
     requestLegacyRate,
     requestLegacyRateCancel,
@@ -92,7 +96,12 @@
       : buildGeneratedPageStylesHead(compiledBodyStyles)
   )
   let renderedBodyHtml = $derived(
-    showRevision ? revision?.compiled_body_html : data.compiled_body_html
+    showRevision
+      ? revision?.compiled_body_html
+      : materializeWikidotRateActionHtml(
+          data.compiled_body_html,
+          currentRateRegistry()?.actions ?? []
+        )
   )
   let pageFontPreloadHrefs = $derived(
     pageLayoutContext.current === Layout.WIKIDOT
@@ -208,6 +217,21 @@
     showSource = false
     editSection = undefined
     pagePaneState = pane
+  }
+
+  /**
+   * Opens a page pane after the checks its write surface requires. Append
+   * and Parent write under the page `edit` permission, so they are gated
+   * before their editable form (or protected revision data) is mounted.
+   * Move and Delete are not gated here: Deepwell exposes no move or delete
+   * permission signal to the client, so they keep their existing behavior.
+   * The server still rechecks every mutation at submission time.
+   */
+  async function openPagePane(pane: PagePane) {
+    if (pane === PagePane.Append || pane === PagePane.Parent) {
+      if (!(await checkEditPermission())) return
+    }
+    activatePagePane(pane)
   }
 
   function closeEditSection() {
@@ -405,6 +429,7 @@
     actions: showRevision ? [] : (data.membership_actions ?? []),
     runtime: membershipActionRuntime
   })
+  let siteChangesActionParameters = $derived({ pageId: data.page.page_id })
 
   onMount(() => {
     // Hash Magic still applies under debug/norender documents (an edit hash on
@@ -486,6 +511,7 @@
       class:hidden={dataFormEditing}
       use:wikidotGalleryLightbox={showRevision ? revision?.wikitext : data.wikitext}
       use:wikidotLegacyActions={legacyActionParameters}
+      use:wikidotSiteChanges={siteChangesActionParameters}
       use:wikidotMembershipActions={membershipActionParameters}
       use:wikidotTabviews
       use:wikidotFoldableLists
@@ -493,7 +519,7 @@
       use:wikidotToc
       use:wikidotFootnotes
     >
-      {@html showRevision ? revision?.compiled_body_html : data.compiled_body_html}
+      {@html renderedBodyHtml}
     </div>
   {/if}
 
@@ -656,10 +682,11 @@
           id="edit-append-button"
           class="btn btn-default"
           href="javascript:;"
-          onclick={() => activatePagePane(PagePane.Append)}
+          onclick={() => openPagePane(PagePane.Append)}
           type="button"
         >
-          {wikidotPageActions?.append ?? "Append"}
+          {wikidotPageActions?.append ??
+            data.internationalization?.["wiki-page-action-append"]}
         </a>
         <!-- svelte-ignore a11y_invalid_attribute -->
         <a
@@ -669,7 +696,7 @@
           onclick={toggleEditSections}
           type="button"
         >
-          Edit Sections
+          {data.internationalization?.["wiki-page-action-edit-sections"]}
         </a>
         <!-- svelte-ignore a11y_invalid_attribute -->
         <a
@@ -679,7 +706,7 @@
           onclick={() => activatePagePane(PagePane.EditMeta)}
           type="button"
         >
-          Edit Meta
+          {data.internationalization?.["wiki-page-action-edit-meta"]}
         </a>
         <!-- svelte-ignore a11y_invalid_attribute -->
         <a
@@ -689,7 +716,7 @@
           onclick={() => activatePagePane(PagePane.Watchers)}
           type="button"
         >
-          Watchers
+          {data.internationalization?.["wiki-page-action-watchers"]}
         </a>
         <!-- svelte-ignore a11y_invalid_attribute -->
         <a
@@ -699,7 +726,8 @@
           onclick={() => activatePagePane(PagePane.Backlinks)}
           type="button"
         >
-          {wikidotPageActions?.backlinks ?? "Backlinks"}
+          {wikidotPageActions?.backlinks ??
+            data.internationalization?.["wiki-page-action-backlinks"]}
         </a>
         <!-- svelte-ignore a11y_invalid_attribute -->
         <a
@@ -726,7 +754,7 @@
           id="parent-page-button"
           class="btn btn-default"
           href="javascript:;"
-          onclick={() => activatePagePane(PagePane.Parent)}
+          onclick={() => openPagePane(PagePane.Parent)}
           type="button"
         >
           {data.internationalization?.parents}
@@ -742,7 +770,7 @@
           }}
           type="button"
         >
-          {data.internationalization?.["wiki-page-lock"]}
+          {data.internationalization?.["wiki-page-action-lock"]}
         </a>
         <!-- svelte-ignore a11y_invalid_attribute -->
         <a
@@ -752,7 +780,7 @@
           onclick={() => activatePagePane(PagePane.Move)}
           type="button"
         >
-          {data.internationalization?.move}
+          {data.internationalization?.["wiki-page-action-rename-move"]}
         </a>
         <!-- svelte-ignore a11y_invalid_attribute -->
         <a
@@ -840,7 +868,12 @@
       <p class="pane-loading" aria-live="polite">Loading…</p>
     {/if}
   {:else}
-    <CurrentPageActions {activatePagePane} {data} {navigateEdit} bind:showSource />
+    <CurrentPageActions
+      activatePagePane={openPagePane}
+      {data}
+      {navigateEdit}
+      bind:showSource
+    />
   {/if}
 
   <PagePaneContent

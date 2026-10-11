@@ -311,6 +311,59 @@ test("autonumbered page creation follows the assigned slug", async ({ page }) =>
   await expect(page.locator("#page-content")).toContainText("Assigned page body")
 })
 
+test("history compare labels match visible row numbers while preserving timeline values", async ({
+  page,
+  request
+}) => {
+  await request.get(`${FIXTURE_URL}/last-page-read-requests`)
+  await page.setExtraHTTPHeaders(AUTHENTICATED_HEADERS)
+  await page.goto("/authoring-history-probe")
+  await waitForSvelteDelegatedHandler(page, "#history-button")
+  await page.getByRole("link", { name: "history", exact: true }).click()
+
+  const table = page.locator("#action-area table.page-history")
+  await expect(table.locator('tbody > tr[id^="revision-row-"]').first()).toBeVisible()
+  const rowLabels = await table
+    .locator('tbody > tr[id^="revision-row-"] td:first-child')
+    .allTextContents()
+  expect(rowLabels.map((label) => label.trim())).toEqual(["3.", "2."])
+
+  const fromRevision = page.locator("#revision-diff-from")
+  const toRevision = page.locator("#revision-diff-to")
+  const optionLabels = await fromRevision.locator("option").allTextContents()
+  expect(optionLabels.map((label) => label.trim())).toEqual(["2", "3"])
+  expect(
+    await fromRevision
+      .locator("option")
+      .evaluateAll((options) => options.map((option) => option.value))
+  ).toEqual(["1", "2"])
+
+  await fromRevision.selectOption({ label: "3" })
+  await toRevision.selectOption({ label: "2" })
+  await expect(fromRevision).toHaveValue("2")
+  await expect(toRevision).toHaveValue("1")
+  await page.locator(".revision-diff-controls button").nth(1).click()
+
+  await expect
+    .poll(async () => {
+      const response = await request.get(`${FIXTURE_URL}/page-revision-diff-requests`)
+      return (await response.json()).length
+    })
+    .toBe(1)
+  const requests = await request
+    .get(`${FIXTURE_URL}/page-revision-diff-requests`)
+    .then((response) => response.json())
+  expect(requests).toEqual([
+    {
+      site_id: 6000005,
+      page_id: 3000345,
+      from_revision_number: 2,
+      to_revision_number: 1
+    }
+  ])
+  await expect(page.locator(".revision-diff")).toContainText("NEW CURRENT DIFF")
+})
+
 test("history ignores a stale revision diff response", async ({ page, request }) => {
   await request.get(`${FIXTURE_URL}/last-page-read-requests`)
   await page.setExtraHTTPHeaders(AUTHENTICATED_HEADERS)
@@ -410,6 +463,145 @@ test("WIKIDOT History View Version and View Source actions still load selected r
   )
 })
 
+test("WIKIDOT Page Source links only the same-site component include target", async ({
+  page
+}) => {
+  await page.setExtraHTTPHeaders(SITE_HEADERS)
+  await page.goto("/page-source-include-probe")
+  await page.waitForLoadState("networkidle")
+  await page.locator("#more-options-button").click()
+  await page.locator("#view-source-button").click()
+
+  const source = page.locator("div.page-source").first()
+  expect(await source.textContent()).toBe(
+    '[[include component:image-block\n|caption=fixture\n]]\n[[include component:image-block]]\n [[include component:spaced-literal]]\n[[include :scp-wiki:component:license-box]]\n@@[[include component:literal]]@@\n<img src=x onerror="alert(1)">'
+  )
+  await expect(source.locator("a")).toHaveCount(2)
+  const includes = source.getByRole("link", { name: "component:image-block" })
+  await expect(includes).toHaveCount(2)
+  await expect(includes.nth(0)).toHaveAttribute("href", "/component%3Aimage-block")
+  await expect(includes.nth(1)).toHaveAttribute("href", "/component%3Aimage-block")
+  const include = includes.nth(0)
+  await expect(source.locator("img")).toHaveCount(0)
+  await expect(source.locator("a").nth(0)).toHaveText("component:image-block")
+
+  await include.click()
+  await expect(page).toHaveURL(/\/component%3Aimage-block$/u)
+  await expect(page.locator("#page-content")).toContainText("Component target.")
+})
+
+test("history keeps the latest selected revision when an older response arrives later", async ({
+  page,
+  request
+}) => {
+  await request.get(new URL("/last-page-read-requests", FIXTURE_URL).href)
+  await page.setExtraHTTPHeaders(AUTHENTICATED_HEADERS)
+  await page.goto("/authoring-history-probe")
+  await waitForSvelteDelegatedHandler(page, "#history-button")
+  await page.getByRole("link", { name: "history", exact: true }).click()
+
+  let releaseFirst: (() => void) | undefined
+  let firstRequestStarted = () => {}
+  const firstStarted = new Promise<void>((resolve) => {
+    firstRequestStarted = resolve
+  })
+  await page.route(
+    (url) => url.pathname === "/authoring-history-probe" && url.search === "?/revision",
+    async (route) => {
+      const body = route.request().postDataJSON() as { revisionNumber: number }
+      if (body.revisionNumber === 1 && !releaseFirst) {
+        await new Promise<void>((resolve) => {
+          releaseFirst = resolve
+          firstRequestStarted()
+        })
+      }
+      await route.continue()
+    }
+  )
+
+  const oldRevision = page.locator(
+    '#action-area table.page-history tr[id="revision-row-9000341"]'
+  )
+  const newRevision = page.locator(
+    '#action-area table.page-history tr[id="revision-row-9000342"]'
+  )
+  await oldRevision.locator("a[title='View page revision']").click()
+  await firstStarted
+
+  try {
+    await newRevision.locator("a[title='View page revision']").click()
+    await expect(page.locator("#page-content")).toContainText("Historical version 2")
+
+    const staleResponse = page.waitForResponse((response) => {
+      if (!response.url().includes("?/revision")) return false
+      return response.request().postDataJSON().revisionNumber === 1
+    })
+    releaseFirst?.()
+    expect((await staleResponse).status()).toBe(200)
+
+    await expect(page.locator("#page-content")).toContainText("Historical version 2")
+    await expect(page.locator("#page-content")).not.toContainText("Historical version 1")
+  } finally {
+    releaseFirst?.()
+  }
+})
+
+test("history keeps the latest selection when the initially newer request resolves last", async ({
+  page,
+  request
+}) => {
+  await request.get(new URL("/last-page-read-requests", FIXTURE_URL).href)
+  await page.setExtraHTTPHeaders(AUTHENTICATED_HEADERS)
+  await page.goto("/authoring-history-probe")
+  await waitForSvelteDelegatedHandler(page, "#history-button")
+  await page.getByRole("link", { name: "history", exact: true }).click()
+
+  let releaseFirst: (() => void) | undefined
+  let firstRequestStarted = () => {}
+  const firstStarted = new Promise<void>((resolve) => {
+    firstRequestStarted = resolve
+  })
+  await page.route(
+    (url) => url.pathname === "/authoring-history-probe" && url.search === "?/revision",
+    async (route) => {
+      const body = route.request().postDataJSON() as { revisionNumber: number }
+      if (body.revisionNumber === 2 && !releaseFirst) {
+        await new Promise<void>((resolve) => {
+          releaseFirst = resolve
+          firstRequestStarted()
+        })
+      }
+      await route.continue()
+    }
+  )
+
+  const olderRevision = page.locator(
+    '#action-area table.page-history tr[id="revision-row-9000341"]'
+  )
+  const newerRevision = page.locator(
+    '#action-area table.page-history tr[id="revision-row-9000342"]'
+  )
+  await newerRevision.locator("a[title='View page revision']").click()
+  await firstStarted
+
+  try {
+    await olderRevision.locator("a[title='View page revision']").click()
+    await expect(page.locator("#page-content")).toContainText("Historical version 1")
+
+    const staleResponse = page.waitForResponse((response) => {
+      if (!response.url().includes("?/revision")) return false
+      return response.request().postDataJSON().revisionNumber === 2
+    })
+    releaseFirst?.()
+    expect((await staleResponse).status()).toBe(200)
+
+    await expect(page.locator("#page-content")).toContainText("Historical version 1")
+    await expect(page.locator("#page-content")).not.toContainText("Historical version 2")
+  } finally {
+    releaseFirst?.()
+  }
+})
+
 test("history diff keeps added and removed source readable against its semantic colors", async ({
   page,
   request
@@ -472,21 +664,33 @@ test("WIKIDOT History keeps the seven-cell source table contract at phone widths
   page
 }) => {
   await page.setExtraHTTPHeaders(AUTHENTICATED_HEADERS)
-  for (const width of [390, 320]) {
+  for (const width of [390, 320, 280]) {
     await page.setViewportSize({ width, height: 844 })
     await page.goto("/authoring-history-probe")
     await waitForSvelteDelegatedHandler(page, "#history-button")
     await page.getByRole("link", { name: "history", exact: true }).click()
     const table = page.locator("#action-area table.page-history")
     await expect(table).toBeVisible()
-    await expect(table.locator("tbody > tr").first().locator("td")).toHaveCount(7)
+    const headerRow = table.locator("tbody > tr").first()
+    await expect(headerRow.locator("td")).toHaveCount(7)
+    await expect(page.locator("#revision-list")).toHaveAttribute("role", "region")
+    await expect(page.locator("#revision-list")).toHaveAttribute("tabindex", "0")
+    await expect(page.locator("#revision-list")).toHaveAttribute(
+      "aria-labelledby",
+      "wikidot-history-heading"
+    )
+    // Wikidot's header-look row is seven plain <td> cells: no columnheader
+    // role, no <th>, and no invented accessible names (issue #2323).
+    await expect(headerRow.getByRole("columnheader")).toHaveCount(0)
+    await expect(headerRow.locator("th")).toHaveCount(0)
+    await expect(headerRow.locator("td[role]")).toHaveCount(0)
+    await expect(headerRow.locator("td[aria-label]")).toHaveCount(0)
+    await expect(headerRow.locator("td").first()).toHaveText("rev.")
 
     const rows = table.locator('tbody > tr[id^="revision-row-"]')
     await expect(rows.first().locator("td")).toHaveCount(7)
     const currentRow = rows.first()
     const currentCells = currentRow.locator("td")
-    const revisionId =
-      (await currentRow.getAttribute("id"))?.replace("revision-row-", "") ?? ""
     await expect(
       currentCells.nth(1).locator('input[type="radio"][name="from"]')
     ).toBeVisible()
@@ -502,12 +706,20 @@ test("WIKIDOT History keeps the seven-cell source table contract at phone widths
     )
     await expect(currentCells.nth(6)).toHaveAttribute("style", "font-size: 90%")
     await expect(currentCells.nth(1).locator('input[type="radio"]')).toHaveCount(2)
-    await expect(
-      currentCells.nth(1).locator('input[type="radio"]').nth(0)
-    ).toHaveAttribute("id", revisionId)
-    await expect(
-      currentCells.nth(1).locator('input[type="radio"]').nth(1)
-    ).toHaveAttribute("id", revisionId)
+    const revisionId =
+      (await currentRow.getAttribute("id"))?.replace("revision-row-", "") ?? ""
+    const fromRadio = currentCells.nth(1).locator('input[type="radio"][name="from"]')
+    const toRadio = currentCells.nth(1).locator('input[type="radio"][name="to"]')
+    // Wikidot intentionally duplicates the per-revision numeric id across the
+    // From and To radios of the same row, matching each radio's value
+    // (issue #2323). Unique prefixed ids were a non-source regression.
+    await expect(fromRadio).toHaveAttribute("id", revisionId)
+    await expect(toRadio).toHaveAttribute("id", revisionId)
+    await expect(page.locator(`[id="${revisionId}"]`)).toHaveCount(2)
+    await fromRadio.check()
+    await toRadio.check()
+    await expect(fromRadio).toBeChecked()
+    await expect(toRadio).toBeChecked()
     await expect(
       currentCells.nth(3).locator("a").filter({ hasText: /^V$/u })
     ).toBeVisible()
@@ -542,6 +754,33 @@ test("WIKIDOT History keeps the seven-cell source table contract at phone widths
     await expect(page.locator("#revision-diff-from")).toHaveValue(
       String(selectedRevisionNumber)
     )
+
+    if (width <= 320) {
+      await currentCells.nth(6).evaluate((cell) => {
+        // Exercise the min-content case seen with long localized history text.
+        cell.textContent = "LongHistoryValueWithoutBreaks_".repeat(12)
+      })
+      const dimensions = await page.evaluate(() => {
+        const region = document.querySelector("#revision-list")
+        if (!(region instanceof HTMLElement)) {
+          throw new Error("History table scroll region is missing")
+        }
+        return {
+          documentWidth: document.documentElement.scrollWidth,
+          viewportWidth: document.documentElement.clientWidth,
+          regionWidth: region.clientWidth,
+          regionContentWidth: region.scrollWidth
+        }
+      })
+      expect(
+        dimensions.documentWidth,
+        `${width}px viewport: ${JSON.stringify(dimensions)}`
+      ).toBeLessThanOrEqual(dimensions.viewportWidth + 1)
+      expect(
+        dimensions.regionContentWidth,
+        `${width}px viewport: ${JSON.stringify(dimensions)}`
+      ).toBeGreaterThan(dimensions.regionWidth)
+    }
   }
 })
 

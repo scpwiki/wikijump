@@ -28,17 +28,27 @@ test("printer-friendly loader preserves the required empty route suffix", async 
   const calls = []
   const load = new Function(
     "loadPage",
-    `${source.replace(/^import .*\n/u, "").replace("export async function", "async function")}\nreturn load`
-  )((...args) => calls.push(args))
+    "isReservedAdminAliasSlug",
+    "redirect",
+    `${source
+      .split(/\r?\n/u)
+      .filter((line) => !line.startsWith("import "))
+      .join("\n")
+      .replace("export async function", "async function")}\nreturn load`
+  )(
+    (...args) => calls.push(args),
+    (slug) => slug?.replace(/^\/+|\/+$/gu, "").toLowerCase() === "_admin",
+    (status, location) => {
+      throw Object.assign(new Error("redirect"), { status, location })
+    }
+  )
   const request = {}
   const cookies = {}
   const locals = {}
   for (const [path, slug, extra] of [
     ["start", "start", ""],
     ["category:page", "category:page", ""],
-    ["category:page/revision/2", "category:page", "revision/2"],
-    ["/_admin", "_admin", ""],
-    ["//_admin", "_admin", ""]
+    ["category:page/revision/2", "category:page", "revision/2"]
   ]) {
     await load({ params: { path }, request, cookies, locals })
     assert.deepEqual(calls.pop(), [slug, extra, request, cookies, locals])
@@ -65,6 +75,34 @@ test("print options keep the verified font sizes and single native print control
   assert.ok(html.includes('<div id="print-options">'))
 })
 
+test("print options expose only the five evidenced body-font choices and source toggle", () => {
+  const html = buildWikidotPrintOptionsHtml()
+  const families = [
+    ["original font", "original"],
+    ["Georgia", "georgia"],
+    ["Times New Roman", "times-new-roman"],
+    ["Serif (generic)", "serif"],
+    ["Arial/Helvetica", "arial-helvetica"]
+  ]
+
+  for (const [label, value] of families) {
+    assert.ok(
+      html.includes(
+        `role="button" aria-pressed="${value === "original"}" onclick="WIKIDOT.printview.listeners.changeFontFamily(event, '${value}')">${label}</a>`
+      ),
+      `missing printer font choice ${label}: ${html}`
+    )
+  }
+  assert.equal((html.match(/changeFontFamily\(event,/gu) ?? []).length, 5)
+  assert.ok(!html.includes(" | Serif |"), html)
+  assert.ok(
+    html.includes(
+      'role="button" aria-pressed="false" onclick="WIKIDOT.printview.listeners.toggleSourceInfo(event)">toggle visibility</a>'
+    ),
+    html
+  )
+})
+
 test("print source info escapes site and page identity", () => {
   const html = buildWikidotPrintSourceInfoHtml({
     siteName: 'Site <"unsafe">',
@@ -79,7 +117,15 @@ test("print source info escapes site and page identity", () => {
 })
 
 test("print view delegates activation for generated handlers only", () => {
-  const content = { style: {} }
+  const content = {
+    style: {
+      fontSize: "",
+      getPropertyValue: () => "",
+      getPropertyPriority: () => "",
+      setProperty() {},
+      removeProperty() {}
+    }
+  }
   const listeners = new Map()
   const root = {
     querySelector: (selector) => (selector === "#print-content" ? content : null),

@@ -1,37 +1,67 @@
 <script lang="ts">
   import { deserialize } from "$app/forms"
   import { resolve } from "$app/paths"
-  import { errorPopupState } from "$lib/layout/stores.svelte"
 
   import type { PageBacklinkView } from "$lib/server/deepwell/page"
   import type { PageProps } from "./$types"
 
-  let { data }: PageProps = $props()
+  type BacklinksState =
+    | { status: "loading" }
+    | { status: "failure" }
+    | { status: "success"; items: PageBacklinkView[] }
 
-  let backlinks = $state<PageBacklinkView[]>()
+  let { data }: PageProps = $props()
+  let state = $state<BacklinksState>({ status: "loading" })
+  let requestId = 0
+  let requestController: AbortController | undefined
 
   async function fetchBacklinks() {
-    const response = await fetch("?/backlinks", { method: "POST", body: "" }).then(
-      (result) => result.text()
-    )
-    const result = deserialize<
-      { res: PageBacklinkView[] },
-      { message: string; code: string; data: Record<string, unknown> }
-    >(response)
+    requestController?.abort()
+    const currentRequestId = ++requestId
+    const controller = new AbortController()
+    requestController = controller
+    state = { status: "loading" }
 
-    if (result.type === "failure" && result.data?.message) {
-      errorPopupState.current = {
-        state: true,
-        message: result.data.message,
-        data: result.data.data
+    try {
+      const response = await fetch("?/backlinks", {
+        method: "POST",
+        body: "",
+        signal: controller.signal
+      })
+      const responseBody = await response.text()
+      if (!response.ok) throw new Error("Backlinks request failed.")
+
+      const result = deserialize<
+        { res: PageBacklinkView[] },
+        { message: string; code: string; data: Record<string, unknown> }
+      >(responseBody)
+
+      if (currentRequestId !== requestId) return
+      if (result.type !== "success" || !Array.isArray(result.data?.res)) {
+        state = { status: "failure" }
+        return
       }
-    } else if (result.type === "success") {
-      backlinks = result.data?.res ?? []
+
+      state = { status: "success", items: result.data.res }
+    } catch {
+      if (currentRequestId === requestId && !controller.signal.aborted) {
+        state = { status: "failure" }
+      }
+    } finally {
+      if (requestController === controller) requestController = undefined
     }
   }
 
   $effect(() => {
-    fetchBacklinks()
+    const pageId = data.page?.page_id
+    void pageId
+    void fetchBacklinks()
+
+    return () => {
+      requestId += 1
+      requestController?.abort()
+      requestController = undefined
+    }
   })
 </script>
 
@@ -40,13 +70,24 @@
 </h1>
 
 <div id="page-backlinks-list" aria-live="polite">
-  {#if backlinks === undefined}
-    <p>Loading…</p>
-  {:else if backlinks.length === 0}
+  {#if state.status === "loading"}
+    <p role="status">Loading…</p>
+  {:else if state.status === "failure"}
+    <p role="alert">
+      Could not load backlinks.
+      <button
+        aria-label="Retry loading backlinks"
+        onclick={() => void fetchBacklinks()}
+        type="button"
+      >
+        Retry
+      </button>
+    </p>
+  {:else if state.items.length === 0}
     <p>No pages link to this page.</p>
   {:else}
     <ul>
-      {#each backlinks as backlink (backlink.slug)}
+      {#each state.items as backlink (backlink.slug)}
         <li><a href={resolve(`/${backlink.slug}`, {})}>{backlink.title}</a></li>
       {/each}
     </ul>
