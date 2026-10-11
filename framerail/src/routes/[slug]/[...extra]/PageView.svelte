@@ -210,6 +210,21 @@
     pagePaneState = pane
   }
 
+  /**
+   * Opens a page pane after the checks its write surface requires. Append
+   * and Parent write under the page `edit` permission, so they are gated
+   * before their editable form (or protected revision data) is mounted.
+   * Move and Delete are not gated here: Deepwell exposes no move or delete
+   * permission signal to the client, so they keep their existing behavior.
+   * The server still rechecks every mutation at submission time.
+   */
+  async function openPagePane(pane: PagePane) {
+    if (pane === PagePane.Append || pane === PagePane.Parent) {
+      if (!(await checkEditPermission())) return
+    }
+    activatePagePane(pane)
+  }
+
   function closeEditSection() {
     editSection = undefined
   }
@@ -656,7 +671,7 @@
           id="edit-append-button"
           class="btn btn-default"
           href="javascript:;"
-          onclick={() => activatePagePane(PagePane.Append)}
+          onclick={() => openPagePane(PagePane.Append)}
           type="button"
         >
           {wikidotPageActions?.append ?? "Append"}
@@ -726,7 +741,7 @@
           id="parent-page-button"
           class="btn btn-default"
           href="javascript:;"
-          onclick={() => activatePagePane(PagePane.Parent)}
+          onclick={() => openPagePane(PagePane.Parent)}
           type="button"
         >
           {data.internationalization?.parents}
@@ -840,7 +855,12 @@
       <p class="pane-loading" aria-live="polite">Loading…</p>
     {/if}
   {:else}
-    <CurrentPageActions {activatePagePane} {data} {navigateEdit} bind:showSource />
+    <CurrentPageActions
+      activatePagePane={openPagePane}
+      {data}
+      {navigateEdit}
+      bind:showSource
+    />
   {/if}
 
   <PagePaneContent
