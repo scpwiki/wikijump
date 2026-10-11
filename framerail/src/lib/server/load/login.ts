@@ -11,6 +11,7 @@ import {
 } from "$lib/server/load/auth-form-redaction.js"
 import { failForActionError, requireActionSession } from "$lib/server/load/action-error"
 import { loadSiteInfo } from "$lib/server/load/site-info"
+import { translateMfaCodeLabel } from "./login-translation"
 import { fail } from "@sveltejs/kit"
 import { superValidate } from "sveltekit-superforms"
 import { valibot } from "sveltekit-superforms/adapters"
@@ -38,7 +39,6 @@ export async function loadLoginPage(request: Request, preloadData: PreloadDataAs
     // misc
     "specifier": {},
     "password": {},
-    "mfa-code": {},
     "login.toast": {},
     "forgot-password": {},
     "remember-me": {},
@@ -46,6 +46,7 @@ export async function loadLoginPage(request: Request, preloadData: PreloadDataAs
   }
 
   const internationalization = await translate(locales, translateKeys)
+  internationalization["mfa-code"] = await translateMfaCodeLabel(locales, translate)
 
   // superform
   const loginForm = await superValidate(valibot(loginSchema))

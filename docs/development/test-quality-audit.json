@@ -5814,7 +5814,7 @@
     },
     {
       "path": "framerail/src/lib/server/deepwell/public-error.js",
-      "sha256": "1902ae64d08073472977c8dd0b3d3114cf97ce662a9e27bb525ac8c3be78d4fb",
+      "sha256": "fcdea127d569ef1407785d29deedb6a81f4d598420074a56f3d91510e2486bd7",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -5926,7 +5926,7 @@
     },
     {
       "path": "framerail/src/lib/server/load/login.ts",
-      "sha256": "424f90a5f6a8f82957b4924958874251eeb80da1304047925507245b3f0515db",
+      "sha256": "0e02caf621a73de12cd8187415c74a54838137a314ca8fd3102befbafa955de5",
       "status": "pending",
       "anchors": [],
       "findings": [],

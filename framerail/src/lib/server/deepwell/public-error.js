@@ -1,5 +1,17 @@
 export const DEEPWELL_SESSION_INVALID = 3001
 export const DEEPWELL_PERMISSION_DENIED = 3106
+// Deepwell ErrorType::LocaleMessageMissing.
+export const DEEPWELL_LOCALE_MESSAGE_MISSING = 5002
+
+/**
+ * @param {unknown} error
+ * @returns {boolean}
+ */
+export const isMissingLocaleMessageError = (error) =>
+  error !== null &&
+  typeof error === "object" &&
+  "code" in error &&
+  error.code === DEEPWELL_LOCALE_MESSAGE_MISSING
 
 /**
  * @param {unknown} error
