@@ -17,6 +17,10 @@ const DELETED_FILE_NAMES = [
   "files-restore-race-deleted-b.txt"
 ]
 const ACTIVE_FILE_NAME = "theme-lab-visual-fixture"
+// The page-workflow-probe fixture renders in the Wikidot compatibility layout,
+// so the upload/restore affordances live in `.buttons` rather than the native
+// `.action-row.file-action` row.
+const FILE_ACTION_ROW = ".buttons"
 
 const expectDeletedRestoreView = async (page: import("@playwright/test").Page) => {
   await expect(
@@ -128,7 +132,7 @@ test("a stale failed file-list response cannot show an error or replace the Rest
   await expectDeletedRestoreView(page)
 })
 
-test("an initial file-list 503 shows retry instead of a successful empty inventory", async ({
+test("an initial file-list 503 shows no result area instead of a false empty inventory", async ({
   page
 }) => {
   await page.setExtraHTTPHeaders(AUTHENTICATED_HEADERS)
@@ -171,12 +175,24 @@ test("an initial file-list 503 shows retry instead of a successful empty invento
   await waitForSvelteDelegatedHandler(page, "#files-button")
   await page.locator("#files-button").click()
 
-  await expect(page.getByRole("alert")).toContainText("Unable to load files.")
-  await expect(page.locator(".file-list:not(.file-list-message)")).toHaveCount(0)
-  await expect(page.getByRole("button", { name: "Retry", exact: true })).toBeVisible()
+  // Source Wikidot leaves the action area hidden and empty for a failed
+  // attachment-list request (issue #2273): no result area, no error dialog,
+  // no toast and no retry control. Reproduce that absence rather than invent
+  // a recovery affordance, and never read the failure as "no files".
   await expect(page.locator(".file-list .file-row")).toHaveCount(0)
+  await expect(page.locator(".file-list .file-list-message")).toHaveCount(0)
+  await expect(page.getByRole("alert")).toHaveCount(0)
+  await expect(page.getByRole("button", { name: "Retry", exact: true })).toHaveCount(0)
+  // The action affordances themselves stay available; only the result area
+  // is withheld while no authoritative list has been received.
+  await expect(page.locator(FILE_ACTION_ROW)).toBeVisible()
+  expect(pageErrors).toEqual([])
+  expect(mutationRequests).toEqual([])
 
-  await page.getByRole("button", { name: "Retry", exact: true }).click()
+  // Reopening the pane issues a fresh read; the authoritative list then renders.
+  await page.reload({ waitUntil: "domcontentloaded" })
+  await waitForSvelteDelegatedHandler(page, "#files-button")
+  await page.locator("#files-button").click()
   await expect(page.locator(".file-list .file-row")).toHaveCount(1)
   await expect(page.locator(".file-list")).toContainText(ACTIVE_FILE_NAME)
   await expect(page.getByRole("alert")).toHaveCount(0)
@@ -185,7 +201,7 @@ test("an initial file-list 503 shows retry instead of a successful empty invento
   expect(mutationRequests).toEqual([])
 })
 
-test("a failed file-list refresh retains rows and hides actions until retry", async ({
+test("a failed file-list refresh withholds the result area without stale rows", async ({
   page
 }) => {
   await page.setExtraHTTPHeaders(AUTHENTICATED_HEADERS)
@@ -232,10 +248,13 @@ test("a failed file-list refresh retains rows and hides actions until retry", as
     .locator(".file-panel")
     .getByRole("button", { name: "restore", exact: true })
     .click()
-  await expect(page.getByRole("alert")).toContainText("Unable to load files.")
-  await expect(page.locator(".file-list .file-row")).toContainText(ACTIVE_FILE_NAME)
-  await expect(page.getByRole("button", { name: "delete", exact: true })).toHaveCount(0)
-  await expect(page.locator(".action-row.file-action")).toBeHidden()
+
+  // A failed refresh withholds the result area entirely: no invented error or
+  // retry surface, and no stale rows from the superseded active list.
+  await expect(page.locator(".file-list .file-row")).toHaveCount(0)
+  await expect(page.locator(".file-list")).toHaveCount(0)
+  await expect(page.getByRole("alert")).toHaveCount(0)
+  await expect(page.getByRole("button", { name: "Retry", exact: true })).toHaveCount(0)
   expect(deletedListFailed).toBe(true)
   expect(mutationRequests).toEqual([])
 })
