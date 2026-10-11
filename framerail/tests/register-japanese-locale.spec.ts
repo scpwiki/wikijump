@@ -13,6 +13,31 @@ const APP_URL = `http://localhost:${process.env.PLAYWRIGHT_APP_PORT ?? "4173"}`
 
 test.use({ locale: "ja-JP" })
 
+test("registration discloses the account-creation legal contract in Japanese", async ({
+  page
+}) => {
+  await page.setExtraHTTPHeaders(SITE_HEADERS)
+  await page.goto(`${APP_URL}/-/register`)
+  await expect(page.locator("#register")).toBeVisible()
+
+  await expect(page.locator("#register-legal-notice")).toHaveText(
+    "アカウントを作成すると、利用規約およびプライバシーポリシーに同意したものとみなされます。"
+  )
+  await expect(page.getByRole("link", { name: "利用規約", exact: true })).toHaveAttribute(
+    "href",
+    "https://wikijump.localhost/legal/terms-of-service"
+  )
+  await expect(
+    page.getByRole("link", { name: "プライバシーポリシー", exact: true })
+  ).toHaveAttribute("href", "https://wikijump.localhost/legal/privacy-policy")
+
+  // The action boundary still names the disclosure under the Japanese locale.
+  await expect(page.locator("#register button[type=submit]")).toHaveAttribute(
+    "aria-describedby",
+    "register-legal-notice"
+  )
+})
+
 test("registration password errors render Japanese inline text", async ({ page }) => {
   await installNativeEventListenerProbe(page)
   await page.setExtraHTTPHeaders(SITE_HEADERS)

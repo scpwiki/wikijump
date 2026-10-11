@@ -63,6 +63,7 @@ upload = Przekaż plik
 search = Szukaj
   .placeholder = Wyszukiwanie...
 
+
 ## Generic Authentication
 
 login = Zaloguj się
@@ -73,6 +74,11 @@ logout = Wyloguj się
 
 register = Zarejestruj się
   .toast = Utworzyłeś konto.
+  .legal-notice = Tworząc konto, akceptujesz nasz{ " " }
+  .legal-terms = Regulamin
+  .legal-conjunction = { " " }oraz{ " " }
+  .legal-privacy = Politykę prywatności
+  .legal-suffix = .
 
 specifier = Email lub Nazwa Użytkownika
   .placeholder = Wprowadź email lub nazwę użytkownika...

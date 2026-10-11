@@ -38,7 +38,8 @@ const pageActionKeys = [
   "wiki-page-action-watchers",
   "wiki-page-action-backlinks",
   "wiki-page-action-lock",
-  "wiki-page-action-rename-move"
+  "wiki-page-action-rename-move",
+  "wiki-page-file-history"
 ]
 
 test("page presentation requests every primary and expanded action label", () => {
@@ -59,6 +60,47 @@ test("page presentation requests every primary and expanded action label", () =>
   )
 
   for (const key of pageActionKeys) assert.ok(Object.hasOwn(keys, key), key)
+})
+
+test("the registration legal disclosure is localized in English and Japanese", async () => {
+  const baseEn = await readFile(
+    new URL("../../locales/fluent/base/en.ftl", import.meta.url),
+    "utf8"
+  )
+  const baseJa = await readFile(
+    new URL("../../locales/fluent/base/ja.ftl", import.meta.url),
+    "utf8"
+  )
+
+  // The disclosure sentence is composed from localized fragments around two
+  // real links, so every locale that renders the registration form defines
+  // all five fragments. Latin-script locales own their separator spaces with
+  // Fluent string literals, because a bare trailing space in a message is
+  // trimmed by the Fluent parser.
+  const englishFragments = {
+    "register.legal-notice": 'By creating an account you accept our{ " " }',
+    "register.legal-terms": "Terms of Service",
+    "register.legal-conjunction": '{ " " }and{ " " }',
+    "register.legal-privacy": "Privacy Policy",
+    "register.legal-suffix": "."
+  }
+  const japaneseFragments = {
+    "register.legal-notice": "アカウントを作成すると、",
+    "register.legal-terms": "利用規約",
+    "register.legal-conjunction": "および",
+    "register.legal-privacy": "プライバシーポリシー",
+    "register.legal-suffix": "に同意したものとみなされます。"
+  }
+  const attributeLines = (source, fragments) =>
+    Object.entries(fragments).map(
+      ([key, value]) => `  .${key.slice("register.".length)} = ${value}`
+    )
+  for (const line of attributeLines(baseEn, englishFragments)) {
+    assert.ok(baseEn.includes(`\n${line}\n`), `en: ${line.trim()}`)
+  }
+  for (const line of attributeLines(baseJa, japaneseFragments)) {
+    assert.ok(baseJa.includes(`\n${line}\n`), `ja: ${line.trim()}`)
+  }
 })
 
 test("English fallback and Japanese catalogs define the exact page action labels", async () => {

@@ -88,6 +88,11 @@ logout = 登出
 
 register = 注册
   .toast = 您已注册。
+  .legal-notice = 创建帐户即表示您接受我们的
+  .legal-terms = 服务条款
+  .legal-conjunction = 和
+  .legal-privacy = 隐私政策
+  .legal-suffix = 。
 
 specifier = 电子邮箱或用户名
   .placeholder = 输入电子邮箱或用户名……

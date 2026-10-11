@@ -37,3 +37,5 @@ wiki-page-file-delete =
   .filename = ファイル
   .page = ページ
   .confirm = 削除する
+
+wiki-page-file-history = ファイル履歴

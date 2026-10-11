@@ -11,6 +11,7 @@ import {
   redactAuthActionPayload
 } from "$lib/server/load/auth-form-redaction.js"
 import { failForActionError } from "$lib/server/load/action-error"
+import { legalDestinations } from "$lib/server/legal-links"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { fail } from "@sveltejs/kit"
 import { superValidate } from "sveltekit-superforms"
@@ -65,6 +66,13 @@ export async function loadRegisterPage(request: Request, preloadData: PreloadDat
     "create-account": {},
     "login": {},
 
+    // Account-creation legal disclosure
+    "register.legal-notice": {},
+    "register.legal-terms": {},
+    "register.legal-conjunction": {},
+    "register.legal-privacy": {},
+    "register.legal-suffix": {},
+
     // errors
     "error-form.password-mismatch": {},
     "error-form.password-too-short": {}
@@ -80,6 +88,11 @@ export async function loadRegisterPage(request: Request, preloadData: PreloadDat
     isLoggedIn,
     internationalization,
     registerForm,
+    // The disclosure shown at the Create Account action boundary must name
+    // the same authoritative Terms and Privacy the instance actually
+    // publishes, so the destinations come from the instance source of truth
+    // rather than from the wiki being viewed.
+    legalDestinations: legalDestinations(),
     userInterfaceLocales: USER_INTERFACE_LOCALES
   }
 }

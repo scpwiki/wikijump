@@ -112,6 +112,8 @@ wiki-page-file = 页面附件
   .page = 页面
 
 wiki-page-file-revision-type = 类型
+
+wiki-page-file-history = 文件历史
   .create = 创建
   .regular = 编辑
   .move = 移动
