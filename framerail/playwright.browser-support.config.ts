@@ -50,7 +50,7 @@ const config: PlaywrightTestConfig = {
     {
       name: "webkit-https-edit-meta",
       testMatch:
-        "**/{append-file-upload-accessible-names,append-file-upload-accessible-names-ja,edit-meta-newtag-mobile,file-history-view-unavailable,page-action-localization}.spec.ts",
+        "**/{append-file-upload-accessible-names,append-file-upload-accessible-names-ja,edit-meta-newtag-mobile,file-history-view-unavailable,module-accessible-names,page-action-localization}.spec.ts",
       use: {
         ...withBaseUse(devices["Desktop Safari"]),
         ignoreHTTPSErrors: true

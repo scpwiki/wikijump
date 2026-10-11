@@ -283,9 +283,23 @@ export const handleSiteRpc = ({ rpcRequest }) => {
           "wiki-page-action-lock": "Lock Page",
           "wiki-page-action-rename-move": "Move"
         }
+    const pageLabels = isJapanese
+      ? {
+          "wiki-page-layout": "ページレイアウト",
+          "wiki-page-meta-tag-name": "メタタグ名",
+          "wiki-page-meta-tag-content": "メタタグの内容"
+        }
+      : {
+          "wiki-page-layout": "Page layout",
+          "wiki-page-meta-tag-name": "Meta tag name",
+          "wiki-page-meta-tag-content": "Meta tag content"
+        }
     const labels = { ...authLabels, ...basePageActionLabels, ...pageActionLabels }
     result = Object.fromEntries(
-      Object.keys(rpcRequest.params.messages).map((key) => [key, labels[key] ?? key])
+      Object.keys(rpcRequest.params.messages).map((key) => [
+        key,
+        labels[key] ?? pageLabels[key] ?? key
+      ])
     )
   } else {
     return undefined

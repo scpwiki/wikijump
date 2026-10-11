@@ -86,6 +86,9 @@ wiki-page-layout = Page layout
   .wikijump = Wikijump
   .toast = Page layout saved.
 
+wiki-page-meta-tag-name = Meta tag name
+wiki-page-meta-tag-content = Meta tag content
+
 wiki-page-delete = Delete page
   .toast = Page deleted.
 

@@ -22,3 +22,7 @@ wiki-page-revision-diff = 리비전 비교
   .swap = 바꾸기
   .loading = 비교를 불러오는 중…
   .no-changes = 차이가 없습니다.
+wiki-page-layout = 페이지 레이아웃
+wiki-page-meta-tag-name = 메타 태그 이름
+wiki-page-meta-tag-content = 메타 태그 내용
+

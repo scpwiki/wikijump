@@ -16,3 +16,6 @@ wiki-page-action-watchers = ウォッチャー
 wiki-page-action-backlinks = バックリンク
 wiki-page-action-lock = ページロック
 wiki-page-action-rename-move = リネーム
+wiki-page-layout = ページレイアウト
+wiki-page-meta-tag-name = メタタグ名
+wiki-page-meta-tag-content = メタタグの内容
