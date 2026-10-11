@@ -11350,7 +11350,7 @@
     },
     {
       "path": "scripts/run-test-quality-frontier-audit.mjs",
-      "sha256": "6da422de31355497febad4fe61fa6507b36d434975c6ceddde793f9acb0fccbb",
+      "sha256": "9b3c6db12fef86b383f2b3fbc9fe2f21b69e08bb543ffc72f57db2b713aa7d59",
       "status": "pending",
       "anchors": [],
       "findings": [],
