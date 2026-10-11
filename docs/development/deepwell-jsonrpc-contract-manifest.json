@@ -9296,6 +9296,7 @@
           "deepwell/tests/page.rs#wikidot_gallery_preview_uses_the_typed_no_page_error_boundary",
           "deepwell/tests/page.rs#wikidot_gallery_saved_page_view_enforces_order_and_last_occurrence_matrix",
           "deepwell/tests/page.rs#wikidot_gallery_selects_authorized_current_page_images_after_page_acl",
+          "deepwell/tests/page.rs#wikidot_mirror_files_module_omits_local_fixture_files_from_source_inventory",
           "deepwell/tests/page.rs#wikidot_page_preview_keeps_html_blocks_literal_while_saved_pages_execute_them",
           "deepwell/tests/page.rs#wikidot_set_tags_action_resolves_server_descriptor_and_is_revision_idempotent",
           "deepwell/tests/page.rs#wikidot_set_tags_denials_preserve_public_page_state",

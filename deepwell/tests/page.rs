@@ -8253,6 +8253,120 @@ async fn wikidot_files_saved_populated_module_matches_the_live_row_contract() {
 }
 
 #[tokio::test]
+async fn wikidot_mirror_files_module_omits_local_fixture_files_from_source_inventory() {
+    const SLUG: &str = "fixture-imported-files-module-origin";
+    const SOURCE_NAME: &str = "theend.jpg";
+    const LOCAL_NAME: &str = "SCP.txt";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist")
+        .site;
+    create_listpages_test_page(
+        &mut runner,
+        site.site_id,
+        SLUG,
+        "Imported Files module provenance fixture",
+        "[[module Files]]",
+    )
+    .await;
+    let page_id = listpages_test_page_id(&runner, site.site_id, SLUG).await;
+    let source_file_id = create_file_fixture_with_descriptor(
+        &runner,
+        site.site_id,
+        page_id,
+        SOURCE_NAME,
+        27_980,
+        Some(ContentTypeDescriptor {
+            label: "JPEG image data".to_owned(),
+            description: "JPEG image data".to_owned(),
+        }),
+    )
+    .await;
+    let local_file_id = create_file_fixture_with_descriptor(
+        &runner,
+        site.site_id,
+        page_id,
+        LOCAL_NAME,
+        27_980,
+        Some(ContentTypeDescriptor {
+            label: "text/plain".to_owned(),
+            description: "Plain text".to_owned(),
+        }),
+    )
+    .await;
+
+    let transaction = runner.context().transaction();
+    transaction
+        .execute_raw(Statement::from_sql_and_values(
+            transaction.get_database_backend(),
+            "UPDATE site SET from_wikidot = TRUE WHERE site_id = $1",
+            [Value::from(site.site_id)],
+        ))
+        .await
+        .expect("fixture site should be marked as a source mirror");
+    transaction
+        .execute_raw(Statement::from_sql_and_values(
+            transaction.get_database_backend(),
+            "UPDATE page SET from_wikidot = TRUE WHERE page_id = $1",
+            [Value::from(page_id)],
+        ))
+        .await
+        .expect("fixture page should be marked as imported");
+    transaction
+        .execute_raw(Statement::from_sql_and_values(
+            transaction.get_database_backend(),
+            "UPDATE file SET from_wikidot = TRUE WHERE file_id = $1",
+            [Value::from(source_file_id)],
+        ))
+        .await
+        .expect("fixture should distinguish source and local file origin");
+    assert!(
+        file::Entity::find_by_id(source_file_id)
+            .one(transaction)
+            .await
+            .expect("source file origin should load")
+            .expect("source file should exist")
+            .from_wikidot
+    );
+    assert!(
+        !file::Entity::find_by_id(local_file_id)
+            .one(transaction)
+            .await
+            .expect("local file origin should load")
+            .expect("local file should exist")
+            .from_wikidot
+    );
+    assert!(
+        PageTable::find_by_id(page_id)
+            .one(transaction)
+            .await
+            .expect("page origin should load")
+            .expect("page should exist")
+            .from_wikidot
+    );
+    assert!(
+        deepwell::models::site::Entity::find_by_id(site.site_id)
+            .one(transaction)
+            .await
+            .expect("site origin should load")
+            .expect("site should exist")
+            .from_wikidot
+    );
+    rerender_file_fixture_page(&runner, page_id).await;
+
+    let saved = saved_article_view_body(&runner, site.site_id, SLUG).await;
+    assert!(
+        saved.contains(SOURCE_NAME),
+        "source attachment should appear:\n{saved}"
+    );
+    assert!(
+        !saved.contains(LOCAL_NAME),
+        "local fixture attachment must not appear in a source mirror inventory:\n{saved}",
+    );
+}
+
+#[tokio::test]
 async fn wikidot_files_saved_view_requires_page_view_and_complete_descriptors() {
     const DENIED_SLUG: &str = "fixture-files-denied:module-view";
     const DENIED_CATEGORY: &str = "fixture-files-denied";
