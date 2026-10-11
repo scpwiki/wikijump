@@ -91,3 +91,13 @@ test("requires a corpus root and at least one root page", () => {
     ["scp-1", "scp-2"],
   );
 });
+
+ test("ignores complete escaped include examples and comments", () => {
+  const sources = {
+    root: "@@[[include component:escaped]]@@\n[!-- [[include component:commented]] --]\n[[include component:real]]\n[[code]]\n[[include component:in-code]]\n[[/code]]",
+    "component:real": "plain",
+    "component:in-code": "plain",
+  };
+  const closure = includeClosure(["root"], (slug) => sources[slug] == null ? null : Buffer.from(sources[slug]), "scp-wiki");
+  assert.deepEqual(closure.map(({slug}) => slug), ["root", "component:real", "component:in-code"]);
+});

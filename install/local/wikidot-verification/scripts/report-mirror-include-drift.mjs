@@ -82,7 +82,12 @@ export function includeClosure(roots, readSource, sourceSite) {
     const source = readSource(slug);
     order.push({slug, source});
     if (source === null) continue;
-    for (const match of source.toString('utf8').matchAll(INCLUDE)) {
+    // Raw spans and comments contain display-only documentation. Includes
+    // inside code blocks remain active under Wikidot's include contract.
+    const activeSource = source.toString('utf8')
+      .replace(/@@[^\r\n]*?@@/gu, '')
+      .replace(/\[!--[\s\S]*?--\]/gu, '');
+    for (const match of activeSource.matchAll(INCLUDE)) {
       const target = includeTargetSlug(match[1], sourceSite);
       if (target && !seen.has(target)) queue.push(target);
     }
