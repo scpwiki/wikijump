@@ -4722,10 +4722,11 @@ async fn listpages_content_executes_attachment_syntax_with_selected_page_owner()
     assert!(
         !html.contains("[[include component:image-block ")
             && !html.contains("[[image direct-row.png link=direct-row-full.png]]")
-            && html.contains(&format!("/local--files/{FRAGMENT_SLUG}/direct-row.png"))
+            // A bare .png attachment shows the original on Wikidot (#2349).
             && html.contains(&format!(
-                "/local--resized-images/{FRAGMENT_SLUG}/direct-row.png/medium.jpg"
-            )),
+                r#"<img src="https://scp-wiki.wjfiles.com/local--files/{FRAGMENT_SLUG}/direct-row.png""#
+            ))
+            && !html.contains("/local--resized-images/"),
         "plain selected content must render attachment syntax with row ownership: {html}",
     );
     for forbidden_owner in [

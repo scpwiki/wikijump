@@ -246,6 +246,60 @@ fn render_wikidot_page_body_after_compat_restore(wikitext: &str) -> String {
     RenderService::restore_protected_generated_wikidot_compat_html(rendered, &fragments)
 }
 
+fn render_saved_wikidot_page_body(page: &'static str, wikitext: &str) -> String {
+    let page_info = fallback_test_page_info(page, page);
+    let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+    let mut wikitext = wikitext.to_owned();
+    ftml::preprocess_for_layout(&mut wikitext, settings.layout);
+    let tokens = ftml::tokenize(&wikitext);
+    let (tree, errors) = ftml::parse(&tokens, &page_info, &settings).into();
+    assert!(errors.is_empty(), "{errors:#?}");
+    HtmlRender.render(&tree, &page_info, &settings).body
+}
+
+#[test]
+fn saved_page_bare_attachment_images_follow_wikidot_file_type_default() {
+    // Saved Wikidot pages (issue #2349): scp-9506 line 1, 1-hachiro, and
+    // 12-aromantic-abatement render their bare .png attachments as the plain
+    // original; the shared-corpus saved HTML renders .jpeg/.webp/.svg
+    // attachments as the linked medium.jpg resize.
+    for (page, source, original) in [
+        (
+            "scp-9506",
+            r#"[[image NFSI.png class="crom-thumbnail" style="display: none"]]"#,
+            "https://scp-wiki.wjfiles.com/local--files/scp-9506/NFSI.png",
+        ),
+        (
+            "1-hachiro",
+            "[[=image Hachiro.png]]",
+            "https://scp-wiki.wjfiles.com/local--files/1-hachiro/Hachiro.png",
+        ),
+        (
+            "12-aromantic-abatement",
+            "[[f>image AAG.png]]",
+            "https://scp-wiki.wjfiles.com/local--files/12-aromantic-abatement/AAG.png",
+        ),
+    ] {
+        let html = render_saved_wikidot_page_body(page, source);
+        assert!(
+            html.contains(&format!(r#"<img src="{original}""#)),
+            "{html}"
+        );
+        assert!(!html.contains("local--resized-images"), "{html}");
+        assert!(!html.contains("<a "), "{html}");
+    }
+
+    let html = render_saved_wikidot_page_body("scp-4875", "[[image ATACAMA.jpeg]]");
+    assert_eq!(
+        html,
+        concat!(
+            r#"<a href="https://scp-wiki.wjfiles.com/local--files/scp-4875/ATACAMA.jpeg">"#,
+            r#"<img src="https://scp-wiki.wjfiles.com/local--resized-images/scp-4875/ATACAMA.jpeg/medium.jpg" class="image" alt="ATACAMA.jpeg">"#,
+            "</a>",
+        ),
+    );
+}
+
 fn render_trusted_wikidot_block_html(html: String) -> String {
     let page_info = fallback_test_page_info("scp-7243", "SCP-7243");
     let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
