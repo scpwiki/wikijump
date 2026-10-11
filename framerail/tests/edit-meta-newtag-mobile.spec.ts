@@ -12,21 +12,10 @@ const appURL = (projectName: string) =>
 const EDIT_META_MODULE = "edit/EditMetaModule"
 
 /**
- * Legacy-shaped Edit Meta response with one persisted row. Cancellation
- * coverage verifies that the row survives remounts without a write
- * request.
- */
-const FIXTURE_EDIT_META_BODY = `<h1>Meta tags for the page</h1>
-<p>Using the interface below you can edit special HTML &lt;meta&gt; tags for the page.</p>
-<h2>Current meta tags:</h2>
-<div style="padding-left:3em;"><div>remove &lt;meta name="fixture-existing" content="unchanged-value"/&gt;</div></div>
-<p></p>`
-
-/**
  * The fixture Deepwell server does not implement the Edit Meta module, so
- * the pane's requests are answered with a canned legacy body. Every
- * intercepted action-bearing request is recorded so the spec can prove
- * cancellation makes no write request without any server mutation.
+ * this per-test API fixture serves its legacy-shaped response from
+ * isolated persisted rows. Action-bearing requests are recorded and update
+ * only this disposable fixture state.
  */
 const interceptEditMetaModule = async (
   page: import("@playwright/test").Page,
@@ -34,6 +23,28 @@ const interceptEditMetaModule = async (
 ) => {
   const mutations: string[] = []
   const writeRequests: string[] = []
+  const mutationPayloads: Array<{
+    event: string | null
+    pageId: string | null
+    metaName: string | null
+    metaContent: string | null
+    allPages: string | null
+  }> = []
+  // This per-test fixture is the authoritative persisted state for the
+  // intercepted module, and survives pane remounts and page reloads.
+  const persistedRows = [
+    { name: "fixture-existing", content: "unchanged-value", all_pages: false }
+  ]
+  const responseBody = () => `<h1>Meta tags for the page</h1>
+<p>Using the interface below you can edit special HTML &lt;meta&gt; tags for the page.</p>
+<h2>Current meta tags:</h2>
+<div style="padding-left:3em;">${persistedRows
+    .map(
+      (row) =>
+        `<div>remove &lt;meta name="${row.name}" content="${row.content}"/&gt;${row.all_pages ? " (all pages)" : ""}</div>`
+    )
+    .join("")}</div>
+<p></p>`
   const appOrigin = new URL(baseURL).origin
   page.on("request", (request) => {
     if (request.method() === "GET" || request.method() === "HEAD") return
@@ -58,14 +69,45 @@ const interceptEditMetaModule = async (
     const event = params.get("event")
     if (params.has("action") || event === "saveMetaTag" || event === "deleteMetaTag") {
       mutations.push(`${event}:${params.get("allPages") ?? "false"}`)
+      mutationPayloads.push({
+        event,
+        pageId: params.get("pageId"),
+        metaName: params.get("metaName"),
+        metaContent: params.get("metaContent"),
+        allPages: params.get("allPages")
+      })
+      const name = params.get("metaName")
+      const allPages = params.get("allPages") === "true"
+      if (event === "saveMetaTag" && name) {
+        const existing = persistedRows.findIndex(
+          (row) => row.name === name && row.all_pages === allPages
+        )
+        const row = {
+          name,
+          content: params.get("metaContent") ?? "",
+          all_pages: allPages
+        }
+        if (existing === -1) persistedRows.push(row)
+        else persistedRows[existing] = row
+      } else if (event === "deleteMetaTag" && name) {
+        const existing = persistedRows.findIndex(
+          (row) => row.name === name && row.all_pages === allPages
+        )
+        if (existing !== -1) persistedRows.splice(existing, 1)
+      }
     }
     await route.fulfill({
       status: 200,
       contentType: "application/json",
-      body: JSON.stringify({ status: "ok", body: FIXTURE_EDIT_META_BODY })
+      body: JSON.stringify({ status: "ok", body: responseBody() })
     })
   })
-  return { mutations, writeRequests }
+  return {
+    mutations,
+    mutationPayloads,
+    writeRequests,
+    persistedRows: () => structuredClone(persistedRows)
+  }
 }
 
 const waitForWikidotHydration = (page: import("@playwright/test").Page) =>
@@ -222,11 +264,41 @@ test("Edit Meta new-tag form stays bounded at 320px and sends no mutation on can
   expect(writeRequests, "cancel must not issue any app write request").toEqual([])
 })
 
+test("Edit Meta Cancel preserves persisted meta rows", async ({ page }, testInfo) => {
+  const baseURL = appURL(testInfo.project.name)
+  const { mutations, writeRequests, persistedRows } = await interceptEditMetaModule(
+    page,
+    baseURL
+  )
+  const beforeCancel = persistedRows()
+  await openEditMetaPane(page, baseURL)
+
+  const actionArea = page.locator("#action-area")
+  await expect(actionArea).toContainText("fixture-existing")
+  await expect(actionArea).toContainText("unchanged-value")
+  await clickAddNewMetaTag(page)
+  await page.locator('input[name="metaName"]').fill("wj-cancel-nonsaved")
+  await page.locator('input[name="metaContent"]').fill("should-clear-unpersisted")
+
+  await page.locator("#edit-meta-newtag-form button.btn-danger").click()
+  await expect(page.locator("#edit-meta-newtag-form")).toHaveCount(0)
+  await clickAddNewMetaTag(page)
+  await expect(actionArea).toContainText("fixture-existing")
+  await expect(actionArea).toContainText("unchanged-value")
+  expect(persistedRows()).toEqual(beforeCancel)
+  expect(mutations, "Cancel must not send an Edit Meta action").toEqual([])
+  expect(writeRequests, "Cancel must not send any app write request").toEqual([])
+})
+
 test("Edit Meta cancel discards drafts across pane close, pane switch, and reload", async ({
   page
 }, testInfo) => {
   const baseURL = appURL(testInfo.project.name)
-  const { mutations, writeRequests } = await interceptEditMetaModule(page, baseURL)
+  const { mutations, writeRequests, persistedRows } = await interceptEditMetaModule(
+    page,
+    baseURL
+  )
+  const beforeNavigation = persistedRows()
   await openEditMetaPane(page, baseURL)
 
   const expectPersistedFixtureRow = async () => {
@@ -273,6 +345,7 @@ test("Edit Meta cancel discards drafts across pane close, pane switch, and reloa
   await openEditMetaPaneFromOptions(page)
   await expectPersistedFixtureRow()
   await expectBlankDraft()
+  expect(persistedRows()).toEqual(beforeNavigation)
   expect(mutations, "discarding drafts must not issue any Edit Meta action").toEqual([])
   expect(writeRequests, "discarding drafts must not issue any app write request").toEqual(
     []
@@ -318,7 +391,10 @@ test("Add to This Page keeps the saveMetaTag wire contract without widening the 
   page
 }, testInfo) => {
   const baseURL = appURL(testInfo.project.name)
-  const { mutations } = await interceptEditMetaModule(page, baseURL)
+  const { mutations, mutationPayloads, persistedRows } = await interceptEditMetaModule(
+    page,
+    baseURL
+  )
   await page.setViewportSize({ width: 320, height: 720 })
   await openEditMetaPane(page, baseURL)
 
@@ -333,4 +409,50 @@ test("Add to This Page keeps the saveMetaTag wire contract without widening the 
   await expect(page.locator("#edit-meta-newtag-form")).toHaveCount(0)
   await expect(page.locator("#action-area #edit-meta-addbutton")).toBeVisible()
   expect(mutations).toEqual(["saveMetaTag:false"])
+  expect(mutationPayloads).toEqual([
+    {
+      event: "saveMetaTag",
+      pageId: expect.stringMatching(/^\d+$/u),
+      metaName: "description",
+      metaContent: "",
+      allPages: null
+    }
+  ])
+  expect(persistedRows()).toContainEqual({
+    name: "description",
+    content: "",
+    all_pages: false
+  })
+})
+
+test("Add to All Pages sends the distinct site-wide metadata payload", async ({
+  page
+}, testInfo) => {
+  const baseURL = appURL(testInfo.project.name)
+  const { mutations, mutationPayloads, persistedRows } = await interceptEditMetaModule(
+    page,
+    baseURL
+  )
+  await openEditMetaPane(page, baseURL)
+  await clickAddNewMetaTag(page)
+  await page.locator('input[name="metaName"]').fill("robots")
+  await page.locator('input[name="metaContent"]').fill("noindex")
+  await page.locator('button:has-text("Add to All Pages")').click()
+
+  await expect(page.locator("#edit-meta-newtag-form")).toHaveCount(0)
+  expect(mutations).toEqual(["saveMetaTag:true"])
+  expect(mutationPayloads).toEqual([
+    {
+      event: "saveMetaTag",
+      pageId: expect.stringMatching(/^\d+$/u),
+      metaName: "robots",
+      metaContent: "noindex",
+      allPages: "true"
+    }
+  ])
+  expect(persistedRows()).toContainEqual({
+    name: "robots",
+    content: "noindex",
+    all_pages: true
+  })
 })
