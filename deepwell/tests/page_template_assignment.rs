@@ -24,20 +24,24 @@ mod common;
 use self::common::TestRunner;
 use deepwell::constants::{ADMIN_USER_ID, SAMPLE_USER_ID, SYSTEM_USER_ID};
 use deepwell::error::ErrorType;
+use deepwell::license::License;
 use deepwell::models::page::{Entity as PageTable, Model as PageModel};
 use deepwell::services::RequestContext;
 use deepwell::services::SessionService;
 use deepwell::services::category::CategoryService;
 use deepwell::services::page::CreatePageOutput;
+use deepwell::services::page::{CreatePage, PageService};
 use deepwell::services::permission::{CheckPermissionContext, PermissionService};
 use deepwell::services::role::{
     GrantUserRoleInput, InternalCreateRoleInput, RoleService, UpdateRolePermissionsInput,
 };
 use deepwell::services::session::CreateSession;
+use deepwell::services::site::{CreateSite, SiteService};
 use deepwell::services::view::{
     GetArticleViewOutput, GetPageViewOutput, PageTemplateSummary,
 };
 use deepwell::types::{Action, Permission, Reference, Resource};
+use ftml::layout::Layout;
 use sea_orm::{ActiveModelTrait, EntityTrait, IntoActiveModel, Set};
 use serde_json::json;
 use std::borrow::Cow;
@@ -75,6 +79,138 @@ async fn create_page(
             "ip_address": common::IP_ADDRESS,
         }),
     )
+}
+
+async fn create_template_fixture_page(
+    runner: &TestRunner,
+    site_id: i64,
+    slug: &str,
+    wikitext: &str,
+) {
+    PageService::create(
+        runner.context(),
+        CreatePage {
+            site_id,
+            wikitext: wikitext.to_owned(),
+            title: slug.to_owned(),
+            alt_title: None,
+            tags: Vec::new(),
+            slug: slug.to_owned(),
+            layout: Some(Layout::Wikidot),
+            revision_comments: String::from("component notice template fixture"),
+            user_id: SYSTEM_USER_ID,
+            bypass_filter: true,
+            ip_address: common::IP_ADDRESS,
+        },
+    )
+    .await
+    .expect("component template fixture page should be created");
+}
+
+async fn create_component_notice_fixture_site(
+    runner: &TestRunner,
+    slug: &str,
+    notice: &str,
+) -> i64 {
+    let site = SiteService::create(
+        runner.context(),
+        CreateSite {
+            slug: slug.to_owned(),
+            name: format!("{slug} fixture"),
+            tagline: String::new(),
+            description: String::from("Isolated component notice template fixture"),
+            default_page: None,
+            layout: Some(Layout::Wikidot),
+            license: License::CcBySa40,
+            locale: String::from("en"),
+            ip_address: common::IP_ADDRESS,
+        },
+        None,
+    )
+    .await
+    .expect("isolated component notice fixture site should be created");
+    let site_id = site.site_id;
+    let everyone_role = RoleService::create(
+        runner.context(),
+        InternalCreateRoleInput {
+            site_id,
+            name: String::from("everyone"),
+            description: Some(String::from("View access for fixture site visitors")),
+            is_virtual: true,
+            parent_role_id: None,
+            creating_user_id: SYSTEM_USER_ID,
+            ip_address: common::IP_ADDRESS,
+        },
+    )
+    .await
+    .expect("fixture site should have an everyone role");
+    PermissionService::update_permissions_for_role(
+        runner.context(),
+        UpdateRolePermissionsInput {
+            site_id,
+            role_reference: Reference::Id(everyone_role.role_id),
+            new_permissions: vec![Permission {
+                resource_type: Resource::Page,
+                resource_category: None,
+                action: Action::View,
+            }],
+            cascade_removals: false,
+            updating_user_id: SYSTEM_USER_ID,
+            ip_address: common::IP_ADDRESS,
+        },
+    )
+    .await
+    .expect("fixture site should grant everyone permission to view pages");
+
+    create_template_fixture_page(
+        runner,
+        site_id,
+        "component:_template",
+        &format!(
+            "[[div class=\"warning-top-box\"]]\n+* NOTICE:\n{notice}\n[[/div]]\n%%content%%"
+        ),
+    )
+    .await;
+    create_template_fixture_page(
+        runner,
+        site_id,
+        "component:probe",
+        "ORIGINAL COMPONENT BODY",
+    )
+    .await;
+    create_template_fixture_page(
+        runner,
+        site_id,
+        "article",
+        "[[include component:probe]]",
+    )
+    .await;
+
+    site_id
+}
+
+async fn page_view_source_and_html(
+    runner: &TestRunner,
+    site_id: i64,
+    slug: &str,
+) -> (String, String) {
+    match run_endpoint!(
+        runner,
+        page_view,
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": { "slug": slug, "extra": "" },
+            "locales": ["en-US", "en"],
+        }),
+    ) {
+        GetPageViewOutput::Found {
+            wikitext,
+            compiled_body_html,
+            ..
+        } => (wikitext, compiled_body_html),
+        other => panic!("expected fixture page view, got {other:?}"),
+    }
 }
 
 async fn mark_page_imported(runner: &TestRunner, page_id: i64) -> PageModel {
@@ -896,6 +1032,48 @@ async fn page_view_and_edit_round_trip_date_field_scalars_and_options() {
         other => {
             panic!("saved date field must reload through the public edit view: {other:?}")
         }
+    }
+}
+
+#[tokio::test]
+async fn component_notice_templates_are_site_scoped_and_include_pure() {
+    const SOURCE: &str = "ORIGINAL COMPONENT BODY";
+    const INCLUDE_SOURCE: &str = "[[include component:probe]]";
+    const NOTICE_A: &str = "SITE A COMPONENT NOTICE";
+    const NOTICE_B: &str = "SITE B COMPONENT NOTICE";
+
+    let runner = TestRunner::setup().await;
+    let site_a = create_component_notice_fixture_site(
+        &runner,
+        "component-notice-site-a",
+        NOTICE_A,
+    )
+    .await;
+    let site_b = create_component_notice_fixture_site(
+        &runner,
+        "component-notice-site-b",
+        NOTICE_B,
+    )
+    .await;
+
+    for (site_id, own_notice, other_notice) in
+        [(site_a, NOTICE_A, NOTICE_B), (site_b, NOTICE_B, NOTICE_A)]
+    {
+        let (component_source, component_html) =
+            page_view_source_and_html(&runner, site_id, "component:probe").await;
+        assert_eq!(component_source, SOURCE);
+        assert!(component_html.contains("warning-top-box"));
+        assert!(component_html.contains(own_notice));
+        assert!(!component_html.contains(other_notice));
+        assert!(component_html.contains(SOURCE));
+
+        let (article_source, article_html) =
+            page_view_source_and_html(&runner, site_id, "article").await;
+        assert_eq!(article_source, INCLUDE_SOURCE);
+        assert!(article_html.contains(SOURCE));
+        assert!(!article_html.contains("warning-top-box"));
+        assert!(!article_html.contains(own_notice));
+        assert!(!article_html.contains(other_notice));
     }
 }
 
