@@ -10,23 +10,26 @@ import { pages, parentBySlug } from "./data.js"
 export const handleParentWriteRpc = ({ rpcRequest, request }) => {
   const { counters, pageWriteRequests } = fixtureState
   let result
+  const parentGetPageReference = rpcRequest.params?.page
+  const parentGetPage =
+    typeof parentGetPageReference === "number"
+      ? Object.values(pages).find((page) => page.page_id === parentGetPageReference)
+      : pages[parentGetPageReference]
 
   if (
     rpcRequest.method === "parent_get_all" &&
     hasExactKeys(rpcRequest.params, ["page", "site_id"]) &&
     rpcRequest.params.site_id === 6000005 &&
-    typeof rpcRequest.params.page === "string" &&
+    parentGetPage &&
     request.headers["x-deepwell-session-token"] === "fixture-session-token" &&
     request.headers["x-deepwell-site-id"] === "6000005" &&
-    request.headers["x-deepwell-page"] === rpcRequest.params.page
+    request.headers["x-deepwell-page"] === parentGetPage.slug
   ) {
     pageWriteRequests.parentGetAll.push({
       headers: requestContextHeaders(request),
       params: rpcRequest.params
     })
-    result = parentBySlug[rpcRequest.params.page]
-      ? [parentBySlug[rpcRequest.params.page]]
-      : []
+    result = parentBySlug[parentGetPage.slug] ? [parentBySlug[parentGetPage.slug]] : []
   } else if (
     rpcRequest.method === "parent_update" &&
     rpcRequest.params.site_id === 6000005 &&

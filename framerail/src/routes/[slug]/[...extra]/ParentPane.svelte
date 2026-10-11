@@ -10,6 +10,9 @@
   import type { PageProps } from "./$types"
 
   let pageParents = $state<string>("")
+  let parentsLoaded = $state(false)
+  let parentsEdited = false
+  let parentFetchGeneration = 0
 
   let { pagePaneState = $bindable(), data }: PageProps & { pagePaneState: PagePane } =
     $props()
@@ -20,7 +23,12 @@
     untrack(() => data.forms.pageParentForm),
     {
       dataType: "json",
-      onSubmit: async ({ jsonData }) => {
+      onSubmit: async ({ jsonData, cancel }) => {
+        if (!parentsLoaded) {
+          cancel()
+          return
+        }
+
         const { parents: formParents } = $form
         const newParents = formParents.split(" ").filter((p) => p)
         const oldParents = pageParents.split(" ").filter((p) => p)
@@ -53,34 +61,58 @@
     }
   )
 
-  async function fetchParents() {
-    const res = await fetch(`?/parentGet`, {
-      method: "POST",
-      body: JSON.stringify({
-        pageId: data.page?.page_id,
-        slug: data.page?.slug
-      })
-    }).then((res) => res.text())
+  async function fetchParents(
+    pageId: number | undefined,
+    slug: string | undefined,
+    generation: number
+  ) {
+    try {
+      const res = await fetch(`?/parentGet`, {
+        method: "POST",
+        body: JSON.stringify({ pageId, slug })
+      }).then((res) => res.text())
 
-    const result = deserialize<
-      { res: string[] },
-      { message: string; code: string; data: Record<string, unknown> }
-    >(res)
+      const result = deserialize<
+        { res: string[] },
+        { message: string; code: string; data: Record<string, unknown> }
+      >(res)
 
-    if (result.type === "failure" && result.data?.message) {
+      if (generation !== parentFetchGeneration) return
+
+      if (result.type === "failure" && result.data?.message) {
+        errorPopupState.current = {
+          state: true,
+          message: result.data.message,
+          data: result.data.data
+        }
+      } else if (result.type === "success" && result.data?.res) {
+        pageParents = result.data.res.join(" ")
+        parentsLoaded = true
+        if (!parentsEdited) $form.parents = pageParents
+      }
+    } catch {
+      if (generation !== parentFetchGeneration) return
       errorPopupState.current = {
         state: true,
-        message: result.data.message,
-        data: result.data.data
+        message: "An error occurred while processing the request.",
+        data: {}
       }
-    } else if (result.type === "success" && result.data?.res) {
-      pageParents = result.data.res.join(" ")
-      $form.parents = pageParents
     }
   }
 
   $effect(() => {
-    fetchParents()
+    const pageId = data.page?.page_id
+    const slug = data.page?.slug
+    const generation = ++parentFetchGeneration
+    parentsLoaded = false
+    parentsEdited = false
+    pageParents = ""
+    $form.parents = ""
+    void fetchParents(pageId, slug, generation)
+
+    return () => {
+      if (parentFetchGeneration === generation) parentFetchGeneration += 1
+    }
   })
 </script>
 
@@ -100,6 +132,7 @@
     placeholder={data.internationalization?.parents}
     type="text"
     bind:value={$form.parents}
+    oninput={() => (parentsEdited = true)}
   />
   {#if pageLayoutContext.current === Layout.WIKIDOT}
     <div class="buttons">
@@ -112,6 +145,7 @@
       <input
         class="btn btn-primary"
         type="submit"
+        disabled={!parentsLoaded}
         value={data.internationalization?.save}
       />
     </div>
@@ -127,6 +161,7 @@
       <button
         class="action-button page-parent-button button-save clickable"
         type="submit"
+        disabled={!parentsLoaded}
       >
         {data.internationalization?.save}
       </button>
