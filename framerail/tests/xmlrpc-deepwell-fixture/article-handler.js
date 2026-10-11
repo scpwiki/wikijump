@@ -907,5 +907,21 @@ export const handleArticleRpc = ({ rpcRequest, request }) => {
     return undefined
   }
 
+  if (
+    rpcRequest.method === "article_view" &&
+    rpcRequest.params.session_token === "fixture-authenticated-session-token"
+  ) {
+    result.user_session = {
+      session_id: 6000008,
+      user: {
+        user_id: 6000008,
+        user_type: "regular",
+        name: "Fixture Member",
+        slug: "fixture-member",
+        locales: ["en"]
+      }
+    }
+  }
+
   return { result }
 }
