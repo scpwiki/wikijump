@@ -9468,6 +9468,7 @@
           "deepwell/tests/page_template_assignment.rs#data_form_template_deletion_requires_actual_form_removal",
           "deepwell/tests/page_template_assignment.rs#data_form_youtube_raw_wiki_executes_only_inside_html_block",
           "deepwell/tests/page_template_assignment.rs#empty_text_values_survive_public_create_edit_view_and_listpages_lifecycle",
+          "deepwell/tests/page_template_assignment.rs#missing_page_view_reports_create_decision_per_actor",
           "deepwell/tests/page_template_assignment.rs#page_view_and_edit_round_trip_date_field_scalars_and_options",
           "deepwell/tests/page_template_assignment.rs#page_view_exposes_category_data_form_definition_in_template_order",
           "deepwell/tests/page_template_assignment.rs#page_view_exposes_file_data_form_create_control_without_write_lifecycle",
