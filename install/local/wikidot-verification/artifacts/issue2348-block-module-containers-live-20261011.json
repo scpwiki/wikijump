@@ -1,0 +1,86 @@
+{
+  "schema": "wikijump.issue2348-block-module-containers-live.v1",
+  "issue": 2348,
+  "observed_at": "2026-10-11T14:57:10.097260+00:00",
+  "acquisition": {
+    "module": "edit/PagePreviewModule",
+    "mode": "page",
+    "site": "scp-wiki",
+    "title": "probe",
+    "authenticated": false,
+    "mutated": false,
+    "client": "Rokurolize/wikidot.py anonymous AMC"
+  },
+  "cases": [
+    {
+      "case_id": "ul-li-listpages",
+      "source": "[[ul]]\n[[li]]\n[[module ListPages fullname=\"scp-173\" separate=\"no\"]]\n%%title%%\n[[/module]]\n[[/li]]\n[[/ul]]",
+      "source_sha256": "b83c876b6d8e23e678b4c912e001b2cae54722873d1caa463405af6e074e5d4b",
+      "body_sha256": "fce781a812a6f3d92c5147b6481e3023b47209ad4039ea945b3293aa00aed8cd",
+      "body": "\n\n<ul>\n<li><div class=\"list-pages-box\">    \n\n<p>SCP-173</p>\n\n    \n    \n    \n    </div></li>\n</ul>\n<br />\n"
+    },
+    {
+      "case_id": "ol-li-listpages",
+      "source": "[[ol]]\n[[li]]\n[[module ListPages fullname=\"scp-173\" separate=\"no\"]]\n%%title%%\n[[/module]]\n[[/li]]\n[[/ol]]",
+      "source_sha256": "613f3e8d8ad117c5cf3c50fbc0ddc35c2f13b33b1cef21c83b2a328b9db88aa4",
+      "body_sha256": "bef553ad2420fcc020b50f1624978fdc84aeda020062e00b0a5841e055c94c6c",
+      "body": "\n\n<ol>\n<li><div class=\"list-pages-box\">    \n\n<p>SCP-173</p>\n\n    \n    \n    \n    </div></li>\n</ol>\n<br />\n"
+    },
+    {
+      "case_id": "ul-li-text-listpages",
+      "source": "[[ul]]\n[[li]]\nbefore\n[[module ListPages fullname=\"scp-173\" separate=\"no\"]]\n%%title%%\n[[/module]]\nafter\n[[/li]]\n[[/ul]]",
+      "source_sha256": "bed53dab750d84f8feaa760bf9faa0b5680bbb7ee3312d5c25f967b879ae6d9a",
+      "body_sha256": "82c18737291bcd2d4e89a2c476272397fd2386417d6c0721581ca40889489c54",
+      "body": "\n\n<ul>\n<li>before<div class=\"list-pages-box\">    \n\n<p>SCP-173</p>\n\n    \n    \n    \n    </div>after<br /></li>\n</ul>\n<br />\n"
+    },
+    {
+      "case_id": "ul-li-rate",
+      "source": "[[ul]]\n[[li]]\n[[module Rate]]\n[[/li]]\n[[/ul]]",
+      "source_sha256": "714b10ebb37739832345045434d79e9b2bbf21e825d55f204f72ff2e8d6b3889",
+      "body_sha256": "1a81acd26c6d641576cb696cb276824b33f661bc36fe75eb36406b7d1046aad8",
+      "body": "\n\n<ul>\n<li><div class=\"page-rate-widget-box\"><span class=\"rate-points\">rating:&nbsp;<span class=\"number prw54353\">0</span></span><span class=\"rateup btn btn-default\"><a title=\"I like it\" href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, 1)\">+</a></span><span class=\"ratedown btn btn-default\"><a title=\"I don't like it\" href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, -1)\">&#8211;</a></span><span class=\"cancel btn btn-default\"><a title=\"Cancel my vote\" href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.cancelVote(event)\">x</a></span></div></li>\n</ul>\n<br />\n"
+    },
+    {
+      "case_id": "hcell-listpages",
+      "source": "[[table]]\n[[row]]\n[[hcell]]\n[[module ListPages fullname=\"scp-173\" separate=\"no\"]]\n%%title%%\n[[/module]]\n[[/hcell]]\n[[/row]]\n[[/table]]",
+      "source_sha256": "0cfc630f08fd8544a44ef8f50f147cd9b6a9896ccc7f3864651992357189e61b",
+      "body_sha256": "3119e3a20a2a1af377428448c19961bf0b52d31ccd6174616e57c7b63f713fbd",
+      "body": "\n\n<table>\n<tr>\n<th><div class=\"list-pages-box\">    \n\n<p>SCP-173</p>\n\n    \n    \n    \n    </div></th>\n</tr>\n</table>\n"
+    },
+    {
+      "case_id": "hcell-attrs-listpages",
+      "source": "[[table]]\n[[row]]\n[[hcell class=\"namerow\" colspan=\"2\"]]\n[[module ListPages fullname=\"scp-173\" separate=\"no\"]]\n%%title%%\n[[/module]]\n[[/hcell]]\n[[/row]]\n[[/table]]",
+      "source_sha256": "f3259fc88ca1080381e007a9158320596245749fc126e6217858ef7de01e7f70",
+      "body_sha256": "d850108760965d2feba2f4cfff1117be1a8c288491beec2d20393d29498a2bc0",
+      "body": "\n\n<table>\n<tr>\n<th class=\"namerow\" colspan=\"2\"><div class=\"list-pages-box\">    \n\n<p>SCP-173</p>\n\n    \n    \n    \n    </div></th>\n</tr>\n</table>\n"
+    },
+    {
+      "case_id": "hcell-rate",
+      "source": "[[table]]\n[[row]]\n[[hcell]]\n[[module Rate]]\n[[/hcell]]\n[[/row]]\n[[/table]]",
+      "source_sha256": "391d37122d1485c5f4eaafb8b5c099c635291632d3fb82c2f329e96fa3323e69",
+      "body_sha256": "7fc230270b4ce28bd3dbe5dd5fdd82f4b9f660608d3f7ba12f464247f19f192f",
+      "body": "\n\n<table>\n<tr>\n<th><div class=\"page-rate-widget-box\"><span class=\"rate-points\">rating:&nbsp;<span class=\"number prw54353\">0</span></span><span class=\"rateup btn btn-default\"><a title=\"I like it\" href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, 1)\">+</a></span><span class=\"ratedown btn btn-default\"><a title=\"I don't like it\" href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, -1)\">&#8211;</a></span><span class=\"cancel btn btn-default\"><a title=\"Cancel my vote\" href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.cancelVote(event)\">x</a></span></div></th>\n</tr>\n</table>\n"
+    },
+    {
+      "case_id": "cell-listpages",
+      "source": "[[table]]\n[[row]]\n[[cell]]\n[[module ListPages fullname=\"scp-173\" separate=\"no\"]]\n%%title%%\n[[/module]]\n[[/cell]]\n[[/row]]\n[[/table]]",
+      "source_sha256": "7e097998b97e9e2855a306dc729d1965dc8c4bab9c6368068e70ed53944dc8ff",
+      "body_sha256": "742ecc61da1169f89e54691849fb983ea6738b2ad05c46d23f88ef64d00c50f3",
+      "body": "\n\n<table>\n<tr>\n<td><div class=\"list-pages-box\">    \n\n<p>SCP-173</p>\n\n    \n    \n    \n    </div></td>\n</tr>\n</table>\n"
+    },
+    {
+      "case_id": "cell-rate",
+      "source": "[[table]]\n[[row]]\n[[cell]]\n[[module Rate]]\n[[/cell]]\n[[/row]]\n[[/table]]",
+      "source_sha256": "01f5155b02cd0426324666e098e303cf2756ec97cf82813cc1a4d29d82b9b444",
+      "body_sha256": "bca6ae056480e7a36331752b6d4204df660eb6cf45e31030297eb8feb7985220",
+      "body": "\n\n<table>\n<tr>\n<td><div class=\"page-rate-widget-box\"><span class=\"rate-points\">rating:&nbsp;<span class=\"number prw54353\">0</span></span><span class=\"rateup btn btn-default\"><a title=\"I like it\" href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, 1)\">+</a></span><span class=\"ratedown btn btn-default\"><a title=\"I don't like it\" href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, -1)\">&#8211;</a></span><span class=\"cancel btn btn-default\"><a title=\"Cancel my vote\" href=\"javascript:;\" onclick=\"WIKIDOT.modules.PageRateWidgetModule.listeners.cancelVote(event)\">x</a></span></div></td>\n</tr>\n</table>\n"
+    },
+    {
+      "case_id": "div-listpages",
+      "source": "[[div]]\n[[module ListPages fullname=\"scp-173\" separate=\"no\"]]\n%%title%%\n[[/module]]\n[[/div]]",
+      "source_sha256": "a0d3fc613ede4edc533f338c5cb3a0fdf0d52478aac847d30adbc9f73f568824",
+      "body_sha256": "ff78b1879c12ec9a1cc1268c3766132d8b68785cb5e67280ab72d5a3a87a242b",
+      "body": "\n\n<div><div class=\"list-pages-box\">    \n\n<p>SCP-173</p>\n\n    \n    \n    \n    </div></div>\n"
+    }
+  ]
+}

@@ -88,6 +88,75 @@ async fn listpages_retained_wikidot_unclosed_head_live_preview_boundaries() {
 }
 
 #[tokio::test]
+async fn block_modules_render_directly_inside_header_cells_and_list_items() {
+    // Anonymous Wikidot PagePreviewModule captures (scp-wiki, 2026-10-11,
+    // issue #2348): ListPages and Rate output inside [[hcell]] and [[li]] is a
+    // direct child of <th>/<li>, exactly like the [[cell]] (<td>) control. The
+    // internal compat placeholder must never reach the rendered body.
+    let runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+
+    let list_pages = "[[module ListPages category=\"fragment\"]]\n%%title%%\n[[/module]]";
+    let rate = "[[module Rate]]";
+    for (module, rendered_box) in [
+        (list_pages, r#"<div class="list-pages-box">"#),
+        (rate, r#"<div class="page-rate-widget-box">"#),
+    ] {
+        for (source, parent) in [
+            (
+                format!(
+                    "[[table]]\n[[row]]\n[[hcell]]\n{module}\n[[/hcell]]\n[[/row]]\n[[/table]]"
+                ),
+                "<th>",
+            ),
+            (
+                format!(
+                    "[[table]]\n[[row]]\n[[hcell class=\"namerow\" colspan=\"2\"]]\n{module}\n[[/hcell]]\n[[/row]]\n[[/table]]"
+                ),
+                r#"<th class="namerow" colspan="2">"#,
+            ),
+            (
+                format!(
+                    "[[table]]\n[[row]]\n[[cell]]\n{module}\n[[/cell]]\n[[/row]]\n[[/table]]"
+                ),
+                "<td>",
+            ),
+            (
+                format!("[[ul]]\n[[li]]\n{module}\n[[/li]]\n[[/ul]]"),
+                "<li>",
+            ),
+            (
+                format!("[[ol]]\n[[li]]\n{module}\n[[/li]]\n[[/ol]]"),
+                "<li>",
+            ),
+        ] {
+            let body = RenderService::render_wikidot_page_preview(
+                runner.context(),
+                site.site.site_id,
+                "block module container probe",
+                source.clone(),
+            )
+            .await
+            .expect("the block module container preview should render")
+            .html_output
+            .body;
+
+            assert!(
+                body.contains(&format!("{parent}{rendered_box}")),
+                "{source}\n{body}"
+            );
+            assert!(
+                !body.contains("WIKIJUMPWIKIDOTCOMPAT"),
+                "the compat placeholder leaked:\n{source}\n{body}"
+            );
+        }
+    }
+
+    runner.teardown().await;
+}
+
+#[tokio::test]
 async fn syntax_preview_preserves_delayed_listpages_literal() {
     let runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
