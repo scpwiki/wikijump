@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import {test} from "node:test";
 
-import {browserCaptureFailure} from "../scripts/capture-browser-rendering.mjs";
+import {browserCaptureFailure, browserCaptureFailureDiagnostic} from "../scripts/capture-browser-rendering.mjs";
 import {
   buildEvidenceRecord,
   compactVisibleText,
@@ -28,6 +28,19 @@ test("browser capture failure preserves both operation and cleanup errors", () =
   assert.equal(browserCaptureFailure(captureError, null), captureError);
   assert.equal(browserCaptureFailure(null, cleanupError), cleanupError);
   assert.equal(browserCaptureFailure(null, null), null);
+});
+
+test("CLI reports both browser capture and cleanup failures without leaking request secrets", () => {
+  const failure = browserCaptureFailure(
+    new Error("capture gate refused https://scp-wiki.wikidot.com/theme:yossistyle?token=abc123"),
+    new Error("cleanup denied: authorization=topsecret"),
+  );
+  const rendered = browserCaptureFailureDiagnostic(failure);
+  assert.match(rendered, /^browser capture and cleanup both failed/m);
+  assert.match(rendered, /capture: capture gate refused https:\/\/scp-wiki\.wikidot\.com\/theme:yossistyle\?\[redacted\]/m);
+  assert.match(rendered, /cleanup: cleanup denied: authorization=\[redacted\]/m);
+  assert.doesNotMatch(rendered, /abc123|topsecret/u);
+  assert.equal(browserCaptureFailureDiagnostic(new Error("simple error")), "simple error");
 });
 
 test("selectInventoryRows intersects explicit fixture ids with shard membership", () => {
