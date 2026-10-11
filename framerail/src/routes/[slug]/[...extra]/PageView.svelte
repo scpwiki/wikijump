@@ -51,6 +51,7 @@
   import PageHead from "./PageHead.svelte"
   import PagePaneContent from "./PagePaneContent.svelte"
   import WikidotFoundPageTags from "./WikidotFoundPageTags.svelte"
+  import WikidotPageInfoBreak from "./WikidotPageInfoBreak.svelte"
 
   import type { PageFile } from "$lib/server/deepwell/page-file"
   import type { PageProps } from "./$types"
@@ -574,6 +575,8 @@
   {:else if data.page_revision?.tags?.length}
     <WikidotFoundPageTags hidden={dataFormEditing} tags={data.page_revision.tags} />
   {/if}
+
+  <WikidotPageInfoBreak />
 
   {#if data.options?.edit}
     <div id="page-options-container" class:hidden={dataFormEditing}>

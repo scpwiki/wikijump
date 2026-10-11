@@ -1,0 +1,80 @@
+{
+  "schema": "wikijump.issue2350-page-info-break-live.v1",
+  "observed_at": "2026-10-11",
+  "acquisition": "anonymous read-only HTTPS GET, one request per URL, no cookies",
+  "issue": 2350,
+  "cases": [
+    {
+      "case_id": "issue2350-scp-wiki-scp-173",
+      "url": "https://scp-wiki.wikidot.com/scp-173",
+      "raw_page_html_sha256": "953f5369b612d20308a14db1eb3d02d40a562929f770e1970762eb43afe18530",
+      "raw_page_html_bytes": 32315,
+      "page_tags_present": true,
+      "page_info_break_count": 1,
+      "page_info_break_element": "<div id=\"page-info-break\"></div>",
+      "tags_before_break": true,
+      "between_break_and_page_options": " ",
+      "break_before_page_options": true
+    },
+    {
+      "case_id": "issue2350-scp-wiki-system-recent-changes",
+      "url": "https://scp-wiki.wikidot.com/system:recent-changes",
+      "raw_page_html_sha256": "7ff239e9a54a7d629a3cc6928c84c5cc9917a4f915594d335520dffcbf75a831",
+      "raw_page_html_bytes": 48270,
+      "page_tags_present": true,
+      "page_info_break_count": 1,
+      "page_info_break_element": "<div id=\"page-info-break\"></div>",
+      "tags_before_break": true,
+      "between_break_and_page_options": " ",
+      "break_before_page_options": true
+    },
+    {
+      "case_id": "issue2350-scp-wiki-nav-side",
+      "url": "https://scp-wiki.wikidot.com/nav:side",
+      "raw_page_html_sha256": "931ab847684d741e4b5abbdd6be103ed6143e959d995c4f439f700cc5e543541",
+      "raw_page_html_bytes": 33492,
+      "page_tags_present": true,
+      "page_info_break_count": 1,
+      "page_info_break_element": "<div id=\"page-info-break\"></div>",
+      "tags_before_break": true,
+      "between_break_and_page_options": " ",
+      "break_before_page_options": true
+    },
+    {
+      "case_id": "issue2350-scp-jp-main",
+      "url": "https://scp-jp.wikidot.com/main",
+      "raw_page_html_sha256": "9a14d25651e5b0756f3883aaf303484f057a540964728c3c7f7618aa492082c4",
+      "raw_page_html_bytes": 66484,
+      "page_tags_present": true,
+      "page_info_break_count": 1,
+      "page_info_break_element": "<div id=\"page-info-break\"></div>",
+      "tags_before_break": true,
+      "between_break_and_page_options": " ",
+      "break_before_page_options": true
+    },
+    {
+      "case_id": "issue2350-scp-jp-nav-side",
+      "url": "https://scp-jp.wikidot.com/nav:side",
+      "raw_page_html_sha256": "d3cf88ba33dc97443f44a9d7f259d51a3996a4a7b98a51d24dcfb07c3c92ba62",
+      "raw_page_html_bytes": 34090,
+      "page_tags_present": false,
+      "page_info_break_count": 1,
+      "page_info_break_element": "<div id=\"page-info-break\"></div>",
+      "tags_before_break": false,
+      "between_break_and_page_options": " ",
+      "break_before_page_options": true
+    },
+    {
+      "case_id": "issue2350-scp-jp-nav-top",
+      "url": "https://scp-jp.wikidot.com/nav:top",
+      "raw_page_html_sha256": "5097e09c15e70ee83e7b5e4f2bcb5ef0cfa2a1031714eb0bbe05891c01b32b0a",
+      "raw_page_html_bytes": 34302,
+      "page_tags_present": false,
+      "page_info_break_count": 1,
+      "page_info_break_element": "<div id=\"page-info-break\"></div>",
+      "tags_before_break": false,
+      "between_break_and_page_options": " ",
+      "break_before_page_options": true
+    }
+  ]
+}
