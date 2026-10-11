@@ -8,6 +8,11 @@
 4. Read the exact Wikidot specification for the behavior you are changing before designing against it. `docs/wikidot-specifications/` is the specification universe; live Wikidot evidence and provenance-backed corpus observations override local Wikijump output.
 5. Finish the branch you enter. A source change is complete only after focused validation, coherent commit/push, normal PR delivery, required acceptance, and any required standing proof or cleanup for that branch.
 
+## WSL Git checkouts
+
+- When this repository is checked out in WSL's Linux filesystem and accessed from Windows through the WSL UNC path, run branch checkout and worktree operations with Linux Git inside that WSL distro. Do not use Windows-native Git or a checkout helper that invokes it against the UNC path: tracked colon-containing paths such as `install/local/wikidot-verification/artifacts/listpages-campaign-inventory/dependency-source-bundle-20260802/sites/icebox/pages/inc:author-table/meta.json` cannot be checked out on Windows.
+- Keep tracked paths unchanged and leave the primary checkout untouched if a compatible WSL worktree cannot be created. This note applies to WSL UNC checkouts; it does not prescribe Git commands for a separate native-Windows checkout.
+
 ## Core invariants
 
 - **Parity first:** preserve evidenced Wikidot DOM, CSS cascade, interaction, temporal states, legacy quirks, escaping, sanitization, HTTP behavior, and security-relevant output. Modernization is not a compatibility justification.
