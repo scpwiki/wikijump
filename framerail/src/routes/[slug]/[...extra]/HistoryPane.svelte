@@ -32,6 +32,7 @@
   }
 
   let { setShowRevision, setRevision, data }: Props = $props()
+  const historyPaneId = $props.id()
 
   const pageLayoutContext = getPageLayoutContext()
 
@@ -327,7 +328,13 @@
       <tbody>
         <tr>
           {#each wikidotHistoryHeaders(data.site.locale) as heading, index (index)}
-            <td>{heading || " "}</td>
+            <td
+              role="columnheader"
+              aria-label={heading
+                ? undefined
+                : `${data.internationalization?.["wiki-page-revision-diff.from"]} / ${data.internationalization?.["wiki-page-revision-diff.to"]}`}
+              >{heading || " "}</td
+            >
           {/each}
         </tr>
         <!-- Here we sort the list in descending order. -->
@@ -337,7 +344,7 @@
             <td>{revisionItem.timeline_number + 1}.</td>
             <td style="width: 5em">
               <input
-                id={revisionItem.history_row_id}
+                id={`${historyPaneId}-from-${revisionItem.timeline_number}`}
                 type="radio"
                 name="from"
                 value={revisionItem.revision_id}
@@ -349,7 +356,7 @@
                 }}
               />
               <input
-                id={revisionItem.history_row_id}
+                id={`${historyPaneId}-to-${revisionItem.timeline_number}`}
                 type="radio"
                 name="to"
                 value={revisionItem.revision_id}
