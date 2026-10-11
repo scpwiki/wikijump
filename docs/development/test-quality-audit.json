@@ -3982,7 +3982,7 @@
     },
     {
       "path": "deepwell/src/services/render/runtime.rs",
-      "sha256": "9dfe6a76e5ae294033c6706922190a04460623c9545ba9fc7b93580db73f8c5b",
+      "sha256": "8f84283aafcbc950dfe8b9d11e51da52152e1c710617eff5f159c6683531fb33",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -8566,7 +8566,7 @@
     },
     {
       "path": "install/local/wikidot-verification/scripts/dependency-closure-report.mjs",
-      "sha256": "80ece7556aae4fe66e2684688581dc6df5920d34b9f018d402dd296c4a4f752d",
+      "sha256": "80fac66c9da83d3f25d65ba934bb54658e130a0055aabc6b0c5f8014c95f6ddf",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -9750,7 +9750,7 @@
     },
     {
       "path": "install/local/wikidot-verification/src/dependency-closure.mjs",
-      "sha256": "6478616d037c564dbbed937eabff85d375534c98a00092e71810329581915a31",
+      "sha256": "c9a6d4dc0416a8e4e4fd414d4360e068c60bc118deafb8f5a6f7cdf69eabb8f8",
       "status": "pending",
       "anchors": [],
       "findings": [],
