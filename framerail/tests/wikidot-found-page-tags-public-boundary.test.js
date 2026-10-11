@@ -80,7 +80,9 @@ const renderFoundPage = (data) =>
   }).body
 
 const assertTagTree = (body, tags, hidden = false) => {
-  const tree = body.match(/<div class="page-tags(?: hidden)?"><span>[\s\S]*?<\/span><\/div>/u)
+  const tree = body.match(
+    /<div class="page-tags(?: hidden)?"><span>[\s\S]*?<\/span><\/div>/u
+  )
   assert.ok(tree, "tag links must retain their native div/span wrappers")
   const root = parse(tree[0]).html.children
   assert.equal(root.length, 1)
@@ -94,13 +96,21 @@ const assertTagTree = (body, tags, hidden = false) => {
   const spans = root[0].children.filter((child) => child.type === "Element")
   assert.equal(spans.length, 1)
   assert.equal(spans[0].name, "span")
-  assert.ok(spans[0].children.every((child) => child.type === "Comment" || child.type === "Element"))
+  assert.ok(
+    spans[0].children.every(
+      (child) => child.type === "Comment" || child.type === "Element"
+    )
+  )
 
   const links = spans[0].children.filter((child) => child.type === "Element")
   assert.deepEqual(
     links.map((link) => ({
-      href: link.attributes.find((attribute) => attribute.name === "href")?.value[0]?.data,
-      label: link.children.filter((child) => child.type === "Text").map((child) => child.data).join("")
+      href: link.attributes.find((attribute) => attribute.name === "href")?.value[0]
+        ?.data,
+      label: link.children
+        .filter((child) => child.type === "Text")
+        .map((child) => child.data)
+        .join("")
     })),
     tags.map((tag) => ({ href: `/system:page-tags/tag/${tag}#pages`, label: tag }))
   )
@@ -138,4 +148,65 @@ test("editing found-page route SSR preserves the hidden page-tags state", () => 
   })
 
   assertTagTree(body, foundPageData.page_revision.tags, true)
+})
+
+// Svelte SSR leaves hydration comments between siblings; drop them (and
+// whitespace) so sibling order can be compared without a backtracking regex.
+const withoutMarkupNoise = (html) =>
+  html
+    .split("<!--")
+    .map((part, index) => (index === 0 ? part : part.slice(part.indexOf("-->") + 3)))
+    .join("")
+    .trim()
+
+const assertPageInfoBreakOrder = (body) => {
+  const breakTag = '<div id="page-info-break"></div>'
+  const breakIndex = body.indexOf(breakTag)
+  assert.notEqual(breakIndex, -1, "found pages must render Wikidot's #page-info-break")
+  assert.equal(body.indexOf('id="page-info-break"', breakIndex + breakTag.length), -1)
+
+  const tagsIndex = body.indexOf('<div class="page-tags')
+  if (tagsIndex !== -1) {
+    assert.ok(tagsIndex < breakIndex, ".page-tags precedes #page-info-break")
+  }
+
+  const optionsIndex = body.indexOf('<div id="page-options-container"')
+  assert.ok(
+    breakIndex < optionsIndex,
+    "#page-info-break precedes #page-options-container"
+  )
+  assert.equal(
+    withoutMarkupNoise(body.slice(breakIndex, optionsIndex)),
+    breakTag,
+    "#page-info-break sits directly between page tags and page options"
+  )
+}
+
+test("found-page route SSR places #page-info-break between page tags and page options", () => {
+  const body = renderFoundPage(foundPageData)
+
+  const tagsEnd = body.indexOf("</span></div>") + "</span></div>".length
+  const breakIndex = body.indexOf('<div id="page-info-break"></div>')
+  assert.ok(tagsEnd > 0 && tagsEnd <= breakIndex)
+  assert.equal(withoutMarkupNoise(body.slice(tagsEnd, breakIndex)), "")
+  assertPageInfoBreakOrder(body)
+})
+
+test("tagless found-page route SSR still renders #page-info-break before page options", () => {
+  const body = renderFoundPage({
+    ...foundPageData,
+    page_revision: { ...foundPageData.page_revision, tags: [] }
+  })
+
+  assertPageInfoBreakOrder(body)
+})
+
+test("editing found-page route SSR keeps #page-info-break before page options", () => {
+  const body = renderFoundPage({
+    ...foundPageData,
+    options: { edit: true },
+    data_form: { fields: [] }
+  })
+
+  assertPageInfoBreakOrder(body)
 })
