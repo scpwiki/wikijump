@@ -3496,11 +3496,25 @@ pub(super) fn localized_runtime_module_label(
     message_key: &str,
     fallback: &str,
 ) -> String {
+    localized_runtime_module_label_from_localizations(
+        ctx.localization(),
+        locale,
+        message_key,
+        fallback,
+    )
+}
+
+pub(super) fn localized_runtime_module_label_from_localizations(
+    localizations: &crate::locales::Localizations,
+    locale: &str,
+    message_key: &str,
+    fallback: &str,
+) -> String {
     let Ok(locales) = parse_locales(&[locale.to_owned()]) else {
         return fallback.to_owned();
     };
     let arguments = fluent::FluentArgs::new();
-    ctx.localization()
+    localizations
         .translate_option(&locales, message_key, &arguments)
         .ok()
         .flatten()
