@@ -176,20 +176,20 @@ const controlBoxes = (page: import("@playwright/test").Page) =>
       const rect = element.getBoundingClientRect()
       return { x: rect.x, right: rect.right, width: rect.width }
     }
-    const buttonByText = (text: string) => {
-      const button = [...form.querySelectorAll("button")].find((candidate) =>
+    const actionByText = (text: string) => {
+      const action = [...form.querySelectorAll("button, a")].find((candidate) =>
         candidate.textContent?.includes(text)
       )
-      if (!button) throw new Error(`missing button: ${text}`)
-      return button
+      if (!action) throw new Error(`missing action: ${text}`)
+      return action
     }
     return {
       form: box(form),
       nameInput: box(form.querySelector('input[name="metaName"]')!),
       contentInput: box(form.querySelector('input[name="metaContent"]')!),
       cancel: box(form.querySelector("button.btn-danger")!),
-      addAllPages: box(buttonByText("Add to All Pages")),
-      addThisPage: box(buttonByText("Add to This Page"))
+      addAllPages: box(actionByText("Add to All Pages")),
+      addThisPage: box(actionByText("Add to This Page"))
     }
   })
 
@@ -241,6 +241,37 @@ test("Edit Meta new-tag form stays bounded at 320px and sends no mutation on can
   const withForm = await measure(page)
   await expectFormBounded(page, before, withForm)
 
+  // Wikidot keeps both source actions as enabled, keyboard-focusable links
+  // even when the fields are empty. Do not activate them here: empty-submit
+  // behavior is not established, and this fixture must make no mutation.
+  const addAllPages = page.getByRole("link", { name: "Add to All Pages" })
+  const addThisPage = page.getByRole("link", { name: "Add to This Page" })
+  await expect(addAllPages).toHaveAttribute("href", "javascript:;")
+  await expect(addThisPage).toHaveAttribute("href", "javascript:;")
+  await expect(addAllPages).toBeEnabled()
+  await expect(addThisPage).toBeEnabled()
+  await page.locator('input[name="metaContent"]').focus()
+  await page.keyboard.press("Tab")
+  await expect(page.locator("#edit-meta-newtag-form .btn-danger")).toBeFocused()
+  await page.keyboard.press("Tab")
+  await expect(addAllPages).toBeFocused()
+  await page.keyboard.press("Tab")
+  await expect(addThisPage).toBeFocused()
+  expect(mutations, "checking blank-state focus must not submit").toEqual([])
+  expect(writeRequests, "checking blank-state focus must not write").toEqual([])
+
+  // Empty activation stays a local no-op until Wikidot's submission result is
+  // evidenced. Keep the affordance clickable without weakening server checks.
+  await addAllPages.click()
+  await addThisPage.click()
+  await expect(page.locator("#edit-meta-newtag-form")).toBeVisible()
+  expect(mutations, "blank Add actions must not mutate persisted metadata").toEqual(
+    []
+  )
+  expect(writeRequests, "blank Add actions must not issue a write request").toEqual(
+    []
+  )
+
   // Fields remain operable through the keyboard.
   await page.locator('input[name="metaName"]').focus()
   await expect(page.locator('input[name="metaName"]')).toBeFocused()
@@ -250,8 +281,8 @@ test("Edit Meta new-tag form stays bounded at 320px and sends no mutation on can
   expect(await page.locator('input[name="metaContent"]').inputValue()).toBe(
     "boundary check"
   )
-  await expect(page.locator('button:has-text("Add to All Pages")')).toBeEnabled()
-  await expect(page.locator('button:has-text("Add to This Page")')).toBeEnabled()
+  await expect(addAllPages).toBeEnabled()
+  await expect(addThisPage).toBeEnabled()
 
   // Cancel discards both draft fields and sends no action-bearing request.
   await page.locator("#edit-meta-newtag-form button.btn-danger").click()
@@ -404,7 +435,7 @@ test("Add to This Page keeps the saveMetaTag wire contract without widening the 
   await expectFormBounded(page, before, withForm)
 
   await page.locator('input[name="metaName"]').fill("description")
-  await page.locator('button:has-text("Add to This Page")').click()
+  await page.getByRole("link", { name: "Add to This Page" }).click()
   // The intercepted save resolves, the pane reloads, and the form closes.
   await expect(page.locator("#edit-meta-newtag-form")).toHaveCount(0)
   await expect(page.locator("#action-area #edit-meta-addbutton")).toBeVisible()
