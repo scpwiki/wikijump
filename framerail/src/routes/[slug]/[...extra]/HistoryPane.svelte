@@ -198,14 +198,22 @@
     ]
   }
 
+  function revisionUnavailableLabel() {
+    const key = "wiki-page-revision-view-unavailable"
+    const translated = data.internationalization?.[key]
+    return translated && translated !== key
+      ? translated
+      : "Historical page snapshot unavailable"
+  }
+
   async function getRevision(
     timelineNumber: number,
     compiledHtml: boolean,
     wikitext: boolean
-  ) {
+  ): Promise<boolean> {
     const entry = revisionMap.get(timelineNumber)
     const revisionNumber = entry?.page_revision_number
-    if (revisionNumber === undefined || revisionNumber === null) return
+    if (revisionNumber === undefined || revisionNumber === null) return false
 
     const res = await fetch("?/revision", {
       method: "POST",
@@ -224,7 +232,7 @@
       { message: string; code: string; data: Record<string, unknown> }
     >(res)
 
-    if (!active) return
+    if (!active) return false
 
     if (result.type === "failure" && result.data?.message) {
       errorPopupState.current = {
@@ -235,7 +243,9 @@
     } else if (result.type === "success" && result.data?.res) {
       setRevision(result.data.res)
       revision = result.data.res
+      return true
     }
+    return false
   }
 
   async function rollbackRevision(timelineNumber: number, comments?: string) {
@@ -358,20 +368,31 @@
             </td>
             <td style="width: 5em" class="optionstd">
               <!-- svelte-ignore a11y_invalid_attribute -->
-              <a
-                href="javascript:;"
-                title={wikidotHistoryActionTitles(data.site.locale).view}
-                onclick={(event) => {
-                  event.stopPropagation()
-                  getRevision(revisionItem.timeline_number, true, false).then(() => {
+              {#if revisionItem.history_kind === "file" && (revisionItem.page_revision_number === null || revisionItem.page_revision_number === undefined)}
+                <span
+                  class="revision-view-unavailable"
+                  aria-label={revisionUnavailableLabel()}
+                  title={revisionUnavailableLabel()}
+                >
+                  {revisionUnavailableLabel()}
+                </span>
+              {:else}
+                <a
+                  href="javascript:;"
+                  title={wikidotHistoryActionTitles(data.site.locale).view}
+                  onclick={async (event) => {
+                    event.stopPropagation()
+                    if (!(await getRevision(revisionItem.timeline_number, true, false))) {
+                      return
+                    }
                     if (!active) return
                     setShowRevision(true)
                     showRevisionSource = false
-                  })
-                }}
-              >
-                V
-              </a>
+                  }}
+                >
+                  V
+                </a>
+              {/if}
               <!-- svelte-ignore a11y_invalid_attribute -->
               <a
                 href="javascript:;"

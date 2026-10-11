@@ -10,7 +10,7 @@ const withBaseUse = (device: (typeof devices)[keyof typeof devices]) => ({
 const config: PlaywrightTestConfig = {
   ...baseConfig,
   testMatch:
-    "**/{append-file-upload-accessible-names,append-file-upload-accessible-names-ja,auth-accessible-names,browser-support,edit-meta-newtag-mobile,forum-start-routes,module-accessible-names,printer-friendly-print-toolbar}.spec.ts",
+    "**/{append-file-upload-accessible-names,append-file-upload-accessible-names-ja,auth-accessible-names,browser-support,edit-meta-newtag-mobile,file-history-view-unavailable,forum-start-routes,module-accessible-names,printer-friendly-print-toolbar}.spec.ts",
   webServer: [
     ...(baseConfig.webServer
       ? Array.isArray(baseConfig.webServer)
@@ -46,7 +46,7 @@ const config: PlaywrightTestConfig = {
     {
       name: "webkit-https-edit-meta",
       testMatch:
-        "**/{append-file-upload-accessible-names,append-file-upload-accessible-names-ja,edit-meta-newtag-mobile}.spec.ts",
+        "**/{append-file-upload-accessible-names,append-file-upload-accessible-names-ja,edit-meta-newtag-mobile,file-history-view-unavailable}.spec.ts",
       use: {
         ...withBaseUse(devices["Desktop Safari"]),
         ignoreHTTPSErrors: true
