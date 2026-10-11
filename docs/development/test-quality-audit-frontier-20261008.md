@@ -198,22 +198,23 @@ a zero). These are strictly ownership diagnostics, **never** evidence that a
 mutant is equivalent or accepted. Run the tool on an immutable source revision
 and do not conflate unit-only, targeted integration or browser coverage.
 
-### No-dependency CI evidence identity gate
+### Historical no-dependency evidence identity check
 
 `node scripts/verify-test-quality-evidence-identities.mjs` is the **repository-only**
-subset of the full audit verification. It runs in `.github/workflows/ci-gate.yaml`
+subset of the full audit verification. The former automatic `CI / gate` workflow
+was removed; this check remains available explicitly in the local workspace,
 without installing packages or contacting external services. It hashes each
 pinned lockfile, production owner source, behavioral test source and frontier
 source; validates the presence of declared test anchors; and fails on missing,
 duplicated or escaping owner identities and symlinks outside the checkout.
-This prevents a merged test addition from silently invalidating a ledger SHA
-while CI claims generated contracts are consistent.
+The check can detect invalid ledger identities without claiming test or
+implementation correctness.
 
 This step intentionally **does not** run `cargo-mutants`, verify frozen replay
 output archives, validate browser/Wikidot observations, or decide whether
 surviving mutants are equivalent. Those require the local full-audit and
-independent compatibility evidence. Treat a passing CI gate as *identity
-consistency*, not test-quality acceptance.
+independent compatibility evidence. Treat a passing local identity check as
+*identity consistency*, not test-quality acceptance.
 
 ## Mutation testing
 
