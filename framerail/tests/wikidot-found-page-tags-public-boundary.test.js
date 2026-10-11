@@ -150,6 +150,15 @@ test("editing found-page route SSR preserves the hidden page-tags state", () => 
   assertTagTree(body, foundPageData.page_revision.tags, true)
 })
 
+// Svelte SSR leaves hydration comments between siblings; drop them (and
+// whitespace) so sibling order can be compared without a backtracking regex.
+const withoutMarkupNoise = (html) =>
+  html
+    .split("<!--")
+    .map((part, index) => (index === 0 ? part : part.slice(part.indexOf("-->") + 3)))
+    .join("")
+    .trim()
+
 const assertPageInfoBreakOrder = (body) => {
   const breakTag = '<div id="page-info-break"></div>'
   const breakIndex = body.indexOf(breakTag)
@@ -166,9 +175,9 @@ const assertPageInfoBreakOrder = (body) => {
     breakIndex < optionsIndex,
     "#page-info-break precedes #page-options-container"
   )
-  assert.match(
-    body.slice(breakIndex, optionsIndex),
-    /^<div id="page-info-break"><\/div>(?:\s|<!--[\s\S]*?-->)*$/u,
+  assert.equal(
+    withoutMarkupNoise(body.slice(breakIndex, optionsIndex)),
+    breakTag,
     "#page-info-break sits directly between page tags and page options"
   )
 }
@@ -176,10 +185,10 @@ const assertPageInfoBreakOrder = (body) => {
 test("found-page route SSR places #page-info-break between page tags and page options", () => {
   const body = renderFoundPage(foundPageData)
 
-  assert.match(
-    body,
-    /<\/span><\/div>(?:\s|<!--[\s\S]*?-->)*<div id="page-info-break"><\/div>/u
-  )
+  const tagsEnd = body.indexOf("</span></div>") + "</span></div>".length
+  const breakIndex = body.indexOf('<div id="page-info-break"></div>')
+  assert.ok(tagsEnd > 0 && tagsEnd <= breakIndex)
+  assert.equal(withoutMarkupNoise(body.slice(tagsEnd, breakIndex)), "")
   assertPageInfoBreakOrder(body)
 })
 
