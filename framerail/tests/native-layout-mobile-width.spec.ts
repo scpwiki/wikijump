@@ -59,14 +59,10 @@ test("native layout and About diagnostics stay within narrow viewports", async (
           }))
           .slice(0, 8)
       }))
-      // The platform SearchAll size=30 input independently extends 7px at
-      // 280px; keep this footer assertion scoped to the footer's own bounds.
-      if (path !== "/platform:search" || width !== 280) {
-        expect(
-          dimensions.document,
-          `${path} at ${width}px: ${JSON.stringify(dimensions)}`
-        ).toBeLessThanOrEqual(dimensions.viewport + 1)
-      }
+      expect(
+        dimensions.document,
+        `${path} at ${width}px: ${JSON.stringify(dimensions)}`
+      ).toBeLessThanOrEqual(dimensions.viewport + 1)
 
       const footer = page.locator(".footer-inner")
       await expect(footer.locator(".footer-item a")).toHaveCount(4)
@@ -94,6 +90,19 @@ test("native layout and About diagnostics stay within narrow viewports", async (
           ])
           expect(text?.trim()).toBe(href)
         }
+      }
+
+      if (path === "/platform:search" && width === 280) {
+        await page.waitForLoadState("networkidle")
+        await page.route("**/search:all/a/pf/q/responsive", async (route) =>
+          route.fulfill({ status: 200, body: "Search route reached" })
+        )
+        const searchForm = page.locator("#search-form-all")
+        await searchForm.locator("#search-form-all-input").fill("responsive")
+        await Promise.all([
+          page.waitForURL(/\/search:all\/a\/pf\/q\/responsive$/u),
+          searchForm.locator("input[type='submit']").click()
+        ])
       }
 
       if (width === 320) {

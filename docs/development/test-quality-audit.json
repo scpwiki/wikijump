@@ -6270,7 +6270,7 @@
     },
     {
       "path": "framerail/src/lib/sigma-esque/sigma-esque.svelte",
-      "sha256": "da1b0fa270b255fdfa05aa4f4b7637c370b77645b3515abb4a9273d8064712de",
+      "sha256": "e2f4ecf3a8ecd52c8b3a18080328cd0e55882941a1133040e8ba1123cb987a56",
       "status": "pending",
       "anchors": [],
       "findings": [],

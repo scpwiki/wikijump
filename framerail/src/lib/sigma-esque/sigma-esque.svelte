@@ -151,6 +151,11 @@
     width: 80vw;
     margin: 2em auto;
 
+    .search-box input[type="text"] {
+      box-sizing: border-box;
+      max-width: 100%;
+    }
+
     hr {
       color: var(--mild-text);
     }
