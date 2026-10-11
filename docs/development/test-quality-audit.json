@@ -6190,7 +6190,7 @@
     },
     {
       "path": "framerail/src/lib/server/wikidot-user-info.js",
-      "sha256": "2883ea94a69fffabafdf94e89ee426c36524e1006d380748b030fbb3dca01183",
+      "sha256": "6ed3acebc9317e58d430ffa8003f851b4e707da68ac782af4ffeb584a9f57e1d",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -7502,7 +7502,7 @@
     },
     {
       "path": "framerail/src/routes/user[x+3a]info/[target]/+page.svelte",
-      "sha256": "4492ff4e322cf1ba499a32a1be8473f34a7b5af088199ea0d806053da0b6e180",
+      "sha256": "5bece1e685485b05c1c66df9170b063c8cde09b992056f1090fa3f05f7ed4e64",
       "status": "pending",
       "anchors": [],
       "findings": [],
