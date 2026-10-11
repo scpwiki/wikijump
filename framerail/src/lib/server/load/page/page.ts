@@ -46,7 +46,8 @@ export async function loadPage(
   const requestLocales = getPreloadRequestLocales(request)
   const backendLocales = getPreloadBackendLocales(requestLocales)
   const articleResponse = await articleView(siteId, backendLocales, route, sessionToken)
-  const { page: response, ...preloadResponse } = articleResponse
+  const { page: articlePage, ...preloadResponse } = articleResponse
+  const response = gateMissingPageCreateSource(articlePage)
   const parentData = finalizePreloadData(preloadResponse, requestLocales)
   const locales = parentData.locales
   const siteLocale = parentData.site.locale
@@ -132,6 +133,26 @@ export async function loadPage(
     locals.wikidotDocument = resolveShellLayoutValue(loadData) === WIKIDOT_LAYOUT
   }
   return loadData
+}
+
+/**
+ * Template wikitext, data-form definitions, and template selections are
+ * create source. They reach the browser only for a viewer Deepwell reports
+ * may create the missing page. Fail closed: a missing or false
+ * `can_create` strips them.
+ */
+function gateMissingPageCreateSource(response: PageView): PageView {
+  if (response.type !== "missing" || response.data.can_create === true) return response
+  return {
+    ...response,
+    data: {
+      ...response.data,
+      new_page_wikitext: null,
+      page_templates: [],
+      selected_template_page_id: null,
+      data_form: null
+    }
+  }
 }
 
 function runRedirect(
