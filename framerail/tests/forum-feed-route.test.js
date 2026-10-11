@@ -20,6 +20,7 @@ let client
 let originalClientRequest
 let feedCalls
 let feedOutput
+let requestedScopeOutput
 
 const feedItem = {
   forum_post_id: 91,
@@ -47,8 +48,9 @@ before(async () => {
   originalClientRequest = client.request
   client.request = async (method, params) => {
     if (method === "wikidot_forum_feed") {
-      feedCalls.push(params.kind)
-      return feedOutput === null ? null : structuredClone(feedOutput)
+      feedCalls.push([params.kind, params.category_id, params.thread_id])
+      if (feedOutput === null) return null
+      return structuredClone({ ...feedOutput, ...requestedScopeOutput })
     }
     throw new Error(`Unexpected Deepwell method ${method}`)
   }
@@ -74,6 +76,7 @@ beforeEach(() => {
     site_description: "Route description",
     items: [feedItem]
   }
+  requestedScopeOutput = { scope: "site" }
 })
 
 test("forum threads feed serves RSS with the forum-threads channel", async () => {
@@ -84,7 +87,7 @@ test("forum threads feed serves RSS with the forum-threads channel", async () =>
 
   assert.equal(response.status, 200)
   assert.equal(response.headers.get("content-type"), "text/xml;charset=utf-8")
-  assert.deepEqual(feedCalls, ["threads"])
+  assert.deepEqual(feedCalls, [["threads", undefined, undefined]])
   assert.match(body, /^<\?xml version="1\.0" encoding="UTF-8" \?>/u)
   assert.match(body, /<title>Route test site - new forum threads<\/title>/u)
   assert.match(body, /<link>https?:\/\/[^<]+\/forum\/start<\/link>/u)
@@ -99,7 +102,7 @@ test("forum posts feed serves RSS with the forum-posts channel", async () => {
 
   assert.equal(response.status, 200)
   assert.equal(response.headers.get("content-type"), "text/xml;charset=utf-8")
-  assert.deepEqual(feedCalls, ["posts"])
+  assert.deepEqual(feedCalls, [["posts", undefined, undefined]])
   assert.match(body, /<title>Route test site - new forum posts<\/title>/u)
   assert.match(body, /<link>https?:\/\/[^<]+\/forum\/start<\/link>/u)
   assert.match(body, /<guid>http:\/\/[^<]+\/forum\/t-42#post-91<\/guid>/u)
@@ -113,7 +116,63 @@ test("forum feed returns 404 when Deepwell yields no feed output", async () => {
   })
 
   assert.equal(response.status, 404)
-  assert.deepEqual(feedCalls, ["threads"])
+  assert.deepEqual(feedCalls, [["threads", undefined, undefined]])
+})
+
+test("category and thread feed scopes resolve the legacy Wikidot feed names", async () => {
+  const scopedCases = [
+    {
+      path: "/feed/forum/ct-50864.xml",
+      call: ["threads", 50864, undefined],
+      scope: "category",
+      category: 50864,
+      channel: /<link>https?:\/\/[^<]+\/forum\/c-50864<\/link>/u
+    },
+    {
+      path: "/feed/forum/cp-50864.xml",
+      call: ["posts", 50864, undefined],
+      scope: "category",
+      category: 50864,
+      channel: /<link>https?:\/\/[^<]+\/forum\/c-50864<\/link>/u
+    },
+    {
+      path: "/feed/forum/t-17768232.xml",
+      call: ["posts", undefined, 17768232],
+      scope: "thread",
+      thread: 17768232,
+      channel: /<link>https?:\/\/[^<]+\/forum\/t-17768232<\/link>/u
+    }
+  ]
+
+  for (const scopedCase of scopedCases) {
+    feedCalls = []
+    requestedScopeOutput = {
+      scope: scopedCase.scope,
+      forum_group_name: "Group",
+      forum_category_id: scopedCase.category,
+      forum_category_name: "Category",
+      forum_thread_id: scopedCase.thread,
+      forum_thread_title: "Thread title"
+    }
+    const response = await fetch(`${baseUrl}${scopedCase.path}`, { headers: siteHeaders })
+    const body = await response.text()
+
+    assert.equal(response.status, 200, scopedCase.path)
+    assert.equal(response.headers.get("content-type"), "text/xml;charset=utf-8")
+    assert.deepEqual(feedCalls, [scopedCase.call])
+    assert.match(body, scopedCase.channel, scopedCase.path)
+  }
+})
+
+test("a hidden category or thread feed scope answers 404 like an unknown one", async () => {
+  feedOutput = null
+
+  const hiddenScopes = ["/feed/forum/ct-50864.xml", "/feed/forum/t-17768232.xml"]
+  for (const shape of hiddenScopes) {
+    const response = await fetch(`${baseUrl}${shape}`, { headers: siteHeaders })
+    await response.text()
+    assert.equal(response.status, 404, shape)
+  }
 })
 
 test("unknown forum feed shapes remain 404 and never reach Deepwell", async () => {
@@ -121,8 +180,9 @@ test("unknown forum feed shapes remain 404 and never reach Deepwell", async () =
     "/feed/forum/threads",
     "/feed/forum/threads.rss",
     "/feed/forum/posts.atom",
-    "/feed/forum/ct-8.xml",
-    "/feed/forum/cp-42.xml"
+    "/feed/forum/ct-.xml",
+    "/feed/forum/ct-abc.xml",
+    "/feed/forum/t--5.xml"
   ]
 
   for (const shape of unknownShapes) {

@@ -324,6 +324,36 @@ export async function pageMetaTags(
   )
 }
 
+export interface WikidotSiteChangesFeedOutput {
+  site_name: string
+  items: {
+    revision_id: number
+    revision_number: number
+    is_new_page: boolean
+    is_file: boolean
+    created_at: string
+    slug: string
+    title: string
+    change_type: string
+    user_id: number
+    user_name: string
+    body_html: string
+  }[]
+}
+
+export async function wikidotSiteChangesFeed(
+  siteId: number,
+  requestContext: RequestContext = {}
+): Promise<WikidotSiteChangesFeedOutput | null> {
+  return client.request(
+    "wikidot_site_changes_feed",
+    {
+      site_id: siteId
+    },
+    requestContext
+  )
+}
+
 export async function pageMetaTagSet(
   siteId: number,
   pageId: number,

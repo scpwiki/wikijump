@@ -3802,6 +3802,11 @@
       "target": "wikijump.deepwell"
     },
     {
+      "source": "deepwell-jsonrpc:wikidot_site_changes_feed",
+      "type": "implemented_by",
+      "target": "wikijump.deepwell"
+    },
+    {
       "source": "deepwell-jsonrpc:wikidot_site_changes_module",
       "type": "implemented_by",
       "target": "wikijump.deepwell"
@@ -4042,12 +4047,22 @@
       "target": "wikijump.framerail"
     },
     {
+      "source": "framerail-route:/common--theme/base/images/feed/feed-icon-14x14.png",
+      "type": "implemented_by",
+      "target": "wikijump.framerail"
+    },
+    {
       "source": "framerail-route:/feed/forum/{feed}",
       "type": "implemented_by",
       "target": "wikijump.framerail"
     },
     {
       "source": "framerail-route:/feed/pages/{argument}/{*extra}",
+      "type": "implemented_by",
+      "target": "wikijump.framerail"
+    },
+    {
+      "source": "framerail-route:/feed/site-changes.xml",
       "type": "implemented_by",
       "target": "wikijump.framerail"
     },
@@ -7101,7 +7116,7 @@
     "schema": "wikijump.ftml_raw_surface_manifest.v1",
     "source": {
       "commit": "e82b6909b7c7d0c2d5cef7514dea0ad3c469c2fb",
-      "tree": "295c0ae2c0d9d8e6019cb62edb0532eafa93f575"
+      "tree": "7306501127266db48484c35d6549a3a850eb0ab2"
     },
     "registries": [
       {
@@ -11400,7 +11415,7 @@
   },
   "provenance": {
     "wikijump": {
-      "source_input_set_sha256": "10f876a13300611386e5dbcb7e9f29ef23bedcb861767337c7dce186b1164bea"
+      "source_input_set_sha256": "b129e6d1c27a0dcfefab3e16be2b7de9a9a4eb68e605dd4470938dcd8676e5ed"
     },
     "ftml": {
       "commit": "e82b6909b7c7d0c2d5cef7514dea0ad3c469c2fb",
@@ -11409,15 +11424,15 @@
     "registries": [
       {
         "path": "deepwell/Cargo.lock",
-        "sha256": "7d89d3d117677a3891d0f319d75864c22887bddd77fecdf4f45b83f358aeb4a7"
+        "sha256": "69bedf2d7f254ce08a6bf793ab4f3ac5c259caedc01b656ebb6fb2d2cbc684f0"
       },
       {
         "path": "deepwell/Cargo.toml",
-        "sha256": "211f5873a2328f20f6c2e037e9cae063fc3a6f1202af8004c451a6d4870e828b"
+        "sha256": "175765e6ffee2f89b71d376d23ebc4ea835375f53fac89aa53b7d88eeac00ba4"
       },
       {
         "path": "deepwell/src/api.rs",
-        "sha256": "f984618edcd5769093d450e97b99a1254042daab419dda9ef288d90309b68f8f"
+        "sha256": "fe7a45ac2db8a976463345b6ab02964cfdf4c9a0aa889d39cdab0cc8a7c3f73b"
       },
       {
         "path": "deepwell/src/endpoints/auth.rs",
@@ -11505,7 +11520,7 @@
       },
       {
         "path": "deepwell/src/endpoints/page.rs",
-        "sha256": "ee5ec6b96f083dd4259ef4f488c1543aa618932b115591e4cccc853ad3dd5a2a"
+        "sha256": "3738ca247efb3cc0b7da248c7c3266b5b5ab33cf163bbcb4fc96d4285c82d16c"
       },
       {
         "path": "deepwell/src/endpoints/parent.rs",
@@ -11553,7 +11568,7 @@
       },
       {
         "path": "docs/development/compatibility-catalog-source-attribution.json",
-        "sha256": "a01cb2dd8fae78d426a07338f4f8d91de26054afddf6b15dfdb2c84e7d0546a3"
+        "sha256": "1a88d1ef212d5755285772f09139584fdc42a1cacf54035836bc038fb5321f57"
       },
       {
         "path": "docs/development/compatibility-surface-semantics.json",
@@ -11561,7 +11576,7 @@
       },
       {
         "path": "docs/development/deepwell-jsonrpc-contract-manifest.json",
-        "sha256": "484d72faa3e9fdd51d33571e00f9561b6574da5362e2dbc60b86fcfd0ef03ecd"
+        "sha256": "e5905e50fb90781aa4a7dcc1331b5af250471654ced9fee8241e6604cd31070a"
       },
       {
         "path": "docs/development/framerail-amc-wire-contracts.json",
@@ -11569,7 +11584,7 @@
       },
       {
         "path": "docs/development/framerail-route-action-evidence.json",
-        "sha256": "44b831b1e61bf66746461c05038ca18d48f7352bda5d31c003019a4d538b97e8"
+        "sha256": "aad6f6687a53e01e99b439d1431391f49fdc86b182dc7cc44cf4ec65474df31b"
       },
       {
         "path": "docs/development/open43-a-actions-membership-closure-audit.json",
@@ -11609,7 +11624,7 @@
       },
       {
         "path": "docs/development/wikidot-page-action-surfaces.json",
-        "sha256": "ef638bb6a5238f85803f3463cb5156da700f170da3e02888654c92e152022202"
+        "sha256": "7bbaa2b0c18372aed724c48c5a880c0fc55123feec72793076fcb0ea0a89ecb4"
       },
       {
         "path": "docs/development/wikidot-py-amc-client-parity.json",
@@ -11625,7 +11640,7 @@
       },
       {
         "path": "docs/development/wws-route-registration-denominator.json",
-        "sha256": "6a7c2d2b9ab7c2cfe4cd04bf5f6345f88493ac328049bb9cd0a5775cf78f7c2e"
+        "sha256": "f491cd4c8b1f67d78fa756addb676309d48deea5c9c24dadab820806d65b27cc"
       },
       {
         "path": "docs/wikidot-specifications/catalog.json",
@@ -11757,7 +11772,7 @@
       },
       {
         "path": "framerail/src/routes/[x+2d]/user/+page.svelte",
-        "sha256": "4def9cb5dfa4985a732b7cf077b84ce1d0ac57dbaa94cdf192d244db105df454"
+        "sha256": "a7c0e1f4a9424f8af1af8f4af44fc9b01d12347b6b4af8939ea4a305ad4c5a34"
       },
       {
         "path": "framerail/src/routes/[x+2d]/wikidot-interwiki/interwikiFrame.html/+server.ts",
@@ -11792,12 +11807,20 @@
         "sha256": "58243be691e16e0f6a075f6a4aa1214fe057e3fa886c0871d1a6e029c599e372"
       },
       {
+        "path": "framerail/src/routes/common--theme/base/images/feed/feed-icon-14x14.png/+server.ts",
+        "sha256": "38f86d15abb60e92ee1b53856073c8d261593bb1217a551af00ba97ee03ed6b5"
+      },
+      {
         "path": "framerail/src/routes/feed/forum/[feed]/+server.ts",
-        "sha256": "969c7914bc3212aeb071489f7c7f7b2f6a44b2ecd6b8a170b6a96846866bf5c7"
+        "sha256": "b6798d410ab3b2cc77282f2842c8511b11e230c90cf6061f277de4c50d0c22da"
       },
       {
         "path": "framerail/src/routes/feed/pages/[argument]/[...extra]/+server.ts",
         "sha256": "0fb5289871a2e6df93f6418afe3f2dfd682e1281f31c55e5e54d665921bc0c22"
+      },
+      {
+        "path": "framerail/src/routes/feed/site-changes.xml/+server.ts",
+        "sha256": "0f506ec9e48a53987e65d557de2f3594388497c4f2205107228162ad471a1f0e"
       },
       {
         "path": "framerail/src/routes/forum/[fallback]/[...extra]/+page.server.ts",
@@ -11857,7 +11880,7 @@
       },
       {
         "path": "framerail/src/routes/user[x+3a]info/[target]/+page.svelte",
-        "sha256": "4492ff4e322cf1ba499a32a1be8473f34a7b5af088199ea0d806053da0b6e180"
+        "sha256": "5bece1e685485b05c1c66df9170b063c8cde09b992056f1090fa3f05f7ed4e64"
       },
       {
         "path": "framerail/src/routes/WikiPageError.svelte",
@@ -11988,13 +12011,13 @@
     ]
   },
   "counts": {
-    "total": 957,
+    "total": 960,
     "by_kind": {
       "catalog_feature": 210,
-      "deepwell_jsonrpc_method": 179,
+      "deepwell_jsonrpc_method": 180,
       "framerail_amc_action_shape": 2,
       "framerail_amc_module_shape": 27,
-      "framerail_route": 31,
+      "framerail_route": 33,
       "framerail_server_action": 107,
       "framerail_xmlrpc_method": 17,
       "missing_page_control": 2,
@@ -28823,7 +28846,7 @@
         ],
         "cases": [],
         "tests": [
-          "deepwell/tests/authoring_boundaries.rs#revision_diff_fails_closed_across_every_source_boundary"
+          "deepwell/tests/rpc_boundary.rs#production_rpc_binds_local_page_actor_only_to_the_editable_site"
         ]
       },
       "evidence": {
@@ -29408,7 +29431,7 @@
         ],
         "cases": [],
         "tests": [
-          "deepwell/tests/user.rs#basic_update"
+          "deepwell/tests/user.rs#avatar_removal_is_owner_only_and_clears_only_the_association"
         ]
       },
       "evidence": {
@@ -30219,6 +30242,51 @@
         "cases": [],
         "tests": [
           "deepwell/tests/list_pages.rs#imported_revision_count_adds_local_lifecycle_revisions_for_order_and_substitution"
+        ]
+      },
+      "evidence": {
+        "status": "available",
+        "references": [
+          "docs/development/deepwell-jsonrpc-contract-manifest.json"
+        ]
+      },
+      "source": {
+        "status": "implemented",
+        "references": [
+          "deepwell/src/endpoints/page.rs"
+        ]
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:deepwell-jsonrpc",
+      "implementation_owners": [
+        "wikijump.deepwell"
+      ]
+    },
+    {
+      "surface_id": "deepwell-jsonrpc:wikidot_site_changes_feed",
+      "kind": "deepwell_jsonrpc_method",
+      "public_reference": [
+        "deepwell/src/api.rs#register:wikidot_site_changes_feed",
+        "deepwell/src/endpoints/page.rs#wikidot_site_changes_feed"
+      ],
+      "existing_refs": {
+        "issues": [
+          1368
+        ],
+        "cases": [],
+        "tests": [
+          "deepwell/tests/page.rs#wikidot_site_changes_feed_is_bounded_newest_first_and_hides_private_pages"
         ]
       },
       "evidence": {
@@ -32253,6 +32321,46 @@
       ]
     },
     {
+      "surface_id": "framerail-route:/common--theme/base/images/feed/feed-icon-14x14.png",
+      "kind": "framerail_route",
+      "public_reference": [
+        "framerail/src/routes/common--theme/base/images/feed/feed-icon-14x14.png/+server.ts#methods:GET"
+      ],
+      "existing_refs": {
+        "issues": [
+          1372
+        ],
+        "cases": [],
+        "tests": [
+          "framerail/tests/wikidot-feed-icon.test.ts#the icon route sets an explicit cache policy and image type without a proxy"
+        ]
+      },
+      "evidence": {
+        "status": "missing",
+        "references": []
+      },
+      "source": {
+        "status": "implemented",
+        "references": []
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:framerail-route",
+      "implementation_owners": [
+        "wikijump.framerail"
+      ]
+    },
+    {
       "surface_id": "framerail-route:/feed/forum/{feed}",
       "kind": "framerail_route",
       "public_reference": [
@@ -32264,7 +32372,8 @@
         ],
         "cases": [],
         "tests": [
-          "framerail/tests/forum-feed.test.ts#forum RSS uses local identifiers, public channel metadata, and safe CDATA"
+          "framerail/tests/forum-feed.test.ts#forum RSS uses local identifiers, public channel metadata, and safe CDATA",
+          "framerail/tests/forum-feed.test.ts#scoped category and thread RSS links resolve legacy Wikidot feed names"
         ]
       },
       "evidence": {
@@ -32305,6 +32414,46 @@
         "cases": [],
         "tests": [
           "framerail/tests/feed-pages-route.test.js#anonymous exact feed/pages renders the generic missing-page shell"
+        ]
+      },
+      "evidence": {
+        "status": "missing",
+        "references": []
+      },
+      "source": {
+        "status": "implemented",
+        "references": []
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:framerail-route",
+      "implementation_owners": [
+        "wikijump.framerail"
+      ]
+    },
+    {
+      "surface_id": "framerail-route:/feed/site-changes.xml",
+      "kind": "framerail_route",
+      "public_reference": [
+        "framerail/src/routes/feed/site-changes.xml/+server.ts#methods:GET"
+      ],
+      "existing_refs": {
+        "issues": [
+          2087
+        ],
+        "cases": [],
+        "tests": [
+          "framerail/tests/site-changes-feed.test.ts#site changes RSS reports the frozen channel and newest-first bounded rows"
         ]
       },
       "evidence": {

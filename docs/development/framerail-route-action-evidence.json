@@ -420,11 +420,42 @@
     {
       "surface_id": "framerail-route:/feed/forum/{feed}",
       "tests": [
-        "framerail/tests/forum-feed.test.ts::forum RSS uses local identifiers, public channel metadata, and safe CDATA"
+        "framerail/tests/forum-feed.test.ts::forum RSS uses local identifiers, public channel metadata, and safe CDATA",
+        "framerail/tests/forum-feed.test.ts::scoped category and thread RSS links resolve legacy Wikidot feed names"
       ],
       "tracking": [
         {
           "issue": 2091
+        },
+        {
+          "issue": 2104
+        }
+      ],
+      "temporal": []
+    },
+    {
+      "surface_id": "framerail-route:/feed/site-changes.xml",
+      "tests": [
+        "framerail/tests/site-changes-feed.test.ts::site changes RSS reports the frozen channel and newest-first bounded rows"
+      ],
+      "tracking": [
+        {
+          "issue": 2087
+        },
+        {
+          "issue": 1372
+        }
+      ],
+      "temporal": []
+    },
+    {
+      "surface_id": "framerail-route:/common--theme/base/images/feed/feed-icon-14x14.png",
+      "tests": [
+        "framerail/tests/wikidot-feed-icon.test.ts::the icon route sets an explicit cache policy and image type without a proxy"
+      ],
+      "tracking": [
+        {
+          "issue": 1372
         }
       ],
       "temporal": []

@@ -60,14 +60,25 @@ export async function wikidotForumModule(
   )
 }
 
+export interface WikidotForumFeedScope {
+  categoryId?: number
+  threadId?: number
+}
+
 export async function wikidotForumFeed(
   siteId: number,
   kind: WikidotForumFeedKind,
-  requestContext: RequestContext = {}
+  requestContext: RequestContext = {},
+  scope: WikidotForumFeedScope = {}
 ): Promise<WikidotForumFeedOutput | null> {
   return client.request(
     "wikidot_forum_feed",
-    { site_id: siteId, kind },
+    {
+      site_id: siteId,
+      kind,
+      category_id: scope.categoryId,
+      thread_id: scope.threadId
+    },
     requestContext
   )
 }

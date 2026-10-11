@@ -72,6 +72,7 @@ mod runtime_page_queries;
 mod search_feed;
 mod service;
 mod site_changes;
+mod site_changes_feed;
 mod site_utility_modules;
 mod structs;
 mod url_arguments;
@@ -90,7 +91,7 @@ pub(crate) use self::diagnostics::{
 };
 pub use self::forum_read_routes::{
     WikidotForumFeedItem, WikidotForumFeedKind, WikidotForumFeedOutput,
-    WikidotForumModuleRequest, WikidotForumModuleResponse,
+    WikidotForumFeedScope, WikidotForumModuleRequest, WikidotForumModuleResponse,
 };
 pub(crate) use self::generator::{
     DEEPWELL_RENDERER_EPOCH, compiled_generator_is_current,
@@ -121,6 +122,10 @@ pub(crate) use self::site_changes::{
 pub use self::site_changes::{
     WikidotSiteChangesFilter, WikidotSiteChangesModuleRequest,
     WikidotSiteChangesModuleResponse,
+};
+pub use self::site_changes_feed::{
+    SITE_CHANGES_FEED_ITEM_LIMIT, WikidotSiteChangesFeedItem,
+    WikidotSiteChangesFeedOutput, wikidot_site_changes_change_type,
 };
 pub use self::structs::{
     RenderOutput, RenderPageOutput, WikidotListPagesFeedInput, WikidotListPagesFeedItem,
