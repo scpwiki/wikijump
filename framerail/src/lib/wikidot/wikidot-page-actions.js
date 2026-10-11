@@ -1,8 +1,6 @@
 import { isJapaneseWikidotLocale } from "./wikidot-locale.js"
 
 const WIKIDOT_SITES_WITHOUT_STANDARD_PAGE_ACTIONS = new Set(["sandbox-for-codex"])
-const escapeHtml = (value) =>
-  value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
 
 /**
  * @typedef {object} WikidotPageActionLabels
@@ -29,9 +27,6 @@ const escapeHtml = (value) =>
  */
 export const isWikidotFragmentPage = (tags) => tags?.includes("fragment") ?? false
 
-export const buildWikidotDiscussButtonHtml = (label) =>
-  `<a href="javascript:;" class="btn btn-default" id="discuss-button" onclick="WIKIDOT.page.listeners.createPageDiscussion(event)">${escapeHtml(label)}</a>`
-
 /**
  * Open the live Wikidot printer-friendly child window for the current page
  * path. The path already begins with `/`, so the route keeps Wikidot's
@@ -49,6 +44,56 @@ export const openWikidotPrinterFriendly = (pagePath, browser = window) =>
  */
 export const sourceShowsStandardWikidotPageActions = (sourceSite) => {
   return !WIKIDOT_SITES_WITHOUT_STANDARD_PAGE_ACTIONS.has(sourceSite ?? "")
+}
+
+/**
+ * @typedef {{
+ *   status?: string
+ *   message?: string
+ *   thread_id?: number
+ *   thread_unix_title?: string
+ * }} WikidotPageDiscussionResponse
+ */
+
+/**
+ * Request the page discussion using Wikidot's ForumAction envelope.
+ *
+ * @param {typeof fetch} fetchImplementation
+ * @param {number} pageId
+ * @returns {Promise<WikidotPageDiscussionResponse>}
+ */
+export const requestWikidotPageDiscussion = async (fetchImplementation, pageId) => {
+  if (!Number.isSafeInteger(pageId) || pageId <= 0) {
+    throw new TypeError("A positive page ID is required to open its discussion.")
+  }
+
+  const form = new URLSearchParams({
+    moduleName: "Empty",
+    page_id: String(pageId),
+    action: "ForumAction",
+    event: "createPageDiscussionThread"
+  })
+  const response = await fetchImplementation("/ajax-module-connector.php", {
+    method: "POST",
+    credentials: "same-origin",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: form.toString()
+  })
+  return response.json()
+}
+
+/** @param {WikidotPageDiscussionResponse} response */
+export const wikidotPageDiscussionPath = (response) => {
+  if (
+    response?.status !== "ok" ||
+    !Number.isSafeInteger(response?.thread_id) ||
+    response.thread_id <= 0 ||
+    typeof response.thread_unix_title !== "string" ||
+    response.thread_unix_title.length === 0
+  ) {
+    return null
+  }
+  return `/forum/t-${response.thread_id}/${response.thread_unix_title}`
 }
 
 /**

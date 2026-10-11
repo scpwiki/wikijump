@@ -22,6 +22,13 @@
  *   tags: string[]
  *   title: string
  *   wikitext: string
+ *   wikidot_snapshot?: {
+ *     source_site: string
+ *     source_revision_count: number
+ *     source_updated_at: string
+ *     imported_rating: number
+ *     comments: number
+ *   }
  * }} FixturePage
  *
  *
@@ -220,6 +227,30 @@ export const pages = {
     rating: 0,
     wikitext: "Imported layout login probe marker.",
     compiled_body_html: "<p>Imported layout login probe marker.</p>"
+  },
+  "wikidot-discussion-probe": {
+    page_id: 3000396,
+    revision_id: 9000396,
+    page_created_at: "2026-07-13T00:00:00Z",
+    page_updated_at: null,
+    page_revision_count: 1,
+    revision_created_at: "2026-07-13T00:00:00Z",
+    revision_user_id: 123,
+    creator_user_id: 123,
+    from_wikidot: true,
+    title: "Discussion action probe",
+    slug: "wikidot-discussion-probe",
+    tags: [],
+    rating: 0,
+    wikitext: "Imported discussion action probe marker.",
+    compiled_body_html: "<p>Imported discussion action probe marker.</p>",
+    wikidot_snapshot: {
+      source_site: "scp-wiki",
+      source_revision_count: 1,
+      source_updated_at: "2026-07-13T00:00:00Z",
+      imported_rating: 0,
+      comments: 2
+    }
   },
   "wikidot-tabview": {
     page_id: 3000320,
@@ -765,7 +796,7 @@ export const toArticleViewResult = (page, siteId = 6000005) => ({
         slug: page.slug,
         tags: page.tags
       },
-      wikidot_snapshot: null,
+      wikidot_snapshot: page.wikidot_snapshot ?? null,
       wikidot_breadcrumbs: [],
       attributions: [],
       page_rating: {

@@ -13,9 +13,10 @@
     getPageFontPreloadHrefs
   } from "$lib/generated-page-styles"
   import {
-    buildWikidotDiscussButtonHtml,
     isWikidotFragmentPage,
-    openWikidotPrinterFriendly
+    openWikidotPrinterFriendly,
+    requestWikidotPageDiscussion,
+    wikidotPageDiscussionPath
   } from "$lib/wikidot/wikidot-page-actions"
   import {
     materializeWikidotRateActionHtml,
@@ -300,6 +301,38 @@
   }
 
   const legacyRequestRuntime = { fetch, deserialize }
+
+  async function navigateWikidotDiscuss(event: MouseEvent) {
+    event.preventDefault()
+    const pageId = data.page?.page_id
+    if (typeof pageId !== "number" || !Number.isSafeInteger(pageId) || pageId <= 0) {
+      return
+    }
+
+    try {
+      const response = await requestWikidotPageDiscussion(fetch, pageId)
+      const discussionPath = wikidotPageDiscussionPath(response)
+      if (discussionPath) {
+        window.location.href = discussionPath
+        return
+      }
+      errorPopupState.current = {
+        state: true,
+        title: data.internationalization?.error ?? "Error",
+        leadIn: "Please note:",
+        message: response.message ?? "Unable to create page discussion",
+        data: null
+      }
+    } catch {
+      errorPopupState.current = {
+        state: true,
+        title: data.internationalization?.error ?? "Error",
+        leadIn: "Please note:",
+        message: "Unable to create page discussion",
+        data: null
+      }
+    }
+  }
 
   function currentRateRegistry() {
     const registry = data.rate_actions
@@ -663,7 +696,16 @@
             {wikidotPageActions.tags}
           </a>
           {#if wikidotPageActions.showDiscuss}
-            {@html buildWikidotDiscussButtonHtml(wikidotPageActions.discuss)}
+            <!-- svelte-ignore a11y_invalid_attribute -->
+            <a
+              id="discuss-button"
+              class="btn btn-default"
+              href="javascript:;"
+              onclick={navigateWikidotDiscuss}
+              type="button"
+            >
+              {wikidotPageActions.discuss}
+            </a>
           {/if}
         {/if}
         <!-- svelte-ignore a11y_invalid_attribute -->

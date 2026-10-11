@@ -2,13 +2,14 @@ import { strict as assert } from "node:assert"
 import test from "node:test"
 
 import {
-  buildWikidotDiscussButtonHtml,
   buildWikidotPageActionLabels,
   formatSigned,
   isWikidotFragmentPage,
   openWikidotPrinterFriendly,
+  requestWikidotPageDiscussion,
   sourceShowsStandardWikidotPageActions,
-  wikidotPageActionVisibility
+  wikidotPageActionVisibility,
+  wikidotPageDiscussionPath
 } from "../src/lib/wikidot/wikidot-page-actions.js"
 
 test("Print opens the live printer-friendly child window without printing the opener", () => {
@@ -22,10 +23,67 @@ test("Print opens the live printer-friendly child window without printing the op
   assert.equal(printed, 0)
 })
 
-test("discussion action uses the frozen Wikidot DOM marker and escapes its label", () => {
+test("page discussion requests use the frozen Wikidot ForumAction form", async () => {
+  const calls = []
+  const result = await requestWikidotPageDiscussion(async (url, options) => {
+    calls.push({ url, options })
+    return {
+      json: async () => ({
+        status: "ok",
+        thread_id: 18232631,
+        thread_unix_title: "lane-4-discussion"
+      })
+    }
+  }, 1469071756)
+
+  assert.equal(calls[0].url, "/ajax-module-connector.php")
+  assert.equal(calls[0].options.method, "POST")
+  assert.equal(calls[0].options.credentials, "same-origin")
   assert.equal(
-    buildWikidotDiscussButtonHtml('Discuss <"unsafe">'),
-    '<a href="javascript:;" class="btn btn-default" id="discuss-button" onclick="WIKIDOT.page.listeners.createPageDiscussion(event)">Discuss &lt;"unsafe"&gt;</a>'
+    calls[0].options.headers["content-type"],
+    "application/x-www-form-urlencoded"
+  )
+  assert.deepEqual(
+    new URLSearchParams(calls[0].options.body),
+    new URLSearchParams({
+      moduleName: "Empty",
+      page_id: "1469071756",
+      action: "ForumAction",
+      event: "createPageDiscussionThread"
+    })
+  )
+  assert.deepEqual(result, {
+    status: "ok",
+    thread_id: 18232631,
+    thread_unix_title: "lane-4-discussion"
+  })
+  assert.equal(wikidotPageDiscussionPath(result), "/forum/t-18232631/lane-4-discussion")
+})
+
+test("invalid Wikidot discussion responses do not create navigation paths", () => {
+  assert.equal(wikidotPageDiscussionPath({ status: "no_page" }), null)
+  assert.equal(
+    wikidotPageDiscussionPath({
+      status: "not_ok",
+      thread_id: 18232631,
+      thread_unix_title: "lane-4-discussion"
+    }),
+    null
+  )
+  assert.equal(
+    wikidotPageDiscussionPath({
+      status: "ok",
+      thread_id: 0,
+      thread_unix_title: "missing"
+    }),
+    null
+  )
+})
+
+test("page discussion requests reject invalid page IDs", async () => {
+  await assert.rejects(
+    requestWikidotPageDiscussion(async () => assert.fail("must not request"), 0),
+    /positive page ID/u
   )
 })
 
