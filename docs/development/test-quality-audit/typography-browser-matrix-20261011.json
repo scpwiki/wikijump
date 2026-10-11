@@ -1,0 +1,99 @@
+{
+  "schema": 1,
+  "captured_at_local_date": "2026-10-11",
+  "observed_live_site": "https://scp-wiki.wikidot.com/theme:yossistyle",
+  "live_data_raw_sha256": "632948f633aea578b55225958521c1f2607e3a9ff873c7e17be2f4db811be08e",
+  "live_oracle_limitation": "Live article is currently YOSSISTYLE CSS THEME with InterVariable, different rendered content and CSS from 2026-07-13 XML-RPC fixture using Verdana; this is not a source-equivalent absolute-font oracle for fixture.",
+  "fixture_source": "framerail/tests/xmlrpc-deepwell-fixture/data.js theme:yossistyle",
+  "recorded_chromium_fixture_reference": "framerail/tests/wikidot-typography-parity.spec.ts",
+  "test_runner": "framerail/tests/playwright-runner.js",
+  "test_command": "cd framerail && node tests/playwright-runner.js wikidot-typography-https.spec.ts --config playwright.wikidot-typography-https.config.ts --reporter=line",
+  "existing_chromium_only_absolute_test_result": {
+    "chromium": "PASS",
+    "firefox": "FAIL (12.7969 CSSOM quantization)",
+    "webkit_http": "FAIL (CSP HTTPS upgrade loses stylesheet)",
+    "mobile_chromium": "FAIL (0.9 content text ratio)"
+  },
+  "new_https_fixture_test": {
+    "chromium_https": "PASS",
+    "firefox_https": "PASS",
+    "webkit_https": "PASS",
+    "mobile_chromium_https": "PASS"
+  },
+  "boundary": "These 4 tests exercise pinned yossistyle CSS relationships and transport on HTTPS. Absolute browser layout/DOM/pixel parity for identical live-authored content is not yet demonstrated.",
+  "source_revision": "c8c8a6031065f60918267810432a5ccb18cb70c2",
+  "live_rows": [
+    {
+      "engine": "chromium",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "url": "https://scp-wiki.wikidot.com/theme:yossistyle",
+      "status": 200,
+      "site_page_title": "YOSSISTYLE CSS THEME - SCP Foundation",
+      "body_font_family": "InterVariable, RedactRect, Inter, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen, Ubuntu, Cantarell, \"Fira Sans\", \"Droid Sans\", \"Helvetica Neue\", sans-serif",
+      "body_px": "15.2px",
+      "paragraph_px": "15.2px",
+      "paragraph_line_height": "22.8px",
+      "title_px": "30.4px",
+      "relative_title": 2.0,
+      "relative_content": 1.0,
+      "failed_requests": 0
+    },
+    {
+      "engine": "firefox",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "url": "https://scp-wiki.wikidot.com/theme:yossistyle",
+      "status": 200,
+      "site_page_title": "YOSSISTYLE CSS THEME - SCP Foundation",
+      "body_font_family": "InterVariable, RedactRect, Inter, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif",
+      "body_px": "15.2031px",
+      "paragraph_px": "15.2031px",
+      "paragraph_line_height": "22.8px",
+      "title_px": "30.4063px",
+      "relative_title": 2.00001,
+      "relative_content": 1.0,
+      "failed_requests": 0
+    },
+    {
+      "engine": "webkit",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "url": "https://scp-wiki.wikidot.com/theme:yossistyle",
+      "status": 200,
+      "site_page_title": "YOSSISTYLE CSS THEME - SCP Foundation",
+      "body_font_family": "InterVariable, RedactRect, Inter, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif",
+      "body_px": "15.2px",
+      "paragraph_px": "15.2px",
+      "paragraph_line_height": "22.799999px",
+      "title_px": "30.4px",
+      "relative_title": 2.0,
+      "relative_content": 1.0,
+      "failed_requests": 0
+    },
+    {
+      "engine": "mobile-chromium",
+      "viewport": {
+        "width": 412,
+        "height": 839
+      },
+      "url": "https://scp-wiki.wikidot.com/theme:yossistyle",
+      "status": 200,
+      "site_page_title": "YOSSISTYLE CSS THEME - SCP Foundation",
+      "body_font_family": "InterVariable, RedactRect, Inter, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen, Ubuntu, Cantarell, \"Fira Sans\", \"Droid Sans\", \"Helvetica Neue\", sans-serif",
+      "body_px": "15.2px",
+      "paragraph_px": "13.68px",
+      "paragraph_line_height": "20.52px",
+      "title_px": "30.4px",
+      "relative_title": 2.0,
+      "relative_content": 0.9,
+      "failed_requests": 0
+    }
+  ]
+}
