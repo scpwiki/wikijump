@@ -9638,7 +9638,7 @@
     },
     {
       "path": "install/local/wikidot-verification/src/corpus-import-page-rpc.mjs",
-      "sha256": "11d06b07cf62f7cb67c4574ef0823d6f97e56ce57d7263080b9a0446d4dc62e2",
+      "sha256": "e1c6f4c049a45e67acfd07ae61ba771df4292ea424d5ba3213deeec348151663",
       "status": "pending",
       "anchors": [],
       "findings": [],
