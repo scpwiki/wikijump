@@ -127,3 +127,115 @@ test("a stale failed file-list response cannot show an error or replace the Rest
   await expect(page.getByText("Stale failure")).toHaveCount(0)
   await expectDeletedRestoreView(page)
 })
+
+test("an initial file-list 503 shows retry instead of a successful empty inventory", async ({
+  page
+}) => {
+  await page.setExtraHTTPHeaders(AUTHENTICATED_HEADERS)
+  const pageErrors: string[] = []
+  const mutationRequests: string[] = []
+  let fileListRequests = 0
+  page.on("pageerror", (error) => pageErrors.push(error.message))
+  page.on("request", (request) => {
+    const search = new URL(request.url()).search
+    if (
+      [
+        "?/fileDelete",
+        "?/fileEdit",
+        "?/fileMove",
+        "?/fileRestore",
+        "?/fileUpload"
+      ].includes(search)
+    ) {
+      mutationRequests.push(search)
+    }
+  })
+
+  await page.route(
+    (url) => url.search === "?/fileList",
+    async (route) => {
+      fileListRequests += 1
+      if (fileListRequests === 1) {
+        await route.fulfill({
+          status: 503,
+          contentType: "text/plain",
+          body: "file service unavailable"
+        })
+        return
+      }
+      await route.continue()
+    }
+  )
+
+  await page.goto("/page-workflow-probe", { waitUntil: "domcontentloaded" })
+  await waitForSvelteDelegatedHandler(page, "#files-button")
+  await page.locator("#files-button").click()
+
+  await expect(page.getByRole("alert")).toContainText("Unable to load files.")
+  await expect(page.locator(".file-list:not(.file-list-message)")).toHaveCount(0)
+  await expect(page.getByRole("button", { name: "Retry", exact: true })).toBeVisible()
+  await expect(page.locator(".file-list .file-row")).toHaveCount(0)
+
+  await page.getByRole("button", { name: "Retry", exact: true }).click()
+  await expect(page.locator(".file-list .file-row")).toHaveCount(1)
+  await expect(page.locator(".file-list")).toContainText(ACTIVE_FILE_NAME)
+  await expect(page.getByRole("alert")).toHaveCount(0)
+  expect(fileListRequests).toBe(2)
+  expect(pageErrors).toEqual([])
+  expect(mutationRequests).toEqual([])
+})
+
+test("a failed file-list refresh retains rows and hides actions until retry", async ({
+  page
+}) => {
+  await page.setExtraHTTPHeaders(AUTHENTICATED_HEADERS)
+  const mutationRequests: string[] = []
+  let deletedListFailed = false
+  page.on("request", (request) => {
+    const search = new URL(request.url()).search
+    if (
+      [
+        "?/fileDelete",
+        "?/fileEdit",
+        "?/fileMove",
+        "?/fileRestore",
+        "?/fileUpload"
+      ].includes(search)
+    ) {
+      mutationRequests.push(search)
+    }
+  })
+
+  await page.route(
+    (url) => url.search === "?/fileList",
+    async (route) => {
+      const body = JSON.parse(route.request().postData() ?? "{}") as { deleted?: boolean }
+      if (body.deleted && !deletedListFailed) {
+        deletedListFailed = true
+        await route.fulfill({
+          status: 503,
+          contentType: "text/plain",
+          body: "file service unavailable"
+        })
+        return
+      }
+      await route.continue()
+    }
+  )
+
+  await page.goto("/page-workflow-probe", { waitUntil: "domcontentloaded" })
+  await waitForSvelteDelegatedHandler(page, "#files-button")
+  await page.locator("#files-button").click()
+  await expect(page.locator(".file-list .file-row")).toHaveCount(1)
+
+  await page
+    .locator(".file-panel")
+    .getByRole("button", { name: "restore", exact: true })
+    .click()
+  await expect(page.getByRole("alert")).toContainText("Unable to load files.")
+  await expect(page.locator(".file-list .file-row")).toContainText(ACTIVE_FILE_NAME)
+  await expect(page.getByRole("button", { name: "delete", exact: true })).toHaveCount(0)
+  await expect(page.locator(".action-row.file-action")).toBeHidden()
+  expect(deletedListFailed).toBe(true)
+  expect(mutationRequests).toEqual([])
+})
