@@ -35,10 +35,6 @@
   } from "$lib/wikidot/wikidot-chrome"
   import { buildGeneratedPageStylesHead } from "$lib/generated-page-styles"
   import {
-    buildWikidotInlineStyleFrameHead,
-    extractWikidotStyleFrameDeclarations
-  } from "$lib/wikidot/wikidot-styleframe"
-  import {
     IOS_ICON_DECLARATIONS,
     IOS_ICON_ROUTE_PREFIX,
     faviconDeclaration,
@@ -179,16 +175,6 @@
   const siteWindowsTile = $derived(windowsTileDeclaration(iconSite))
   const wikidotSiteTagline = $derived(resolveWikidotSiteTagline(viewData))
   const wikidotSessionUserName = $derived(resolveWikidotSessionUserName(viewData))
-  const styleFrameDeclarations = $derived(
-    extractWikidotStyleFrameDeclarations(
-      [
-        viewData?.compiled_top_bar_html,
-        viewData?.compiled_side_bar_html,
-        viewData?.compiled_body_html
-      ],
-      page.url.origin
-    )
-  )
   const pageLayoutContext = $state<PageLayoutContext>({
     current: resolveCurrentLayout()
   })
@@ -277,18 +263,6 @@
     {#if themePreviewUrl}
       <link data-wikidot-theme-preview href={themePreviewUrl} rel="stylesheet" />
     {/if}
-    {#each styleFrameDeclarations as declaration, index (`${declaration.priority}:${declaration.kind}:${declaration.order}:${index}`)}
-      {#if declaration.kind === "theme"}
-        <link
-          data-wikidot-style-preloaded
-          data-wikidot-style-priority={declaration.priority}
-          href={declaration.href}
-          rel="stylesheet"
-        />
-      {:else}
-        {@html buildWikidotInlineStyleFrameHead(declaration)}
-      {/if}
-    {/each}
     {@html buildGeneratedPageStylesHead(viewData?.compiled_body_styles ?? [])}
   {/if}
 </svelte:head>

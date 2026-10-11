@@ -1,0 +1,36 @@
+<!--
+styleFrame.html is embedded into themes to communicate styling changes to
+the main interwikiFrame.html.
+
+To be able to communicate, the two must be on the on the same host.
+-->
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <script type="text/javascript">
+      "use strict";
+
+      // Expose identity for interwikiFrame
+      window.isStyleFrame = true;
+
+      // Find interwikiFrames in the parent that have initialised before
+      // this styleFrame did, and push the query parameters to it
+      Array.prototype.slice.call(parent).forEach(function (frame) {
+        try {
+          if (frame.isInterwikiFrame) {
+            frame.requestStyleChange(location.search);
+          }
+        } catch (error) {
+          // If an interwikiFrame in the parent isn't ready to receive a style
+          // change request, that's fine - it will pull the style from this
+          // styleFrame when it's ready
+          if (!(error instanceof DOMException)) {
+            // All other errors must be reported
+            throw error;
+          }
+        }
+      });
+    </script>
+  </head>
+</html>

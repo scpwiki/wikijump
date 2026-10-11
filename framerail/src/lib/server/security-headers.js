@@ -1,3 +1,6 @@
+import { createHash } from "node:crypto"
+
+import { WIKIDOT_STYLE_FRAME_SCRIPT } from "../wikidot/wikidot-styleframe.js"
 import { parseDeploymentEnvironment } from "./deployment-environment.js"
 
 const SECURITY_HEADERS = {
@@ -36,12 +39,15 @@ const DEPLOYMENT_FILE_SUFFIX = {
 const WIKIDOT_INTERWIKI_FRAME_POLICIES = new Map([
   [
     "/-/wikidot-interwiki/interwikiFrame.html",
-    "default-src 'none'; script-src 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://*.wdfiles.com https://cdn.scpwiki.com https://d3g0gp89917ko0.cloudfront.net https://rsms.me https://maxcdn.bootstrapcdn.com; font-src 'self' data: https://*.wdfiles.com https://cdn.scpwiki.com https://d3g0gp89917ko0.cloudfront.net https://rsms.me https://maxcdn.bootstrapcdn.com; img-src 'self' data: https://*.wdfiles.com https://cdn.scpwiki.com https://d3g0gp89917ko0.cloudfront.net; frame-ancestors 'self'"
+    `default-src 'none'; script-src 'unsafe-inline'; style-src 'self' 'unsafe-inline' ${CURRENT_SITE_FILE_ORIGIN} https://*.wdfiles.com https://cdn.scpwiki.com https://d3g0gp89917ko0.cloudfront.net https://rsms.me https://maxcdn.bootstrapcdn.com; font-src 'self' data: ${CURRENT_SITE_FILE_ORIGIN} https://*.wdfiles.com https://cdn.scpwiki.com https://d3g0gp89917ko0.cloudfront.net https://rsms.me https://maxcdn.bootstrapcdn.com; img-src 'self' data: ${CURRENT_SITE_FILE_ORIGIN} https://*.wdfiles.com https://cdn.scpwiki.com https://d3g0gp89917ko0.cloudfront.net; frame-ancestors 'self'`
   ]
 ])
 const LOCAL_WIKIDOT_STYLEFRAME_PATHNAME = "/-/wikidot-interwiki/styleFrame.html"
-const WIKIDOT_STYLEFRAME_POLICY =
-  "default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'self'"
+// The style frame runs exactly one known script and nothing else.
+const WIKIDOT_STYLEFRAME_SCRIPT_SOURCE = `'sha256-${createHash("sha256")
+  .update(WIKIDOT_STYLE_FRAME_SCRIPT)
+  .digest("base64")}'`
+const WIKIDOT_STYLEFRAME_POLICY = `default-src 'none'; script-src ${WIKIDOT_STYLEFRAME_SCRIPT_SOURCE}; frame-ancestors 'self'`
 
 const shouldSetHsts = (deploymentEnvironment = parseDeploymentEnvironment()) => {
   return deploymentEnvironment !== "local"
