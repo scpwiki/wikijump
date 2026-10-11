@@ -6,7 +6,10 @@ import { spawnSync } from 'node:child_process';
 
 import {runCliIfMain} from '../src/cli-entry.mjs';
 
-import { canReuseExistingPageForDbImport } from '../src/corpus-import-apply-policy.mjs';
+import {
+  canReuseExistingPageForDbImport,
+  initialImportItemState,
+} from '../src/corpus-import-apply-policy.mjs';
 import { assertEmptyDbImportTarget } from '../src/corpus-import-empty-target.mjs';
 import {
   DEFAULT_IMPORT_USER_ID,
@@ -236,6 +239,9 @@ export function parseArgs(argv) {
   }
   if (args.rerenderAfterDbCreate && args.skipRerender) {
     throw new Error('--rerender-after-db-create cannot be combined with --skip-rerender');
+  }
+  if (args.rerenderAfterDbCreate && !args.dryRun && !args.sessionToken) {
+    throw new Error('--rerender-after-db-create requires DEEPWELL_SESSION_TOKEN before importing pages');
   }
   if (args.createMode === 'db' && !args.rerenderAfterDbCreate) args.skipRerender = true;
   if (args.createMode === 'db' && !args.dryRun && !args.textHashCommand && !args.textHashBatchCommand) {
@@ -1218,7 +1224,7 @@ ${values}
     inserted_revisions.page_id,
     input_rows.source_sha256,
     input_rows.meta_sha256,
-    'render_pending'
+    ${sqlQuote(initialImportItemState(args))}
   FROM input_rows
   JOIN inserted_revisions ON inserted_revisions.slug = input_rows.fullname
   RETURNING page_id
@@ -1321,7 +1327,7 @@ async function importRow(args, sqlExecutor, row, importRunId) {
     if (snapshotStatus !== null && args.skipRerender) {
       const attachmentSummary = await materializeRowAttachments(args, row, snapshotStatus.page_id);
       if (!args.dryRun) {
-        await sqlExecutor.runSql(recordItemSql(row, snapshotStatus.page_id, importRunId, 'render_pending', { render: 'matching_snapshot_still_shell_or_pending' }));
+        await sqlExecutor.runSql(recordItemSql(row, snapshotStatus.page_id, importRunId, initialImportItemState(args), { render: 'matching_snapshot_still_shell_or_pending' }));
       }
       return { slug: row.fullname, action: args.dryRun ? 'would_keep_existing_render_pending' : 'kept_existing_render_pending', page_id: snapshotStatus.page_id, revision_id: snapshotStatus.revision_id, ...attachmentSummary };
     }
@@ -1419,7 +1425,7 @@ async function importRow(args, sqlExecutor, row, importRunId) {
 
   if (args.skipRerender) {
     const snapshotSql = upsertSnapshotSql(args, row, pageId, revisionId, importRunId);
-    const renderPendingSql = recordItemSql(row, pageId, importRunId, 'render_pending');
+    const renderPendingSql = recordItemSql(row, pageId, importRunId, initialImportItemState(args));
     let attachmentSummary;
     if (canCombineSnapshotReadyRecord(args)) {
       await sqlExecutor.runSql(`${snapshotSql}\n${renderPendingSql}`);

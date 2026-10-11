@@ -7638,7 +7638,7 @@
     },
     {
       "path": "install/local/wikidot-verification/scripts/apply-corpus-import-manifest.mjs",
-      "sha256": "2b1b5147b0b82a3a94c7f47b385ae68cf7873c1510912d0b6be38f7148fdf347",
+      "sha256": "d82449596a971b3539c8a6f88471d114e2cc9a93b69ec3eca05dd08d2c5a63b4",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -9606,7 +9606,7 @@
     },
     {
       "path": "install/local/wikidot-verification/src/corpus-import-apply-policy.mjs",
-      "sha256": "dd72b9fc95b646432f1631dccd1934d9ec8c9bee7f000421575b7d8d487cce57",
+      "sha256": "b77ec0f6cac27654cb70c856663d66cead8dac804f04eb922924abf51d69a84d",
       "status": "pending",
       "anchors": [],
       "findings": [],

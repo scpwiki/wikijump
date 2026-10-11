@@ -179,6 +179,26 @@ test('apply-corpus-import-manifest accepts opt-in DB rerender dry-run', async ()
   });
 });
 
+test('apply-corpus-import-manifest requires an authenticated session before DB rerender writes', async () => {
+  const { spawnSync } = await import('node:child_process');
+  const packageRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+  const result = spawnSync(process.execPath, [
+    path.join(packageRoot, 'scripts/apply-corpus-import-manifest.mjs'),
+    '--manifest', path.join(packageRoot, 'package.json'),
+    '--create-mode', 'db',
+    '--rerender-after-db-create',
+    '--text-hash-command', 'unused',
+  ], {
+    cwd: packageRoot,
+    encoding: 'utf8',
+    env: { ...process.env, DEEPWELL_SESSION_TOKEN: '' },
+  });
+
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /requires DEEPWELL_SESSION_TOKEN before importing pages/);
+  assert.doesNotMatch(result.stderr, /ENOENT|postgres|docker|S3/u);
+});
+
 test('apply-corpus-import-manifest accepts empty-DB assumption for DB dry-runs', async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'corpus-apply-'));
   writePage(root, 'en', 'scp-173', {
