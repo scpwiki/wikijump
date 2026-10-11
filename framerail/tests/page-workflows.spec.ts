@@ -311,6 +311,59 @@ test("autonumbered page creation follows the assigned slug", async ({ page }) =>
   await expect(page.locator("#page-content")).toContainText("Assigned page body")
 })
 
+test("history compare labels match visible row numbers while preserving timeline values", async ({
+  page,
+  request
+}) => {
+  await request.get(`${FIXTURE_URL}/last-page-read-requests`)
+  await page.setExtraHTTPHeaders(AUTHENTICATED_HEADERS)
+  await page.goto("/authoring-history-probe")
+  await waitForSvelteDelegatedHandler(page, "#history-button")
+  await page.getByRole("link", { name: "history", exact: true }).click()
+
+  const table = page.locator("#action-area table.page-history")
+  await expect(table.locator('tbody > tr[id^="revision-row-"]').first()).toBeVisible()
+  const rowLabels = await table
+    .locator('tbody > tr[id^="revision-row-"] td:first-child')
+    .allTextContents()
+  expect(rowLabels.map((label) => label.trim())).toEqual(["3.", "2."])
+
+  const fromRevision = page.locator("#revision-diff-from")
+  const toRevision = page.locator("#revision-diff-to")
+  const optionLabels = await fromRevision.locator("option").allTextContents()
+  expect(optionLabels.map((label) => label.trim())).toEqual(["2", "3"])
+  expect(
+    await fromRevision
+      .locator("option")
+      .evaluateAll((options) => options.map((option) => option.value))
+  ).toEqual(["1", "2"])
+
+  await fromRevision.selectOption({ label: "3" })
+  await toRevision.selectOption({ label: "2" })
+  await expect(fromRevision).toHaveValue("2")
+  await expect(toRevision).toHaveValue("1")
+  await page.locator(".revision-diff-controls button").nth(1).click()
+
+  await expect
+    .poll(async () => {
+      const response = await request.get(`${FIXTURE_URL}/page-revision-diff-requests`)
+      return (await response.json()).length
+    })
+    .toBe(1)
+  const requests = await request
+    .get(`${FIXTURE_URL}/page-revision-diff-requests`)
+    .then((response) => response.json())
+  expect(requests).toEqual([
+    {
+      site_id: 6000005,
+      page_id: 3000345,
+      from_revision_number: 2,
+      to_revision_number: 1
+    }
+  ])
+  await expect(page.locator(".revision-diff")).toContainText("NEW CURRENT DIFF")
+})
+
 test("history ignores a stale revision diff response", async ({ page, request }) => {
   await request.get(`${FIXTURE_URL}/last-page-read-requests`)
   await page.setExtraHTTPHeaders(AUTHENTICATED_HEADERS)
