@@ -188,6 +188,122 @@ async fn import_user_reuses_known_user_for_existing_active_account() {
 }
 
 #[tokio::test]
+async fn import_user_retries_identical_snapshot_without_creating_local_account() {
+    let runner = TestRunner::setup().await;
+    let (user_id, _, fixture) = fixture_ids();
+    let source_user = import_user(user_id, &fixture, "idempotent");
+
+    ImportService::add_user(runner.context(), source_user)
+        .await
+        .expect("first authoritative source snapshot should import");
+    ImportService::add_user(
+        runner.context(),
+        import_user(user_id, &fixture, "idempotent"),
+    )
+    .await
+    .expect("an identical source snapshot should be an idempotent retry");
+
+    assert!(
+        KnownUser::find_by_id(i64::from(user_id))
+            .one(runner.context().transaction())
+            .await
+            .expect("known-user lookup should succeed")
+            .is_some(),
+    );
+    assert!(
+        WikidotUser::find_by_id(user_id)
+            .one(runner.context().transaction())
+            .await
+            .expect("Wikidot-user lookup should succeed")
+            .is_some(),
+    );
+    assert!(
+        User::find_by_id(i64::from(user_id))
+            .one(runner.context().transaction())
+            .await
+            .expect("local-user lookup should succeed")
+            .is_none(),
+        "importing a source identity must not create an authenticatable local account",
+    );
+}
+
+#[tokio::test]
+async fn import_user_refuses_conflicting_snapshot_for_same_source_id() {
+    let runner = TestRunner::setup().await;
+    let (user_id, _, fixture) = fixture_ids();
+
+    ImportService::add_user(runner.context(), import_user(user_id, &fixture, "original"))
+        .await
+        .expect("first source snapshot should import");
+    let conflict = ImportService::add_user(
+        runner.context(),
+        import_user(user_id, &fixture, "contradiction"),
+    )
+    .await
+    .expect_err("different identity data at the same capture time must fail");
+    assert_contains_error!(conflict, ErrorType::DatabaseImport);
+
+    let stored = WikidotUser::find_by_id(user_id)
+        .one(runner.context().transaction())
+        .await
+        .expect("Wikidot-user lookup should succeed")
+        .expect("original source identity should remain");
+    assert_eq!(
+        stored.name.as_deref(),
+        Some(format!("Import original {fixture}").as_str())
+    );
+    assert_eq!(
+        stored.slug.as_deref(),
+        Some(format!("import-original-{fixture}").as_str())
+    );
+}
+
+#[tokio::test]
+async fn import_user_deleted_snapshot_clears_public_profile_without_local_account() {
+    let runner = TestRunner::setup().await;
+    let (user_id, _, fixture) = fixture_ids();
+    let mut extant = import_user(user_id, &fixture, "deleted-later");
+    extant.real_name = Some("Source public name".to_owned());
+    extant.biography = Some("Source public biography".to_owned());
+    ImportService::add_user(runner.context(), extant)
+        .await
+        .expect("extant source identity should import");
+
+    let mut deleted = import_user(user_id, &fixture, "unused");
+    deleted.fetched_at += time::Duration::seconds(1);
+    deleted.wikidot_user_type = ImportedUserType::Deleted;
+    // A deleted source row carries no public profile data, even if a caller
+    // accidentally supplied stale values alongside the tombstone.
+    deleted.real_name = Some("Must be cleared".to_owned());
+    deleted.biography = Some("Must also be cleared".to_owned());
+    ImportService::add_user(runner.context(), deleted)
+        .await
+        .expect("newer deletion tombstone should refresh the source identity");
+
+    let stored = WikidotUser::find_by_id(user_id)
+        .one(runner.context().transaction())
+        .await
+        .expect("Wikidot-user lookup should succeed")
+        .expect("deleted source identity should remain as a tombstone");
+    assert!(stored.is_deleted);
+    assert!(stored.name.is_none());
+    assert!(stored.slug.is_none());
+    assert!(stored.real_name.is_none());
+    assert!(stored.biography.is_none());
+    assert!(stored.avatar_s3_hash.is_none());
+    assert_eq!(stored.karma, i16::from(KarmaLevel::Zero.value()));
+    assert!(!stored.is_pro);
+    assert!(
+        User::find_by_id(i64::from(user_id))
+            .one(runner.context().transaction())
+            .await
+            .expect("local-user lookup should succeed")
+            .is_none(),
+        "importing a deleted source identity must not create an authenticatable local account",
+    );
+}
+
+#[tokio::test]
 async fn failed_import_rolls_back_new_known_user_with_caller_transaction() {
     let runner = TestRunner::setup().await;
     let state = runner.state().clone();
