@@ -24,7 +24,9 @@ const allocatePort = () =>
 
 const appPort = await allocatePort()
 const fixturePort = await allocatePort()
-const browserSupportHttps = process.argv.includes("playwright.browser-support.config.ts")
+const browserSupportHttps =
+  process.argv.includes("playwright.browser-support.config.ts") ||
+  process.argv.includes("playwright.wikidot-typography-https.config.ts")
 const httpsPort = browserSupportHttps ? await allocatePort() : undefined
 const tlsOwnerToken = browserSupportHttps ? randomUUID() : undefined
 const tlsDirectory = browserSupportHttps
