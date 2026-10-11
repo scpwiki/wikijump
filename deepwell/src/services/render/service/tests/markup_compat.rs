@@ -1254,6 +1254,47 @@ fn localizes_cross_site_wdfiles_local_file_urls_for_imported_corpus_files() {
 }
 
 #[test]
+fn final_render_localizes_restored_wdfiles_urls_in_body_and_generated_styles() {
+    let site = wikidot_site("scp-wiki", Some("scp-wiki.wikidot.com"));
+    let mut config = Config::integration_testing();
+    config.files_domain = ".wjfiles.localhost".to_owned();
+    config.files_domain_no_dot = "wjfiles.localhost".to_owned();
+    let mut body = concat!(
+        r#"<img src="https://scp-wiki.wdfiles.com/local--files/scp-3922/theend.jpg?download=true#full">"#,
+        r#"<img src="https://assets.example.test/local--files/scp-3922/external.png">"#,
+    )
+    .to_owned();
+    let mut styles = vec![
+        r#"@import url("https://scp-wiki.wdfiles.com/local--files/component%3Atheme/font-bauhaus.css");"#.to_owned(),
+        r#".external{background:url(https://assets.example.test/local--files/file.png)}"#.to_owned(),
+    ];
+
+    // The final-output pass runs after compatibility placeholders and
+    // generated module output have been restored by the renderer.
+    RenderService::localize_wikidot_render_output_file_urls(
+        &mut body,
+        &mut styles,
+        Some(&site),
+        &config,
+    );
+
+    assert_eq!(
+        body,
+        concat!(
+            r#"<img src="https://scp-wiki.wjfiles.localhost/local--files/scp-3922/theend.jpg?download=true#full">"#,
+            r#"<img src="https://assets.example.test/local--files/scp-3922/external.png">"#,
+        ),
+    );
+    assert_eq!(
+        styles,
+        [
+            r#"@import url("https://scp-wiki.wjfiles.localhost/local--files/component%3Atheme/font-bauhaus.css");"#,
+            r#".external{background:url(https://assets.example.test/local--files/file.png)}"#,
+        ],
+    );
+}
+
+#[test]
 fn sends_cross_site_wikidot_attachments_directly_to_the_file_host() {
     let site = wikidot_site(
         "scp-wiki-en-corpus-scp9506-slice-v2",
