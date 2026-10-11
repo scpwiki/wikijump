@@ -1227,6 +1227,71 @@ async fn component_css_include_visibility_and_lifecycle_matrix() {
         "an explicit cross-site include may update only through its public source without stale CSS",
     );
 
+    let imported_external_page = create(
+        &mut runner,
+        site.site_id,
+        "component:a1061-imported-external",
+        "A1061 imported external component",
+        "[[div class=\"a1061-imported-external\"]]\nImported cross-site snapshot marker\n[[/div]]",
+    )
+    .await;
+    let import_run_row = runner
+        .context()
+        .transaction()
+        .query_one_raw(Statement::from_string(
+            DatabaseBackend::Postgres,
+            format!(
+                "INSERT INTO wikidot_corpus_import_run (site_id, source_branch, source_site, manifest_sha256, manifest_row_count, complete_inventory, state, summary) VALUES ({}, 'source-bundle', 'a1061-remote', decode(repeat('00', 32), 'hex'), 1, FALSE, 'done', '{{}}'::jsonb) RETURNING import_run_id",
+                site.site_id,
+            ),
+        ))
+        .await
+        .expect("external import run fixture should insert")
+        .expect("external import run should return its ID");
+    let import_run_id = import_run_row
+        .try_get::<i64>("", "import_run_id")
+        .expect("external import run ID should be readable");
+    let source_entity_id = uuid::Uuid::new_v4();
+    runner
+        .context()
+        .transaction()
+        .execute_raw(Statement::from_string(
+            DatabaseBackend::Postgres,
+            format!(
+                "INSERT INTO wikidot_page_snapshot (page_id, source_branch, source_site, source_entity_id, source_fullname, source_created_at, source_updated_at, source_revision_count, imported_rating, comments, source_sha256, meta_sha256, meta_json, last_import_run_id) VALUES ({}, 'source-bundle', 'a1061-remote', '{source_entity_id}', 'component:a1061-imported-external', NOW(), NOW(), 1, 0, 0, decode(repeat('00', 32), 'hex'), decode(repeat('00', 32), 'hex'), '{{}}'::jsonb, {import_run_id})",
+                imported_external_page.page_id,
+            ),
+        ))
+        .await
+        .expect("external source provenance should insert");
+    let imported_external_dependent = create(
+        &mut runner,
+        site.site_id,
+        "a1061-imported-external-dependent",
+        "A1061 imported external dependent",
+        "[[include :a1061-remote:component:a1061-imported-external]]\nDependent body",
+    )
+    .await;
+    let imported_external_output = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site.site_id,
+            "page": imported_external_dependent.page_id,
+            "details": {"compiled_html": true},
+        }),
+    )
+    .expect("the external-source dependent should remain readable");
+    let imported_external_html = imported_external_output
+        .compiled_body_html
+        .as_deref()
+        .expect("external-source dependent should have compiled HTML");
+    assert!(
+        imported_external_html.contains("Imported cross-site snapshot marker")
+            && !imported_external_html.contains("does not exist"),
+        "an explicit cross-site include should resolve its source-site snapshot from the local mirror",
+    );
+
     let deleted_component = create(
         &mut runner,
         site.site_id,
