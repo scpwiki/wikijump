@@ -6638,7 +6638,7 @@
     },
     {
       "path": "framerail/src/lib/wikidot/wikidot-print-view.js",
-      "sha256": "62b57e461786abff2d75470066ec074045afccad9f0f7df12325f5e43ba56065",
+      "sha256": "3c9f72400f3cb95aa2e0fb82e5c525fb1b21aab8e44766306cc5b3837a44ad36",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -7486,7 +7486,7 @@
     },
     {
       "path": "framerail/src/routes/printer--friendly/[...path]/+page.svelte",
-      "sha256": "ac11588f94706805f2bf8f117bb96d6265cac3b54235fcf7a0e5d5a1d762af66",
+      "sha256": "48ea625cdf3e2eeb0dece65b257e1c2d806dde855391125bcd82cf677fa66478",
       "status": "pending",
       "anchors": [],
       "findings": [],
