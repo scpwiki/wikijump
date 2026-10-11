@@ -81,6 +81,7 @@ use deepwell::services::forum_post::{
     CreateForumPost, DeleteForumPost, UpdateForumPost, UpdateForumPostBody,
 };
 use deepwell::services::forum_thread::CreateForumThread;
+use deepwell::services::import::{ImportService, ImportUser, ImportedUserType};
 use deepwell::services::page::{CreatePage, GetPageOutput};
 use deepwell::services::page_draft::{PageDraftPageType, PageDraftService};
 use deepwell::services::page_lock::{CreatePageLockInput, PageLockService};
@@ -136,7 +137,7 @@ use std::panic::{AssertUnwindSafe, resume_unwind};
 use std::time::Duration as StdDuration;
 use time::{Duration, OffsetDateTime};
 
-use ftml::data::{PageInfo, ScoreValue};
+use ftml::data::{KarmaLevel, PageInfo, ScoreValue};
 use ftml::layout::Layout;
 use ftml::settings::{WikitextMode, WikitextSettings};
 use redis::AsyncCommands;
@@ -9919,7 +9920,6 @@ async fn wikidot_user_blocks_match_live_preview_and_saved_page_identity_boundari
                 "($4, NOW() - INTERVAL '1 second', NOW(), FALSE, 'Shared Person', 'shared-person-first', 5, FALSE), ",
                 "($5, NOW() - INTERVAL '1 second', NOW(), FALSE, 'Shared_Person', 'shared-person-second', 5, FALSE), ",
                 "($6, NOW() - INTERVAL '1 second', NOW(), FALSE, 'Éclair\tName\u{00a0}JP', 'unicode-name', 5, FALSE), ",
-                "($7, NOW() - INTERVAL '1 second', NOW(), FALSE, 'Numeric Target', 'numeric-target', 5, FALSE), ",
                 "($8, NOW() - INTERVAL '1 second', NOW(), FALSE, '2', 'display-two', 5, FALSE)",
             ),
             [
@@ -9935,6 +9935,32 @@ async fn wikidot_user_blocks_match_live_preview_and_saved_page_identity_boundari
         ))
         .await
         .expect("user-block Wikidot fixtures should be inserted");
+
+    ImportService::add_user(
+        runner.context(),
+        ImportUser {
+            user_id: i32::try_from(NUMERIC_ID_USER_ID).unwrap(),
+            created_at: OffsetDateTime::UNIX_EPOCH,
+            fetched_at: OffsetDateTime::UNIX_EPOCH + Duration::seconds(1),
+            wikidot_user_type: ImportedUserType::Extant {
+                name: "Numeric Target".to_owned(),
+                slug: "numeric-target".to_owned(),
+            },
+            avatar_uploaded_blob_id: None,
+            real_name: None,
+            gender: None,
+            birthday: None,
+            location: None,
+            biography: None,
+            website: None,
+            karma: KarmaLevel::Three,
+            is_pro: false,
+            importing_user_id: ADMIN_USER_ID,
+            ip_address: common::IP_ADDRESS,
+        },
+    )
+    .await
+    .expect("numeric Wikidot source identity should be materialized through importer");
 
     let source = format!(
         concat!(
