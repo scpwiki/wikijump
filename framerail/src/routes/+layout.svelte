@@ -44,6 +44,10 @@
   import { installWikidotCategories } from "$lib/wikidot/wikidot-categories.js"
   import { installJavascriptAnchorGuard } from "$lib/wikidot/wikidot-javascript-anchors.js"
   import { installWikidotNewPageHelper } from "$lib/wikidot/wikidot-new-page-helper"
+  import {
+    buildWikidotHovertipContainersHtml,
+    installWikidotHovertips
+  } from "$lib/wikidot/wikidot-hovertips"
   import WikidotBottomToolbar from "$lib/wikidot/WikidotBottomToolbar.svelte"
   import WikidotLoginDialog from "$lib/wikidot/WikidotLoginDialog.svelte"
   import { isPlainPrimaryActivation } from "$lib/wikidot/wikidot-login-dialog.js"
@@ -188,6 +192,9 @@
     const uninstallJavascriptAnchorGuard = installJavascriptAnchorGuard(document)
     installWikidotCategories(window)
     installWikidotNewPageHelper(window)
+    const uninstallHovertips = isImportedWikidotLayout
+      ? installWikidotHovertips(document)
+      : () => {}
     const wikidotSearchForm =
       document.querySelector<HTMLFormElement>("#search-top-box-form")
     const wikidotSearchInput = document.querySelector<HTMLInputElement>(
@@ -203,6 +210,7 @@
       stop?.()
       uninstallSearchAll()
       uninstallJavascriptAnchorGuard()
+      uninstallHovertips()
       wikidotSearchForm?.removeEventListener("submit", submitWikidotSearch)
       wikidotSearchInput?.removeEventListener("focus", clearWikidotSearchPrompt)
     }
@@ -386,7 +394,7 @@
               `javascript:;` controls, so they are emitted verbatim rather than
               through `resolve`, which only accepts internal pathnames.
             -->
-            <a href={link.href}>{link.label}</a
+            <a href={link.href} id={link.id}>{link.label}</a
             >{#if index < wikidotFooterLinks.length - 1}
               |
             {/if}
@@ -423,6 +431,9 @@
       {/if}
     {/snippet}
   </Wikidot>
+  {#if isImportedWikidotLayout}
+    {@html buildWikidotHovertipContainersHtml(wikidotLocale)}
+  {/if}
 {:else}
   <SigmaEsque>
     {#snippet header()}
