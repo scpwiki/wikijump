@@ -1,34 +1,4 @@
 /**
- * @param {string | null | undefined} value
- * @returns {string}
- */
-export const escapeStyleFrameHtml = (value) => {
-  return `${value ?? ""}`
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-}
-
-/**
- * @param {string} value
- * @returns {string}
- */
-export const safeInlineStyleFrameCss = (value) => {
-  return value.replace(/<\/(style|script)/giu, "<\\/$1")
-}
-
-/**
- * @param {string | null | undefined} value
- * @returns {boolean}
- */
-export const isUsableStyleFrameCss = (value) => {
-  if (!value) return false
-  const trimmed = value.trim()
-  return trimmed.length > 0 && !["{$css}", "$css"].includes(trimmed)
-}
-
-/**
  * Map Wikidot page-owned local files/code to the current local file host.
  * CDN theme URLs are intentionally preserved; offline mirroring is a later
  * policy slice, not hidden here.

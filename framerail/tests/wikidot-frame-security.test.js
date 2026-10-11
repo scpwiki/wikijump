@@ -1,5 +1,11 @@
 import assert from "node:assert/strict"
+import { createHash } from "node:crypto"
 import test from "node:test"
+
+import {
+  WIKIDOT_STYLE_FRAME_SCRIPT,
+  buildWikidotStyleFrameHtml
+} from "../src/lib/wikidot/wikidot-styleframe.js"
 
 const {
   applyStaticSecurityHeaders,
@@ -41,7 +47,7 @@ test("permits the interwiki frame's required inline presentation", () => {
   assert.match(interwiki.headers.get("content-security-policy") ?? "", /font-src 'self'/u)
 })
 
-test("styleFrame permits inline CSS without permitting scripts", () => {
+test("styleFrame permits only its own Wikidot runtime script", () => {
   const styleFrame = new Response("")
   applyStaticSecurityHeaders(
     styleFrame,
@@ -50,8 +56,42 @@ test("styleFrame permits inline CSS without permitting scripts", () => {
     "local"
   )
   const policy = styleFrame.headers.get("content-security-policy") ?? ""
-  assert.match(policy, /style-src 'unsafe-inline'/u)
-  assert.doesNotMatch(policy, /script-src/u)
+  const scriptHash = createHash("sha256")
+    .update(WIKIDOT_STYLE_FRAME_SCRIPT)
+    .digest("base64")
+  assert.equal(
+    policy,
+    `default-src 'none'; script-src 'sha256-${scriptHash}'; frame-ancestors 'self'`
+  )
+  assert.ok(
+    buildWikidotStyleFrameHtml().includes(
+      `<script>${WIKIDOT_STYLE_FRAME_SCRIPT}</script>`
+    )
+  )
+  assert.doesNotMatch(policy, /unsafe-inline|style-src/u)
+})
+
+test("interwiki frame admits localized themes from the current site's file origin", () => {
+  const interwiki = new Response("")
+  applyStaticSecurityHeaders(
+    interwiki,
+    "/-/wikidot-interwiki/interwikiFrame.html",
+    "scp-wiki",
+    "local",
+    "https://scp-wiki.wikijump.localhost"
+  )
+  const policy = interwiki.headers.get("content-security-policy") ?? ""
+  for (const directive of ["style-src", "font-src", "img-src"]) {
+    assert.match(
+      policy,
+      new RegExp(
+        `${directive} [^;]*https://scp-wiki\\.wjfiles\\.localhost(?:[ ;]|$)`,
+        "u"
+      )
+    )
+  }
+  assert.doesNotMatch(policy, /wikijump-current-site\.invalid/u)
+  assert.doesNotMatch(policy, /https:\/\/[^ ;]*wikidot\.com/u)
 })
 
 test("keeps ordinary pages unframeable", () => {

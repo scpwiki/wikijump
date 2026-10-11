@@ -19,8 +19,17 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
     lang,
     sourcePath: pagename
   })
+  // Wikidot reads the last occurrence of a frame parameter.
+  const preventWikidotBaseStyle =
+    url.searchParams.getAll("preventWikidotBaseStyle").at(-1) === "true"
   const page = sourceUrl ? await fetchCromInterwikiPage(fetch, sourceUrl) : null
-  const body = buildWikidotInterwikiFrameHtml({ community, lang, pagename, page })
+  const body = buildWikidotInterwikiFrameHtml({
+    community,
+    lang,
+    pagename,
+    page,
+    preventWikidotBaseStyle
+  })
 
   return new Response(body, { headers: FRAME_HEADERS })
 }

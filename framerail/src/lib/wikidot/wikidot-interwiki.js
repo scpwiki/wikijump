@@ -14,7 +14,13 @@ query InterwikiQuery($url: URL!) {
 }
 `
 
+import { installWikidotInterwikiStyleRuntime } from "./wikidot-interwiki-style-runtime.js"
+import { localizeWikidotThemeUrl } from "./wikidot-styleframe-contract.js"
+
 const DEFAULT_ICON_URL = "//scp-wiki.wdfiles.com/local--files/nav:side/default.png"
+// Local copy of the Wikidot base stylesheet the interwiki runtime loads at
+// priority -1 (common--theme/base/css/style.css).
+const WIKIDOT_BASE_STYLESHEET = "/wikidot/styles/wikidot-base-165bc434fd1d.css"
 
 /**
  * @typedef {{ label: string; heading: string; url: string }} WikidotInterwikiBranch
@@ -334,10 +340,17 @@ export const extractWikidotInterwikiLinks = ({ community, lang, sourcePath, page
  *   lang: string
  *   pagename: string
  *   page?: Parameters<typeof collectTranslationUrls>[0] | null
+ *   preventWikidotBaseStyle?: boolean
  * }} input
  * @returns {string}
  */
-export const buildWikidotInterwikiFrameHtml = ({ community, lang, pagename, page }) => {
+export const buildWikidotInterwikiFrameHtml = ({
+  community,
+  lang,
+  pagename,
+  page,
+  preventWikidotBaseStyle = false
+}) => {
   const branches = branchesForCommunity(community)
   const branch = branches[lang]
   const links = extractWikidotInterwikiLinks({
@@ -354,20 +367,21 @@ export const buildWikidotInterwikiFrameHtml = ({ community, lang, pagename, page
     })
     .join(" ")
   const display = links.length > 0 ? "" : ' style="display: none"'
-  const localBaseStylesheet =
-    '<link rel="stylesheet" href="/wikidot/styles/wikidot-base-165bc434fd1d.css">'
-  const localThemeStylesheet =
-    community === "scp"
-      ? '<link rel="stylesheet" href="/wikidot/styles/sigma-fe5388a32e12.css">'
-      : ""
+  // Theme styling comes only from the page's styleFrame declarations, as on
+  // Wikidot; the frame itself carries just the base stylesheet.
+  const baseStylesheet = preventWikidotBaseStyle
+    ? ""
+    : `<link rel="stylesheet" href="${WIKIDOT_BASE_STYLESHEET}" class="custom-style" data-priority="-1">`
+  const styleRuntimeConfig = JSON.stringify({
+    siteUrl: (branch?.url ?? "").replace(/\/+$/u, "")
+  }).replaceAll("<", "\\u003c")
 
   return `<!DOCTYPE html>
 <html id="interwiki" style="min-width: max-content">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    ${localBaseStylesheet}
-    ${localThemeStylesheet}
+    ${baseStylesheet}
     <title>Local Wikidot interwiki frame</title>
     <script>
       const resizeLocalInterwikiFrame = () => {
@@ -380,6 +394,7 @@ export const buildWikidotInterwikiFrameHtml = ({ community, lang, pagename, page
       };
       addEventListener("DOMContentLoaded", resizeLocalInterwikiFrame);
       addEventListener("load", resizeLocalInterwikiFrame);
+      (${installWikidotInterwikiStyleRuntime.toString()})(window, ${styleRuntimeConfig}, ${localizeWikidotThemeUrl.toString()});
     </script>
   </head>
   <body data-lang="${escapeHtml(lang)}" data-community="${escapeHtml(community)}" data-pagename="${escapeHtml(pagename)}">
