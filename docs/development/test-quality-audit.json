@@ -6750,7 +6750,7 @@
     },
     {
       "path": "framerail/src/routes/[slug]/[...extra]/+page.server.ts",
-      "sha256": "b6e639fb9a4ce03321e61e963e7d3607cae56fb686e2daf3fb05425dfc8295e7",
+      "sha256": "cff6aedc6529e8d3ec5a44e73b3e01789f32d94d67e6d4b8406d371d57fbce94",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -7470,7 +7470,7 @@
     },
     {
       "path": "framerail/src/routes/printer--friendly/[...path]/+page.server.ts",
-      "sha256": "09cfc8f3d521ded26a3622ae70b947e3c26d01e094adf04b9266f17425c06653",
+      "sha256": "97c6bdefdace4c341e8309f91a8d9ea24eaf20f760f61699bf429f76adccd546",
       "status": "pending",
       "anchors": [],
       "findings": [],
