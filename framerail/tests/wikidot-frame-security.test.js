@@ -6,6 +6,7 @@ import {
   WIKIDOT_STYLE_FRAME_SCRIPT,
   buildWikidotStyleFrameHtml
 } from "../src/lib/wikidot/wikidot-styleframe.js"
+import { auditedExternalAssetOrigins } from "../src/lib/server/audited-external-asset-origins.js"
 
 const {
   applyStaticSecurityHeaders,
@@ -45,6 +46,40 @@ test("permits the interwiki frame's required inline presentation", () => {
     /style-src 'self'/u
   )
   assert.match(interwiki.headers.get("content-security-policy") ?? "", /font-src 'self'/u)
+})
+
+test("interwiki frame uses only the audited external style and font origins", () => {
+  const interwiki = new Response("")
+  applyStaticSecurityHeaders(
+    interwiki,
+    "/-/wikidot-interwiki/interwikiFrame.html",
+    "scp-wiki",
+    "local",
+    "https://scp-wiki.wikijump.localhost"
+  )
+  const policy = interwiki.headers.get("content-security-policy") ?? ""
+  const directiveSources = (name) => {
+    const directive = policy
+      .split(";")
+      .map((value) => value.trim())
+      .find((value) => value.startsWith(`${name} `))
+    return directive?.split(/\s+/u).slice(1) ?? []
+  }
+
+  for (const origin of auditedExternalAssetOrigins("styles")) {
+    assert.ok(
+      directiveSources("style-src").includes(origin),
+      `style-src must include ${origin}`
+    )
+  }
+  for (const origin of auditedExternalAssetOrigins("fonts")) {
+    assert.ok(
+      directiveSources("font-src").includes(origin),
+      `font-src must include ${origin}`
+    )
+  }
+  assert.deepEqual(directiveSources("script-src"), ["'unsafe-inline'"])
+  assert.ok(!policy.includes("https://example.invalid"))
 })
 
 test("styleFrame permits only its own Wikidot runtime script", () => {
