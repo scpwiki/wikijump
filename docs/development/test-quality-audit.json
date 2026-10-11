@@ -6942,7 +6942,7 @@
     },
     {
       "path": "framerail/src/routes/[slug]/[...extra]/PageView.svelte",
-      "sha256": "283fdc111650aa7b772e642b16f41681af0ff96e9b3c8350761660c8d025d399",
+      "sha256": "479202f31725a7dbde057bf712fc1e519e7375c01121280c64a22ef6c624d171",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -11399,6 +11399,22 @@
     {
       "path": "scripts/verify-test-quality-evidence-identities.mjs",
       "sha256": "0d777e939e417d1d397a276e2214108635ec51d0399a4350827f848f46685508",
+      "status": "pending",
+      "anchors": [],
+      "findings": [],
+      "review": null
+    },
+    {
+      "path": "framerail/src/routes/[slug]/[...extra]/responsive-tables.css",
+      "sha256": "ca6113280118aa8174dceee14851bb674a2c76ac83c0b9abc90879a441911064",
+      "status": "pending",
+      "anchors": [],
+      "findings": [],
+      "review": null
+    },
+    {
+      "path": "framerail/vite.playwright-https.config.ts",
+      "sha256": "accee2b4b334e13be56f20bbd652adaf839059e878468d7011738704bbf016ef",
       "status": "pending",
       "anchors": [],
       "findings": [],

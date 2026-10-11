@@ -1,4 +1,6 @@
 <script lang="ts">
+  import "./responsive-tables.css"
+
   import { page } from "$app/state"
   import { goto } from "$app/navigation"
   import { getPageLayoutContext } from "$lib/layout/page-layout-context"
