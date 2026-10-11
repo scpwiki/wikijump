@@ -115,6 +115,10 @@ wiki-page-file-upload =
 
 wiki-page-file-delete =
   .toast = File deleted.
+  .confirmation = Delete this file?
+  .filename = File
+  .page = Page
+  .confirm = Confirm delete
 
 wiki-page-file-move-destination-page = Destination page
 
