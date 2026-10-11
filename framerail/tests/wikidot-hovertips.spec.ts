@@ -71,6 +71,8 @@ test("Wikidot page-option and footer controls show their hovertips", async ({ pa
 
   await page.mouse.move(683, 10)
   await expect(editTip).toBeHidden()
+  await page.locator("#edit-button").focus()
+  await expect(editTip).toBeHidden()
 
   // The hidden second row is in the initial DOM, so its tip is attached too.
   await page.locator("#more-options-button").click()
