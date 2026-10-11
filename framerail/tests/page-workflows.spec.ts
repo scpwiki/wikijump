@@ -679,13 +679,13 @@ test("WIKIDOT History keeps the seven-cell source table contract at phone widths
       "aria-labelledby",
       "wikidot-history-heading"
     )
-    await expect(headerRow.getByRole("columnheader")).toHaveCount(7)
-    await expect(
-      headerRow.getByRole("columnheader", { name: "rev.", exact: true })
-    ).toBeVisible()
-    await expect(
-      headerRow.getByRole("columnheader", { name: /from.*to/iu })
-    ).toBeVisible()
+    // Wikidot's header-look row is seven plain <td> cells: no columnheader
+    // role, no <th>, and no invented accessible names (issue #2323).
+    await expect(headerRow.getByRole("columnheader")).toHaveCount(0)
+    await expect(headerRow.locator("th")).toHaveCount(0)
+    await expect(headerRow.locator("td[role]")).toHaveCount(0)
+    await expect(headerRow.locator("td[aria-label]")).toHaveCount(0)
+    await expect(headerRow.locator("td").first()).toHaveText("rev.")
 
     const rows = table.locator('tbody > tr[id^="revision-row-"]')
     await expect(rows.first().locator("td")).toHaveCount(7)
@@ -706,21 +706,16 @@ test("WIKIDOT History keeps the seven-cell source table contract at phone widths
     )
     await expect(currentCells.nth(6)).toHaveAttribute("style", "font-size: 90%")
     await expect(currentCells.nth(1).locator('input[type="radio"]')).toHaveCount(2)
+    const revisionId =
+      (await currentRow.getAttribute("id"))?.replace("revision-row-", "") ?? ""
     const fromRadio = currentCells.nth(1).locator('input[type="radio"][name="from"]')
     const toRadio = currentCells.nth(1).locator('input[type="radio"][name="to"]')
-    const fromId = await fromRadio.getAttribute("id")
-    const toId = await toRadio.getAttribute("id")
-    expect(fromId).toContain("-from-")
-    expect(toId).toContain("-to-")
-    expect(fromId).not.toBe(toId)
-    await expect(page.locator(`[id="${fromId}"]`)).toHaveCount(1)
-    await expect(page.locator(`[id="${toId}"]`)).toHaveCount(1)
-    const radioIds = await table
-      .locator('input[type="radio"]')
-      .evaluateAll((inputs) => inputs.map((input) => input.id))
-    expect(new Set(radioIds).size).toBe(radioIds.length)
-    await expect(fromRadio).toHaveAccessibleName(/: \d+$/u)
-    await expect(toRadio).toHaveAccessibleName(/: \d+$/u)
+    // Wikidot intentionally duplicates the per-revision numeric id across the
+    // From and To radios of the same row, matching each radio's value
+    // (issue #2323). Unique prefixed ids were a non-source regression.
+    await expect(fromRadio).toHaveAttribute("id", revisionId)
+    await expect(toRadio).toHaveAttribute("id", revisionId)
+    await expect(page.locator(`[id="${revisionId}"]`)).toHaveCount(2)
     await fromRadio.check()
     await toRadio.check()
     await expect(fromRadio).toBeChecked()
