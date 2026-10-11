@@ -726,125 +726,127 @@
       </div>
     </div>
 
-    {#if showPageOptions}
-      <div id="page-options-bottom-2" class="page-options-bottom form-actions">
-        <!-- svelte-ignore a11y_invalid_attribute -->
-        <a
-          id="edit-append-button"
-          class="btn btn-default"
-          href="javascript:;"
-          onclick={() => openPagePane(PagePane.Append)}
-          type="button"
-        >
-          {wikidotPageActions?.append ??
-            data.internationalization?.["wiki-page-action-append"]}
-        </a>
-        <!-- svelte-ignore a11y_invalid_attribute -->
-        <a
-          id="edit-sections-button"
-          class="btn btn-default"
-          href="javascript:;"
-          onclick={toggleEditSections}
-          type="button"
-        >
-          {data.internationalization?.["wiki-page-action-edit-sections"]}
-        </a>
-        <!-- svelte-ignore a11y_invalid_attribute -->
-        <a
-          id="edit-meta-button"
-          class="btn btn-default"
-          href="javascript:;"
-          onclick={() => activatePagePane(PagePane.EditMeta)}
-          type="button"
-        >
-          {data.internationalization?.["wiki-page-action-edit-meta"]}
-        </a>
-        <!-- svelte-ignore a11y_invalid_attribute -->
-        <a
-          id="watchers-button"
-          class="btn btn-default"
-          href="javascript:;"
-          onclick={() => activatePagePane(PagePane.Watchers)}
-          type="button"
-        >
-          {data.internationalization?.["wiki-page-action-watchers"]}
-        </a>
-        <!-- svelte-ignore a11y_invalid_attribute -->
-        <a
-          id="backlinks-button"
-          class="btn btn-default"
-          href="javascript:;"
-          onclick={() => activatePagePane(PagePane.Backlinks)}
-          type="button"
-        >
-          {wikidotPageActions?.backlinks ??
-            data.internationalization?.["wiki-page-action-backlinks"]}
-        </a>
-        <!-- svelte-ignore a11y_invalid_attribute -->
-        <a
-          id="view-source-button"
-          class="btn btn-default"
-          href="javascript:;"
-          onclick={() => (showSource = true)}
-          type="button"
-        >
-          {data.internationalization?.["wiki-page-view-source"]}
-        </a>
-        <!-- svelte-ignore a11y_invalid_attribute -->
-        <a
-          id="layout-button"
-          class="btn btn-default"
-          href="javascript:;"
-          onclick={() => activatePagePane(PagePane.Layout)}
-          type="button"
-        >
-          {data.internationalization?.layout}
-        </a>
-        <!-- svelte-ignore a11y_invalid_attribute -->
-        <a
-          id="parent-page-button"
-          class="btn btn-default"
-          href="javascript:;"
-          onclick={() => openPagePane(PagePane.Parent)}
-          type="button"
-        >
-          {data.internationalization?.parents}
-        </a>
-        <!-- svelte-ignore a11y_invalid_attribute -->
-        <a
-          id="lock-page-button"
-          class="btn btn-default"
-          href="javascript:;"
-          onclick={() => {
-            showSource = false
-            pagePaneState = PagePane.Lock
-          }}
-          type="button"
-        >
-          {data.internationalization?.["wiki-page-action-lock"]}
-        </a>
-        <!-- svelte-ignore a11y_invalid_attribute -->
-        <a
-          id="rename-move-button"
-          class="btn btn-default"
-          href="javascript:;"
-          onclick={() => activatePagePane(PagePane.Move)}
-          type="button"
-        >
-          {data.internationalization?.["wiki-page-action-rename-move"]}
-        </a>
-        <!-- svelte-ignore a11y_invalid_attribute -->
-        <a
-          id="delete-button"
-          class="btn btn-default"
-          href="javascript:;"
-          onclick={() => activatePagePane(PagePane.Delete)}
-          type="button"
-        >
-          {data.internationalization?.delete}
-        </a>
-      </div>
-    {/if}
+    <div
+      id="page-options-bottom-2"
+      class="page-options-bottom form-actions"
+      style:display={showPageOptions ? null : "none"}
+    >
+      <!-- svelte-ignore a11y_invalid_attribute -->
+      <a
+        id="edit-append-button"
+        class="btn btn-default"
+        href="javascript:;"
+        onclick={() => openPagePane(PagePane.Append)}
+        type="button"
+      >
+        {wikidotPageActions?.append ??
+          data.internationalization?.["wiki-page-action-append"]}
+      </a>
+      <!-- svelte-ignore a11y_invalid_attribute -->
+      <a
+        id="edit-sections-button"
+        class="btn btn-default"
+        href="javascript:;"
+        onclick={toggleEditSections}
+        type="button"
+      >
+        {data.internationalization?.["wiki-page-action-edit-sections"]}
+      </a>
+      <!-- svelte-ignore a11y_invalid_attribute -->
+      <a
+        id="edit-meta-button"
+        class="btn btn-default"
+        href="javascript:;"
+        onclick={() => activatePagePane(PagePane.EditMeta)}
+        type="button"
+      >
+        {data.internationalization?.["wiki-page-action-edit-meta"]}
+      </a>
+      <!-- svelte-ignore a11y_invalid_attribute -->
+      <a
+        id="watchers-button"
+        class="btn btn-default"
+        href="javascript:;"
+        onclick={() => activatePagePane(PagePane.Watchers)}
+        type="button"
+      >
+        {data.internationalization?.["wiki-page-action-watchers"]}
+      </a>
+      <!-- svelte-ignore a11y_invalid_attribute -->
+      <a
+        id="backlinks-button"
+        class="btn btn-default"
+        href="javascript:;"
+        onclick={() => activatePagePane(PagePane.Backlinks)}
+        type="button"
+      >
+        {wikidotPageActions?.backlinks ??
+          data.internationalization?.["wiki-page-action-backlinks"]}
+      </a>
+      <!-- svelte-ignore a11y_invalid_attribute -->
+      <a
+        id="view-source-button"
+        class="btn btn-default"
+        href="javascript:;"
+        onclick={() => (showSource = true)}
+        type="button"
+      >
+        {data.internationalization?.["wiki-page-view-source"]}
+      </a>
+      <!-- svelte-ignore a11y_invalid_attribute -->
+      <a
+        id="layout-button"
+        class="btn btn-default"
+        href="javascript:;"
+        onclick={() => activatePagePane(PagePane.Layout)}
+        type="button"
+      >
+        {data.internationalization?.layout}
+      </a>
+      <!-- svelte-ignore a11y_invalid_attribute -->
+      <a
+        id="parent-page-button"
+        class="btn btn-default"
+        href="javascript:;"
+        onclick={() => openPagePane(PagePane.Parent)}
+        type="button"
+      >
+        {data.internationalization?.parents}
+      </a>
+      <!-- svelte-ignore a11y_invalid_attribute -->
+      <a
+        id="lock-page-button"
+        class="btn btn-default"
+        href="javascript:;"
+        onclick={() => {
+          showSource = false
+          pagePaneState = PagePane.Lock
+        }}
+        type="button"
+      >
+        {data.internationalization?.["wiki-page-action-lock"]}
+      </a>
+      <!-- svelte-ignore a11y_invalid_attribute -->
+      <a
+        id="rename-move-button"
+        class="btn btn-default"
+        href="javascript:;"
+        onclick={() => activatePagePane(PagePane.Move)}
+        type="button"
+      >
+        {data.internationalization?.["wiki-page-action-rename-move"]}
+      </a>
+      <!-- svelte-ignore a11y_invalid_attribute -->
+      <a
+        id="delete-button"
+        class="btn btn-default"
+        href="javascript:;"
+        onclick={() => activatePagePane(PagePane.Delete)}
+        type="button"
+      >
+        {data.internationalization?.delete}
+      </a>
+    </div>
 
     <!-- Wikidot hides this inline so theme #action-area rules cannot expose an empty pane. -->
     <div

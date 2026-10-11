@@ -14,6 +14,37 @@ test("Wikidot page-option and footer controls show their hovertips", async ({ pa
 
   const container = page.locator("body > #odialog-hovertips")
   const editTip = container.locator("#edit-button-hovertip")
+  const expectedTipIds = [
+    "edit-button-hovertip",
+    "edit-sections-button-hovertip",
+    "edit-append-button-hovertip",
+    "history-button-hovertip",
+    "discuss-button-hovertip",
+    "files-button-hovertip",
+    "site-tools-button-hovertip",
+    "backlinks-button-hovertip",
+    "rename-move-button-hovertip",
+    "view-source-button-hovertip",
+    "parent-page-button-hovertip",
+    "abuse-report-button-hovertip",
+    "bug-report-button-hovertip",
+    "wikidot-help-button-hovertip",
+    "wikidot-tos-button-hovertip",
+    "wikidot-privacy-button-hovertip"
+  ]
+  await expect
+    .poll(() =>
+      page
+        .locator('[id$="-hovertip"]')
+        .evaluateAll((tips) => tips.map((tip) => tip.id).sort())
+    )
+    .toEqual([...expectedTipIds].sort())
+  const optionsRow = page.locator("#page-options-bottom-2")
+  await expect(optionsRow).toBeAttached()
+  await expect(optionsRow).toBeHidden()
+  await expect(optionsRow).toHaveAttribute("style", /display:\s*none/u)
+  await expect(optionsRow.locator("#edit-sections-button")).toBeAttached()
+
   await expect(editTip).toHaveAttribute("class", "hovertip ")
   await expect(editTip.locator("> div.content")).toHaveText(
     "Click here to edit contents of this page."
@@ -40,13 +71,19 @@ test("Wikidot page-option and footer controls show their hovertips", async ({ pa
 
   await page.mouse.move(683, 10)
   await expect(editTip).toBeHidden()
+  await page.locator("#edit-button").focus()
+  await expect(editTip).toBeHidden()
 
-  // Controls in the second option row get their tips once the row opens.
+  // The hidden second row is in the initial DOM, so its tip is attached too.
   await page.locator("#more-options-button").click()
+  await expect(optionsRow).toBeVisible()
+  await expect(optionsRow).not.toHaveAttribute("style", /display:\s*none/u)
   await page.locator("#view-source-button").hover()
   await expect(container.locator("#view-source-button-hovertip")).toBeVisible()
   await expect(container.locator("#view-source-button-hovertip")).toHaveText(
     "View wiki source for this page without editing."
   )
+  await page.locator("#more-options-button").click()
+  await expect(optionsRow).toBeHidden()
   expect(pageErrors).toEqual([])
 })

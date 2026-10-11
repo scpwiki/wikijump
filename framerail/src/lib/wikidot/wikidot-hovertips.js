@@ -236,8 +236,7 @@ export const installWikidotHovertips = (document) => {
   }
   attachPending()
 
-  // Wikidot renders every option control at load; Framerail renders some only
-  // when their row opens, so attach a tip as soon as its control appears.
+  // Attach tips for compatible controls that are added after initialization.
   const observer = new window.MutationObserver(() => {
     if (pending.length) attachPending()
   })
