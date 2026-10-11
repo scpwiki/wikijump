@@ -198,7 +198,11 @@
           {revisionItem.user_id}
         </div>
         <div class="revision-attribute page">
-          {revisionItem.page_id}
+          {#if data.page?.page_id === revisionItem.page_id && data.site.site_id === revisionItem.site_id}
+            <a href={`/${data.page.slug}`}>{data.page.slug}</a>
+          {:else}
+            <span>—</span>
+          {/if}
         </div>
         <div class="revision-attribute name">
           {revisionItem.name}
