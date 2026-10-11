@@ -11,12 +11,13 @@ const PLATFORM_HEADERS = {
 const APP_URL = `http://localhost:${process.env.PLAYWRIGHT_APP_PORT ?? "4173"}`
 const PAGES = [
   { path: "/-/about", widths: [320, 375, 390, 768] },
+  { path: "/-/register", widths: [375] },
   { path: "/-/login", widths: [280, 320, 360, 375] },
   { path: "/-/user/guest", widths: [280, 320, 360, 375] },
   { path: "/platform:search", widths: [280, 320, 360, 375] }
 ]
 
-test("native footer and About diagnostics stay within narrow viewports", async ({
+test("native layout and About diagnostics stay within narrow viewports", async ({
   page
 }) => {
   for (const { path, widths } of PAGES) {
@@ -27,6 +28,7 @@ test("native footer and About diagnostics stay within narrow viewports", async (
       await page.setViewportSize({ width, height: 812 })
       const response = await page.goto(`${APP_URL}${path}`)
       expect(response?.status(), `${path} at ${width}px`).toBe(200)
+      if (path === "/-/register") await expect(page.locator("#register")).toBeVisible()
 
       const dimensions = await page.evaluate(() => ({
         viewport: document.documentElement.clientWidth,
