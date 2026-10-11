@@ -4,6 +4,7 @@ import {
   WIKIDOT_LAYOUT
 } from "$lib/layout/wikidot-shell-decision"
 import { resolvePageRedirect } from "$lib/server/page-redirect"
+import { pageDeletedGet } from "$lib/server/deepwell/page"
 import { pageErrorStatus } from "$lib/server/load/page/page-error-status.js"
 import { translate } from "$lib/server/deepwell/translate"
 import { articleView } from "$lib/server/deepwell/views"
@@ -19,6 +20,7 @@ import {
   getPreloadRequestLocales
 } from "$lib/server/load/preload"
 import { loadSiteInfo } from "$lib/server/load/site-info"
+import { getRequestContext } from "$lib/server/request-context"
 import {
   buildWikidotRequestInfo,
   requestHostFromRequest
@@ -87,9 +89,25 @@ export async function loadPage(
 
   if (response.type !== "found") {
     const errorForms = await buildPageErrorForms(request, response)
+    let restoreAvailable = false
+    if (response.type === "missing" && sessionToken) {
+      try {
+        const requestContext = locals ? getRequestContext(locals) : undefined
+        const deletedPages = await pageDeletedGet({
+          ...(requestContext ?? {}),
+          siteId,
+          page: slug ?? parentData.site.default_page
+        })
+        restoreAvailable = deletedPages.length > 0
+      } catch {
+        // A failed or unauthorized recoverability lookup must never expose
+        // deleted-page state. The restore action will recheck on activation.
+      }
+    }
     const errorViewData = {
       ...response.data,
       view: response.type,
+      restore_available: restoreAvailable,
       internationalization,
       ...presentation
     }
