@@ -10246,8 +10246,9 @@
       "transaction_isolation": "default",
       "test_witness": {
         "kind": "endpoint_behavioral",
-        "reference": "deepwell/tests/user.rs#basic_update",
+        "reference": "deepwell/tests/user.rs#avatar_removal_is_owner_only_and_clears_only_the_association",
         "alternatives": [
+          "deepwell/tests/user.rs#basic_update",
           "deepwell/tests/user.rs#changing_email_clears_verified_ownership",
           "deepwell/tests/user.rs#display_locale_preferences_round_trip_only_for_the_session_actor",
           "deepwell/tests/user.rs#oversized_avatar_rejection_does_not_promote_blob_or_change_target",

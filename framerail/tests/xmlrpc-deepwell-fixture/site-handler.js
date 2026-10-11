@@ -239,7 +239,11 @@ export const handleSiteRpc = ({ rpcRequest }) => {
           password: "Password",
           "password.placeholder": "Enter password...",
           "confirm-password": "Confirm Password",
-          "mfa-code": "MFA code"
+          "mfa-code": "MFA code",
+          "user-profile-info.remove-avatar": "Remove profile image",
+          "user-profile-info.remove-avatar-pending":
+            "The profile image will be removed when you save.",
+          "user-profile-info.keep-avatar": "Keep profile image"
         }
     const basePageActionLabels = isJapanese
       ? {

@@ -9,20 +9,25 @@
     userData
   }: { data: PageData; userData: InferOutput<typeof userEditSchema> } = $props()
 
-  // svelte-ignore state_referenced_locally
-  let avatar = $state(
+  // The stored avatar follows the server-confirmed user record, so a removal
+  // that reloads the page data stops rendering it without a full navigation.
+  let storedAvatar = $derived(
     data.user?.avatar_s3_hash
       ? `https://${data.site_file_domain}/-/avatar/${data.user.user_id}`
       : null
   )
+  let previewAvatar = $state<string | null>(null)
+  let avatar = $derived(previewAvatar ?? storedAvatar)
   let websiteHref = $derived(normalizePublicWebsiteUrl(userData?.website))
 
   $effect(() => {
     let url: string | undefined
-    // If the user has edited their avatar, use the new avatar
+    // If the user has edited their avatar, preview the new avatar
     if (userData?.avatar) {
       url = URL.createObjectURL(userData.avatar)
-      avatar = url
+      previewAvatar = url
+    } else {
+      previewAvatar = null
     }
 
     return () => {

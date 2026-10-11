@@ -2,6 +2,22 @@ import { fixtureState } from "./context.js"
 import { sendRpcError } from "./response.js"
 
 /**
+ * Session token that `session_get` resolves to the avatar-owning fixture
+ * user.
+ */
+const AVATAR_OWNER_SESSION_TOKEN = "fixture-authenticated-session-token"
+
+/** Stored avatar hash (SHA-512, serialized as Deepwell's byte array). */
+const AVATAR_HASH_HEX = "ab".repeat(64)
+const AVATAR_HASH_BYTES = Array.from(Buffer.from(AVATAR_HASH_HEX, "hex"))
+
+/** A 1x1 PNG served for the stored avatar hash through `blob_get`. */
+const AVATAR_PNG = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
+  "base64"
+)
+
+/**
  * @param {{
  *   rpcRequest: any
  *   request: import("node:http").IncomingMessage
@@ -9,6 +25,18 @@ import { sendRpcError } from "./response.js"
  * }} input
  */
 export const handleProfileRpc = ({ rpcRequest, request, response }) => {
+  if (rpcRequest.method === "blob_get") {
+    if (rpcRequest.params !== AVATAR_HASH_HEX) return undefined
+    return {
+      result: {
+        data: Array.from(AVATAR_PNG),
+        mime: "image/png",
+        size: AVATAR_PNG.length,
+        created_at: "2026-01-01T00:00:00Z"
+      }
+    }
+  }
+
   if (rpcRequest.method === "user_edit") {
     const params = rpcRequest.params ?? {}
     if (
@@ -41,6 +69,7 @@ export const handleProfileRpc = ({ rpcRequest, request, response }) => {
     }
     return { result: fixtureState.authenticatedUser }
   }
+
   if (rpcRequest.method !== "user_view") return undefined
 
   const params = rpcRequest.params ?? {}
@@ -48,14 +77,21 @@ export const handleProfileRpc = ({ rpcRequest, request, response }) => {
     return undefined
   }
 
-  if (
-    params.session_token === "fixture-authenticated-session-token" &&
-    params.user === undefined
-  ) {
+  // The own-account profile follows the live fixture user so a saved edit is
+  // reflected, and carries a stored avatar so the removal action renders and
+  // the `blob_get` fixture above matches. The displayed name stays the avatar
+  // fixture's own name.
+  if (params.session_token === AVATAR_OWNER_SESSION_TOKEN && params.user === undefined) {
     return {
       result: {
         type: "user_found",
-        data: { user: fixtureState.authenticatedUser }
+        data: {
+          user: {
+            ...fixtureState.authenticatedUser,
+            name: PROFILE_FIXTURES["avatar-probe"].name,
+            avatar_s3_hash: AVATAR_HASH_BYTES
+          }
+        }
       }
     }
   }
@@ -69,44 +105,55 @@ export const handleProfileRpc = ({ rpcRequest, request, response }) => {
     : undefined
   if (!profile) return undefined
 
-  return {
-    result: {
-      type: "user_found",
-      data: {
-        user: {
-          user_id: profile.user_id,
-          user_type: "regular",
-          created_at: "2026-01-01T00:00:00Z",
-          updated_at: null,
-          deleted_at: null,
-          from_wikidot: false,
-          name: profile.name,
-          slug: params.user,
-          name_changes_left: 0,
-          last_name_change_added_at: "2026-01-01T00:00:00Z",
-          last_renamed_at: null,
-          email: "",
-          email_verified_at: null,
-          email_validation_info: null,
-          email_validation_at: null,
-          password: "",
-          multi_factor_secret: null,
-          multi_factor_recovery_codes: null,
-          locales: ["en"],
-          avatar_s3_hash: null,
-          forum_signature: null,
-          real_name: null,
-          gender: null,
-          birthday: null,
-          location: null,
-          biography: null,
-          website: profile.website,
-          user_page: null
-        }
+  return userFound({ ...profile, slug: params.user })
+}
+
+/**
+ * @param {{
+ *   user_id: number
+ *   name: string
+ *   website: string | null
+ *   slug: string
+ *   avatar?: boolean
+ * }} profile
+ */
+const userFound = (profile) => ({
+  result: {
+    type: "user_found",
+    data: {
+      user: {
+        user_id: profile.user_id,
+        user_type: "regular",
+        created_at: "2026-01-01T00:00:00Z",
+        updated_at: null,
+        deleted_at: null,
+        from_wikidot: false,
+        name: profile.name,
+        slug: profile.slug,
+        name_changes_left: 0,
+        last_name_change_added_at: "2026-01-01T00:00:00Z",
+        last_renamed_at: null,
+        email: "",
+        email_verified_at: null,
+        email_validation_info: null,
+        email_validation_at: null,
+        password: "",
+        multi_factor_secret: null,
+        multi_factor_recovery_codes: null,
+        locales: ["en"],
+        avatar_s3_hash: profile.avatar ? AVATAR_HASH_BYTES : null,
+        forum_signature: null,
+        real_name: null,
+        gender: null,
+        birthday: null,
+        location: null,
+        biography: null,
+        website: profile.website,
+        user_page: null
       }
     }
   }
-}
+})
 
 /**
  * Public profile fixtures for the website-link contract. `guest` keeps the
@@ -133,5 +180,13 @@ const PROFILE_FIXTURES = {
     user_id: 987656,
     name: "Website Unsafe Probe",
     website: ["javascript", "alert(1)"].join(":")
+  },
+  // Owned by the authenticated fixture session (user 6000008) and stored with an
+  // avatar, so the own and public profiles both render the avatar image.
+  "avatar-probe": {
+    user_id: 6000008,
+    name: "Avatar Probe",
+    website: null,
+    avatar: true
   }
 }
