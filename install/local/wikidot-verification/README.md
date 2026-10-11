@@ -239,6 +239,22 @@ node install/local/wikidot-verification/scripts/apply-corpus-import-manifest.mjs
 
 After import, run the saved-page rerender command above for the same case IDs and exact runtime identity, then run the HTTPS differential.
 
+### Report and repair include-closure source drift
+
+A mirrored page renders through every page it includes, so a stale theme or component source changes the page even when the page itself is current. For example, an older `theme:basalt` revision lacks a later CSS rule, and every Basalt page then gets the old cascade. Report the drift of a page's transitive include closure against the canonical corpus with:
+
+```sh
+node install/local/wikidot-verification/scripts/report-mirror-include-drift.mjs \
+  --corpus-root /absolute/path/to/canonical-corpus \
+  --root scp-9506 \
+  --site-id <scp-wiki site id> \
+  --db-container <database container>
+```
+
+The command is read-only. It follows same-site `[[include]]` targets (skipping other sites, include-variable targets, and escaped documentation text), compares each page's current local revision source with the corpus source, and exits nonzero when any page is `drift`, `local_missing`, or `corpus_missing`. Before acting on a report, confirm the corpus slugs are current against live Wikidot as the corpus contract requires.
+
+Repair drifted pages as new revisions: build an import manifest for exactly the drifted slugs with `build-corpus-import-manifest.mjs --fullname <slug>...`, apply it with `apply-corpus-import-manifest.mjs --create-mode db --replace-existing`, rerender the dependents, and rerun the report until it exits zero. `--replace-existing` appends a revision; it never rewrites or deletes existing rows.
+
 ### Verify imported source integrity
 
 After materializing corpus pages, compare the selected local page's current revision source, stored corpus snapshot hash, latest import state, and (for selected complex canaries) compiled body length against the exact manifest source files. The command is read-only and exits nonzero for missing pages, changed or blank source, absent/mismatched provenance, incomplete import state, or a required empty body. Select the correct site ID explicitly when the local stack has more than one site:
