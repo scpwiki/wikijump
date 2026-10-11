@@ -58,6 +58,39 @@ pub enum WikidotForumFeedKind {
     Posts,
 }
 
+/// The Wikidot scope of a forum RSS feed.
+///
+/// Wikidot publishes one site-wide feed pair (`/feed/forum/threads.xml`,
+/// `/feed/forum/posts.xml`) plus the scoped family
+/// (`/feed/forum/ct-<category-id>.xml`, `/feed/forum/cp-<category-id>.xml`
+/// and `/feed/forum/t-<thread-id>.xml`). The IDs in the scoped routes are the
+/// same identifiers Wikidot exposes in the HTML forum routes; imported objects
+/// carry their legacy Wikidot ID directly (see `docs/compatibility-ids.md`), so
+/// locally created objects share one ID space and resolve the same way.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum WikidotForumFeedScope {
+    Site,
+    Category(i64),
+    Thread(i64),
+}
+
+impl WikidotForumFeedScope {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Site => "site",
+            Self::Category(_) => "category",
+            Self::Thread(_) => "thread",
+        }
+    }
+
+    pub fn id(self) -> Option<i64> {
+        match self {
+            Self::Site => None,
+            Self::Category(id) | Self::Thread(id) => Some(id),
+        }
+    }
+}
+
 #[derive(Clone, Debug, Serialize)]
 pub struct WikidotForumFeedItem {
     pub forum_post_id: i64,
@@ -80,9 +113,29 @@ pub struct WikidotForumFeedItem {
 
 #[derive(Clone, Debug, Serialize)]
 pub struct WikidotForumFeedOutput {
+    pub scope: String,
     pub site_name: String,
     pub site_description: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub forum_group_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub forum_category_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub forum_category_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub forum_thread_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub forum_thread_title: Option<String>,
     pub items: Vec<WikidotForumFeedItem>,
+}
+
+#[derive(Clone, Debug)]
+struct ForumFeedScopeMetadata {
+    group_name: String,
+    category_id: Option<i64>,
+    category_name: Option<String>,
+    thread_id: Option<i64>,
+    thread_title: Option<String>,
 }
 
 #[derive(Debug, FromQueryResult)]
@@ -815,17 +868,120 @@ async fn load_category_context(
     }))
 }
 
+async fn load_forum_feed_category(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+    category_id: i64,
+) -> Result<Option<ForumFeedScopeMetadata>> {
+    #[derive(Debug, FromQueryResult)]
+    struct ForumFeedCategoryRow {
+        group_name: String,
+        category_name: String,
+    }
+
+    let row = ForumFeedCategoryRow::find_by_statement(Statement::from_sql_and_values(
+        ctx.transaction().get_database_backend(),
+        "SELECT g.name AS group_name, c.name AS category_name \
+         FROM forum_category c \
+         JOIN forum_group g ON g.forum_group_id = c.forum_group_id \
+                           AND g.site_id = c.site_id AND g.deleted_at IS NULL \
+                           AND g.visible = TRUE \
+         WHERE c.site_id = $1 AND c.forum_category_id = $2 \
+           AND c.deleted_at IS NULL",
+        [Value::from(site_id), Value::from(category_id)],
+    ))
+    .one(ctx.transaction())
+    .await
+    .or_raise(|| {
+        Error::new(
+            format!("failed to load forum feed category ID {category_id}"),
+            ErrorType::Render,
+        )
+    })?;
+
+    Ok(row.map(|row| ForumFeedScopeMetadata {
+        group_name: row.group_name,
+        category_id: Some(category_id),
+        category_name: Some(row.category_name),
+        thread_id: None,
+        thread_title: None,
+    }))
+}
+
+async fn load_forum_feed_thread(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+    thread_id: i64,
+) -> Result<Option<ForumFeedScopeMetadata>> {
+    #[derive(Debug, FromQueryResult)]
+    struct ForumFeedThreadRow {
+        group_name: String,
+        category_name: String,
+        thread_title: String,
+    }
+
+    let row = ForumFeedThreadRow::find_by_statement(Statement::from_sql_and_values(
+        ctx.transaction().get_database_backend(),
+        "SELECT g.name AS group_name, c.name AS category_name, t.title AS thread_title \
+         FROM forum_thread t \
+         JOIN forum_category c ON c.forum_category_id = t.forum_category_id \
+                              AND c.site_id = t.site_id AND c.deleted_at IS NULL \
+         JOIN forum_group g ON g.forum_group_id = t.forum_group_id \
+                           AND g.site_id = t.site_id AND g.deleted_at IS NULL \
+                           AND g.visible = TRUE \
+         WHERE t.site_id = $1 AND t.forum_thread_id = $2 AND t.deleted_at IS NULL",
+        [Value::from(site_id), Value::from(thread_id)],
+    ))
+    .one(ctx.transaction())
+    .await
+    .or_raise(|| {
+        Error::new(
+            format!("failed to load forum feed thread ID {thread_id}"),
+            ErrorType::Render,
+        )
+    })?;
+
+    Ok(row.map(|row| ForumFeedScopeMetadata {
+        group_name: row.group_name,
+        category_id: None,
+        category_name: Some(row.category_name),
+        thread_id: Some(thread_id),
+        thread_title: Some(row.thread_title),
+    }))
+}
+
 impl RenderService {
     pub async fn wikidot_forum_feed(
         ctx: &ServiceContext<'_>,
         site_id: i64,
         kind: WikidotForumFeedKind,
+        scope: WikidotForumFeedScope,
     ) -> Result<Option<WikidotForumFeedOutput>> {
         let viewer_user_id = ctx.request().user_id().ok();
         let mut visibility = ForumPageVisibility::new(ctx, viewer_user_id);
         if !visibility.site_is_viewable(site_id).await? {
             return Ok(None);
         }
+
+        // A scoped feed names its category or thread in the channel, so the
+        // target must be resolved through the same visibility rules the
+        // site-wide feed applies to rows. A hidden, deleted or nonexistent
+        // target is indistinguishable from a missing one: no existence leak.
+        let scope_metadata = match scope {
+            WikidotForumFeedScope::Site => None,
+            WikidotForumFeedScope::Category(category_id) => {
+                match load_forum_feed_category(ctx, site_id, category_id).await? {
+                    Some(category) => Some(category),
+                    None => return Ok(None),
+                }
+            }
+            WikidotForumFeedScope::Thread(thread_id) => {
+                match load_forum_feed_thread(ctx, site_id, thread_id).await? {
+                    Some(thread) => Some(thread),
+                    None => return Ok(None),
+                }
+            }
+        };
 
         let site = SiteService::get(ctx, Reference::Id(site_id)).await?;
         let mut items = Vec::with_capacity(FORUM_FEED_ITEM_LIMIT);
@@ -837,7 +993,7 @@ impl RenderService {
             let candidates =
                 ForumFeedCandidate::find_by_statement(Statement::from_sql_and_values(
                     ctx.transaction().get_database_backend(),
-                    forum_feed_candidate_sql(kind),
+                    forum_feed_candidate_sql(kind, scope),
                     [
                         Value::from(site_id),
                         Value::from(FORUM_FEED_BATCH_LIMIT as i64),
@@ -910,8 +1066,24 @@ impl RenderService {
         }
 
         Ok(Some(WikidotForumFeedOutput {
+            scope: scope.as_str().to_owned(),
             site_name: site.name,
             site_description: site.description,
+            forum_group_name: scope_metadata
+                .as_ref()
+                .map(|metadata| metadata.group_name.clone()),
+            forum_category_id: scope_metadata
+                .as_ref()
+                .and_then(|metadata| metadata.category_id),
+            forum_category_name: scope_metadata
+                .as_ref()
+                .and_then(|metadata| metadata.category_name.clone()),
+            forum_thread_id: scope_metadata
+                .as_ref()
+                .and_then(|metadata| metadata.thread_id),
+            forum_thread_title: scope_metadata
+                .as_ref()
+                .and_then(|metadata| metadata.thread_title.clone()),
             items,
         }))
     }
@@ -1141,7 +1313,10 @@ impl RenderService {
     }
 }
 
-fn forum_feed_candidate_sql(kind: WikidotForumFeedKind) -> String {
+fn forum_feed_candidate_sql(
+    kind: WikidotForumFeedKind,
+    scope: WikidotForumFeedScope,
+) -> String {
     let (site_column, created_at, order_id, title, revision_hash, body_post_join) =
         match kind {
             WikidotForumFeedKind::Posts => (
@@ -1181,6 +1356,17 @@ fn forum_feed_candidate_sql(kind: WikidotForumFeedKind) -> String {
                 ),
             ),
         };
+    // The scoped routes add one predicate to the site-wide candidate query so
+    // the same ordering, visibility and bounding rules stay identical.
+    let scope_filter = match scope {
+        WikidotForumFeedScope::Site => String::new(),
+        WikidotForumFeedScope::Category(category_id) => {
+            format!(" AND t.forum_category_id = {category_id}")
+        }
+        WikidotForumFeedScope::Thread(thread_id) => {
+            format!(" AND t.forum_thread_id = {thread_id}")
+        }
+    };
     format!(
         "SELECT fp.forum_post_id, t.forum_thread_id, t.forum_category_id, \
                 t.forum_group_id, t.page_id, p.page_category_id, p.slug AS page_slug, \
@@ -1197,7 +1383,7 @@ fn forum_feed_candidate_sql(kind: WikidotForumFeedKind) -> String {
          {body_post_join} \
          LEFT JOIN page p ON p.page_id = t.page_id AND p.site_id = t.site_id AND p.deleted_at IS NULL \
          WHERE {site_column} = $1 AND t.deleted_at IS NULL \
-           AND (t.page_id IS NULL OR p.page_id IS NOT NULL) \
+           AND (t.page_id IS NULL OR p.page_id IS NOT NULL){scope_filter} \
          ORDER BY {created_at} DESC, {order_id} DESC \
          LIMIT $2 OFFSET $3"
     )

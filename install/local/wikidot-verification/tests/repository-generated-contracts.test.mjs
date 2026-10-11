@@ -101,7 +101,7 @@ test("WWS repository consistency distinguishes ANY-only from GET plus fallback d
 test("repository-only generated contract CLI is package-install-free and passes on the tracked repository", () => {
   const result = spawnSync(process.execPath, [cli, "--root", root], { cwd: root, encoding: "utf8" });
   assert.equal(result.status, 0, result.stderr);
-  assert.match(result.stdout, /verified 179 Deepwell JSON-RPC contracts/u);
+  assert.match(result.stdout, /verified 180 Deepwell JSON-RPC contracts/u);
   assert.match(result.stdout, /verified 34 WWS route registrations/u);
   assert.match(result.stdout, /verified repository generated-contract consistency/u);
 });

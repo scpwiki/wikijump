@@ -48,11 +48,11 @@ use crate::services::page_revision::RerenderType;
 use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::services::render::{
     LegacyActionRegistry, LegacyBrowserAction, SiteChangesLoad, WikidotForumFeedKind,
-    WikidotForumFeedOutput, WikidotForumModuleRequest, WikidotForumModuleResponse,
-    WikidotListPagesFeedInput, WikidotListPagesFeedOutput,
-    WikidotMembersListModuleResponse, WikidotSiteChangesFilter,
-    WikidotSiteChangesModuleRequest, WikidotSiteChangesModuleResponse,
-    wikidot_site_changes_empty_response,
+    WikidotForumFeedOutput, WikidotForumFeedScope, WikidotForumModuleRequest,
+    WikidotForumModuleResponse, WikidotListPagesFeedInput, WikidotListPagesFeedOutput,
+    WikidotMembersListModuleResponse, WikidotSiteChangesFeedOutput,
+    WikidotSiteChangesFilter, WikidotSiteChangesModuleRequest,
+    WikidotSiteChangesModuleResponse, wikidot_site_changes_empty_response,
 };
 use crate::services::settings::PageRatingVisibility;
 use crate::services::{MutationAuthorization, SettingsService, TextService};
@@ -580,6 +580,10 @@ pub async fn wikidot_forum_module(
 struct WikidotForumFeedInput {
     site_id: i64,
     kind: String,
+    #[serde(default)]
+    category_id: Option<i64>,
+    #[serde(default)]
+    thread_id: Option<i64>,
 }
 
 pub async fn wikidot_forum_feed(
@@ -607,7 +611,47 @@ pub async fn wikidot_forum_feed(
             );
         }
     };
-    RenderService::wikidot_forum_feed(ctx, input.site_id, kind).await
+    // The scoped Wikidot routes name exactly one forum object; a request that
+    // names none or more than one of them is a malformed feed path, not a
+    // site-wide feed.
+    let scope = match (input.category_id, input.thread_id) {
+        (None, None) => WikidotForumFeedScope::Site,
+        (Some(category_id), None) => WikidotForumFeedScope::Category(category_id),
+        (None, Some(thread_id)) => WikidotForumFeedScope::Thread(thread_id),
+        (Some(_), Some(_)) => {
+            return Err(Error::new(
+                "forum feed scope must name at most one forum object",
+                ErrorType::BadRequest,
+            )
+            .into());
+        }
+    };
+    RenderService::wikidot_forum_feed(ctx, input.site_id, kind, scope).await
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct WikidotSiteChangesFeedInput {
+    site_id: i64,
+}
+
+pub async fn wikidot_site_changes_feed(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Option<WikidotSiteChangesFeedOutput>> {
+    let input: WikidotSiteChangesFeedInput = parse!(params, Page);
+    if ctx
+        .request()
+        .site_id
+        .is_some_and(|request_site_id| request_site_id != input.site_id)
+    {
+        return Err(Error::new(
+            "site changes feed site does not match the request context",
+            ErrorType::PermissionDenied,
+        )
+        .into());
+    }
+    RenderService::wikidot_site_changes_feed(ctx, input.site_id).await
 }
 
 pub async fn wikidot_members_list_module(

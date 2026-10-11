@@ -4582,3 +4582,254 @@ async fn wikidot_forum_feeds_are_bounded_newest_first_and_hide_invisible_groups(
             && item.forum_thread_id != private_page_thread.forum_thread_id
     }));
 }
+
+#[tokio::test]
+async fn wikidot_forum_scoped_feeds_filter_to_the_named_object_and_hide_invisible_scopes()
+{
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "test"}))
+        .expect("seeded test site should exist");
+    let site_id = site.site.site_id;
+
+    let visible_group = ForumService::create_group(
+        runner.context(),
+        CreateForumGroup {
+            site_id,
+            user_id: ADMIN_USER_ID,
+            name: "Scoped visible group".to_owned(),
+            description: String::new(),
+            visible: true,
+            sort_index: None,
+            from_wikidot: false,
+        },
+    )
+    .await
+    .expect("visible scoped group should be created");
+    let scoped_category = ForumService::create_category(
+        runner.context(),
+        CreateForumCategory {
+            forum_group_id: visible_group.forum_group_id,
+            user_id: ADMIN_USER_ID,
+            name: "Scoped category".to_owned(),
+            description: String::new(),
+            sort_index: None,
+            max_nest_level: Some(3),
+            per_page_discussion: Some(false),
+            layout: None,
+            from_wikidot: false,
+        },
+    )
+    .await
+    .expect("scoped category should be created");
+    let other_category = ForumService::create_category(
+        runner.context(),
+        CreateForumCategory {
+            forum_group_id: visible_group.forum_group_id,
+            user_id: ADMIN_USER_ID,
+            name: "Other category".to_owned(),
+            description: String::new(),
+            sort_index: None,
+            max_nest_level: Some(3),
+            per_page_discussion: Some(false),
+            layout: None,
+            from_wikidot: false,
+        },
+    )
+    .await
+    .expect("other category should be created");
+    let hidden_group = ForumService::create_group(
+        runner.context(),
+        CreateForumGroup {
+            site_id,
+            user_id: ADMIN_USER_ID,
+            name: "Scoped hidden group".to_owned(),
+            description: String::new(),
+            visible: false,
+            sort_index: None,
+            from_wikidot: false,
+        },
+    )
+    .await
+    .expect("hidden scoped group should be created");
+    let hidden_category = ForumService::create_category(
+        runner.context(),
+        CreateForumCategory {
+            forum_group_id: hidden_group.forum_group_id,
+            user_id: ADMIN_USER_ID,
+            name: "Hidden scoped category".to_owned(),
+            description: String::new(),
+            sort_index: None,
+            max_nest_level: Some(3),
+            per_page_discussion: Some(false),
+            layout: None,
+            from_wikidot: false,
+        },
+    )
+    .await
+    .expect("hidden scoped category should be created");
+
+    async fn create_thread(runner: &TestRunner, category_id: i64, title: &str) -> i64 {
+        ForumThreadService::create(
+            runner.context(),
+            CreateForumThread {
+                forum_category_id: category_id,
+                user_id: ADMIN_USER_ID,
+                associated_page_id: None,
+                title: title.to_owned(),
+                description: String::new(),
+                sticky: false,
+                from_wikidot: false,
+            },
+        )
+        .await
+        .expect("scoped forum thread should be created")
+        .forum_thread_id
+    }
+
+    async fn create_post(runner: &TestRunner, thread_id: i64, title: &str) -> i64 {
+        ForumPostService::create(
+            runner.context(),
+            CreateForumPost {
+                forum_thread_id: thread_id,
+                parent_post_id: None,
+                user_id: ADMIN_USER_ID,
+                title: title.to_owned(),
+                wikitext: format!("{title} body"),
+                comments: "create scoped forum post".to_owned(),
+                from_wikidot: false,
+            },
+        )
+        .await
+        .expect("scoped forum post should be created")
+        .forum_post_id
+    }
+
+    let older_thread =
+        create_thread(&runner, scoped_category.forum_category_id, "Older thread").await;
+    let older_post = create_post(&runner, older_thread, "Older thread post").await;
+    let newer_thread =
+        create_thread(&runner, scoped_category.forum_category_id, "Newer thread").await;
+    let newer_post = create_post(&runner, newer_thread, "Newer thread post").await;
+    let other_thread =
+        create_thread(&runner, other_category.forum_category_id, "Other thread").await;
+    let other_post = create_post(&runner, other_thread, "Other thread post").await;
+    let hidden_thread =
+        create_thread(&runner, hidden_category.forum_category_id, "Hidden thread").await;
+    create_post(&runner, hidden_thread, "Hidden thread post").await;
+    let deleted_thread =
+        create_thread(&runner, scoped_category.forum_category_id, "Deleted thread").await;
+    create_post(&runner, deleted_thread, "Deleted thread post").await;
+    let mut deleted_thread_model = ForumThreadTable::find_by_id(deleted_thread)
+        .one(runner.context().transaction())
+        .await
+        .expect("deleted scoped thread lookup should succeed")
+        .expect("deleted scoped thread should exist")
+        .into_active_model();
+    deleted_thread_model.deleted_by = Set(Some(ADMIN_USER_ID));
+    deleted_thread_model.deleted_at = Set(Some(time::OffsetDateTime::now_utc()));
+    deleted_thread_model.updated_by = Set(Some(ADMIN_USER_ID));
+    deleted_thread_model.updated_at = Set(Some(time::OffsetDateTime::now_utc()));
+    deleted_thread_model
+        .update(runner.context().transaction())
+        .await
+        .expect("scoped thread should be soft-deleted");
+
+    runner.set_request_context(RequestContext {
+        user_id: None,
+        site_id: Some(site_id),
+        ..Default::default()
+    });
+
+    let category_threads = run_endpoint!(
+        runner,
+        wikidot_forum_feed,
+        json!({"site_id": site_id, "kind": "threads", "category_id": scoped_category.forum_category_id}),
+    )
+    .expect("category thread feed should be viewable");
+    assert_eq!(category_threads.scope, "category");
+    assert_eq!(
+        category_threads.forum_thread_title, None,
+        "a category feed names the category, not a thread"
+    );
+    assert_eq!(
+        category_threads.forum_category_name.as_deref(),
+        Some("Scoped category")
+    );
+    let category_thread_ids: Vec<i64> = category_threads
+        .items
+        .iter()
+        .map(|item| item.forum_thread_id)
+        .collect();
+    assert_eq!(
+        category_thread_ids,
+        vec![newer_thread, older_thread],
+        "category thread feed is newest first and excludes other scopes"
+    );
+    assert!(
+        category_threads
+            .items
+            .iter()
+            .all(|item| item.forum_category_id == scoped_category.forum_category_id)
+    );
+
+    let category_posts = run_endpoint!(
+        runner,
+        wikidot_forum_feed,
+        json!({"site_id": site_id, "kind": "posts", "category_id": scoped_category.forum_category_id}),
+    )
+    .expect("category post feed should be viewable");
+    let category_post_ids: Vec<i64> = category_posts
+        .items
+        .iter()
+        .map(|item| item.forum_post_id)
+        .collect();
+    assert_eq!(category_post_ids, vec![newer_post, older_post]);
+    assert!(
+        category_posts
+            .items
+            .iter()
+            .all(|item| item.forum_post_id != other_post)
+    );
+
+    let thread_posts = run_endpoint!(
+        runner,
+        wikidot_forum_feed,
+        json!({"site_id": site_id, "kind": "posts", "thread_id": newer_thread}),
+    )
+    .expect("thread post feed should be viewable");
+    assert_eq!(thread_posts.scope, "thread");
+    assert_eq!(thread_posts.forum_thread_id, Some(newer_thread));
+    assert_eq!(
+        thread_posts.forum_thread_title.as_deref(),
+        Some("Newer thread")
+    );
+    let thread_post_ids: Vec<i64> = thread_posts
+        .items
+        .iter()
+        .map(|item| item.forum_post_id)
+        .collect();
+    assert_eq!(thread_post_ids, vec![newer_post]);
+
+    // Hidden, deleted and unknown scopes are indistinguishable from a missing
+    // one: the route answers 404 without leaking that the object exists.
+    for missing_scope in [
+        json!({"kind": "threads", "category_id": hidden_category.forum_category_id}),
+        json!({"kind": "threads", "category_id": deleted_thread}),
+        json!({"kind": "threads", "category_id": other_thread}),
+        json!({"kind": "posts", "thread_id": hidden_thread}),
+        json!({"kind": "posts", "thread_id": deleted_thread}),
+        json!({"kind": "posts", "thread_id": other_thread}),
+    ] {
+        let mut params = json!({"site_id": site_id});
+        params
+            .as_object_mut()
+            .expect("scope params should be an object")
+            .extend(missing_scope.as_object().unwrap().clone());
+        let scope_label = params.to_string();
+        let feed = run_endpoint!(runner, wikidot_forum_feed, params);
+        assert!(
+            feed.is_none(),
+            "invisible or unknown forum feed scope must not be viewable: {scope_label}"
+        );
+    }
+}
