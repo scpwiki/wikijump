@@ -99,3 +99,58 @@ test("artifact manifest validator binds required paths, size, and digest", async
     ["manifest_sha256_mismatch", "manifest_size_mismatch", "required_file_missing"],
   );
 });
+
+test("artifact manifest and required paths reject a symlinked parent directory", async (t) => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "artifact-manifest-root-"));
+  const external = await fs.mkdtemp(path.join(os.tmpdir(), "artifact-manifest-external-"));
+  t.after(async () => {
+    await fs.rm(root, {recursive: true, force: true});
+    await fs.rm(external, {recursive: true, force: true});
+  });
+  const contents = Buffer.from("confidential external fixture\n");
+  await fs.writeFile(path.join(external, "secret.txt"), contents);
+  await fs.symlink(external, path.join(root, "linked-directory"), "dir");
+  const relativePath = "linked-directory/secret.txt";
+  const findings = [];
+  await validateArtifactManifest({
+    artifactRoot: root,
+    manifest: {
+      schema_version: 1,
+      files: [{
+        path: relativePath,
+        size: contents.length,
+        sha256: createHash("sha256").update(contents).digest("hex"),
+      }],
+    },
+    requiredFiles: [relativePath],
+    findings,
+  });
+  assert.deepEqual(
+    findings.map(({code}) => code).sort(),
+    ["manifest_path_symlink", "required_path_symlink"],
+    "an external file reached via an intermediate directory symlink must never be trusted as part of the artifact root",
+  );
+});
+
+test("artifact manifest permits regular files under genuine nested directories", async (t) => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "artifact-manifest-nested-"));
+  t.after(() => fs.rm(root, {recursive: true, force: true}));
+  await fs.mkdir(path.join(root, "reports", "nested"), {recursive: true});
+  const contents = Buffer.from("genuine nested artifact\n");
+  await fs.writeFile(path.join(root, "reports", "nested", "result.json"), contents);
+  const findings = [];
+  await validateArtifactManifest({
+    artifactRoot: root,
+    manifest: {
+      schema_version: 1,
+      files: [{
+        path: "reports/nested/result.json",
+        size: contents.length,
+        sha256: createHash("sha256").update(contents).digest("hex"),
+      }],
+    },
+    requiredFiles: ["reports/nested/result.json"],
+    findings,
+  });
+  assert.deepEqual(findings, []);
+});

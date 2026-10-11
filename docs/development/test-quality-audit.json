@@ -9190,7 +9190,7 @@
     },
     {
       "path": "install/local/wikidot-verification/src/artifact-manifest-validator.mjs",
-      "sha256": "0f8cb87ba8ae1c77f24a0ba3efcb5bd679942f05444eb4c1f6a68b5b68839cba",
+      "sha256": "377ad860d64c32ed80049f23e570825c8bbaf42d78aed51a919a189c424248e0",
       "status": "pending",
       "anchors": [],
       "findings": [],
