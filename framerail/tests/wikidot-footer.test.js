@@ -3,6 +3,7 @@ import test from "node:test"
 
 import {
   WIKIDOT_FOOTER_LINKS,
+  WIKIDOT_FOOTER_LINKS_JA,
   WIKIDOT_POWERED_BY,
   buildWikidotAccountLabels,
   buildWikidotFooterLinks,
@@ -21,7 +22,58 @@ test("uses Wikidot footer labels in source order", () => {
   assert.equal(WIKIDOT_POWERED_BY, "Powered by Wikidot.com")
 })
 
-test("uses Japanese Wikidot footer and login labels for Japanese imported sites", () => {
+test("binds every Wikidot footer item to its live Wikidot destination", () => {
+  // Frozen evidence: live Wikidot footer, anonymous page on sandbox-for-codex,
+  // retained capture 2026-09-15; live DOM for SCP-Wiki and SCP-JP scp-173,
+  // captured 2026-09-29. Help, Terms of Service and Privacy are absolute
+  // www.wikidot.com URLs; the report controls are inert anchors whose
+  // listeners request the in-page report modules.
+  const expected = [
+    ["Help", "https://www.wikidot.com/doc"],
+    ["Terms of Service", "https://www.wikidot.com/legal:terms-of-service"],
+    ["Privacy", "https://www.wikidot.com/legal:privacy-policy"],
+    ["Report a bug", "javascript:;"],
+    ["Flag as objectionable", "javascript:;"]
+  ]
+  assert.deepEqual(
+    WIKIDOT_FOOTER_LINKS.map((link) => [link.label, link.href]),
+    expected
+  )
+  assert.deepEqual(
+    WIKIDOT_FOOTER_LINKS_JA.map((link) => [link.label, link.href]),
+    [
+      ["ヘルプ", "https://www.wikidot.com/doc"],
+      ["利用規約", "https://www.wikidot.com/legal:terms-of-service"],
+      ["プライバシー", "https://www.wikidot.com/legal:privacy-policy"],
+      ["バグを報告", "javascript:;"],
+      ["不快フラグを立てる", "javascript:;"]
+    ]
+  )
+})
+
+test("keeps Wikidot footer destinations distinct and off the current site", () => {
+  for (const link of [...WIKIDOT_FOOTER_LINKS, ...WIKIDOT_FOOTER_LINKS_JA]) {
+    assert.notEqual(link.href, "/", `${link.label} must not point at the site root`)
+    assert.doesNotMatch(
+      link.href,
+      /^\/[^/]/u,
+      `${link.label} must not be a same-site page path`
+    )
+  }
+
+  // No advertised action is collapsed onto one generic homepage: the three
+  // navigating items hold three distinct Wikidot destinations, and the two
+  // inert report controls are inert anchors on Wikidot too.
+  const navigating = WIKIDOT_FOOTER_LINKS.filter((link) => link.href !== "javascript:;")
+  assert.equal(navigating.length, 3)
+  assert.equal(
+    new Set(navigating.map((link) => link.href)).size,
+    navigating.length,
+    "distinct labels must not share one destination"
+  )
+})
+
+test("uses Wikidot footer labels in source order for Japanese imported sites", () => {
   assert.deepEqual(
     buildWikidotFooterLinks("ja").map((link) => link.label),
     ["ヘルプ", "利用規約", "プライバシー", "バグを報告", "不快フラグを立てる"]

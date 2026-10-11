@@ -1,19 +1,49 @@
 import { isJapaneseWikidotLocale } from "./wikidot-locale.js"
 
+/**
+ * Wikidot-compatible footer destinations.
+ *
+ * These are platform-global links: they point at Wikidot's own host and
+ * never at the wiki being viewed, so they must not be fitted to any
+ * captured page. The frozen live Wikidot footer for an anonymous page on
+ * `sandbox-for-codex` (retained capture, 2026-09-15) and the current live
+ * DOM for both SCP-Wiki and SCP-JP (`scp-173`, captured 2026-09-29) emit
+ * exactly these targets, in this order:
+ *
+ * Help https://www.wikidot.com/doc Terms of Service
+ * https://www.wikidot.com/legal:terms-of-service Privacy
+ * https://www.wikidot.com/legal:privacy-policy Report a bug javascript:;
+ * Flag as objectionable javascript:;
+ *
+ * `Report a bug` and `Flag as objectionable` are inert anchors on Wikidot
+ * too. The click runs `WIKIDOT.page.listeners.pageBugReport` /
+ * `flagPageObjectionable`, which request the in-page
+ * `report/BugReportModule` and `report/FlagPageModule` Ajax modules
+ * instead of navigating. Reproducing the current site's root `/` for them
+ * sent readers to the wrong site, which is the placeholder behaviour this
+ * replaces.
+ */
 export const WIKIDOT_FOOTER_LINKS = Object.freeze([
-  { label: "Help", href: "/" },
-  { label: "Terms of Service", href: "/" },
-  { label: "Privacy", href: "/" },
-  { label: "Report a bug", href: "/" },
-  { label: "Flag as objectionable", href: "/" }
+  { label: "Help", href: "https://www.wikidot.com/doc" },
+  {
+    label: "Terms of Service",
+    href: "https://www.wikidot.com/legal:terms-of-service"
+  },
+  { label: "Privacy", href: "https://www.wikidot.com/legal:privacy-policy" },
+  { label: "Report a bug", href: "javascript:;" },
+  { label: "Flag as objectionable", href: "javascript:;" }
 ])
 
+/**
+ * Japanese Wikidot footer destinations. The live SCP-JP footer captured
+ * 2026-09-29 emits the same targets with the Japanese labels.
+ */
 export const WIKIDOT_FOOTER_LINKS_JA = Object.freeze([
-  { label: "ヘルプ", href: "/" },
-  { label: "利用規約", href: "/" },
-  { label: "プライバシー", href: "/" },
-  { label: "バグを報告", href: "/" },
-  { label: "不快フラグを立てる", href: "/" }
+  { label: "ヘルプ", href: "https://www.wikidot.com/doc" },
+  { label: "利用規約", href: "https://www.wikidot.com/legal:terms-of-service" },
+  { label: "プライバシー", href: "https://www.wikidot.com/legal:privacy-policy" },
+  { label: "バグを報告", href: "javascript:;" },
+  { label: "不快フラグを立てる", href: "javascript:;" }
 ])
 
 export const WIKIDOT_POWERED_BY = "Powered by Wikidot.com"

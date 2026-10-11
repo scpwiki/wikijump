@@ -5846,7 +5846,7 @@
     },
     {
       "path": "framerail/src/lib/server/deepwell/views.ts",
-      "sha256": "68219973bcb774f621b503d5854000e907aa9b54fad804038f0708efcd6a24ae",
+      "sha256": "f4c4b607dc0cf59a7eb3aa567a2d7f32334e21b1f1744c268e5089bbb31f4364",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -6510,7 +6510,7 @@
     },
     {
       "path": "framerail/src/lib/wikidot/wikidot-footer.js",
-      "sha256": "bb2303e1e8525f8a357d7eb0cf58cf039dff62c39fb4947153508380ed909401",
+      "sha256": "e4e6bfef242dbd802ff7032876f4e03cdb20fa838ae067a564160454cf3af6d4",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -7326,7 +7326,7 @@
     },
     {
       "path": "framerail/src/routes/+layout.server.ts",
-      "sha256": "3a800d12184eb7ae7b68e1f04ce6582f1a4f4d9ef00f235588a0b2f3f3c5e7a6",
+      "sha256": "90c6457718d8d3969105214297abbbb958f7fc155e340911c5edf62cd6145c62",
       "status": "pending",
       "anchors": [],
       "findings": [],
@@ -7334,7 +7334,7 @@
     },
     {
       "path": "framerail/src/routes/+layout.svelte",
-      "sha256": "3f02155ecb49317f997c046c91edb065c2c367e51aa972267c22fdc3acc0666f",
+      "sha256": "d769c983ca60fcf431c4fa95ba477621e5da4218f14db36b88f4b2cabf54a8da",
       "status": "pending",
       "anchors": [],
       "findings": [],

@@ -16,6 +16,7 @@
     isImportedWikidotView,
     shouldUseWikidotLicenseHtml
   } from "$lib/wikidot/wikidot-footer"
+  import { resolveNativeFooterLinks } from "$lib/platform-footer-links"
   import {
     PAGE_LAYOUT_CONTEXT_KEY,
     type PageLayoutContext
@@ -111,6 +112,9 @@
   const viewData = $derived(canonicalView.viewData)
   const wikidotLocale = $derived(canonicalView.locale)
   const wikidotFooterLinks = $derived(buildWikidotFooterLinks(wikidotLocale))
+  const nativeFooterLinks = $derived(
+    resolveNativeFooterLinks(viewData?.native_footer_destinations)
+  )
   const wikidotLoginLabels = $derived(buildWikidotLoginLabels(wikidotLocale))
   const wikidotAccountLabels = $derived(buildWikidotAccountLabels(wikidotLocale))
   const wikidotLicenseHtml = $derived(
@@ -403,7 +407,12 @@
       {#if isImportedWikidotLayout}
         <div class="options">
           {#each wikidotFooterLinks as link, index (link.label)}
-            <a href={resolve(link.href, {})}>{link.label}</a
+            <!--
+              Wikidot destinations are absolute platform URLs or inert
+              `javascript:;` controls, so they are emitted verbatim rather than
+              through `resolve`, which only accepts internal pathnames.
+            -->
+            <a href={link.href}>{link.label}</a
             >{#if index < wikidotFooterLinks.length - 1}
               |
             {/if}
@@ -457,20 +466,18 @@
     {#snippet footer()}
       <div class="footer-inner">
         <ul class="footer-items">
-          <li class="footer-item">
-            <a href={resolve("/", {})}
-              >{viewData?.internationalization?.["terms-conditions"]}</a
-            >
-          </li>
-          <li class="footer-item">
-            <a href={resolve("/", {})}>{viewData?.internationalization?.privacy}</a>
-          </li>
-          <li class="footer-item">
-            <a href={resolve("/", {})}>{viewData?.internationalization?.docs}</a>
-          </li>
-          <li class="footer-item">
-            <a href={resolve("/", {})}>{viewData?.internationalization?.security}</a>
-          </li>
+          {#each nativeFooterLinks as link (link.key)}
+            <li class="footer-item">
+              <!--
+                Platform/legal destinations are absolute instance-level URLs.
+                They never resolve against the viewed wiki and never inherit a
+                site origin.
+              -->
+              <a href={link.href} rel="external"
+                >{viewData?.internationalization?.[link.key]}</a
+              >
+            </li>
+          {/each}
         </ul>
         <div class="footer-powered-by">
           {viewData?.internationalization?.["footer-powered-by"]}

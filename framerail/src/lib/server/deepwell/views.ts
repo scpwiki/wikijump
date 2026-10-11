@@ -75,6 +75,13 @@ export interface PreloadData {
   license_html: Viewer["license_html"]
   user_session: Nullable<ClientUserSession>
   locales: string[]
+  /**
+   * Instance-level overrides for the native footer's platform
+   * destinations, keyed by the footer's internationalization key.
+   * Platform-global, so it is resolved once for the instance and never
+   * from the viewed wiki.
+   */
+  native_footer_destinations?: Record<string, string | undefined>
 }
 
 export type PreloadDataAsync = () => Promise<PreloadData>
