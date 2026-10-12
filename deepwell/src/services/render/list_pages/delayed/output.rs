@@ -12,7 +12,15 @@
 
 //! Final protection, sealing, and pending-output lifecycle for delayed ListPages rows.
 
-use super::*;
+use super::{
+    CompatHtmlFragments, CompatTextFragments, DelayedInput, Error, ErrorType,
+    GeneratedValue, InputSegment, ListPagesRuntimeTextRange, PageExistenceSnapshot,
+    PageInfo, PendingDelayedListPagesOutput, PendingDelayedListPagesSlot,
+    PendingDelayedListPagesSlotValue, Range, RenderService, Result,
+    SharedRenderCostBudget, SlotBindings, TextOrigin, WikitextMode, WikitextSettings,
+    find_list_pages_module_matches_with_delayed_links_budgeted, parse_delayed_list,
+    register_generated_list_pages_html, seal_list_pages_delayed_output_with_modes,
+};
 
 pub(in crate::services::render) fn replace_recursive_list_pages_with_error(
     source: &str,

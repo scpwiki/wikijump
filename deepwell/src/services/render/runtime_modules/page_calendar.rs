@@ -1,6 +1,13 @@
 //! Wikidot PageCalendar runtime expansion.
 
-use super::*;
+use super::{
+    Action, BTreeMap, BTreeSet, CheckPermissionContext, CompatHtmlFragments,
+    ConnectionTrait, Cow, Error, ErrorType, FromQueryResult, Future, HashMap,
+    LiteralRegionIndex, PAGE_CALENDAR_CATEGORY_ERROR, PAGECALENDAR_MODULE_REGEX,
+    PageInfo, Permission, PermissionService, Reference, RenderService, Resource, Result,
+    ResultExt, ServiceContext, Statement, UrlArguments, Value, WikitextSettings,
+    escape_list_pages_html_attr, escape_list_pages_html_text, wikidot_module_arguments,
+};
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 enum PageCalendarCategorySelector {

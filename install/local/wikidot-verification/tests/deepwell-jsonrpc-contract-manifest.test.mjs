@@ -44,7 +44,7 @@ test("Deepwell JSON-RPC manifest exactly covers the current registered contract"
   assert.equal(result.status, 0, result.stderr)
   const manifest = JSON.parse(await fs.readFile(manifestPath, "utf8"))
   assert.equal(manifest.schema, "wikijump.deepwell_jsonrpc_contract_manifest.v1")
-  assert.equal(manifest.method_count, 179)
+  assert.equal(manifest.method_count, 180)
   assert.equal(manifest.methods.length, manifest.method_count)
   assert.equal(new Set(manifest.methods.map(({ method }) => method)).size, manifest.method_count)
   for (const method of manifest.methods) {

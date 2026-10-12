@@ -1,6 +1,22 @@
 //! Wikidot compatibility preprocessing before FTML parsing and include expansion.
 
-use super::*;
+use super::{
+    AttachmentOwner, AttachmentProvenanceRegistry, BTreeMap, CompatTextFragments,
+    INCLUDE_VARIABLE_REGEX, LiteralRegionIndex, PageInfo, PageRef, Range, RenderService,
+    WIKIDOT_COMPAT_STYLE_BLOCK_REGEX, WIKIDOT_IMAGE_BLOCK_INCLUDE_START_REGEX,
+    WIKIDOT_INCLUDE_OPEN_REGEX, WIKIDOT_LITERAL_INCLUDE_SENTINEL,
+    WIKIDOT_MULTILINE_LABELED_LINK_REGEX, WikidotImageBlockArgument,
+    find_wikidot_image_block_directive_end, ftml, has_include_opening_candidate,
+    is_include_variable_name, owned_url, parse_wikidot_include_argument,
+    percent_encode_path_segment, preserve_argument_quotes, relative,
+    resolve_outermost_wikidot_iftags,
+    resolve_outermost_wikidot_iftags_before_include_expansion,
+    resolve_outermost_wikidot_iftags_before_include_expansion_for_page_preview,
+    resolve_unbound_include_variable_iftags,
+    resolve_wikidot_parser_functions_outside_list_pages, semantic_attachment_value,
+    split_wikidot_image_block_argument_segments, wikidot_include_directive_ranges,
+    wikidot_include_segment_is_space,
+};
 
 impl RenderService {
     pub(in crate::services::render) fn prepare_wikidot_conditionals_for_include_expansion(
@@ -338,9 +354,9 @@ impl RenderService {
                     break;
                 }
                 let continuation = Self::trim_wikitext_line(lines[end_line_index].2);
-                if !continuation.ends_with("]]")
-                    && !continuation.starts_with('|')
-                    && !(image_block_include
+                if !(continuation.ends_with("]]")
+                    || continuation.starts_with('|')
+                    || image_block_include
                         && Self::is_wikidot_image_block_parameter_line(continuation))
                 {
                     valid = false;

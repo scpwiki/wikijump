@@ -12,7 +12,13 @@
 
 //! Page-query filters that resolve relationships through auxiliary tables.
 
-use super::*;
+use super::{
+    AuthorSelector, ColumnTrait, Condition, ConnectionType, Expr, ExprTrait,
+    PageConnection, PageParent, PageParentSelector, PageService, Query, Reference,
+    Result, ServiceContext, SimpleExpr, current_parent_ids,
+    normalize_wikidot_author_name, page, page_connection, page_parent,
+    postgres_bind_placeholders, wikidot_author_name_sql,
+};
 
 pub(super) async fn page_parent_condition(
     ctx: &ServiceContext<'_>,
@@ -113,23 +119,6 @@ pub(super) async fn page_parent_condition(
     }
 
     Ok(Some(condition))
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn unconstrained_author_selectors_do_not_add_conditions() {
-        assert!(author_condition(AuthorSelector::All).is_none());
-        assert!(
-            author_condition(AuthorSelector::NotAny {
-                user_ids: &[],
-                wikidot_snapshot_names: &[],
-            })
-            .is_none()
-        );
-    }
 }
 
 pub(super) fn author_condition(author: AuthorSelector<'_>) -> Option<Condition> {
@@ -261,4 +250,21 @@ pub(super) async fn outgoing_link_condition(
     );
 
     Ok(Some(condition))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn unconstrained_author_selectors_do_not_add_conditions() {
+        assert!(author_condition(AuthorSelector::All).is_none());
+        assert!(
+            author_condition(AuthorSelector::NotAny {
+                user_ids: &[],
+                wikidot_snapshot_names: &[],
+            })
+            .is_none()
+        );
+    }
 }

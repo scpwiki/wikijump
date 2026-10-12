@@ -165,7 +165,7 @@
     {
       "surface_id": "framerail-route:/-/wikidot-interwiki/styleFrame.html",
       "tests": [
-        "framerail/tests/wikidot-interwiki.test.js::builds an inert styleFrame document without parent access"
+        "framerail/tests/wikidot-interwiki.test.js::serves Wikidot's static styleFrame document without echoing its query"
       ],
       "tracking": [
         {

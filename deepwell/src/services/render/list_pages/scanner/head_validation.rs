@@ -1,6 +1,17 @@
 //! Module-head and argument-boundary validation for the ListPages scanner.
 
-use super::*;
+use super::{
+    TextTokenCursor, WikidotArgumentValueKind, WikidotTagArgumentScan,
+    classify_wikidot_right_bracket_and_advance_text_tokens,
+    double_quote_ends_scanner_argument, is_module_argument_spacing,
+    list_pages_bare_comparison_key_is_evidenced, list_pages_head_comment_end,
+    list_pages_quote_ends_before_comment, normalize_module_head,
+    project_list_pages_typography_in_place, quote_is_escaped,
+    runtime_list_pages_key_is_supported, skip_horizontal_whitespace,
+    skip_module_argument_spacing, wikidot_list_pages_arguments, wikidot_trimmed_name,
+};
+#[cfg(test)]
+use super::{find_list_pages_module_matches, list_pages_runtime_head_can_execute};
 
 pub(super) fn source_block_open_is_backslash_escaped(source: &str, start: usize) -> bool {
     let bytes = source.as_bytes();

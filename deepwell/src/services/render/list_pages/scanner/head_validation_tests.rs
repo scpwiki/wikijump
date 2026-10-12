@@ -155,7 +155,7 @@ fn empty_list_pages_assignment_leaves_later_arguments_and_body_available() {
     assert!(!modules[0].preserve_original, "{modules:#?}");
     assert_eq!(modules[0].body, "\nROW|%%fullname%%\n");
 
-    let arguments = wikidot_list_pages_arguments(&modules[0].head);
+    let arguments = wikidot_list_pages_arguments(modules[0].head);
     assert_eq!(
         arguments
             .iter()
