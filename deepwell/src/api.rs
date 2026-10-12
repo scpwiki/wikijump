@@ -34,6 +34,7 @@ use crate::middleware::{RequestContextHeaders, RequestContextLayer, RpcAuthLayer
 use crate::runtime::ServerStateInner;
 use crate::services::blob::MimeAnalyzer;
 use crate::services::job::JobWorker;
+use crate::services::render::{CorpusRenderFinalizerService, RenderFinalizerSettings};
 use crate::services::{
     PasswordService, RequestContext, ServiceContext, SessionService, SiteService,
     TextBlockService,
@@ -80,6 +81,25 @@ pub async fn build_server_state_without_workers_with_job_queue_namespace(
     job_queue_namespace: &str,
 ) -> Result<ServerState> {
     build_server_state_inner(config, secrets, false, Some(job_queue_namespace)).await
+}
+
+/// Run one corpus render-finalizer invocation from runtime-action settings.
+///
+/// This is an integration-test boundary for the `render-finalize` runtime
+/// action, which reads the same settings from its environment.
+#[doc(hidden)]
+pub async fn run_corpus_render_finalizer(
+    state: &ServerState,
+    get_setting: impl FnMut(&str) -> Option<String>,
+) -> Result<serde_json::Value> {
+    let settings = RenderFinalizerSettings::from_getter(get_setting)?;
+    let summary = CorpusRenderFinalizerService::run(state, settings).await?;
+    serde_json::to_value(summary).or_raise(|| {
+        Error::new(
+            "failed to serialize render-finalize summary",
+            ErrorType::Render,
+        )
+    })
 }
 
 async fn build_server_state_inner(

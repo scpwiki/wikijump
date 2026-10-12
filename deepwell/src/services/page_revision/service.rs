@@ -73,6 +73,20 @@ const MAX_REVISION_DIFF_LINES: usize = 20_000;
 const MAX_REVISION_DIFF_CELLS: usize = 4_000_000;
 const MAX_REVISION_DIFF_COMPARISON_BYTES: usize = 64 * 1024 * 1024;
 
+/// Which include-expansion ceiling a saved-page rerender may use.
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+enum RerenderIncludeCeiling {
+    /// Ordinary rerenders keep the public safety limit.
+    Public,
+
+    /// The corpus finalizer renders an imported page it owns.
+    Corpus,
+
+    /// A corpus finalizer dependent uses the corpus ceiling only when its own
+    /// latest revision was imported from Wikidot.
+    CorpusForImportedRevision,
+}
+
 /// The changes for the first revision.
 /// The first revision is always considered to have changed everything.
 ///
@@ -1208,7 +1222,40 @@ impl PageRevisionService {
         depth: RerenderDepth,
         rerender_type: RerenderType,
     ) -> Result<()> {
-        Self::rerender_inner(ctx, id, depth, rerender_type, true, false, None).await
+        Self::rerender_inner(
+            ctx,
+            id,
+            depth,
+            rerender_type,
+            true,
+            RerenderIncludeCeiling::Public,
+            None,
+        )
+        .await
+    }
+
+    /// Re-renders a dependent of a page the corpus finalizer just rendered.
+    ///
+    /// The finalizer's own render of an imported page uses the corpus include
+    /// ceiling, so a dependent it outdates must render the same way when its
+    /// latest revision was also imported from Wikidot. Locally authored
+    /// dependents keep the public safety limit.
+    pub(crate) async fn rerender_dependent_for_corpus_finalizer(
+        ctx: &ServiceContext<'_>,
+        id: PageId,
+        depth: RerenderDepth,
+        rerender_type: RerenderType,
+    ) -> Result<()> {
+        Self::rerender_inner(
+            ctx,
+            id,
+            depth,
+            rerender_type,
+            true,
+            RerenderIncludeCeiling::CorpusForImportedRevision,
+            None,
+        )
+        .await
     }
 
     /// Re-renders a trusted imported page for the corpus finalizer.
@@ -1229,7 +1276,7 @@ impl PageRevisionService {
             depth,
             rerender_type,
             outdate_dependents,
-            true,
+            RerenderIncludeCeiling::Corpus,
             None,
         )
         .await
@@ -1250,7 +1297,7 @@ impl PageRevisionService {
             depth,
             rerender_type,
             outdate_dependents,
-            true,
+            RerenderIncludeCeiling::Corpus,
             Some(trace),
         )
         .await
@@ -1262,7 +1309,7 @@ impl PageRevisionService {
         depth: RerenderDepth,
         rerender_type: RerenderType,
         outdate_dependents: bool,
-        allow_corpus_dense_includes: bool,
+        include_ceiling: RerenderIncludeCeiling,
         trace: Option<&CorpusRenderTrace>,
     ) -> Result<()> {
         let txn = ctx.transaction();
@@ -1296,6 +1343,11 @@ impl PageRevisionService {
             "Re-rendering revision: site ID {} page ID {} revision ID {} (depth {})",
             site_id, page_id, revision.revision_id, depth,
         );
+        let allow_corpus_dense_includes = match include_ceiling {
+            RerenderIncludeCeiling::Public => false,
+            RerenderIncludeCeiling::Corpus => true,
+            RerenderIncludeCeiling::CorpusForImportedRevision => revision.from_wikidot,
+        };
 
         // Check that this rerender request / job is not blocked by the
         // specified anti-loop/excessive rerender rules.

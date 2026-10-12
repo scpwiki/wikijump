@@ -20,8 +20,8 @@
       },
       {
         "path": "deepwell/src/api.rs",
-        "git_blob": "75490fca1a99ef76cfb9d10dd41da2f5d7048322",
-        "sha256": "14d8943265e024322e75b6f05c3fa4ffab7aaaf5aa9e3a1b3947c173b1706e45"
+        "git_blob": "11737594ad8f1c0ef1b0890fc4c53114ad7fe76b",
+        "sha256": "bf4d26f45298a35a97f971770e68914924ef1e841750770d85d72d448b3a62d3"
       },
       {
         "path": "deepwell/src/endpoints/text_block.rs",
@@ -35,8 +35,8 @@
       },
       {
         "path": "deepwell/src/services/context.rs",
-        "git_blob": "1df00d158c761598349d964b5f2d0f3c98c6660c",
-        "sha256": "6e34af61558129d040a730a3016e0d1db8b57f429a2bf6c5106d55eae6c8117f"
+        "git_blob": "4cc554f3ca75f48f85047dfddc4457b032df20b2",
+        "sha256": "e1bc41ab201d6698efb2bf3c18b63819ff8640935cb7ca5324b395ee2478b996"
       },
       {
         "path": "deepwell/src/services/text_block/service.rs",
