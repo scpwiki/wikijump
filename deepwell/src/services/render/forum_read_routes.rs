@@ -169,6 +169,8 @@ struct ForumThreadCandidate {
     category_name: String,
     title: String,
     description: String,
+    page_slug: Option<String>,
+    page_title: Option<String>,
     created_at: time::OffsetDateTime,
     post_count: i64,
     last_forum_post_id: Option<i64>,
@@ -193,6 +195,9 @@ struct ForumThreadView {
     category_name: String,
     title: String,
     description: String,
+    /// The discussed page for a per-page discussion thread.
+    page_slug: Option<String>,
+    page_title: Option<String>,
     created_at: time::OffsetDateTime,
     post_count: i64,
     creator: super::forum_modules::ForumUserDisplay,
@@ -277,6 +282,7 @@ async fn load_forum_threads(
                 "SELECT t.forum_thread_id, t.forum_category_id, g.name AS group_name, ",
                 "c.name AS category_name, ",
                 "t.title, t.description, t.created_at, ",
+                "p.slug AS page_slug, page_revision.title AS page_title, ",
                 "counts.post_count, last_post.forum_post_id AS last_forum_post_id, ",
                 "last_post.created_at AS last_created_at, t.created_by AS creator_user_id, ",
                 "CASE WHEN imported.source_system_creator THEN 'Wikidot' ELSE creator_wu.name END AS creator_wikidot_name, ",
@@ -294,6 +300,7 @@ async fn load_forum_threads(
                 " AND g.site_id = t.site_id AND g.deleted_at IS NULL ",
                 "LEFT JOIN page p ON p.page_id = t.page_id ",
                 " AND p.site_id = t.site_id AND p.deleted_at IS NULL ",
+                "LEFT JOIN page_revision ON page_revision.revision_id = p.latest_revision_id ",
                 "JOIN LATERAL (SELECT COUNT(fp.forum_post_id) AS post_count ",
                 " FROM forum_post fp WHERE fp.forum_thread_id = t.forum_thread_id ",
                 " AND fp.site_id = t.site_id AND fp.deleted_at IS NULL) counts ON TRUE ",
@@ -363,6 +370,8 @@ async fn load_forum_threads(
             category_name: candidate.category_name,
             title: candidate.title,
             description: candidate.description,
+            page_slug: candidate.page_slug,
+            page_title: candidate.page_title,
             created_at: candidate.created_at,
             post_count: candidate.post_count,
             creator: forum_user(
@@ -536,7 +545,7 @@ fn render_forum_thread(thread: &ForumThreadView, posts: &str) -> String {
             "Number of posts: {post_count}<br/><span class=\"rss-icon\">",
             "<img src=\"/common--theme/base/images/feed/feed-icon-14x14.png\" alt=\"rss icon\"/>",
             "</span> RSS: <a href=\"/feed/forum/t-{thread_id}.xml\">New posts</a></div>",
-            "<div class=\"head\">Summary:</div>{description}</div>",
+            "{description}</div>",
             "<div class=\"options\"><a href=\"javascript:;\" onclick=\"WIKIDOT.modules.ForumViewThreadModule.listeners.unfoldAll(event)\" class=\"btn btn-default btn-small btn-sm\">Unfold All</a> ",
             "<a href=\"javascript:;\" onclick=\"WIKIDOT.modules.ForumViewThreadModule.listeners.foldAll(event)\" class=\"btn btn-default btn-small btn-sm\">Fold All</a> ",
             "<a href=\"javascript:;\" id=\"thread-toggle-options\" onclick=\"WIKIDOT.modules.ForumViewThreadModule.listeners.toggleThreadOptions(event)\" class=\"btn btn-default btn-small btn-sm\"><i class=\"icon-plus\"></i> More Options</a></div>",
@@ -569,60 +578,68 @@ fn render_forum_thread(thread: &ForumThreadView, posts: &str) -> String {
         ),
         post_count = thread.post_count,
         thread_id = thread.forum_thread_id,
-        description = escape_list_pages_html_text(&thread.description),
+        description = render_forum_thread_description(thread),
         posts = posts,
     )
 }
 
-async fn load_forum_thread_posts(
+/// A per-page discussion thread names its page with a link instead of the
+/// stored summary; other threads show their summary under a `Summary:` head.
+fn render_forum_thread_description(thread: &ForumThreadView) -> String {
+    match thread.page_slug.as_deref() {
+        Some(page_slug) => {
+            let page_title = thread
+                .page_title
+                .as_deref()
+                .filter(|title| !title.is_empty())
+                .unwrap_or(page_slug);
+            format!(
+                "This is the discussion related to the wiki page <a href=\"/{}\">{}</a>.",
+                escape_list_pages_html_attr(page_slug),
+                escape_list_pages_html_text(page_title),
+            )
+        }
+        None => format!(
+            "<div class=\"head\">Summary:</div>{}",
+            escape_list_pages_html_text(&thread.description),
+        ),
+    }
+}
+
+/// Render one page of a thread: ten root posts with their nested replies,
+/// between identical top and bottom pagers. `None` for a page past the end.
+async fn render_forum_thread_page(
     ctx: &ServiceContext<'_>,
     site_id: i64,
-    forum_thread_id: i64,
-) -> Result<Vec<ForumThreadPostView>> {
-    let make_error =
-        || Error::new("failed to load forum thread posts", ErrorType::Render);
-    let order_clause = "ORDER BY fp.created_at ASC, fp.forum_post_id ASC LIMIT 20";
-    let candidates = ForumThreadPostCandidate::find_by_statement(
-        Statement::from_sql_and_values(
-            ctx.transaction().get_database_backend(),
-            format!(
-                "{} {order_clause}",
-                concat!(
-                "SELECT fp.forum_post_id, fp.parent_post_id, 0::BIGINT AS tree_depth, fp.user_id, fp.created_at, ",
-                "revision.revision_number, source_post.source_has_edit, revision.created_at AS revision_created_at, ",
-                "revision.user_id AS revision_user_id, revision.title, ",
-                "revision.compiled_html_hash, wu.name AS wikidot_user_name, ",
-                "wu.slug AS wikidot_user_slug, local_user.name AS local_user_name, ",
-                "local_user.slug AS local_user_slug, local_user.forum_signature, ",
-                "fp.guest_name, fp.guest_email_md5, ",
-                "revision_wu.name AS revision_wikidot_user_name, ",
-                "revision_wu.slug AS revision_wikidot_user_slug, ",
-                "revision_local.name AS revision_local_user_name, ",
-                "revision_local.slug AS revision_local_user_slug FROM forum_post fp ",
-                "JOIN forum_post_revision revision ",
-                " ON revision.forum_post_revision_id = fp.latest_revision_id ",
-                " AND revision.site_id = fp.site_id ",
-                "LEFT JOIN wikidot_discussion_post_snapshot source_post ON source_post.forum_post_id = fp.forum_post_id ",
-                " AND source_post.revision_id = fp.latest_revision_id ",
-                "LEFT JOIN wikidot_display_user wu ON wu.user_id = fp.user_id AND wu.is_deleted = FALSE ",
-                "LEFT JOIN \"user\" local_user ON local_user.user_id = fp.user_id ",
-                " AND local_user.deleted_at IS NULL ",
-                "LEFT JOIN wikidot_display_user revision_wu ON revision_wu.user_id = revision.user_id ",
-                " AND revision_wu.is_deleted = FALSE ",
-                "LEFT JOIN \"user\" revision_local ON revision_local.user_id = revision.user_id ",
-                " AND revision_local.deleted_at IS NULL ",
-                "WHERE fp.site_id = $1 AND fp.forum_thread_id = $2 ",
-                " AND fp.deleted_at IS NULL",
-                ),
-            ),
-            [Value::from(site_id), Value::from(forum_thread_id)],
-        ),
+    thread_id: i64,
+    page: u32,
+) -> Result<Option<String>> {
+    let root_count = forum_comments::count_comment_roots(ctx, site_id, thread_id).await?;
+    let page_count = root_count.div_ceil(forum_comments::ROOTS_PER_PAGE as u64);
+    if u64::from(page) > page_count.max(1) {
+        return Ok(None);
+    }
+    let Some(nodes) = forum_comments::load_comment_nodes(
+        ctx,
+        site_id,
+        thread_id,
+        ForumCommentsOrder::Forward,
+        page,
     )
-    .all(ctx.transaction())
-    .await
-    .or_raise(make_error)?;
-
-    hydrate_forum_posts(ctx, site_id, candidates).await
+    .await?
+    else {
+        return Ok(None);
+    };
+    let mut pager = String::new();
+    forum_comments::push_pager(&mut pager, u64::from(page), page_count);
+    let mut output = pager.clone();
+    output.push_str(&forum_comments::render_comment_nodes(
+        &nodes,
+        false,
+        ForumUserResourceScheme::Http,
+    ));
+    output.push_str(&pager);
+    Ok(Some(output))
 }
 
 pub(super) async fn hydrate_forum_posts(
@@ -715,21 +732,6 @@ pub(super) async fn hydrate_forum_posts(
     Ok(posts)
 }
 
-fn render_forum_thread_posts(posts: &[ForumThreadPostView]) -> String {
-    let avatar_timestamp = time::OffsetDateTime::now_utc().unix_timestamp();
-    let mut output = String::new();
-    for post in posts {
-        output.push_str(&render_forum_thread_post(
-            post,
-            "",
-            avatar_timestamp,
-            false,
-            ForumUserResourceScheme::Http,
-        ));
-    }
-    output
-}
-
 pub(super) fn render_forum_thread_post(
     post: &ForumThreadPostView,
     replies: &str,
@@ -767,7 +769,7 @@ pub(super) fn render_forum_thread_post(
         )
     });
     format!(
-        "<div class=\"post-container\" id=\"fpc-{post_id}\"><div class=\"post\" id=\"post-{post_id}\"><div class=\"long\"><div class=\"head\"><div class=\"options\"><a href=\"javascript:;\" onclick=\"togglePostFold(event,{post_id})\" class=\"btn btn-default btn-small btn-sm\">Fold</a></div><div class=\"title\" id=\"post-title-{post_id}\">{title}</div><div class=\"info\">{user} {date}</div></div><div class=\"content\" id=\"post-content-{post_id}\">{compiled_html}</div>{signature}{changes}<div class=\"options\">{reply}<a href=\"javascript:;\" onclick=\"togglePostOptions(event,{post_id})\" class=\"btn btn-default btn-small btn-sm\">Options</a></div><div id=\"post-options-{post_id}\" class=\"options\" style=\"display: none\"></div></div><div class=\"short\"><a class=\"options btn btn-default btn-mini btn-xs\" href=\"javascript:;\" onclick=\"togglePostFold(event,{post_id})\">Unfold</a><a class=\"title\" href=\"javascript:;\" onclick=\"togglePostFold(event,{post_id})\">{title}</a> by {user}, {date}</div></div>{replies}</div>",
+        "<div class=\"post-container\" id=\"fpc-{post_id}\"><div class=\"post\" id=\"post-{post_id}\"><div class=\"long\"><div class=\"head\"><div class=\"options\"><a href=\"javascript:;\" onclick=\"togglePostFold(event,{post_id})\" class=\"btn btn-default btn-small btn-sm\">Fold</a></div><div class=\"title\" id=\"post-title-{post_id}\">{title}</div><div class=\"info\">{user} {date}</div></div><div class=\"content\" id=\"post-content-{post_id}\">{compiled_html}</div>{signature}{changes}<div class=\"options\">{reply}<a href=\"javascript:;\" onclick=\"togglePostOptions(event,{post_id})\" class=\"btn btn-default btn-small btn-sm\">Options</a></div><div id=\"post-options-{post_id}\" class=\"options\" style=\"display: none\"></div></div><div class=\"short\"><a class=\"options btn btn-default btn-mini btn-xs\" href=\"javascript:;\" onclick=\"togglePostFold(event,{post_id})\" c>Unfold</a><a class=\"title\" href=\"javascript:;\" onclick=\"togglePostFold(event,{post_id})\">{title}</a> by {user}, {date}</div></div>{replies}</div>",
         post_id = post.forum_post_id,
         title = escape_list_pages_html_text(&post.title),
         compiled_html = post.compiled_html.as_str(),
@@ -1242,8 +1244,11 @@ impl RenderService {
                 let Some(thread) = threads.pop() else {
                     return Ok(response("no_thread", String::new()));
                 };
-                let posts = load_forum_thread_posts(ctx, site_id, thread_id).await?;
-                let rendered_posts = render_forum_thread_posts(&posts);
+                let Some(rendered_posts) =
+                    render_forum_thread_page(ctx, site_id, thread_id, 1).await?
+                else {
+                    return Ok(response("not_ok", String::new()));
+                };
                 Ok(response_with_scripts(
                     "ok",
                     render_forum_thread(&thread, &rendered_posts),
@@ -1258,11 +1263,11 @@ impl RenderService {
                 else {
                     return Ok(response("no_thread", String::new()));
                 };
-                if positive_decimal_parameter::<u32>(&request.parameters, "pageNo")
-                    != Some(1)
-                {
+                let Some(page) =
+                    positive_decimal_parameter::<u32>(&request.parameters, "pageNo")
+                else {
                     return Ok(response("not_ok", String::new()));
-                }
+                };
                 let Some(threads) = load_forum_threads(
                     ctx,
                     site_id,
@@ -1277,10 +1282,14 @@ impl RenderService {
                 if threads.is_empty() {
                     return Ok(response("no_thread", String::new()));
                 }
-                let posts = load_forum_thread_posts(ctx, site_id, thread_id).await?;
+                let Some(rendered_posts) =
+                    render_forum_thread_page(ctx, site_id, thread_id, page).await?
+                else {
+                    return Ok(response("not_ok", String::new()));
+                };
                 Ok(response_with_scripts(
                     "ok",
-                    render_forum_thread_posts(&posts),
+                    rendered_posts,
                     &[THREAD_POSTS_SCRIPT],
                 ))
             }
@@ -1400,7 +1409,7 @@ fn forum_feed_candidate_sql(
 mod tests {
     use super::{
         ForumThreadView, push_forum_category_pager, render_forum_category,
-        render_forum_thread,
+        render_forum_thread, render_forum_thread_description,
     };
     use crate::services::render::forum_modules::forum_guest_user;
 
@@ -1474,6 +1483,8 @@ mod tests {
             category_name: "Category".to_owned(),
             title: "Thread".to_owned(),
             description: String::new(),
+            page_slug: None,
+            page_title: None,
             created_at: time::OffsetDateTime::UNIX_EPOCH,
             post_count: 0,
             creator: forum_guest_user("Guest".to_owned(), "0".repeat(32)),
@@ -1486,5 +1497,41 @@ mod tests {
         for rendered in [category, thread_html] {
             assert!(!rendered.contains("www.wikidot.com/common--theme"));
         }
+    }
+
+    #[test]
+    fn page_discussion_thread_links_its_page_instead_of_a_summary() {
+        let mut thread = ForumThreadView {
+            forum_thread_id: 17_768_232,
+            forum_category_id: 50_742,
+            group_name: "Per Page Discussions".to_owned(),
+            category_name: "Per page discussions".to_owned(),
+            title: "National Fog Safety Initiative".to_owned(),
+            description: "This is the discussion related to the wiki page National Fog Safety Initiative .".to_owned(),
+            page_slug: Some("scp-9506".to_owned()),
+            page_title: Some("National Fog Safety Initiative".to_owned()),
+            created_at: time::OffsetDateTime::UNIX_EPOCH,
+            post_count: 95,
+            creator: forum_guest_user("Guest".to_owned(), "0".repeat(32)),
+            last_post: None,
+        };
+        assert_eq!(
+            render_forum_thread_description(&thread),
+            r#"This is the discussion related to the wiki page <a href="/scp-9506">National Fog Safety Initiative</a>."#,
+        );
+        assert!(!render_forum_thread(&thread, "").contains("Summary:"));
+
+        thread.page_title = Some(String::new());
+        assert!(
+            render_forum_thread_description(&thread)
+                .ends_with(r#"<a href="/scp-9506">scp-9506</a>."#)
+        );
+
+        thread.page_slug = None;
+        thread.description = "A <plain> thread".to_owned();
+        assert_eq!(
+            render_forum_thread_description(&thread),
+            r#"<div class="head">Summary:</div>A &lt;plain&gt; thread"#,
+        );
     }
 }

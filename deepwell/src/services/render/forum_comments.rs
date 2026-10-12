@@ -18,7 +18,7 @@ use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::{forum_category, forum_group, forum_post, forum_thread, page};
 use crate::services::ServiceContext;
 
-const ROOTS_PER_PAGE: usize = 10;
+pub(super) const ROOTS_PER_PAGE: usize = 10;
 const POST_CANDIDATE_LIMIT: usize = 1_001;
 const MAX_COMMENT_DEPTH: usize = 128;
 const THREAD_SCRIPT: &str = "https://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--modules/js/forum/ForumViewThreadModule.js";
@@ -46,7 +46,7 @@ pub(super) enum ForumCommentsLoad {
 }
 
 #[derive(Debug)]
-struct ForumCommentNode {
+pub(super) struct ForumCommentNode {
     post: ForumThreadPostView,
     replies: Vec<ForumCommentNode>,
 }
@@ -68,7 +68,8 @@ pub(super) async fn load(
         .forum_category_is_postable(site_id, forum_category_id)
         .await?;
     let root_count = count_comment_roots(ctx, site_id, thread_id).await?;
-    let Some(comments) = load_comment_nodes(ctx, site_id, thread_id, order).await? else {
+    let Some(comments) = load_comment_nodes(ctx, site_id, thread_id, order, 1).await?
+    else {
         return Ok(ForumCommentsLoad::Saturated);
     };
     let scripts = match order {
@@ -146,7 +147,7 @@ async fn resolve_page_discussion_thread(
     Ok(Some((thread.forum_thread_id, thread.forum_category_id)))
 }
 
-async fn count_comment_roots(
+pub(super) async fn count_comment_roots(
     ctx: &ServiceContext<'_>,
     site_id: i64,
     thread_id: i64,
@@ -161,11 +162,14 @@ async fn count_comment_roots(
         .or_raise(|| Error::new("failed to count page comments", ErrorType::Render))
 }
 
-async fn load_comment_nodes(
+/// Load one page of root posts (ten per page) with every descendant nested
+/// under its parent. `page` is 1-based; roots are paged in `order`.
+pub(super) async fn load_comment_nodes(
     ctx: &ServiceContext<'_>,
     site_id: i64,
     thread_id: i64,
     order: ForumCommentsOrder,
+    page: u32,
 ) -> Result<Option<Vec<ForumCommentNode>>> {
     let make_error = || Error::new("failed to load page comments", ErrorType::Render);
     let root_order = match order {
@@ -182,7 +186,7 @@ async fn load_comment_nodes(
                     "WHERE root.site_id = $1 AND root.forum_thread_id = $2 ",
                     " AND root.parent_post_id IS NULL AND root.deleted_at IS NULL ",
                     "ORDER BY root.created_at {root_order}, root.forum_post_id {root_order} ",
-                    "LIMIT {root_limit}) UNION ALL SELECT child.*, parent.tree_depth + 1 ",
+                    "LIMIT {root_limit} OFFSET {root_offset}) UNION ALL SELECT child.*, parent.tree_depth + 1 ",
                     "FROM forum_post child JOIN selected_posts parent ",
                     " ON child.parent_post_id = parent.forum_post_id ",
                     "WHERE child.site_id = $1 AND child.forum_thread_id = $2 ",
@@ -213,6 +217,7 @@ async fn load_comment_nodes(
                 ),
                 root_order = root_order,
                 root_limit = ROOTS_PER_PAGE,
+                root_offset = (u64::from(page.max(1)) - 1) * ROOTS_PER_PAGE as u64,
                 overflow_depth = MAX_COMMENT_DEPTH + 1,
                 candidate_limit = POST_CANDIDATE_LIMIT,
             ),
@@ -290,7 +295,7 @@ fn render_comments(
         "<a href=\"javascript:;\" onclick=\"WIKIDOT.modules.ForumViewThreadModule.listeners.foldAll(event)\" class=\"btn btn-default btn-small btn-sm\">Fold All</a></div>",
     );
     let mut pager = String::new();
-    push_pager(&mut pager, root_count.div_ceil(ROOTS_PER_PAGE as u64));
+    push_pager(&mut pager, 1, root_count.div_ceil(ROOTS_PER_PAGE as u64));
     let mut output = format!(
         "<script type=\"text/javascript\">WIKIDOT.forumThreadId = {thread_id};</script>",
     );
@@ -300,7 +305,11 @@ fn render_comments(
     output.push_str(options);
     output.push_str("<div id=\"thread-container-posts\" style=\"display: none\">");
     output.push_str(&pager);
-    output.push_str(&render_comment_nodes(comments));
+    output.push_str(&render_comment_nodes(
+        comments,
+        true,
+        ForumUserResourceScheme::Https,
+    ));
     output.push_str(&pager);
     output.push_str("</div>");
     if order == ForumCommentsOrder::Forward {
@@ -338,66 +347,159 @@ fn render_new_post_form(thread_id: i64) -> String {
     )
 }
 
-fn render_comment_nodes(nodes: &[ForumCommentNode]) -> String {
-    fn render(nodes: &[ForumCommentNode], avatar_timestamp: i64) -> String {
+pub(super) fn render_comment_nodes(
+    nodes: &[ForumCommentNode],
+    include_reply: bool,
+    resource_scheme: ForumUserResourceScheme,
+) -> String {
+    fn render(
+        nodes: &[ForumCommentNode],
+        avatar_timestamp: i64,
+        include_reply: bool,
+        resource_scheme: ForumUserResourceScheme,
+    ) -> String {
         let mut output = String::new();
         for node in nodes {
-            let replies = render(&node.replies, avatar_timestamp);
+            let replies = render(
+                &node.replies,
+                avatar_timestamp,
+                include_reply,
+                resource_scheme,
+            );
             output.push_str(&render_forum_thread_post(
                 &node.post,
                 &replies,
                 avatar_timestamp,
-                true,
-                ForumUserResourceScheme::Https,
+                include_reply,
+                resource_scheme,
             ));
         }
         output
     }
 
-    render(nodes, time::OffsetDateTime::now_utc().unix_timestamp())
+    render(
+        nodes,
+        time::OffsetDateTime::now_utc().unix_timestamp(),
+        include_reply,
+        resource_scheme,
+    )
 }
 
-fn push_pager(output: &mut String, page_count: u64) {
+/// Wikidot's AJAX post pager: the first two pages, two pages either side of
+/// the current one, and the last two. A gap of one page shows that page; a
+/// longer gap shows `...`. Previous/next surround the list, and every link
+/// reloads the posts in place.
+pub(super) fn push_pager(output: &mut String, page: u64, page_count: u64) {
     if page_count <= 1 {
         return;
     }
+    let link = |output: &mut String, target: u64, label: &str| {
+        write!(
+            output,
+            concat!(
+                "<span class=\"target\"><a href=\"javascript:;\" ",
+                "onclick=\"WIKIDOT.modules.ForumViewThreadPostsModule.listeners.updateList({target})\">{label}</a></span>",
+            ),
+            target = target,
+            label = label,
+        )
+        .expect("writing to a String cannot fail");
+    };
     write!(
         output,
-        concat!(
-            "<div class=\"pager\"><span class=\"pager-no\">page 1 of {page_count}</span>",
-            "<span class=\"current\">1</span>",
-        ),
-        page_count = page_count,
+        "<div class=\"pager\"><span class=\"pager-no\">page {page} of {page_count}</span>",
     )
     .expect("writing to a String cannot fail");
-    for page in 2..=page_count.min(3) {
-        write!(
-            output,
-            concat!(
-                "<span class=\"target\"><a href=\"javascript:;\" ",
-                "onclick=\"WIKIDOT.modules.ForumViewThreadPostsModule.listeners.updateList({page})\">{page}</a></span>",
-            ),
-            page = page,
-        )
-        .expect("writing to a String cannot fail");
+    if page > 1 {
+        link(output, page - 1, "&laquo; previous");
     }
-    if page_count > 5 {
-        output.push_str("<span class=\"dots\">...</span>");
+    let mut pages = Vec::with_capacity(9);
+    pages.extend(1..=2.min(page_count));
+    pages.extend(page.saturating_sub(2).max(1)..=(page + 2).min(page_count));
+    pages.extend(page_count.saturating_sub(1).max(1)..=page_count);
+    pages.sort_unstable();
+    pages.dedup();
+    let mut previous = 0;
+    for number in pages {
+        if previous > 0 && number == previous + 2 {
+            link(output, previous + 1, &(previous + 1).to_string());
+        } else if previous > 0 && number > previous + 2 {
+            output.push_str("<span class=\"dots\">...</span>");
+        }
+        if number == page {
+            write!(output, "<span class=\"current\">{number}</span>")
+                .expect("writing to a String cannot fail");
+        } else {
+            link(output, number, &number.to_string());
+        }
+        previous = number;
     }
-    let tail_start = if page_count > 5 { page_count - 1 } else { 4 };
-    for page in tail_start..=page_count {
-        write!(
-            output,
-            concat!(
-                "<span class=\"target\"><a href=\"javascript:;\" ",
-                "onclick=\"WIKIDOT.modules.ForumViewThreadPostsModule.listeners.updateList({page})\">{page}</a></span>",
-            ),
-            page = page,
-        )
-        .expect("writing to a String cannot fail");
+    if page < page_count {
+        link(output, page + 1, "next &raquo;");
     }
-    output.push_str(concat!(
-        "<span class=\"target\"><a href=\"javascript:;\" ",
-        "onclick=\"WIKIDOT.modules.ForumViewThreadPostsModule.listeners.updateList(2)\">next &raquo;</a></span></div>",
-    ));
+    output.push_str("</div>");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::push_pager;
+
+    /// Rebuild Wikidot's pager markup from a compact token list: `[n]` is the
+    /// current page, `<n` previous, `>n` next, `...` a gap, `n` a page link.
+    fn wikidot_pager(page: u64, page_count: u64, tokens: &str) -> String {
+        let link = |target: &str, label: &str| {
+            format!(
+                "<span class=\"target\"><a href=\"javascript:;\" onclick=\"WIKIDOT.modules.ForumViewThreadPostsModule.listeners.updateList({target})\">{label}</a></span>"
+            )
+        };
+        let mut output = format!(
+            "<div class=\"pager\"><span class=\"pager-no\">page {page} of {page_count}</span>"
+        );
+        for token in tokens.split_whitespace() {
+            output.push_str(&if let Some(target) = token.strip_prefix('<') {
+                link(target, "&laquo; previous")
+            } else if let Some(target) = token.strip_prefix('>') {
+                link(target, "next &raquo;")
+            } else if token == "..." {
+                "<span class=\"dots\">...</span>".to_owned()
+            } else if let Some(current) =
+                token.strip_prefix('[').and_then(|t| t.strip_suffix(']'))
+            {
+                format!("<span class=\"current\">{current}</span>")
+            } else {
+                link(token, token)
+            });
+        }
+        output.push_str("</div>");
+        output
+    }
+
+    #[test]
+    fn thread_pager_matches_every_page_of_a_live_eight_page_thread() {
+        // Retained anonymous ForumViewThreadPostsModule responses for
+        // scp-wiki thread 17768232, pages 1 through 8 (2026-10-12).
+        for (page, tokens) in [
+            (1, "[1] 2 3 ... 7 8 >2"),
+            (2, "<1 1 [2] 3 4 ... 7 8 >3"),
+            (3, "<2 1 2 [3] 4 5 6 7 8 >4"),
+            (4, "<3 1 2 3 [4] 5 6 7 8 >5"),
+            (5, "<4 1 2 3 4 [5] 6 7 8 >6"),
+            (6, "<5 1 2 3 4 5 [6] 7 8 >7"),
+            (7, "<6 1 2 ... 5 6 [7] 8 >8"),
+            (8, "<7 1 2 ... 6 7 [8]"),
+        ] {
+            let mut output = String::new();
+            push_pager(&mut output, page, 8);
+            assert_eq!(output, wikidot_pager(page, 8, tokens), "page {page}");
+        }
+    }
+
+    #[test]
+    fn thread_pager_is_absent_for_a_single_page() {
+        for page_count in [0, 1] {
+            let mut output = String::new();
+            push_pager(&mut output, 1, page_count);
+            assert_eq!(output, "");
+        }
+    }
 }
