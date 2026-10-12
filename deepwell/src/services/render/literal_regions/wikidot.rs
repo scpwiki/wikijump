@@ -550,10 +550,18 @@ mod tests {
 
     #[test]
     fn pinned_url_email_delimiters_preserve_inline_literal_boundaries() {
-        for owner in ["foo@bar.example", "https://e.test/a"] {
+        for (owner, dollar_owned) in
+            [("foo@bar.example", false), ("https://e.test/a", true)]
+        {
+            // An email ends at its last domain label, so `$]]` right after it
+            // closes the inline math; a URL token still owns the `$`.
             for (source, hidden, live) in [
                 (format!("@@{owner}@@x hidden @@ live"), false, true),
-                (format!("[[$ {owner}$]]x hidden $]] live"), true, false),
+                (
+                    format!("[[$ {owner}$]]x hidden $]] live"),
+                    dollar_owned,
+                    false,
+                ),
                 (format!("[!--{owner}--]x hidden --] live"), true, false),
             ] {
                 let ranges = literal_ranges(&source);

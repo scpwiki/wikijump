@@ -183,86 +183,50 @@ fn scan_email(bytes: &[u8], start: usize, identifier_end: usize) -> EmailScan {
         _ => {}
     }
 
-    // Keep these stops in lockstep with the pinned FTML context-free email
-    // scanner. Punctuation outside this set remains owned by the email token.
-    let mut at = identifier_end;
-    while at < bytes.len()
-        && !is_discarded_control(bytes[at])
-        && !matches!(
-            bytes[at],
-            b' ' | b'\t'
-                | b'%'
-                | b'@'
-                | b'|'
-                | b'['
-                | b']'
-                | b'{'
-                | b'}'
-                | b'<'
-                | b'>'
-                | b'\n'
-                | b'\r'
-        )
-    {
-        at += 1;
+    // Keep this in lockstep with the pinned FTML scanner, which follows
+    // Wikidot's `word(.word)*@label(.label)+`: local words are ASCII
+    // alphanumeric, `_`, or `-`; domain labels are ASCII alphanumeric or `-`.
+    // Every later start inside the scanned local run reaches the same `@` or
+    // stop, so a failed scan proves the whole local run.
+    let local_end = scan_email_dotted(bytes, start, is_email_local_byte);
+    record_email_bytes_examined(local_end - start);
+    if bytes.get(local_end) != Some(&b'@') {
+        return EmailScan::Failed {
+            safe_until: local_end,
+        };
     }
-    record_email_bytes_examined(at - identifier_end);
-    if at == start || bytes.get(at) != Some(&b'@') {
-        return EmailScan::Failed { safe_until: at };
-    }
-
-    let mut dot = at + 1;
-    while dot < bytes.len()
-        && !is_discarded_control(bytes[dot])
-        && !matches!(
-            bytes[dot],
-            b' ' | b'\t'
-                | b'@'
-                | b'.'
-                | b'|'
-                | b'['
-                | b']'
-                | b'{'
-                | b'}'
-                | b'<'
-                | b'>'
-                | b'\n'
-                | b'\r'
-        )
-    {
-        dot += 1;
-    }
-    record_email_bytes_examined(dot - (at + 1));
-    if dot == at + 1 || bytes.get(dot) != Some(&b'.') {
-        return EmailScan::Failed { safe_until: dot };
-    }
-
-    let mut end = dot + 1;
-    while end < bytes.len()
-        && !is_discarded_control(bytes[end])
-        && !matches!(
-            bytes[end],
-            b' ' | b'\t'
-                | b'@'
-                | b'|'
-                | b'['
-                | b']'
-                | b'{'
-                | b'}'
-                | b'<'
-                | b'>'
-                | b'\n'
-                | b'\r'
-        )
-    {
-        end += 1;
-    }
-    record_email_bytes_examined(end - (dot + 1));
-    if end > dot + 1 {
-        EmailScan::Token { end }
+    let domain_start = local_end + 1;
+    let domain_end = scan_email_dotted(bytes, domain_start, is_email_label_byte);
+    record_email_bytes_examined(domain_end - domain_start);
+    if bytes[domain_start..domain_end].contains(&b'.') {
+        EmailScan::Token { end: domain_end }
     } else {
-        EmailScan::Failed { safe_until: end }
+        EmailScan::Failed {
+            safe_until: local_end,
+        }
     }
+}
+
+fn is_email_local_byte(byte: u8) -> bool {
+    byte.is_ascii_alphanumeric() || matches!(byte, b'_' | b'-')
+}
+
+fn is_email_label_byte(byte: u8) -> bool {
+    byte.is_ascii_alphanumeric() || byte == b'-'
+}
+
+/// Scans `part(.part)*` from `start`, stopping before a `.` that does not
+/// begin another non-empty part.
+fn scan_email_dotted(bytes: &[u8], start: usize, part: fn(u8) -> bool) -> usize {
+    let mut end = start;
+    while bytes.get(end).copied().is_some_and(part) {
+        end += 1;
+        if bytes.get(end) == Some(&b'.') && bytes.get(end + 1).copied().is_some_and(part)
+        {
+            end += 1;
+        }
+    }
+    end
 }
 
 fn scan_url(bytes: &[u8], start: usize) -> Option<usize> {
@@ -1082,7 +1046,7 @@ mod tests {
         // markers instead of allowing a URL/email scan to consume them.
         let ranges = [
             0..15,
-            19..35,
+            19..34,
             38..55,
             57..72,
             76..92,

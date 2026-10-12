@@ -1506,36 +1506,53 @@ fn rolled_back_competing_parser_function_runs_fail_closed() {
 }
 
 #[test]
-fn email_owned_quotes_do_not_change_tag_or_module_head_state() {
-    let generic = concat!(
-        "[[span title=\"foo@bar.example\" x=y ",
-        "[[module ListPages name='fake']]ignored[[/module]] end\" safe=\"ok\"]]",
-        "[[module ListPages name=\"real\"]]kept[[/module]]",
+fn quotes_after_emails_close_attribute_values_like_plain_text() {
+    // The pinned FTML email token ends at its last domain label, as Wikidot
+    // does, so a following quote closes the value exactly as after plain text.
+    let shapes = [
+        concat!(
+            "[[span title=\"{}\" x=y ",
+            "[[module ListPages name='fake']]ignored[[/module]] end\" safe=\"ok\"]]",
+            "[[module ListPages name=\"real\"]]kept[[/module]]",
+        ),
+        concat!(
+            "[[module ListPages title=\"{}\" x=y ",
+            "[[module ListPages]]fake[[/module]] end\" safe=\"ok\"]]",
+            "OUTER[[/module]]",
+        ),
+        "[[module ListPages title=\"{}\" ]]BODY[[/module]]",
+        "[[module ListPages name = \"{}\" wrapper=no\"]]x[[/module]]",
+        concat!(
+            "[[span a=\"prefix\" foo={} ",
+            "[[module ListPages]]fake[[/module]] final\"]]",
+            "[[module ListPages name=\"real\"]]kept[[/module]]",
+        ),
+        concat!(
+            "[[span a=\"prefix\"\\\n",
+            "foo={} [[module ListPages]]fake[[/module]] final\"]]",
+            "[[module ListPages name=\"real\"]]kept[[/module]]",
+        ),
+        concat!(
+            "[[span title=\"\\{}\n",
+            "[[module ListPages name='live']]X[[/module]]\n\"]]",
+        ),
+    ];
+    let summary = |source: &str| {
+        find_list_pages_module_matches(source)
+            .into_iter()
+            .map(|module| (module.body.to_owned(), module.runtime_safe))
+            .collect::<Vec<_>>()
+    };
+    for shape in shapes {
+        let email = shape.replace("{}", "foo@bar.example");
+        let plain = shape.replace("{}", "foobarexample");
+        assert_eq!(summary(&email), summary(&plain), "{email:?}");
+    }
+    let modules = find_list_pages_module_matches(
+        "[[module ListPages title=\"foo@bar.example\" ]]BODY[[/module]]",
     );
-    let modules = find_list_pages_module_matches(generic);
     assert_eq!(modules.len(), 1);
-    assert_eq!(modules[0].head, "name=\"real\"");
-
-    let module = concat!(
-        "[[module ListPages title=\"foo@bar.example\" x=y ",
-        "[[module ListPages]]fake[[/module]] end\" safe=\"ok\"]]",
-        "OUTER[[/module]]",
-    );
-    let modules = find_list_pages_module_matches(module);
-    assert_eq!(modules.len(), 1);
-    assert_eq!(modules[0].body, "OUTER");
-
-    let unclosed = "[[module ListPages title=\"foo@bar.example\" ]]BODY[[/module]]";
-    assert!(find_list_pages_module_matches(unclosed).is_empty());
-
-    let quote_end_lookahead = concat!(
-        "[[span a=\"prefix\" foo=bar@x.y ",
-        "[[module ListPages]]fake[[/module]] final\"]]",
-        "[[module ListPages name=\"real\"]]kept[[/module]]",
-    );
-    let modules = find_list_pages_module_matches(quote_end_lookahead);
-    assert_eq!(modules.len(), 1);
-    assert_eq!(modules[0].head, "name=\"real\"");
+    assert_eq!(modules[0].body, "BODY");
 
     let url_owned_backslash = concat!(
         "[[span a=\"https://e.test/x\\\" b=\" foo=bar ",
@@ -1545,23 +1562,6 @@ fn email_owned_quotes_do_not_change_tag_or_module_head_state() {
     let modules = find_list_pages_module_matches(url_owned_backslash);
     assert_eq!(modules.len(), 1);
     assert_eq!(modules[0].head, "name=\"real\"");
-
-    let continuation_owned_lookahead = concat!(
-        "[[span a=\"prefix\"\\\n",
-        "foo=bar@x.y [[module ListPages]]fake[[/module]] final\"]]",
-        "[[module ListPages name=\"real\"]]kept[[/module]]",
-    );
-    let modules = find_list_pages_module_matches(continuation_owned_lookahead);
-    assert_eq!(modules.len(), 1);
-    assert_eq!(modules[0].head, "name=\"real\"");
-
-    let owned_token_resets_line_continuation = concat!(
-        "[[span title=\"\\foo@bar.example\n",
-        "[[module ListPages name='live']]X[[/module]]\n\"]]",
-    );
-    assert!(
-        find_list_pages_module_matches(owned_token_resets_line_continuation).is_empty()
-    );
 }
 
 #[test]
@@ -1628,7 +1628,6 @@ fn module_head_validation_preserves_nesting_without_executing_malformed_heads() 
         "[[module ListPages limit\\\r\n\u{2007}=\"1\"]]x[[/module]]",
         "[[module ListPages limit=\\\n\"1\"]]x[[/module]]",
         "[[module ListPages\n\u{00a0}\u{2007}limit=\"1\"]]x[[/module]]",
-        "[[module ListPages name = \"secret@site.example\" wrapper=no\"]]x[[/module]]",
         "[[module ListPages name = \"secret\"wrapper=\"no\"]]x[[/module]]",
         "[[module ListPages name = \"secret\\\" wrapper=no\"]]x[[/module]]",
         "[[module ListPages name=\"foo\tbar\"]]x[[/module]]",
