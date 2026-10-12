@@ -170,6 +170,16 @@ pub(crate) enum PostCommitAction {
     },
 }
 
+/// Who committed the transaction whose post-commit actions are running.
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+enum PostCommitRerenderTrust {
+    /// An ordinary request or job.
+    Public,
+
+    /// The trusted corpus render finalizer.
+    CorpusFinalizer,
+}
+
 impl<'txn> ServiceContext<'txn> {
     // NOTE: It is the responsibility of the caller to manage commit / rollback
     //       for transactions.
@@ -414,6 +424,35 @@ impl<'txn> ServiceContext<'txn> {
         state: &ServerState,
         actions: Vec<PostCommitAction>,
     ) -> Result<()> {
+        Self::run_post_commit_actions_with_rerender_trust(
+            state,
+            actions,
+            PostCommitRerenderTrust::Public,
+        )
+        .await
+    }
+
+    /// Runs the post-commit actions of a corpus render-finalizer commit.
+    ///
+    /// Immediate dependent rerenders keep the finalizer's corpus include
+    /// ceiling for dependents imported from Wikidot.
+    pub(crate) async fn run_post_commit_actions_for_corpus_finalizer(
+        state: &ServerState,
+        actions: Vec<PostCommitAction>,
+    ) -> Result<()> {
+        Self::run_post_commit_actions_with_rerender_trust(
+            state,
+            actions,
+            PostCommitRerenderTrust::CorpusFinalizer,
+        )
+        .await
+    }
+
+    async fn run_post_commit_actions_with_rerender_trust(
+        state: &ServerState,
+        actions: Vec<PostCommitAction>,
+        rerender_trust: PostCommitRerenderTrust,
+    ) -> Result<()> {
         let mut rsmq = Rsmq::clone(&state.rsmq);
         let mut actions = VecDeque::from(actions);
         while let Some(action) = actions.pop_front() {
@@ -449,9 +488,18 @@ impl<'txn> ServiceContext<'txn> {
                     let transaction =
                         state.database.begin().await.or_raise(make_error)?;
                     let ctx = ServiceContext::new(state, &transaction);
-                    PageRevisionService::rerender(&ctx, id, depth, r#type)
-                        .await
-                        .or_raise(make_error)?;
+                    match rerender_trust {
+                        PostCommitRerenderTrust::Public => {
+                            PageRevisionService::rerender(&ctx, id, depth, r#type).await
+                        }
+                        PostCommitRerenderTrust::CorpusFinalizer => {
+                            PageRevisionService::rerender_dependent_for_corpus_finalizer(
+                                &ctx, id, depth, r#type,
+                            )
+                            .await
+                        }
+                    }
+                    .or_raise(make_error)?;
                     let followups =
                         ctx.drain_post_commit_actions().or_raise(make_error)?;
                     transaction.commit().await.or_raise(make_error)?;

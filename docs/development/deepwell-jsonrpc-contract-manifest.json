@@ -3,7 +3,7 @@
   "source_identities": {
     "jsonrpc_registry": {
       "path": "deepwell/src/api.rs",
-      "sha256": "14d8943265e024322e75b6f05c3fa4ffab7aaaf5aa9e3a1b3947c173b1706e45"
+      "sha256": "bf4d26f45298a35a97f971770e68914924ef1e841750770d85d72d448b3a62d3"
     },
     "request_context_middleware": {
       "path": "deepwell/src/middleware.rs",

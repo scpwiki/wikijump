@@ -300,7 +300,9 @@ impl RenderFinalizerSettings {
         Self::from_getter(|name| env::var(name).ok())
     }
 
-    fn from_getter(mut get: impl FnMut(&str) -> Option<String>) -> Result<Self> {
+    pub(crate) fn from_getter(
+        mut get: impl FnMut(&str) -> Option<String>,
+    ) -> Result<Self> {
         Ok(Self {
             import_run_id: parse_optional_positive_i64(
                 "DEEPWELL_RENDER_IMPORT_RUN_ID",
@@ -803,7 +805,7 @@ impl CorpusRenderFinalizerService {
                         Some((trace, CorpusRenderScope::Finalizer)),
                         CorpusRenderStage::PostCommit,
                     );
-                    ServiceContext::run_post_commit_actions_for_state(
+                    ServiceContext::run_post_commit_actions_for_corpus_finalizer(
                         state,
                         post_commit_actions,
                     )
