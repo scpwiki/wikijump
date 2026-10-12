@@ -663,7 +663,7 @@
           class="btn btn-default"
           href="javascript:;"
           onclick={navigateEdit}
-          type="button"
+          type={wikidotPageActions ? undefined : "button"}
         >
           {wikidotPageActions?.edit ?? data.internationalization?.edit}
         </a>
@@ -674,7 +674,7 @@
             class="btn btn-default"
             href="javascript:;"
             onclick={() => activatePagePane(PagePane.Vote)}
-            type="button"
+            type={wikidotPageActions ? undefined : "button"}
           >
             {#if wikidotPageActions?.ratingText}
               {wikidotPageActions.ratePrefix} (<span>{wikidotPageActions.ratingText}</span
@@ -691,7 +691,7 @@
             class="btn btn-default"
             href="javascript:;"
             onclick={() => void openEditTagsPane()}
-            type="button"
+            type={wikidotPageActions ? undefined : "button"}
           >
             {wikidotPageActions.tags}
           </a>
@@ -710,7 +710,7 @@
               class="btn btn-default"
               href="javascript:;"
               onclick={navigateWikidotDiscuss}
-              type="button"
+              type={wikidotPageActions ? undefined : "button"}
             >
               {wikidotPageActions.discuss}
             </a>
@@ -722,7 +722,7 @@
           class="btn btn-default"
           href="javascript:;"
           onclick={() => activatePagePane(PagePane.History)}
-          type="button"
+          type={wikidotPageActions ? undefined : "button"}
         >
           {wikidotPageActions?.history ?? data.internationalization?.history}
         </a>
@@ -735,7 +735,7 @@
             event.preventDefault()
             activatePagePane(PagePane.File)
           }}
-          type="button"
+          type={wikidotPageActions ? undefined : "button"}
         >
           {wikidotPageActions?.files ?? data.internationalization?.files}
         </a>
@@ -746,7 +746,7 @@
             class="btn btn-default"
             href="javascript:;"
             onclick={() => openWikidotPrinterFriendly(page.url.pathname)}
-            type="button"
+            type={wikidotPageActions ? undefined : "button"}
           >
             {wikidotPageActions.print}
           </a>
@@ -756,7 +756,7 @@
             class="btn btn-default"
             href="javascript:;"
             onclick={() => activatePagePane(PagePane.SiteTools)}
-            type="button"
+            type={wikidotPageActions ? undefined : "button"}
           >
             {wikidotPageActions.siteTools}
           </a>
@@ -768,9 +768,15 @@
           class="btn btn-default"
           href="javascript:;"
           onclick={() => toggleShowPageOptions()}
-          type="button"
+          type={wikidotPageActions ? undefined : "button"}
         >
-          {(showPageOptions ? "- " : "+ ") +
+          {(wikidotPageActions
+            ? showPageOptions
+              ? "-\u00a0"
+              : "+\u00a0"
+            : showPageOptions
+              ? "- "
+              : "+ ") +
             (wikidotPageActions?.options ?? data.internationalization?.options)}
         </a>
       </div>
@@ -781,36 +787,49 @@
       class="page-options-bottom form-actions"
       style:display={showPageOptions ? null : "none"}
     >
-      <!-- svelte-ignore a11y_invalid_attribute -->
-      <a
-        id="edit-append-button"
-        class="btn btn-default"
-        href="javascript:;"
-        onclick={() => openPagePane(PagePane.Append)}
-        type="button"
-      >
-        {wikidotPageActions?.append ??
-          data.internationalization?.["wiki-page-action-append"]}
-      </a>
-      <!-- svelte-ignore a11y_invalid_attribute -->
-      <a
-        id="edit-sections-button"
-        class="btn btn-default"
-        href="javascript:;"
-        onclick={toggleEditSections}
-        type="button"
-      >
-        {data.internationalization?.["wiki-page-action-edit-sections"]}
-      </a>
+      {#snippet appendControl()}
+        <!-- svelte-ignore a11y_invalid_attribute -->
+        <a
+          id="edit-append-button"
+          class="btn btn-default"
+          href="javascript:;"
+          onclick={() => openPagePane(PagePane.Append)}
+          type={wikidotPageActions ? undefined : "button"}
+        >
+          {wikidotPageActions?.append ??
+            data.internationalization?.["wiki-page-action-append"]}
+        </a>
+      {/snippet}
+      {#snippet sectionsControl()}
+        <!-- svelte-ignore a11y_invalid_attribute -->
+        <a
+          id="edit-sections-button"
+          class="btn btn-default"
+          href="javascript:;"
+          onclick={toggleEditSections}
+          type={wikidotPageActions ? undefined : "button"}
+        >
+          {wikidotPageActions?.editSections ??
+            data.internationalization?.["wiki-page-action-edit-sections"]}
+        </a>
+      {/snippet}
+      {#if wikidotPageActions}
+        {@render sectionsControl()}
+        {@render appendControl()}
+      {:else}
+        {@render appendControl()}
+        {@render sectionsControl()}
+      {/if}
       <!-- svelte-ignore a11y_invalid_attribute -->
       <a
         id="edit-meta-button"
         class="btn btn-default"
         href="javascript:;"
         onclick={() => activatePagePane(PagePane.EditMeta)}
-        type="button"
+        type={wikidotPageActions ? undefined : "button"}
       >
-        {data.internationalization?.["wiki-page-action-edit-meta"]}
+        {wikidotPageActions?.editMeta ??
+          data.internationalization?.["wiki-page-action-edit-meta"]}
       </a>
       <!-- svelte-ignore a11y_invalid_attribute -->
       <a
@@ -818,9 +837,10 @@
         class="btn btn-default"
         href="javascript:;"
         onclick={() => activatePagePane(PagePane.Watchers)}
-        type="button"
+        type={wikidotPageActions ? undefined : "button"}
       >
-        {data.internationalization?.["wiki-page-action-watchers"]}
+        {wikidotPageActions?.watchers ??
+          data.internationalization?.["wiki-page-action-watchers"]}
       </a>
       <!-- svelte-ignore a11y_invalid_attribute -->
       <a
@@ -828,7 +848,7 @@
         class="btn btn-default"
         href="javascript:;"
         onclick={() => activatePagePane(PagePane.Backlinks)}
-        type="button"
+        type={wikidotPageActions ? undefined : "button"}
       >
         {wikidotPageActions?.backlinks ??
           data.internationalization?.["wiki-page-action-backlinks"]}
@@ -839,42 +859,45 @@
         class="btn btn-default"
         href="javascript:;"
         onclick={() => (showSource = true)}
-        type="button"
+        type={wikidotPageActions ? undefined : "button"}
       >
-        {data.internationalization?.["wiki-page-view-source"]}
+        {wikidotPageActions?.viewSource ??
+          data.internationalization?.["wiki-page-view-source"]}
       </a>
-      <!-- svelte-ignore a11y_invalid_attribute -->
-      <a
-        id="layout-button"
-        class="btn btn-default"
-        href="javascript:;"
-        onclick={() => activatePagePane(PagePane.Layout)}
-        type="button"
-      >
-        {data.internationalization?.layout}
-      </a>
+      {#if !wikidotPageActions}
+        <!-- svelte-ignore a11y_invalid_attribute -->
+        <a
+          id="layout-button"
+          class="btn btn-default"
+          href="javascript:;"
+          onclick={() => activatePagePane(PagePane.Layout)}
+          type="button"
+        >
+          {data.internationalization?.layout}
+        </a>
+      {/if}
       <!-- svelte-ignore a11y_invalid_attribute -->
       <a
         id="parent-page-button"
         class="btn btn-default"
         href="javascript:;"
         onclick={() => openPagePane(PagePane.Parent)}
-        type="button"
+        type={wikidotPageActions ? undefined : "button"}
       >
-        {data.internationalization?.parents}
+        {wikidotPageActions?.parent ?? data.internationalization?.parents}
       </a>
       <!-- svelte-ignore a11y_invalid_attribute -->
       <a
-        id="lock-page-button"
+        id={wikidotPageActions ? "page-block-button" : "lock-page-button"}
         class="btn btn-default"
         href="javascript:;"
         onclick={() => {
           showSource = false
           pagePaneState = PagePane.Lock
         }}
-        type="button"
+        type={wikidotPageActions ? undefined : "button"}
       >
-        {data.internationalization?.["wiki-page-action-lock"]}
+        {wikidotPageActions?.lock ?? data.internationalization?.["wiki-page-action-lock"]}
       </a>
       <!-- svelte-ignore a11y_invalid_attribute -->
       <a
@@ -882,9 +905,10 @@
         class="btn btn-default"
         href="javascript:;"
         onclick={() => activatePagePane(PagePane.Move)}
-        type="button"
+        type={wikidotPageActions ? undefined : "button"}
       >
-        {data.internationalization?.["wiki-page-action-rename-move"]}
+        {wikidotPageActions?.rename ??
+          data.internationalization?.["wiki-page-action-rename-move"]}
       </a>
       <!-- svelte-ignore a11y_invalid_attribute -->
       <a
@@ -892,9 +916,9 @@
         class="btn btn-default"
         href="javascript:;"
         onclick={() => activatePagePane(PagePane.Delete)}
-        type="button"
+        type={wikidotPageActions ? undefined : "button"}
       >
-        {data.internationalization?.delete}
+        {wikidotPageActions?.delete ?? data.internationalization?.delete}
       </a>
     </div>
 

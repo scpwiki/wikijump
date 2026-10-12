@@ -54,7 +54,7 @@ test("uses the live English and Japanese tip texts", () => {
   assert.equal(english.get("edit-button"), "Click here to edit contents of this page.")
   assert.equal(
     english.get("edit-sections-button"),
-    "Click here to toggle editing of individual sections of the page (if possible). Watch headings for an &quot;edit&quot; link when available."
+    "Click here to toggle editing of individual sections of the page (if possible).         Watch headings for an &quot;edit&quot; link when available."
   )
   assert.equal(english.get("wikidot-privacy-button"), "Wikidot.com Privacy Policy.")
   assert.equal(
@@ -88,4 +88,27 @@ test("positions tips with Wikidot's centered rule", () => {
     positionWikidotHovertip({ pageY: 2000, clientX: 400, clientY: 880 }, tip, viewport),
     { left: 270, top: 2000 - (32 + 30) + 20 }
   )
+})
+
+// Retained EN and JP standard shells preserve their server-template whitespace
+// inside the hidden tip. Hidden innerText reads raw textContent in browsers.
+test("default tip contents preserve the retained server HTML in both locales", async () => {
+  const { readFile } = await import("node:fs/promises")
+  const fixture = JSON.parse(
+    await readFile(
+      new URL("./fixtures/wikidot-standard-page-chrome.json", import.meta.url),
+      "utf8"
+    )
+  )
+  for (const observation of fixture.cases) {
+    const html = buildWikidotHovertipContainersHtml(observation.locale)
+    for (const [id, content] of Object.entries(observation.tips)) {
+      assert.ok(
+        html
+          .replaceAll("&quot;", '"')
+          .includes(`<div id="${id}-hovertip">${content}</div>`),
+        `${observation.locale}: ${id}`
+      )
+    }
+  }
 })

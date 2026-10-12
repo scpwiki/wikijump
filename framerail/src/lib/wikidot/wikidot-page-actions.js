@@ -20,6 +20,14 @@ const WIKIDOT_SITES_WITHOUT_STANDARD_PAGE_ACTIONS = new Set(["sandbox-for-codex"
  * @property {string} options
  * @property {string} append
  * @property {string} backlinks
+ * @property {string} viewSource
+ * @property {string} parent
+ * @property {string} rename
+ * @property {string} editSections
+ * @property {string} editMeta
+ * @property {string} watchers
+ * @property {string} lock
+ * @property {string} delete
  */
 
 /**
@@ -178,7 +186,15 @@ export const buildWikidotPageActionLabels = ({
         siteTools: "サイトツール",
         options: "オプション",
         append: "追加",
-        backlinks: "バックリンク"
+        backlinks: "バックリンク",
+        viewSource: "ページソース",
+        parent: "親ページ",
+        rename: "リネーム",
+        editSections: "セクションを編集",
+        editMeta: "メタを編集",
+        watchers: "ウォッチャー",
+        lock: "ページロック",
+        delete: "削除"
       }
     : {
         edit: "Edit",
@@ -191,7 +207,15 @@ export const buildWikidotPageActionLabels = ({
         siteTools: "Site tools",
         options: "Options",
         append: "Append",
-        backlinks: "Backlinks"
+        backlinks: "Backlinks",
+        viewSource: "Page Source",
+        parent: "Parent",
+        rename: "Rename",
+        editSections: "Edit Sections",
+        editMeta: "Edit Meta",
+        watchers: "Watchers",
+        lock: "Lock Page",
+        delete: "Delete"
       }
 
   return {
@@ -213,7 +237,15 @@ export const buildWikidotPageActionLabels = ({
     siteTools: labels.siteTools,
     options: labels.options,
     append: labels.append,
-    backlinks: labels.backlinks
+    backlinks: labels.backlinks,
+    viewSource: labels.viewSource,
+    parent: labels.parent,
+    rename: labels.rename,
+    editSections: labels.editSections,
+    editMeta: labels.editMeta,
+    watchers: labels.watchers,
+    lock: labels.lock,
+    delete: labels.delete
   }
 }
 
