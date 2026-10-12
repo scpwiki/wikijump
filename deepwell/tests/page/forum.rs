@@ -4862,3 +4862,116 @@ async fn wikidot_forum_scoped_feeds_filter_to_the_named_object_and_hide_invisibl
         );
     }
 }
+
+#[tokio::test]
+async fn forum_reply_controls_follow_effective_nesting_and_boundary_sibling_order() {
+    let runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "test"})).unwrap();
+    let site_id = site.site.site_id;
+    let group = ForumService::create_group(
+        runner.context(),
+        CreateForumGroup {
+            site_id,
+            user_id: ADMIN_USER_ID,
+            name: "Reply policy fixture".into(),
+            description: String::new(),
+            visible: true,
+            sort_index: None,
+            from_wikidot: false,
+        },
+    )
+    .await
+    .unwrap();
+    let category = ForumService::create_category(
+        runner.context(),
+        CreateForumCategory {
+            forum_group_id: group.forum_group_id,
+            user_id: ADMIN_USER_ID,
+            name: "Reply nesting".into(),
+            description: String::new(),
+            sort_index: None,
+            max_nest_level: Some(2),
+            per_page_discussion: Some(false),
+            layout: None,
+            from_wikidot: false,
+        },
+    )
+    .await
+    .unwrap();
+    let thread = ForumThreadService::create(
+        runner.context(),
+        CreateForumThread {
+            forum_category_id: category.forum_category_id,
+            user_id: SAMPLE_USER_ID,
+            associated_page_id: None,
+            title: "Reply rules".into(),
+            description: String::new(),
+            sticky: false,
+            from_wikidot: false,
+        },
+    )
+    .await
+    .unwrap();
+    let mut ids = Vec::new();
+    for index in 0..4 {
+        let post = ForumPostService::create(
+            runner.context(),
+            CreateForumPost {
+                forum_thread_id: thread.forum_thread_id,
+                parent_post_id: if index == 0 {
+                    None
+                } else if index == 3 {
+                    Some(ids[2])
+                } else {
+                    Some(ids[0])
+                },
+                user_id: SAMPLE_USER_ID,
+                title: format!("Post {index}"),
+                wikitext: format!("Body {index}"),
+                comments: String::new(),
+                from_wikidot: false,
+            },
+        )
+        .await
+        .unwrap();
+        ids.push(post.forum_post_id);
+    }
+    // Live controlled sandbox matrix, 2026-10-12: the same stored root and
+    // two siblings, with category nesting 0/1/2. At the boundary only the
+    // last sibling exposes Reply. Actor posting permission does not decide
+    // whether this navigation control is shown.
+    for (level, expected) in [
+        (0, [false, false, false, false]),
+        (1, [true, false, true, true]),
+        (2, [true, true, true, true]),
+    ] {
+        let mut model: deepwell::models::forum_category::ActiveModel =
+            category.clone().into();
+        model.max_nest_level = Set(Some(level));
+        model.update(runner.context().transaction()).await.unwrap();
+        for module in [
+            "forum/ForumViewThreadModule",
+            "forum/ForumViewThreadPostsModule",
+        ] {
+            let mut parameters = json!({"t": thread.forum_thread_id.to_string()});
+            if module.ends_with("PostsModule") {
+                parameters["pageNo"] = json!("1");
+            }
+            let rendered = run_endpoint!(
+                runner,
+                wikidot_forum_module,
+                json!({
+                    "site_id": site_id, "module_name": module, "parameters": parameters,
+                })
+            );
+            assert_eq!(rendered.status, "ok");
+            for (id, visible) in ids.iter().zip(expected) {
+                assert_eq!(
+                    rendered.body.contains(&format!("postReply(event,{id})")),
+                    visible,
+                    "level {level}, {module}, post {id}"
+                );
+            }
+        }
+    }
+}

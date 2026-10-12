@@ -15,7 +15,7 @@ use super::forum_read_routes::{
 use super::forum_visibility::ForumPageVisibility;
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::{forum_category, forum_group, forum_post, forum_thread, page};
-use crate::services::ServiceContext;
+use crate::services::{ServiceContext, SettingsService};
 
 pub(super) const ROOTS_PER_PAGE: usize = 10;
 const POST_CANDIDATE_LIMIT: usize = 1_001;
@@ -66,6 +66,9 @@ pub(super) async fn load(
     let can_post = visibility
         .forum_category_is_postable(site_id, forum_category_id)
         .await?;
+    let max_nest_level =
+        SettingsService::get_forum_max_nest_level(ctx, site_id, Some(forum_category_id))
+            .await?;
     let root_count = count_comment_roots(ctx, site_id, thread_id).await?;
     let Some(comments) = load_comment_nodes(ctx, site_id, thread_id, order, 1).await?
     else {
@@ -78,7 +81,13 @@ pub(super) async fn load(
     Ok(ForumCommentsLoad::Found(ForumCommentsOutput {
         thread_id,
         body: render_comments(
-            thread_id, &comments, root_count, order, can_post, hide_form,
+            thread_id,
+            &comments,
+            root_count,
+            order,
+            can_post,
+            hide_form,
+            max_nest_level,
         ),
         scripts,
     }))
@@ -277,6 +286,7 @@ fn render_comments(
     order: ForumCommentsOrder,
     can_post: bool,
     hide_form: bool,
+    max_nest_level: i16,
 ) -> String {
     let form_open = can_post && !hide_form;
     let new_post = format!(
@@ -304,7 +314,7 @@ fn render_comments(
     output.push_str(options);
     output.push_str("<div id=\"thread-container-posts\" style=\"display: none\">");
     output.push_str(&pager);
-    output.push_str(&render_comment_nodes(comments, true));
+    output.push_str(&render_comment_nodes(comments, max_nest_level));
     output.push_str(&pager);
     output.push_str("</div>");
     if order == ForumCommentsOrder::Forward {
@@ -342,32 +352,44 @@ fn render_new_post_form(thread_id: i64) -> String {
     )
 }
 
+/// Reply is a navigation control, independent of posting permission. At or above the
+/// effective nesting boundary only the last sibling may offer a flattened
+/// reply. A flat category never offers Reply.
+fn reply_is_visible(depth: usize, max_nest_level: i16, last_sibling: bool) -> bool {
+    let Ok(max_depth) = usize::try_from(max_nest_level) else {
+        return false;
+    };
+    max_depth > 0 && (depth < max_depth || last_sibling)
+}
+
 pub(super) fn render_comment_nodes(
     nodes: &[ForumCommentNode],
-    include_reply: bool,
+    max_nest_level: i16,
 ) -> String {
     fn render(
         nodes: &[ForumCommentNode],
         avatar_timestamp: i64,
-        include_reply: bool,
+        max_nest_level: i16,
+        depth: usize,
     ) -> String {
         let mut output = String::new();
-        for node in nodes {
-            let replies = render(&node.replies, avatar_timestamp, include_reply);
+        for (index, node) in nodes.iter().enumerate() {
+            let replies =
+                render(&node.replies, avatar_timestamp, max_nest_level, depth + 1);
             output.push_str(&render_forum_thread_post(
                 &node.post,
                 &replies,
                 avatar_timestamp,
-                include_reply,
+                reply_is_visible(depth, max_nest_level, index + 1 == nodes.len()),
             ));
         }
         output
     }
-
     render(
         nodes,
         time::OffsetDateTime::now_utc().unix_timestamp(),
-        include_reply,
+        max_nest_level,
+        0,
     )
 }
 
@@ -428,7 +450,29 @@ pub(super) fn push_pager(output: &mut String, page: u64, page_count: u64) {
 
 #[cfg(test)]
 mod tests {
-    use super::push_pager;
+    use super::{push_pager, reply_is_visible};
+
+    #[test]
+    fn reply_controls_match_the_frozen_live_nesting_matrix() {
+        let fixture: serde_json::Value = serde_json::from_str(include_str!(
+            "../../../tests/fixtures/forum-reply-nesting-live-20261012.json"
+        ))
+        .unwrap();
+        for row in fixture["observations"].as_array().unwrap() {
+            let level = i16::try_from(row["level"].as_i64().unwrap()).unwrap();
+            let posts = row["posts"].as_array().unwrap();
+            for (index, post) in posts.iter().enumerate() {
+                let depth = usize::try_from(post["depth"].as_u64().unwrap()).unwrap();
+                let last_sibling = !posts[index + 1..]
+                    .iter()
+                    .any(|next| next["depth"].as_u64().unwrap() <= depth as u64);
+                assert_eq!(
+                    reply_is_visible(depth, level, last_sibling),
+                    post["reply"].as_bool().unwrap()
+                );
+            }
+        }
+    }
 
     /// Rebuild Wikidot's pager markup from a compact token list: `[n]` is the
     /// current page, `<n` previous, `>n` next, `...` a gap, `n` a page link.

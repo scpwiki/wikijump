@@ -25,6 +25,23 @@ If the documentation is silent or contradictory, the implementation MUST fail cl
 The observations in this section are normative and override conflicting or
 incomplete documentation-derived evidence below.
 
+### Reply visibility follows effective nesting and sibling position
+
+A controlled anonymous observation on 2026-10-12 varied only a run-owned
+category's maximum nesting level around the same stored root and two sibling
+replies. Both ForumViewThreadModule and ForumViewThreadPostsModule agree:
+level 0 hides every Reply control; below the effective maximum, Reply is
+shown; at or above the maximum, only the final sibling shows Reply. Lowering the
+setting preserves existing deeper trees and their final-sibling controls. Resolve the
+category override through the site's default when absent. This is a
+navigation control and does not grant posting authority.
+
+Frozen property matrix with raw-response digests:
+`deepwell/tests/fixtures/forum-reply-nesting-live-20261012.json`.
+The original group/category settings were restored and run-owned posts
+removed. Empty thread tombstones remain in the sandbox's Deleted threads
+category, as recorded in the retained cleanup evidence.
+
 ### Forum read-only surfaces share category, thread, post, route, and Ajax identities
 
 - Observation ID: `forum-q1034-readonly-route-core-20260809`

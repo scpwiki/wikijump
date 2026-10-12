@@ -23,7 +23,9 @@ use super::service::{
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::text;
 use crate::services::forum::GetForumStructure;
-use crate::services::{ForumService, ServiceContext, SiteService, TextService};
+use crate::services::{
+    ForumService, ServiceContext, SettingsService, SiteService, TextService,
+};
 use crate::types::Reference;
 use crate::utils::{normalize_page_slug, normalize_slug_without_category_separator};
 
@@ -611,6 +613,7 @@ async fn render_forum_thread_page(
     ctx: &ServiceContext<'_>,
     site_id: i64,
     thread_id: i64,
+    forum_category_id: i64,
     page: u32,
 ) -> Result<Option<String>> {
     let root_count = forum_comments::count_comment_roots(ctx, site_id, thread_id).await?;
@@ -632,7 +635,13 @@ async fn render_forum_thread_page(
     let mut pager = String::new();
     forum_comments::push_pager(&mut pager, u64::from(page), page_count);
     let mut output = pager.clone();
-    output.push_str(&forum_comments::render_comment_nodes(&nodes, false));
+    let max_nest_level =
+        SettingsService::get_forum_max_nest_level(ctx, site_id, Some(forum_category_id))
+            .await?;
+    output.push_str(&forum_comments::render_comment_nodes(
+        &nodes,
+        max_nest_level,
+    ));
     output.push_str(&pager);
     Ok(Some(output))
 }
@@ -1237,8 +1246,14 @@ impl RenderService {
                 let Some(thread) = threads.pop() else {
                     return Ok(response("no_thread", String::new()));
                 };
-                let Some(rendered_posts) =
-                    render_forum_thread_page(ctx, site_id, thread_id, 1).await?
+                let Some(rendered_posts) = render_forum_thread_page(
+                    ctx,
+                    site_id,
+                    thread_id,
+                    thread.forum_category_id,
+                    1,
+                )
+                .await?
                 else {
                     return Ok(response("not_ok", String::new()));
                 };
@@ -1272,11 +1287,17 @@ impl RenderService {
                 else {
                     return Ok(response("not_ok", String::new()));
                 };
-                if threads.is_empty() {
+                let Some(thread) = threads.first() else {
                     return Ok(response("no_thread", String::new()));
-                }
-                let Some(rendered_posts) =
-                    render_forum_thread_page(ctx, site_id, thread_id, page).await?
+                };
+                let Some(rendered_posts) = render_forum_thread_page(
+                    ctx,
+                    site_id,
+                    thread_id,
+                    thread.forum_category_id,
+                    page,
+                )
+                .await?
                 else {
                     return Ok(response("not_ok", String::new()));
                 };
