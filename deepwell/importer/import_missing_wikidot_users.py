@@ -52,10 +52,6 @@ def convert_gender(value: str | bool | None) -> str | None:
 
 
 def read_wikicomma_users(json_path: str) -> Iterator[WikicommaUserRecord]:
-    if os.path.basename(json_path) == "pending.json":
-        # not a user list
-        return
-
     with open(json_path) as file:
         users_data = json.load(file)
         yield from users_data.values()
@@ -154,6 +150,11 @@ if __name__ == "__main__":
 
     json_file_glob = os.path.join(args.wikicomma_directory, "*.json")
     for json_path in iglob(json_file_glob):
+        filename = os.path.basename(json_path)
+        if filename == "pending.json":
+            # not a user list
+            continue
+
         logger.info("Reading JSON file %s", json_path)
         for user in read_wikicomma_users(json_path):
             import_user_if_missing(
