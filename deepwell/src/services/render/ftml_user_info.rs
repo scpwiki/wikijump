@@ -30,7 +30,10 @@ use crate::services::user::User;
 use ftml::data::UserInfo;
 use ftml::render::UserInfoResolver;
 use sea_orm::sea_query::Expr;
-use sea_orm::{ColumnTrait, Condition, EntityTrait, ExprTrait, QueryFilter};
+use sea_orm::{
+    ColumnTrait, Condition, DatabaseBackend, EntityTrait, ExprTrait, FromQueryResult,
+    QueryFilter, Statement, Value,
+};
 use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Debug, Default)]
@@ -39,24 +42,97 @@ pub(super) struct UserInfoSnapshot {
 }
 
 impl UserInfoSnapshot {
-    pub(super) async fn load(ctx: &ServiceContext<'_>, names: &[String]) -> Result<Self> {
+    pub(super) fn from_observed(users: Vec<UserInfo<'static>>) -> Self {
+        let mut users_by_name = BTreeMap::new();
+        let mut collisions = BTreeSet::new();
+        for user in users {
+            index_user_info(&mut users_by_name, &mut collisions, user);
+        }
+        Self { users_by_name }
+    }
+
+    pub(super) async fn load(
+        ctx: &ServiceContext<'_>,
+        names: &[String],
+        layout: ftml::prelude::Layout,
+    ) -> Result<Self> {
         let slugs = user_reference_sets(names);
         if slugs.is_empty() {
             return Ok(Self::default());
         }
 
-        let users = load_visible_wikidot_users(ctx, &slugs, &BTreeSet::new()).await?;
+        let users = if layout == ftml::prelude::Layout::Wikidot {
+            load_observed_wikidot_identities(ctx, &slugs).await?
+        } else {
+            load_visible_wikidot_users(ctx, &slugs, &BTreeSet::new())
+                .await?
+                .into_iter()
+                .filter_map(wikidot_user_info)
+                .collect()
+        };
         let mut users_by_name = BTreeMap::new();
         let mut collisions = BTreeSet::new();
-        for user in users {
-            let Some(info) = wikidot_user_info(user) else {
-                continue;
-            };
+        for info in users {
             index_user_info(&mut users_by_name, &mut collisions, info);
         }
 
         Ok(Self { users_by_name })
     }
+}
+
+#[derive(FromQueryResult)]
+struct ObservedPublicIdentity {
+    user_id: i64,
+    name: String,
+    slug: String,
+}
+
+async fn load_observed_wikidot_identities(
+    ctx: &ServiceContext<'_>,
+    names: &BTreeSet<String>,
+) -> Result<Vec<UserInfo<'static>>> {
+    let placeholders = (1..=names.len())
+        .map(|i| format!("${i}"))
+        .collect::<Vec<_>>()
+        .join(",");
+    let normalized_name = wikidot_author_name_sql("name");
+    let sql = format!(
+        "SELECT user_id,name,slug FROM wikidot_display_user WHERE NOT is_deleted AND name IS NOT NULL AND slug IS NOT NULL AND (slug IN ({placeholders}) OR {normalized_name} IN ({placeholders}))"
+    );
+    let users =
+        ObservedPublicIdentity::find_by_statement(Statement::from_sql_and_values(
+            DatabaseBackend::Postgres,
+            sql,
+            names.iter().cloned().map(Value::from),
+        ))
+        .all(ctx.transaction())
+        .await
+        .or_raise(|| {
+            Error::new(
+                "failed to resolve observed Wikidot public identities",
+                ErrorType::Render,
+            )
+        })?;
+    Ok(users
+        .into_iter()
+        .map(|user| UserInfo {
+            user_id: user.user_id,
+            user_name: std::borrow::Cow::Owned(user.name),
+            user_slug: std::borrow::Cow::Owned(user.slug.clone()),
+            // Wikidot layout never emits this field: karma is obtained through
+            // userkarma.php. Sparse observations must not supply profile metadata
+            // to the Wikijump layout or user-directory/profile interfaces.
+            user_karma: ftml::data::KarmaLevel::Zero,
+            user_avatar_data: std::borrow::Cow::Owned(format!(
+                "http://www.wikidot.com/avatar.php?userid={}&amp;size=small",
+                user.user_id
+            )),
+            user_profile_url: std::borrow::Cow::Owned(format!(
+                "http://www.wikidot.com/user:info/{}",
+                user.slug
+            )),
+        })
+        .collect())
 }
 
 fn index_user_info(

@@ -537,6 +537,7 @@ pub(super) async fn render_list_pages_default_summary_source(
         page_info,
         &summary_settings,
         RenderInnerOptions {
+            observed_user_info: None,
             render_context,
             viewer_user_id,
             current_page_data_form_values: None,
@@ -617,6 +618,7 @@ pub(super) async fn render_list_pages_selected_content_source(
         page_info,
         &selected_content_settings,
         RenderInnerOptions {
+            observed_user_info: None,
             render_context: RenderContext::list_pages_default_summary(
                 current_site_id,
                 current_category_id,

@@ -540,7 +540,7 @@ pub(super) async fn load_forum_start_activity(
                 " FROM forum_post fp1 WHERE fp1.forum_thread_id = t.forum_thread_id ",
                 " AND fp1.site_id = t.site_id AND fp1.deleted_at IS NULL ",
                 " ORDER BY fp1.created_at DESC, fp1.forum_post_id DESC LIMIT 1) last_post ON TRUE ",
-                "LEFT JOIN wikidot_user wu ON wu.user_id = last_post.user_id AND wu.is_deleted = FALSE ",
+                "LEFT JOIN wikidot_display_user wu ON wu.user_id = last_post.user_id AND wu.is_deleted = FALSE ",
                 "LEFT JOIN \"user\" local_user ON local_user.user_id = last_post.user_id ",
                 " AND local_user.deleted_at IS NULL ",
                 "WHERE t.site_id = $1 AND t.deleted_at IS NULL ",
@@ -724,7 +724,7 @@ pub(super) async fn load_recent_posts_page(
          LEFT JOIN page p ON p.page_id = t.page_id AND p.site_id = t.site_id \
                          AND p.deleted_at IS NULL \
          LEFT JOIN page_revision pr ON pr.revision_id = p.latest_revision_id \
-         LEFT JOIN wikidot_user wu ON wu.user_id = fp.user_id AND wu.is_deleted = FALSE \
+         LEFT JOIN wikidot_display_user wu ON wu.user_id = fp.user_id AND wu.is_deleted = FALSE \
          LEFT JOIN \"user\" local_user ON local_user.user_id = fp.user_id \
                                       AND local_user.deleted_at IS NULL \
          WHERE fp.site_id = $1 AND fp.deleted_at IS NULL \

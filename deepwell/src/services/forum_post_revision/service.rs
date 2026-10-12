@@ -458,7 +458,7 @@ impl ForumPostRevisionService {
         Ok(revisions)
     }
 
-    async fn render(
+    pub(crate) async fn render(
         ctx: &ServiceContext<'_>,
         site_id: i64,
         title: &str,
@@ -496,6 +496,69 @@ impl ForumPostRevisionService {
             .or_raise(|| {
                 Error::new("failed to render forum post revision", ErrorType::Forum)
             })?;
+
+        Ok(render)
+    }
+
+    pub(crate) async fn render_imported(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        title: &str,
+        wikitext: String,
+        observed_users: &[crate::services::import::DiscussionBodyUser],
+    ) -> Result<RenderOutput> {
+        let site = SiteService::get(ctx, Reference::Id(site_id))
+            .await
+            .or_raise(|| {
+                Error::new(
+                    format!(
+                        "failed to get site ID {} to render forum post revision",
+                        site_id,
+                    ),
+                    ErrorType::ForumPostRevision,
+                )
+            })?;
+
+        let settings = WikitextSettings::from_mode(
+            WikitextMode::ForumPost,
+            ftml::prelude::Layout::Wikidot,
+        );
+        let page_info = PageInfo {
+            page: Cow::Borrowed(""),
+            category: None,
+            site: Cow::Owned(site.slug),
+            title: Cow::Owned(title.to_owned()),
+            alt_title: None,
+            score: ScoreValue::Integer(0),
+            tags: vec![],
+            language: Cow::Owned(locale_for_ftml(&site.locale).to_owned()),
+        };
+
+        let identities = observed_users
+            .iter()
+            .map(|user| ftml::data::UserInfo {
+                user_id: user.id,
+                user_slug: Cow::Owned(user.slug.clone()),
+                user_name: Cow::Owned(user.name.clone()),
+                user_karma: ftml::data::KarmaLevel::Zero,
+                user_avatar_data: Cow::Owned(user.avatar_url.clone().unwrap_or_default()),
+                user_profile_url: Cow::Owned(format!(
+                    "http://www.wikidot.com/user:info/{}",
+                    user.slug
+                )),
+            })
+            .collect();
+        let render = RenderService::render_with_observed_users(
+            ctx,
+            wikitext,
+            &page_info,
+            &settings,
+            (!observed_users.is_empty()).then_some(identities),
+        )
+        .await
+        .or_raise(|| {
+            Error::new("failed to render forum post revision", ErrorType::Forum)
+        })?;
 
         Ok(render)
     }

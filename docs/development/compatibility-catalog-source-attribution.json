@@ -970,7 +970,7 @@
     },
     {
       "surface_id": "catalog-feature:syntax-users",
-      "sources": [{ "path": "deepwell/src/services/render/ftml_user_info.rs", "anchor": "pub(super) async fn load(ctx: &ServiceContext<'_>, names: &[String]) -> Result<Self>" }],
+      "sources": [{ "path": "deepwell/src/services/render/ftml_user_info.rs", "anchor": "pub(super) async fn load(\n        ctx: &ServiceContext<'_>,\n        names: &[String],\n        layout: ftml::prelude::Layout,\n    ) -> Result<Self>" }],
       "tests": [{ "path": "deepwell/tests/page.rs", "anchor": "wikidot_user_blocks_match_live_preview_and_saved_page_identity_boundaries" }]
     },
     {

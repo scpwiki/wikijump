@@ -384,7 +384,7 @@ async fn load_forum_mini_posts(
          LEFT JOIN page p ON p.page_id = t.page_id \
                          AND p.site_id = t.site_id \
                          AND p.deleted_at IS NULL \
-         LEFT JOIN wikidot_user wu ON wu.user_id = fp.user_id \
+         LEFT JOIN wikidot_display_user wu ON wu.user_id = fp.user_id \
                                   AND wu.is_deleted = FALSE \
          LEFT JOIN \"user\" local_user ON local_user.user_id = fp.user_id \
                                      AND local_user.deleted_at IS NULL \

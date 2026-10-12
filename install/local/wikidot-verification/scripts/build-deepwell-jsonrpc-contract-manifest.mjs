@@ -36,7 +36,7 @@ const MUTATING_SERVICE_CALLS = new Set([
   "FileRevisionService::update",
   "FileService::create", "FileService::delete", "FileService::edit", "FileService::r#move", "FileService::restore", "FileService::rollback",
   "ForumThreadService::get_or_create_page_discussion",
-  "ImportService::add_page", "ImportService::add_page_revision", "ImportService::add_site", "ImportService::add_user",
+  "ImportService::add_discussion", "ImportService::add_page", "ImportService::add_page_revision", "ImportService::add_site", "ImportService::add_user",
   "LegacyActionService::set_tags",
   "MembershipService::accept_email_invitation", "MembershipService::join", "MembershipService::review_application", "MembershipService::submit_application", "MembershipService::submit_password",
   "MessageService::create_draft", "MessageService::delete_draft", "MessageService::send", "MessageService::update_draft",

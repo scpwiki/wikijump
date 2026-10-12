@@ -3197,6 +3197,11 @@
       "target": "wikijump.deepwell"
     },
     {
+      "source": "deepwell-jsonrpc:import_wikidot_discussion",
+      "type": "implemented_by",
+      "target": "wikijump.deepwell"
+    },
+    {
       "source": "deepwell-jsonrpc:import_wikidot_page_revision",
       "type": "implemented_by",
       "target": "wikijump.deepwell"
@@ -11415,7 +11420,7 @@
   },
   "provenance": {
     "wikijump": {
-      "source_input_set_sha256": "52c9a7860cb1e72412240cfc4ed2e6c26e80d98d60a0eab24d51782ce7d811cd"
+      "source_input_set_sha256": "61badc185bb46bd88fe4c5fead4350d19c3361826332f325f3a801bbb79aff78"
     },
     "ftml": {
       "commit": "c09357f5557ebb3ed74778a247d6050233d4b00b",
@@ -11432,7 +11437,7 @@
       },
       {
         "path": "deepwell/src/api.rs",
-        "sha256": "fe7a45ac2db8a976463345b6ab02964cfdf4c9a0aa889d39cdab0cc8a7c3f73b"
+        "sha256": "14d8943265e024322e75b6f05c3fa4ffab7aaaf5aa9e3a1b3947c173b1706e45"
       },
       {
         "path": "deepwell/src/endpoints/auth.rs",
@@ -11480,7 +11485,7 @@
       },
       {
         "path": "deepwell/src/endpoints/import.rs",
-        "sha256": "92584fcf1144f3cdf3891639daf443eab9fd07d190070c1a659489b12e694ec2"
+        "sha256": "24373036dcdcb55870100716ec66a357758c75728192ba6b495a77e94c1cb0ae"
       },
       {
         "path": "deepwell/src/endpoints/info.rs",
@@ -11568,7 +11573,7 @@
       },
       {
         "path": "docs/development/compatibility-catalog-source-attribution.json",
-        "sha256": "8e4c2c7c2fd665c36c79dcddf9385285357fa09f2b64d5cccb9a03c60ae15ccf"
+        "sha256": "37df477a017b85334a3b05d7823c9b1e99333f29eb97a43f9c5c6abd5a83ce09"
       },
       {
         "path": "docs/development/compatibility-surface-semantics.json",
@@ -11576,7 +11581,7 @@
       },
       {
         "path": "docs/development/deepwell-jsonrpc-contract-manifest.json",
-        "sha256": "c1838fa97ff37c8299ae883f5b92a597343dea97696caf16224878144cb4ef4d"
+        "sha256": "ec096d7474e28c76ea0afa347f1c225a82354e9ab26b607863471a07f8218c34"
       },
       {
         "path": "docs/development/framerail-amc-wire-contracts.json",
@@ -11640,7 +11645,7 @@
       },
       {
         "path": "docs/development/wws-route-registration-denominator.json",
-        "sha256": "77268005408d9c2f36f7ba7fca9304e8be25c85ca125671d9cc1eb7e0963b885"
+        "sha256": "c84a02592a99bc2f1b433fb82defe762bdec8134b2f2c8febce5b0f2ec70767b"
       },
       {
         "path": "docs/wikidot-specifications/catalog.json",
@@ -12011,10 +12016,10 @@
     ]
   },
   "counts": {
-    "total": 960,
+    "total": 961,
     "by_kind": {
       "catalog_feature": 210,
-      "deepwell_jsonrpc_method": 180,
+      "deepwell_jsonrpc_method": 181,
       "framerail_amc_action_shape": 2,
       "framerail_amc_module_shape": 27,
       "framerail_route": 33,
@@ -22012,7 +22017,7 @@
       "source": {
         "status": "implemented",
         "references": [
-          "deepwell/src/services/render/ftml_user_info.rs#pub(super) async fn load(ctx: &ServiceContext<'_>, names: &[String]) -> Result<Self>"
+          "deepwell/src/services/render/ftml_user_info.rs#pub(super) async fn load(\n        ctx: &ServiceContext<'_>,\n        names: &[String],\n        layout: ftml::prelude::Layout,\n    ) -> Result<Self>"
         ]
       },
       "candidate": {
@@ -24809,6 +24814,51 @@
         "status": "implemented",
         "references": [
           "deepwell/src/endpoints/forum_post.rs"
+        ]
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:deepwell-jsonrpc",
+      "implementation_owners": [
+        "wikijump.deepwell"
+      ]
+    },
+    {
+      "surface_id": "deepwell-jsonrpc:import_wikidot_discussion",
+      "kind": "deepwell_jsonrpc_method",
+      "public_reference": [
+        "deepwell/src/api.rs#register:import_wikidot_discussion",
+        "deepwell/src/endpoints/import.rs#import_wikidot_discussion"
+      ],
+      "existing_refs": {
+        "issues": [
+          1368
+        ],
+        "cases": [],
+        "tests": [
+          "deepwell/tests/discussion_import.rs#discussion_import_rejects_foreign_threads_and_incomplete_graph_before_identity_writes"
+        ]
+      },
+      "evidence": {
+        "status": "available",
+        "references": [
+          "docs/development/deepwell-jsonrpc-contract-manifest.json"
+        ]
+      },
+      "source": {
+        "status": "implemented",
+        "references": [
+          "deepwell/src/endpoints/import.rs"
         ]
       },
       "candidate": {

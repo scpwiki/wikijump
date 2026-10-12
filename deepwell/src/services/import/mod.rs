@@ -18,8 +18,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod discussion;
+mod discussion_structs;
 mod service;
 mod structs;
+
+pub use self::discussion_structs::{
+    DiscussionActor, DiscussionBodyUser, DiscussionCategory, DiscussionCreator,
+    DiscussionPost, DiscussionPostEdit, DiscussionSource, DiscussionThread,
+    ImportDiscussion, ImportDiscussionOutput,
+};
 
 pub use self::service::ImportService;
 pub use self::structs::{

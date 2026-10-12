@@ -103,6 +103,7 @@ impl RenderService {
                 &page_info,
                 &settings,
                 RenderInnerOptions {
+                    observed_user_info: None,
                     render_context: RenderContext::page_preview_with_page(
                         site_id,
                         current_page_id,

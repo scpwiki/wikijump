@@ -21,9 +21,22 @@
 use super::prelude::*;
 use crate::services::MutationAuthorization;
 use crate::services::import::{
-    ImportPage, ImportPageOutput, ImportPageRevision, ImportPageRevisionOutput,
-    ImportService, ImportSite, ImportSiteOutput, ImportUser, ImportUserOutput,
+    ImportDiscussion, ImportDiscussionOutput, ImportPage, ImportPageOutput,
+    ImportPageRevision, ImportPageRevisionOutput, ImportService, ImportSite,
+    ImportSiteOutput, ImportUser, ImportUserOutput,
 };
+
+pub async fn import_wikidot_discussion(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<ImportDiscussionOutput> {
+    let actor = MutationAuthorization::require_platform_staff(
+        ctx,
+        "import Wikidot discussion data",
+    )?;
+    let input: ImportDiscussion = parse!(params, DatabaseImport);
+    ImportService::add_discussion(ctx, input, actor).await
+}
 
 pub async fn import_wikidot_user(
     ctx: &ServiceContext<'_>,
