@@ -729,7 +729,7 @@ fn parses_and_serializes_live_wikidot_list_pages_rss_arguments() {
             "\n\n",
             r#"<div class="feedinfo" data-wikijump-compat-listpages-feed="1">"#,
             r#"<span class="rss-icon"><img src="/common--theme/base/images/feed/feed-icon-14x14.png" alt="rss icon"/></span>"#,
-            r#"<a href="http://sandbox-for-codex.wikidot.com/feed/pages/category/doc/"#,
+            r#"<a href="/feed/pages/category/doc/"#,
             "tags/%2Bdocumentation%2C-hidden/order/title+desc/limit/7/",
             r#"t/A%26B+%2F+C%2B+D%3F/d/Description+%26+details/h/blog%3A_start">"#,
             "RSS feed</a></div>",
@@ -770,8 +770,12 @@ fn serializes_live_wikidot_list_pages_rss_selector_paths() {
     .expect("the live RSS path selector combination should parse");
     let feed = list_pages_feed_info_html(&page_info, &arguments)
         .expect("an RSS title should generate a feed link");
+    assert!(
+        !feed.contains("wikidot.com"),
+        "feed links must use the accepted current-origin route"
+    );
     assert!(feed.contains(concat!(
-        r#"href="http://sandbox-for-codex.wikidot.com/feed/pages/"#,
+        r#"href="/feed/pages/"#,
         "pagetype/%2A/category/%2A%2C-deleted/tags/%2Balpha%2C-beta/",
         "parent/-/created_by/some_user/offset/7/rating/%3E%3D1/",
         "range/others/order/dateCreatedDesc/limit/3/t/RSS4/d/D/h/home",

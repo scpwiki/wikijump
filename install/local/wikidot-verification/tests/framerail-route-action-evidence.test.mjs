@@ -138,7 +138,7 @@ const gitBlob = (revision, path) => git(["cat-file", "blob", `${revision}:${path
 
 async function verifyRegistry(registry) {
   assert.equal(registry.schema, "wikijump.framerail_route_action_evidence.v1")
-  assert.deepEqual(Object.keys(registry), ["schema", "source_revision", "inventory", "records"])
+  assert.deepEqual(Object.keys(registry), ["schema", "source_revision", "inventory", "current_inventory", "records"])
   assert.match(registry.source_revision, /^[0-9a-f]{40}$/u)
   assert.deepEqual(Object.keys(registry.inventory), ["path", "sha256"])
   assert.equal(registry.inventory.path, "docs/development/compatibility-surface-inventory.json")
@@ -156,7 +156,14 @@ async function verifyRegistry(registry) {
     createHash("sha256").update(inventoryBytes).digest("hex"),
     registry.inventory.sha256
   )
-  const inventory = JSON.parse(inventoryBytes.toString("utf8"))
+  const historicalInventory = JSON.parse(inventoryBytes.toString("utf8"))
+  assert.deepEqual(Object.keys(registry.current_inventory),["source_revision","path","sha256"])
+  assert.match(registry.current_inventory.source_revision,/^[0-9a-f]{40}$/u)
+  assert.equal(registry.current_inventory.path,registry.inventory.path)
+  assert.match(registry.current_inventory.sha256,/^[0-9a-f]{64}$/u)
+  const currentBytes=await gitBlob(registry.current_inventory.source_revision,registry.current_inventory.path)
+  assert.equal(createHash("sha256").update(currentBytes).digest("hex"),registry.current_inventory.sha256)
+  const inventory=JSON.parse(currentBytes.toString("utf8"))
   const expected = inventory.surfaces
     .filter(({ kind }) => kind === "framerail_route" || kind === "framerail_server_action")
     .map(({ surface_id }) => surface_id)
@@ -166,7 +173,7 @@ async function verifyRegistry(registry) {
   assert.equal(new Set(actual).size, actual.length)
 
   const cases = new Map(
-    inventory.surfaces
+    historicalInventory.surfaces
       .filter(({ kind }) => kind === "open43_audit_case")
       .map(({ existing_refs, surface_id }) => [
         surface_id.slice("open43-audit-case:".length),
@@ -208,11 +215,12 @@ async function verifyRegistry(registry) {
         )
       }
       else {
-        const expectedIssue = new Map([
-          ["framerail-route:/feed/forum/{feed}",2104],
-          ["framerail-route:/feed/site-changes.xml",2087],
-        ]).get(record.surface_id) ?? 1372
-        assert.equal(link.issue, expectedIssue, `${record.surface_id} has an unresolved issue link`)
+        const expectedIssues = new Map([
+          ["framerail-route:/feed/forum/{feed}",[2091,2104]],
+          ["framerail-route:/feed/site-changes.xml",[1372,2087]],
+        ]).get(record.surface_id) ?? [1372]
+        assert.ok(expectedIssues.includes(link.issue), `${record.surface_id} has an unresolved issue link`)
+        if (expectedIssues.length>1 || expectedIssues[0]!==1372) assert.deepEqual(record.tracking.filter(item=>!item.case).map(item=>item.issue).sort((a,b)=>a-b),expectedIssues)
       }
     }
 
@@ -269,6 +277,13 @@ test("Framerail evidence verifier rejects invented and poisoned source identitie
   const staleInventory = structuredClone(registry)
   staleInventory.inventory.sha256 = "0".repeat(64)
   await assert.rejects(verifyRegistry(staleInventory))
+  const staleCurrent=structuredClone(registry)
+  staleCurrent.current_inventory.sha256="0".repeat(64)
+  await assert.rejects(verifyRegistry(staleCurrent))
+  const inventedCurrent=structuredClone(registry)
+  inventedCurrent.current_inventory.source_revision="0".repeat(40)
+  await assert.rejects(verifyRegistry(inventedCurrent))
+
 })
 
 test("issue #1372 browser run contract is complete, source-bound, and executable", async () => {

@@ -1,7 +1,12 @@
 {
   "schema": "wikijump.framerail_route_action_evidence.v1",
-  "source_revision": "20cd7aa4a74e89976090a1c9d81f267bbb484d58",
+  "source_revision": "e427ff0497235f84cf095bffc876c92103f396db",
   "inventory": {
+    "path": "docs/development/compatibility-surface-inventory.json",
+    "sha256": "1906d7229472694d2afbbea30e65e9e33c39dbc40481f794f4676a4000ac57cb"
+  },
+  "current_inventory": {
+    "source_revision": "20cd7aa4a74e89976090a1c9d81f267bbb484d58",
     "path": "docs/development/compatibility-surface-inventory.json",
     "sha256": "30e7bc6462035f10c444e3992c338970dfffd8bef0c4f178e6df72405ce00746"
   },
@@ -464,10 +469,10 @@
       ],
       "tracking": [
         {
-          "issue": 2087
+          "issue": 1372
         },
         {
-          "issue": 1372
+          "issue": 2087
         }
       ],
       "temporal": []
