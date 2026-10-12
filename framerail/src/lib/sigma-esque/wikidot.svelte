@@ -16,6 +16,8 @@
     content,
     footer,
     footerStyle = undefined,
+    footerLocale = "en",
+    footerAnonymous = false,
     license,
     bottomToolbar
   } = $props()
@@ -55,7 +57,11 @@
             {@render content?.()}
           </div>
         </div>
-        <div id="footer" style={footerStyle} use:wikidotFooterControls>
+        <div
+          id="footer"
+          style={footerStyle}
+          use:wikidotFooterControls={{ locale: footerLocale, anonymous: footerAnonymous }}
+        >
           {@render footer?.()}
         </div>
         <div id="license-area" class="license-area">

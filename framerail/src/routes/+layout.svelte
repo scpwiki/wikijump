@@ -301,7 +301,11 @@
     </div>
     <div id="navi-bar-shadow">&nbsp;</div>
   {/if}
-  <Wikidot footerStyle={isImportedWikidotLayout ? WIKIDOT_FOOTER_STYLE : undefined}>
+  <Wikidot
+    footerStyle={isImportedWikidotLayout ? WIKIDOT_FOOTER_STYLE : undefined}
+    footerLocale={wikidotLocale}
+    footerAnonymous={!viewData?.user_session}
+  >
     {#snippet header()}
       <h1>
         <a class="active" href={resolve("/", {})}><span>{wikidotSiteTitle}</span></a>

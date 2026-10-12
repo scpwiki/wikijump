@@ -1,0 +1,37 @@
+{
+  "source": "anonymous source modules, EN/JP, 2026-10-12",
+  "responses": {
+    "en": {
+      "report/FlagPageModule": {
+        "status": "no_permission",
+        "message": "Please create a Wikidot account and/or sign in first",
+        "CURRENT_TIMESTAMP": 1791807097,
+        "callbackIndex": null
+      },
+      "report/BugReportModule": {
+        "status": "ok",
+        "CURRENT_TIMESTAMP": 1791807095,
+        "body": "<div class=\"title\">Bug report</div>\n<div class=\"content\">\n\t<h1>Report a problem with Wikidot.com</h1>\n\t\n\t<p>\n\t\tIf you think you have found a bug or simply something does not work as expected,       please fill a bug report.             <br/><br/>             Currently the list of bugs is maintained at:\t</p>\n\t<p style=\"font-weight: bold; font-size: 180%; text-align: center\">\n\t\t<a href=\"https://feedback.wikidot.com/\">feedback.wikidot.com</a>\n\t</p>\n</div>\n<div class=\"button-bar\">\n\t<a href=\"javascript:;\" onclick=\"OZONE.dialog.cleanAll()\">Close window</a> \n</div>",
+        "jsInclude": [],
+        "cssInclude": [],
+        "callbackIndex": null
+      }
+    },
+    "ja": {
+      "report/BugReportModule": {
+        "status": "ok",
+        "CURRENT_TIMESTAMP": 1791807098,
+        "body": "<div class=\"title\">バグ報告</div>\n<div class=\"content\">\n\t<h1>Wikidot.comに問題を報告</h1>\n\t\n\t<p>\n\t\tあなたがバグを発見したり、単に何かが期待どおりに動かない場合は、バグレポートを記入してください。<br/><br/>現在、バグリストは次の場所で管理されています:\t</p>\n\t<p style=\"font-weight: bold; font-size: 180%; text-align: center\">\n\t\t<a href=\"https://feedback.wikidot.com/\">feedback.wikidot.com</a>\n\t</p>\n</div>\n<div class=\"button-bar\">\n\t<a href=\"javascript:;\" onclick=\"OZONE.dialog.cleanAll()\">ウィンドウを終了</a> \n</div>",
+        "jsInclude": [],
+        "cssInclude": [],
+        "callbackIndex": null
+      },
+      "report/FlagPageModule": {
+        "status": "no_permission",
+        "message": "まず、Wikidotアカウントを作成するか、サインインしてください",
+        "CURRENT_TIMESTAMP": 1791807098,
+        "callbackIndex": null
+      }
+    }
+  }
+}

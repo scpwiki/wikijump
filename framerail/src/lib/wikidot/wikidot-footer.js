@@ -1,3 +1,4 @@
+import { showWikidotReadonlyDialog } from "./wikidot-readonly-dialog.js"
 import { isJapaneseWikidotLocale } from "./wikidot-locale.js"
 
 /**
@@ -118,8 +119,9 @@ export const buildWikidotFooterHtml = (locale) => {
 
 /**
  * The exact inline handlers of the standard footer controls. They stay in
- * the served DOM for parity; the report modules and the consent dialog are
- * not implemented, so the CSP-safe binding only keeps the click inert.
+ * the served DOM for parity; CSP-safe bindings render evidenced read-only
+ * modules. Unsupported actor/locale paths and the consent dialog stay
+ * inert.
  */
 export const WIKIDOT_FOOTER_ONCLICKS = Object.freeze([
   "WIKIDOT.page.listeners.pageBugReport(event)",
@@ -128,20 +130,35 @@ export const WIKIDOT_FOOTER_ONCLICKS = Object.freeze([
 ])
 
 /**
- * Keep the standard footer's inline handlers inert without compiling them:
+ * Bind the standard footer's inline handlers without compiling them:
  * assigning `onclick` replaces the attribute's handler, and the attribute
  * is only ever read as text.
  *
  * @param {HTMLElement} root
  */
-export const wikidotFooterControls = (root) => {
+export const wikidotFooterControls = (root, parameters = {}) => {
   /** @type {HTMLElement[]} */
   const bound = []
   for (const element of /** @type {NodeListOf<HTMLElement>} */ (
     root.querySelectorAll("a[onclick]")
   )) {
     if (!WIKIDOT_FOOTER_ONCLICKS.includes(element.getAttribute("onclick") ?? "")) continue
-    element.onclick = () => false
+    element.onclick = () => {
+      const handler = element.getAttribute("onclick")
+      if (handler === WIKIDOT_FOOTER_ONCLICKS[0]) {
+        showWikidotReadonlyDialog(
+          root.ownerDocument,
+          buildWikidotBugReportDialogHtml(parameters.locale)
+        )
+      } else if (
+        handler === WIKIDOT_FOOTER_ONCLICKS[1] &&
+        parameters.anonymous === true &&
+        !isJapaneseWikidotLocale(parameters.locale)
+      ) {
+        showWikidotReadonlyDialog(root.ownerDocument, WIKIDOT_ANONYMOUS_FLAG_DIALOG, true)
+      }
+      return false
+    }
     bound.push(element)
   }
   return {
@@ -150,6 +167,19 @@ export const wikidotFooterControls = (root) => {
     }
   }
 }
+
+// Standard public BugReportModule bodies. No report submission is made.
+const BUG_REPORT_DIALOG = Object.freeze({
+  "en": '<div class="title">Bug report</div>\n<div class="content">\n\t<h1>Report a problem with Wikidot.com</h1>\n\t\n\t<p>\n\t\tIf you think you have found a bug or simply something does not work as expected,       please fill a bug report.             <br/><br/>             Currently the list of bugs is maintained at:\t</p>\n\t<p style="font-weight: bold; font-size: 180%; text-align: center">\n\t\t<a href="https://feedback.wikidot.com/">feedback.wikidot.com</a>\n\t</p>\n</div>\n<div class="button-bar">\n\t<a href="javascript:;" onclick="OZONE.dialog.cleanAll()">Close window</a> \n</div>',
+  "ja": '<div class="title">バグ報告</div>\n<div class="content">\n\t<h1>Wikidot.comに問題を報告</h1>\n\t\n\t<p>\n\t\tあなたがバグを発見したり、単に何かが期待どおりに動かない場合は、バグレポートを記入してください。<br/><br/>現在、バグリストは次の場所で管理されています:\t</p>\n\t<p style="font-weight: bold; font-size: 180%; text-align: center">\n\t\t<a href="https://feedback.wikidot.com/">feedback.wikidot.com</a>\n\t</p>\n</div>\n<div class="button-bar">\n\t<a href="javascript:;" onclick="OZONE.dialog.cleanAll()">ウィンドウを終了</a> \n</div>'
+})
+export const buildWikidotBugReportDialogHtml = (locale) =>
+  BUG_REPORT_DIALOG[isJapaneseWikidotLocale(locale) ? "ja" : "en"]
+
+// The observed anonymous English FlagPageModule denial. Authenticated
+// reporting and untranslated dialog chrome remain unsupported.
+export const WIKIDOT_ANONYMOUS_FLAG_DIALOG =
+  '<div class="title modal-header">Permission error</div><div class="content modal-body"><h1>Please note:</h1><p>Please create a Wikidot account and/or sign in first</p></div><div class="button-bar modal-footer"><a href="javascript:;" class="btn btn-default button button-close-message">close message</a></div>'
 
 export const WIKIDOT_LOGIN_LABELS = Object.freeze({
   createAccount: "Create account",

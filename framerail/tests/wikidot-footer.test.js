@@ -220,7 +220,7 @@ for (const [locale, directory] of [
   })
 }
 
-test("keeps the footer's inline handlers inert without compiling them", () => {
+test("binds the footer's inline handler names without compiling them", () => {
   let handlerReads = 0
   const control = (onclick) => {
     let handler = null
@@ -249,4 +249,23 @@ test("keeps the footer's inline handlers inert without compiling them", () => {
   action.destroy()
   assert.equal(report.onclick, null)
   assert.equal(consent.onclick, null)
+})
+
+test("reproduces the anonymous EN/JA BugReportModule bodies", async () => {
+  const { buildWikidotBugReportDialogHtml } =
+    await import("../src/lib/wikidot/wikidot-footer.js")
+  const fixture = JSON.parse(
+    await (
+      await import("node:fs/promises")
+    ).readFile(new URL("./fixtures/wikidot-footer-dialogs.json", import.meta.url), "utf8")
+  )
+  for (const locale of ["en", "ja"])
+    assert.equal(
+      buildWikidotBugReportDialogHtml(locale),
+      fixture.responses[locale]["report/BugReportModule"].body
+    )
+  assert.equal(
+    buildWikidotBugReportDialogHtml("ja-corrections"),
+    fixture.responses.ja["report/BugReportModule"].body
+  )
 })
