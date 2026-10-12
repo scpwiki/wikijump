@@ -1,0 +1,356 @@
+{
+  "schema": "wikijump.forum_reply_nesting_observation.v1",
+  "observed_at": "2026-10-12",
+  "site": "sandbox-for-codex",
+  "actor": "anonymous",
+  "reference_artifacts": "/home/roku/.local/state/wikijump/scp9506-final-evidence/reply-policy-controlled-a2",
+  "observations": [
+    {
+      "level": 1,
+      "module": "forum/ForumViewThreadPostsModule",
+      "posts": [
+        {
+          "depth": 0,
+          "reply": true
+        },
+        {
+          "depth": 1,
+          "reply": false
+        },
+        {
+          "depth": 1,
+          "reply": true
+        }
+      ],
+      "response_sha256": "b5a9a4c7dff2212150aaddb1a3504986e17f3649a265f0604cc724b8859f5254"
+    },
+    {
+      "level": 0,
+      "module": "forum/ForumViewThreadPostsModule",
+      "posts": [
+        {
+          "depth": 0,
+          "reply": false
+        },
+        {
+          "depth": 1,
+          "reply": false
+        },
+        {
+          "depth": 1,
+          "reply": false
+        }
+      ],
+      "response_sha256": "52a27fd6f5a5ed8a09ab4fd9a47a5d50ed4f6aa1d1c60f31d75a136e6df8714e"
+    },
+    {
+      "level": 2,
+      "module": "forum/ForumViewThreadModule",
+      "posts": [
+        {
+          "depth": 0,
+          "reply": true
+        },
+        {
+          "depth": 1,
+          "reply": true
+        },
+        {
+          "depth": 1,
+          "reply": true
+        }
+      ],
+      "response_sha256": "8d85f66c06d86295d342cd260ec0a4a27a85c70a759564c475d22814dc9715b7"
+    },
+    {
+      "level": 2,
+      "module": "forum/ForumViewThreadPostsModule",
+      "posts": [
+        {
+          "depth": 0,
+          "reply": true
+        },
+        {
+          "depth": 1,
+          "reply": true
+        },
+        {
+          "depth": 1,
+          "reply": true
+        }
+      ],
+      "response_sha256": "9ecfab54554acfc6673c512db38689915022be109513fd38a3722b34c93087de"
+    },
+    {
+      "level": 2,
+      "module": "forum/ForumViewThreadPostsModule",
+      "posts": [
+        {
+          "depth": 0,
+          "reply": true
+        },
+        {
+          "depth": 1,
+          "reply": true
+        },
+        {
+          "depth": 1,
+          "reply": true
+        }
+      ],
+      "response_sha256": "54a1afb2ec3995266f7662220d82b693c2417cf600dcda5deba1c5ffce25170a"
+    },
+    {
+      "level": 2,
+      "module": "forum/ForumViewThreadModule",
+      "posts": [
+        {
+          "depth": 0,
+          "reply": true
+        },
+        {
+          "depth": 1,
+          "reply": true
+        },
+        {
+          "depth": 1,
+          "reply": true
+        }
+      ],
+      "response_sha256": "63327ff7d341153aa3ad19e148d73d4da51b524f75f8c304e377a1fa72c34381"
+    },
+    {
+      "level": 1,
+      "module": "forum/ForumViewThreadModule",
+      "posts": [
+        {
+          "depth": 0,
+          "reply": true
+        },
+        {
+          "depth": 1,
+          "reply": false
+        },
+        {
+          "depth": 1,
+          "reply": true
+        }
+      ],
+      "response_sha256": "8e037a4f62cfdcd1c53211a8f97b12df673ef468ef5af2dccc542d64d5f24396"
+    },
+    {
+      "level": 0,
+      "module": "forum/ForumViewThreadModule",
+      "posts": [
+        {
+          "depth": 0,
+          "reply": false
+        },
+        {
+          "depth": 1,
+          "reply": false
+        },
+        {
+          "depth": 1,
+          "reply": false
+        }
+      ],
+      "response_sha256": "5f83821b01d370425973811882995ff0a1220f00df46ea5eb7abf58430d324a0"
+    },
+    {
+      "level": 2,
+      "module": "forum/ForumViewThreadModule",
+      "posts": [
+        {
+          "depth": 0,
+          "reply": true
+        },
+        {
+          "depth": 1,
+          "reply": true
+        },
+        {
+          "depth": 1,
+          "reply": true
+        },
+        {
+          "depth": 2,
+          "reply": true
+        }
+      ],
+      "response_sha256": "0582e45ff51c950d68e82c912f515f09cffdb3790399e1846c6eccd728108573"
+    },
+    {
+      "level": 2,
+      "module": "forum/ForumViewThreadPostsModule",
+      "posts": [
+        {
+          "depth": 0,
+          "reply": true
+        },
+        {
+          "depth": 1,
+          "reply": true
+        },
+        {
+          "depth": 1,
+          "reply": true
+        },
+        {
+          "depth": 2,
+          "reply": true
+        }
+      ],
+      "response_sha256": "1af788d13498bc78bd3f3a571b3cf8712f5bc51851a5a673bc8b95f01c37ed2f"
+    },
+    {
+      "level": 1,
+      "module": "forum/ForumViewThreadModule",
+      "posts": [
+        {
+          "depth": 0,
+          "reply": true
+        },
+        {
+          "depth": 1,
+          "reply": false
+        },
+        {
+          "depth": 1,
+          "reply": true
+        },
+        {
+          "depth": 2,
+          "reply": true
+        }
+      ],
+      "response_sha256": "bf765d5939524a5d633e91840b7cbfff7062c56bf20643721a8aaf119f681143"
+    },
+    {
+      "level": 2,
+      "module": "forum/ForumViewThreadModule",
+      "posts": [
+        {
+          "depth": 0,
+          "reply": true
+        },
+        {
+          "depth": 1,
+          "reply": true
+        },
+        {
+          "depth": 1,
+          "reply": true
+        },
+        {
+          "depth": 2,
+          "reply": true
+        }
+      ],
+      "response_sha256": "65b1d9ad726b2df701e2975cfbfad6430c104a7c323dd2cb40f05fbe5374d2f9"
+    },
+    {
+      "level": 0,
+      "module": "forum/ForumViewThreadPostsModule",
+      "posts": [
+        {
+          "depth": 0,
+          "reply": false
+        },
+        {
+          "depth": 1,
+          "reply": false
+        },
+        {
+          "depth": 1,
+          "reply": false
+        },
+        {
+          "depth": 2,
+          "reply": false
+        }
+      ],
+      "response_sha256": "76e2df349be2caae1efdd6f56d0821f633fa16ae1805a56c860c3bfd42f090ab"
+    },
+    {
+      "level": 1,
+      "module": "forum/ForumViewThreadPostsModule",
+      "posts": [
+        {
+          "depth": 0,
+          "reply": true
+        },
+        {
+          "depth": 1,
+          "reply": false
+        },
+        {
+          "depth": 1,
+          "reply": true
+        },
+        {
+          "depth": 2,
+          "reply": true
+        }
+      ],
+      "response_sha256": "c225062ee4e2d78219aa5ced3665c74db8f0da95fee700efc749f913335aeb0c"
+    },
+    {
+      "level": 2,
+      "module": "forum/ForumViewThreadPostsModule",
+      "posts": [
+        {
+          "depth": 0,
+          "reply": true
+        },
+        {
+          "depth": 1,
+          "reply": true
+        },
+        {
+          "depth": 1,
+          "reply": true
+        },
+        {
+          "depth": 2,
+          "reply": true
+        }
+      ],
+      "response_sha256": "059d585d48e29a15fea99cc71db9d273644782e66e0ccf71eaa2257a0a9d6ee5"
+    },
+    {
+      "level": 0,
+      "module": "forum/ForumViewThreadModule",
+      "posts": [
+        {
+          "depth": 0,
+          "reply": false
+        },
+        {
+          "depth": 1,
+          "reply": false
+        },
+        {
+          "depth": 1,
+          "reply": false
+        },
+        {
+          "depth": 2,
+          "reply": false
+        }
+      ],
+      "response_sha256": "494f7a62ca73eac1832b1f87e208f49c2f7d023e82a546c390d1bb3fb035f20a"
+    }
+  ],
+  "cleanup": {
+    "posts_deleted": true,
+    "empty_thread_tombstone_category": 8503561,
+    "group_category_and_original_settings_restored": true
+  },
+  "additional_reference_artifacts": "/home/roku/.local/state/wikijump/scp9506-final-evidence/reply-policy-controlled-grand",
+  "cleanup_grandchild_probe": {
+    "posts_deleted": true,
+    "empty_thread_tombstone_category": 8503561,
+    "group_category_and_original_settings_restored": true
+  }
+}
