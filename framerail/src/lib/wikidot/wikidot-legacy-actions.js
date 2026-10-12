@@ -55,8 +55,6 @@ const boundActions = new WeakMap()
 const busyActions = new WeakSet()
 /** @type {WeakMap<ActionControl, number>} */
 const busyCounts = new WeakMap()
-/** @type {WeakMap<HTMLElement, ((event: MouseEvent) => false) | null>} */
-const originalUserInfoHandlers = new WeakMap()
 /** @type {WeakMap<ActionControl, string>} */
 const trustedRateHandlers = new WeakMap()
 
@@ -89,7 +87,8 @@ const installDefaultWikidotUserInfoListener = () => {
  * Rebind only the exact renderer-owned Wikidot printuser handler shape.
  * The legacy onclick attribute stays in served DOM for parity, while
  * CSP-safe trusted client code supplies the executable property without
- * eval.
+ * eval. The attribute's own handler is never read: reading `onclick`
+ * compiles the inline attribute, which the CSP reports as a violation.
  *
  * @param {HTMLElement} root
  */
@@ -106,10 +105,6 @@ const bindWikidotUserInfoHandlers = (root) => {
     if (!match) continue
     const userId = Number(match[1])
     if (!Number.isSafeInteger(userId)) continue
-    originalUserInfoHandlers.set(
-      element,
-      /** @type {((event: MouseEvent) => false) | null} */ (element.onclick)
-    )
     element.onclick = () => {
       const listener = globalThis.WIKIDOT?.page?.listeners?.userInfo
       if (typeof listener === "function") listener(userId)
@@ -118,10 +113,7 @@ const bindWikidotUserInfoHandlers = (root) => {
     elements.push(element)
   }
   return () => {
-    for (const element of elements) {
-      element.onclick = originalUserInfoHandlers.get(element) ?? null
-      originalUserInfoHandlers.delete(element)
-    }
+    for (const element of elements) element.onclick = null
   }
 }
 

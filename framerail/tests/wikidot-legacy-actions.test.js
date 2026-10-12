@@ -438,8 +438,18 @@ test("legacy printuser onclick is rebound without evaluating authored script", (
     ["href", "http://www.wikidot.com/user:info/r11-editor"],
     ["onclick", "WIKIDOT.page.listeners.userInfo(20000007); return false;"]
   ])
+  // Reading `onclick` would compile the inline attribute under the page CSP
+  // and report a violation, so the binder may only ever assign it.
+  let handler = null
+  let handlerReads = 0
   const printuser = {
-    onclick: null,
+    get onclick() {
+      handlerReads += 1
+      return handler
+    },
+    set onclick(value) {
+      handler = value
+    },
     getAttribute: (name) => attributes.get(name) ?? null
   }
   const root = {
@@ -461,10 +471,13 @@ test("legacy printuser onclick is rebound without evaluating authored script", (
   }
   try {
     const action = wikidotLegacyActions(root, { actions: [], runtime: {} })
+    assert.equal(handlerReads, 0, "binding must not read the attribute handler")
     assert.equal(typeof printuser.onclick, "function")
     assert.equal(printuser.onclick({}), false)
     assert.deepEqual(calls, [20000007])
+    handlerReads = 0
     action.destroy()
+    assert.equal(handlerReads, 0, "destroy must not read the attribute handler")
     assert.equal(printuser.onclick, null)
   } finally {
     globalThis.WIKIDOT = prior
