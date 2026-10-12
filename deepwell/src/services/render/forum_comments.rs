@@ -8,7 +8,6 @@ use sea_orm::{
     QueryFilter, Statement, Value,
 };
 
-use super::forum_modules::ForumUserResourceScheme;
 use super::forum_read_routes::{
     ForumThreadPostCandidate, ForumThreadPostView, hydrate_forum_posts,
     render_forum_thread_post,
@@ -305,11 +304,7 @@ fn render_comments(
     output.push_str(options);
     output.push_str("<div id=\"thread-container-posts\" style=\"display: none\">");
     output.push_str(&pager);
-    output.push_str(&render_comment_nodes(
-        comments,
-        true,
-        ForumUserResourceScheme::Https,
-    ));
+    output.push_str(&render_comment_nodes(comments, true));
     output.push_str(&pager);
     output.push_str("</div>");
     if order == ForumCommentsOrder::Forward {
@@ -350,28 +345,20 @@ fn render_new_post_form(thread_id: i64) -> String {
 pub(super) fn render_comment_nodes(
     nodes: &[ForumCommentNode],
     include_reply: bool,
-    resource_scheme: ForumUserResourceScheme,
 ) -> String {
     fn render(
         nodes: &[ForumCommentNode],
         avatar_timestamp: i64,
         include_reply: bool,
-        resource_scheme: ForumUserResourceScheme,
     ) -> String {
         let mut output = String::new();
         for node in nodes {
-            let replies = render(
-                &node.replies,
-                avatar_timestamp,
-                include_reply,
-                resource_scheme,
-            );
+            let replies = render(&node.replies, avatar_timestamp, include_reply);
             output.push_str(&render_forum_thread_post(
                 &node.post,
                 &replies,
                 avatar_timestamp,
                 include_reply,
-                resource_scheme,
             ));
         }
         output
@@ -381,7 +368,6 @@ pub(super) fn render_comment_nodes(
         nodes,
         time::OffsetDateTime::now_utc().unix_timestamp(),
         include_reply,
-        resource_scheme,
     )
 }
 

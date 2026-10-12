@@ -18,7 +18,7 @@ fn renders_long_native_list_runs_before_ftml_parsing() {
 
     assert!(rendered.starts_with(r#"<ul data-wikijump-compat-list="1">"#));
     assert!(rendered.contains(r#"<li><a href="/tokyo-incidents">東京事変</a> -- by "#));
-    assert!(rendered.contains(r#"<span class="printuser"><a href="http://www.wikidot.com/user:info/Ryu JP">Ryu JP</a></span>"#));
+    assert!(rendered.contains(r#"<span class="printuser"><a href="https://www.wikidot.com/user:info/Ryu JP">Ryu JP</a></span>"#));
     assert!(
         rendered.contains(r#"<a href="http://scp-jp.wikidot.com/example">Example</a>"#)
     );

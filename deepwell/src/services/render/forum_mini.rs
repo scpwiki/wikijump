@@ -26,6 +26,7 @@ use super::service::{
     RenderService, escape_list_pages_html_attr, escape_list_pages_html_text,
     format_wikidot_list_pages_date,
 };
+use super::wikidot_user_resources::WIKIDOT_USER_INFO_URL;
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::services::ServiceContext;
 use crate::services::text::TextService;
@@ -167,9 +168,10 @@ fn render_forum_mini_user(post: &ForumMiniPost) -> String {
     let slug = escape_list_pages_html_attr(slug);
     format!(
         concat!(
-            r#"<span class="printuser"><a href="http://www.wikidot.com/user:info/{slug}" "#,
+            r#"<span class="printuser"><a href="{user_info}{slug}" "#,
             r#"onclick="WIKIDOT.page.listeners.userInfo({user_id}); return false;" >{name}</a></span>"#,
         ),
+        user_info = WIKIDOT_USER_INFO_URL,
         slug = slug,
         user_id = post.user_id,
         name = name,

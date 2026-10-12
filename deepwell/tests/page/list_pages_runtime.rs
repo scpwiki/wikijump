@@ -2509,13 +2509,13 @@ async fn listpages_imported_creator_identity_uses_structured_corpus_provenance()
         format!("created_by=[{CREATOR_NAME}]"),
         format!("created_by_unix=[{CREATOR_SLUG}]"),
         format!("created_by_id=[{CREATOR_ID}]"),
-        format!("http://www.wikidot.com/user:info/{CREATOR_SLUG}"),
+        format!("https://www.wikidot.com/user:info/{CREATOR_SLUG}"),
         format!("WIKIDOT.page.listeners.userInfo({CREATOR_ID})"),
         format!(
-            "src=\"http://www.wikidot.com/avatar.php?userid={CREATOR_ID}&amp;amp;size=small&amp;amp;timestamp="
+            "src=\"https://www.wikidot.com/avatar.php?userid={CREATOR_ID}&amp;amp;size=small&amp;amp;timestamp="
         ),
         format!(
-            r#"style="background-image:url(http://www.wikidot.com/userkarma.php?u={CREATOR_ID})""#
+            r#"style="background-image:url(https://www.wikidot.com/userkarma.php?u={CREATOR_ID})""#
         ),
     ] {
         assert!(
@@ -2679,7 +2679,7 @@ async fn listpages_imported_editor_identity_uses_structured_corpus_provenance() 
         format!("updated_by=[{EDITOR_NAME}]"),
         format!("updated_by_unix=[{EDITOR_SLUG}]"),
         format!("updated_by_id=[{EDITOR_ID}]"),
-        format!("http://www.wikidot.com/user:info/{EDITOR_SLUG}"),
+        format!("https://www.wikidot.com/user:info/{EDITOR_SLUG}"),
         format!("WIKIDOT.page.listeners.userInfo({EDITOR_ID})"),
     ] {
         assert!(
@@ -2773,7 +2773,7 @@ async fn listpages_imported_commenter_identity_uses_structured_corpus_provenance
         format!("commented_by=[{COMMENTER_NAME}]"),
         format!("commented_by_unix=[{COMMENTER_SLUG}]"),
         format!("commented_by_id=[{COMMENTER_ID}]"),
-        format!("http://www.wikidot.com/user:info/{COMMENTER_SLUG}"),
+        format!("https://www.wikidot.com/user:info/{COMMENTER_SLUG}"),
         format!("WIKIDOT.page.listeners.userInfo({COMMENTER_ID})"),
         "commented_at=[<span class=\"odate time_".to_owned(),
     ] {
@@ -3017,7 +3017,7 @@ async fn listpages_last_comment_variables_match_live_wikidot() {
     );
     assert!(
         html.contains(&format!(
-            "http://www.wikidot.com/user:info/{COMMENTER_SLUG}"
+            "https://www.wikidot.com/user:info/{COMMENTER_SLUG}"
         )) && html.contains(&format!("WIKIDOT.page.listeners.userInfo({COMMENTER_ID})")),
         "{html}"
     );

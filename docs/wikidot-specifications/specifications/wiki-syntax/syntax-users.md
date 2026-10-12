@@ -25,6 +25,24 @@ If the documentation is silent or contradictory, the implementation MUST fail cl
 The observations in this section are normative and override conflicting or
 incomplete documentation-derived evidence below.
 
+### Current user resources use HTTPS and compiled avatars carry a timestamp
+
+Retained October 2026 page and forum observations render new user profile
+links as `https://www.wikidot.com/user:info/<slug>`. Avatar and karma images
+use the resolved HTTPS avatar base. A starred user's avatar includes the
+fragment's compile timestamp; forum header avatars use the request render
+time. Preserve the existing double escaping of avatar query separators.
+
+Older compiled fragments can retain HTTP profile links. In particular,
+imported forum post bodies preserve their observed HTML independently of
+the newly rendered post header. Browser bindings accept both evidenced
+schemes. Native Wikijump profile resources retain their own contract.
+
+Evidence: the shared EN/JP corpus `html.xmlrpc.html` observations, the
+2026-10-12 SCP-9506 retained browser DOM and thread responses, and the
+source/compile-time analysis in
+`https://github.com/Rokurolize/wikijump/issues/2380#issuecomment-6122025642`.
+
 ### Current user syntax keeps digit-only text in the name namespace and is actor-invariant for the observed public matrix
 
 - Observation ID: `user-syntax-name-key-special-identities-and-actor-invariance-20260908`

@@ -1871,15 +1871,16 @@ async fn forum_comments_list_resolves_only_visible_page_discussions_impl() {
         }),
     );
     assert_eq!(ordinary_thread.status, "ok");
+    // Since 2026-09-21 Wikidot serves every forum user link and avatar over
+    // https; the live scp-wiki thread view of 2026-10-12 shows the same
+    // markup as the Comments module.
     assert!(
         ordinary_thread.body.contains(&format!(
-            "http://www.wikidot.com/avatar.php?userid={SAMPLE_USER_ID}&amp;amp;size=small&amp;amp;timestamp="
+            "https://www.wikidot.com/avatar.php?userid={SAMPLE_USER_ID}&amp;amp;size=small&amp;amp;timestamp="
         )) && ordinary_thread.body.contains(&format!(
-            "background-image:url(http://www.wikidot.com/userkarma.php?u={SAMPLE_USER_ID})"
-        )) && !ordinary_thread.body.contains(&format!(
-            "https://www.wikidot.com/avatar.php?userid={SAMPLE_USER_ID}"
-        )),
-        "non-Comments forum surfaces must retain their sealed HTTP resource scheme:\n{}",
+            "background-image:url(https://www.wikidot.com/userkarma.php?u={SAMPLE_USER_ID})"
+        )) && !ordinary_thread.body.contains("http://www.wikidot.com/"),
+        "forum thread users must use Wikidot's https user resources:\n{}",
         ordinary_thread.body,
     );
 

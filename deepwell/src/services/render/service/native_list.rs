@@ -9,6 +9,7 @@ use super::{
     escape_list_pages_html_text, native_list_page_link_ref,
     sanitize_wikidot_compat_inline_tag,
 };
+use crate::services::render::wikidot_user_resources::WIKIDOT_USER_INFO_URL;
 
 pub(in crate::services::render) fn render_native_bullet_list_with_wikipedia_links(
     lines: &[&str],
@@ -939,9 +940,10 @@ fn render_native_list_wikidot_user(name: &str) -> String {
     format!(
         concat!(
             r#"<span class="printuser">"#,
-            r#"<a href="http://www.wikidot.com/user:info/{slug}">{name}</a>"#,
+            r#"<a href="{user_info}{slug}">{name}</a>"#,
             r#"</span>"#
         ),
+        user_info = WIKIDOT_USER_INFO_URL,
         slug = escape_list_pages_html_attr(name),
         name = escape_list_pages_html_text(name),
     )

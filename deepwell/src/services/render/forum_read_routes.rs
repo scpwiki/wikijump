@@ -12,10 +12,9 @@ use serde::Serialize;
 
 use super::forum_comments::{self, ForumCommentsLoad, ForumCommentsOrder};
 use super::forum_modules::{
-    ForumLastPost, ForumUserResourceScheme, forum_user, load_forum_start_activity,
-    load_recent_posts_page, render_forum_date, render_forum_signature_html,
-    render_forum_start, render_forum_user, render_forum_user_with_scheme,
-    render_forum_user_without_avatar, render_recent_posts_list,
+    ForumLastPost, forum_user, load_forum_start_activity, load_recent_posts_page,
+    render_forum_date, render_forum_signature_html, render_forum_start,
+    render_forum_user, render_forum_user_without_avatar, render_recent_posts_list,
 };
 use super::forum_visibility::ForumPageVisibility;
 use super::service::{
@@ -633,11 +632,7 @@ async fn render_forum_thread_page(
     let mut pager = String::new();
     forum_comments::push_pager(&mut pager, u64::from(page), page_count);
     let mut output = pager.clone();
-    output.push_str(&forum_comments::render_comment_nodes(
-        &nodes,
-        false,
-        ForumUserResourceScheme::Http,
-    ));
+    output.push_str(&forum_comments::render_comment_nodes(&nodes, false));
     output.push_str(&pager);
     Ok(Some(output))
 }
@@ -737,10 +732,8 @@ pub(super) fn render_forum_thread_post(
     replies: &str,
     avatar_timestamp: i64,
     include_reply: bool,
-    resource_scheme: ForumUserResourceScheme,
 ) -> String {
-    let user =
-        render_forum_user_with_scheme(&post.user, avatar_timestamp, resource_scheme);
+    let user = render_forum_user(&post.user, avatar_timestamp);
     let date = render_forum_date(
         post.created_at,
         "format_%25e%20%25b%20%25Y%2C%20%25H%3A%25M%7Cagohover",

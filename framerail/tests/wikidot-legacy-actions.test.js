@@ -434,35 +434,38 @@ test("initialized Rate stars preserve the live hidden score value", () => {
 })
 
 test("legacy printuser onclick is rebound without evaluating authored script", () => {
-  const attributes = new Map([
-    ["href", "http://www.wikidot.com/user:info/r11-editor"],
-    ["onclick", "WIKIDOT.page.listeners.userInfo(20000007); return false;"]
-  ])
   // Reading `onclick` would compile the inline attribute under the page CSP
   // and report a violation, so the binder may only ever assign it.
-  let handler = null
   let handlerReads = 0
-  const printuser = {
-    get onclick() {
-      handlerReads += 1
-      return handler
-    },
-    set onclick(value) {
-      handler = value
-    },
-    getAttribute: (name) => attributes.get(name) ?? null
+  const printuser = (href, userId) => {
+    const attributes = new Map([
+      ["href", href],
+      ["onclick", `WIKIDOT.page.listeners.userInfo(${userId}); return false;`]
+    ])
+    let handler = null
+    return {
+      get onclick() {
+        handlerReads += 1
+        return handler
+      },
+      set onclick(value) {
+        handler = value
+      },
+      getAttribute: (name) => attributes.get(name) ?? null
+    }
   }
+  // Wikidot links users over https now; content it compiled before
+  // 2026-09-21 keeps http links. Both are renderer-owned printusers.
+  const current = printuser("https://www.wikidot.com/user:info/r11-editor", 20000007)
+  const legacy = printuser("http://www.wikidot.com/user:info/r11-author", 20000008)
   const root = {
     addEventListener: () => {},
     removeEventListener: () => {},
-    querySelectorAll: (selector) => {
-      if (
-        selector === '.printuser > a[href^="http://www.wikidot.com/user:info/"][onclick]'
-      ) {
-        return [printuser]
-      }
-      return []
-    }
+    querySelectorAll: (selector) =>
+      selector ===
+      '.printuser > a[href^="https://www.wikidot.com/user:info/"][onclick], .printuser > a[href^="http://www.wikidot.com/user:info/"][onclick]'
+        ? [current, legacy]
+        : []
   }
   const calls = []
   const prior = globalThis.WIKIDOT
@@ -472,13 +475,16 @@ test("legacy printuser onclick is rebound without evaluating authored script", (
   try {
     const action = wikidotLegacyActions(root, { actions: [], runtime: {} })
     assert.equal(handlerReads, 0, "binding must not read the attribute handler")
-    assert.equal(typeof printuser.onclick, "function")
-    assert.equal(printuser.onclick({}), false)
-    assert.deepEqual(calls, [20000007])
+    assert.equal(typeof current.onclick, "function")
+    assert.equal(typeof legacy.onclick, "function")
+    assert.equal(current.onclick({}), false)
+    assert.equal(legacy.onclick({}), false)
+    assert.deepEqual(calls, [20000007, 20000008])
     handlerReads = 0
     action.destroy()
     assert.equal(handlerReads, 0, "destroy must not read the attribute handler")
-    assert.equal(printuser.onclick, null)
+    assert.equal(current.onclick, null)
+    assert.equal(legacy.onclick, null)
   } finally {
     globalThis.WIKIDOT = prior
   }

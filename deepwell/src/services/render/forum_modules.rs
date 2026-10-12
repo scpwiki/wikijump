@@ -32,6 +32,7 @@ use super::service::{
     format_wikidot_list_pages_date,
 };
 use super::url_arguments::UrlArguments;
+use super::wikidot_user_resources::{WIKIDOT_AVATAR_BASE, WIKIDOT_USER_INFO_URL};
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::services::ForumService;
 use crate::services::ServiceContext;
@@ -170,21 +171,6 @@ pub(super) struct ForumUserDisplay {
     slug: Option<String>,
     wikidot_profile: bool,
     guest_gravatar_md5: Option<String>,
-}
-
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(super) enum ForumUserResourceScheme {
-    Http,
-    Https,
-}
-
-impl ForumUserResourceScheme {
-    fn as_str(self) -> &'static str {
-        match self {
-            Self::Http => "http",
-            Self::Https => "https",
-        }
-    }
 }
 
 #[derive(Clone, Debug)]
@@ -408,17 +394,14 @@ pub(super) fn forum_guest_user(name: String, gravatar_md5: String) -> ForumUserD
     }
 }
 
+/// Render a forum user as Wikidot does for each request.
+///
+/// Wikidot links users and draws their avatar and karma badge over https
+/// (`WIKIDOT_USER_INFO_URL`, `WIKIDOT_AVATAR_BASE`); the avatar URL carries
+/// the render time.
 pub(super) fn render_forum_user(
     user: &ForumUserDisplay,
     avatar_timestamp: i64,
-) -> String {
-    render_forum_user_with_scheme(user, avatar_timestamp, ForumUserResourceScheme::Http)
-}
-
-pub(super) fn render_forum_user_with_scheme(
-    user: &ForumUserDisplay,
-    avatar_timestamp: i64,
-    resource_scheme: ForumUserResourceScheme,
 ) -> String {
     let name = escape_list_pages_html_text(&user.name);
     if let Some(gravatar_md5) = &user.guest_gravatar_md5 {
@@ -436,16 +419,16 @@ pub(super) fn render_forum_user_with_scheme(
     };
     let slug = escape_list_pages_html_attr(slug);
     let name_attr = escape_list_pages_html_attr(&user.name);
-    let resource_scheme = resource_scheme.as_str();
     format!(
         concat!(
-            r#"<span class="printuser avatarhover"><a href="http://www.wikidot.com/user:info/{slug}" "#,
+            r#"<span class="printuser avatarhover"><a href="{user_info}{slug}" "#,
             r#"onclick="WIKIDOT.page.listeners.userInfo({user_id}); return false;"  >"#,
-            r#"<img class="small" src="{resource_scheme}://www.wikidot.com/avatar.php?userid={user_id}&amp;amp;size=small&amp;amp;timestamp={avatar_timestamp}" "#,
-            r#"alt="{name_attr}" style="background-image:url({resource_scheme}://www.wikidot.com/userkarma.php?u={user_id})"/></a>"#,
-            r#"<a href="http://www.wikidot.com/user:info/{slug}" onclick="WIKIDOT.page.listeners.userInfo({user_id}); return false;" >{name}</a></span>"#,
+            r#"<img class="small" src="{avatar_base}/avatar.php?userid={user_id}&amp;amp;size=small&amp;amp;timestamp={avatar_timestamp}" "#,
+            r#"alt="{name_attr}" style="background-image:url({avatar_base}/userkarma.php?u={user_id})"/></a>"#,
+            r#"<a href="{user_info}{slug}" onclick="WIKIDOT.page.listeners.userInfo({user_id}); return false;" >{name}</a></span>"#,
         ),
-        resource_scheme = resource_scheme,
+        user_info = WIKIDOT_USER_INFO_URL,
+        avatar_base = WIKIDOT_AVATAR_BASE,
         slug = slug,
         user_id = user.user_id,
         avatar_timestamp = avatar_timestamp,
@@ -465,9 +448,10 @@ pub(super) fn render_forum_user_without_avatar(user: &ForumUserDisplay) -> Strin
     let slug = escape_list_pages_html_attr(slug);
     format!(
         concat!(
-            r#"<span class="printuser"><a href="http://www.wikidot.com/user:info/{slug}" "#,
+            r#"<span class="printuser"><a href="{user_info}{slug}" "#,
             r#"onclick="WIKIDOT.page.listeners.userInfo({user_id}); return false;" >{name}</a></span>"#,
         ),
+        user_info = WIKIDOT_USER_INFO_URL,
         slug = slug,
         user_id = user.user_id,
         name = name,

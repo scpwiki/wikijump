@@ -115,7 +115,7 @@ export const renderWikidotWhoRated = (votes) => {
       }
       const userId = user["user-id"]
       const userSlug = escapeHtmlAttribute(user["user-slug"])
-      const profileUrl = `http://www.wikidot.com/user:info/${userSlug}`
+      const profileUrl = `https://www.wikidot.com/user:info/${userSlug}`
       const userName = escapeHtml(user["user-name"])
       const sign = value === 1 ? "+" : "-"
       return `<span class="printuser avatarhover"><a href="${profileUrl}" onclick="WIKIDOT.page.listeners.userInfo(${userId}); return false;">${userName}</a></span>\n        <span style="color:#777">\n                    ${sign}              </span><br/>`

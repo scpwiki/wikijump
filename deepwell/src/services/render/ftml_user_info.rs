@@ -26,7 +26,11 @@ use crate::services::ServiceContext;
 use crate::services::page_query::{
     normalize_wikidot_author_name, wikidot_author_name_sql,
 };
+use crate::services::render::wikidot_user_resources::{
+    WIKIDOT_AVATAR_BASE, WIKIDOT_USER_INFO_URL,
+};
 use crate::services::user::User;
+use crate::utils::now;
 use ftml::data::UserInfo;
 use ftml::render::UserInfoResolver;
 use sea_orm::sea_query::Expr;
@@ -113,6 +117,8 @@ async fn load_observed_wikidot_identities(
                 ErrorType::Render,
             )
         })?;
+    // Wikidot stamps a compiled avatar with its compile time.
+    let avatar_timestamp = now().unix_timestamp();
     Ok(users
         .into_iter()
         .map(|user| UserInfo {
@@ -123,16 +129,24 @@ async fn load_observed_wikidot_identities(
             // userkarma.php. Sparse observations must not supply profile metadata
             // to the Wikijump layout or user-directory/profile interfaces.
             user_karma: ftml::data::KarmaLevel::Zero,
-            user_avatar_data: std::borrow::Cow::Owned(format!(
-                "http://www.wikidot.com/avatar.php?userid={}&amp;size=small",
-                user.user_id
+            user_avatar_data: std::borrow::Cow::Owned(wikidot_avatar_url(
+                user.user_id,
+                avatar_timestamp,
             )),
             user_profile_url: std::borrow::Cow::Owned(format!(
-                "http://www.wikidot.com/user:info/{}",
+                "{WIKIDOT_USER_INFO_URL}{}",
                 user.slug
             )),
         })
         .collect())
+}
+
+/// The `avatar.php` URL Wikidot compiles into a printuser avatar. FTML
+/// escapes it once more, as Wikidot's compiled HTML does.
+fn wikidot_avatar_url(user_id: i64, avatar_timestamp: i64) -> String {
+    format!(
+        "{WIKIDOT_AVATAR_BASE}/avatar.php?userid={user_id}&amp;size=small&amp;timestamp={avatar_timestamp}"
+    )
 }
 
 fn index_user_info(
@@ -254,6 +268,18 @@ mod tests {
     use super::*;
     use ftml::data::KarmaLevel;
     use std::borrow::Cow;
+
+    #[test]
+    fn wikidot_avatar_url_matches_the_compiled_wikidot_avatar() {
+        // Live SCP-9506 (2026-10-12): the license box compiled on
+        // 2026-10-04 serves `src="https://www.wikidot.com/avatar.php?
+        // userid=3158795&amp;amp;size=small&amp;amp;timestamp=1791147832"`;
+        // FTML adds the second escape.
+        assert_eq!(
+            wikidot_avatar_url(3158795, 1791147832),
+            "https://www.wikidot.com/avatar.php?userid=3158795&amp;size=small&amp;timestamp=1791147832",
+        );
+    }
 
     #[test]
     fn snapshot_resolves_case_and_spacing_to_canonical_user() {
