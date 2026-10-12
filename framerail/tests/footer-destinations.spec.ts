@@ -196,15 +196,17 @@ test("imported Wikidot-layout footer reproduces the live Wikidot destinations", 
   const footer = page.locator(".options")
   await expect(footer).toBeVisible()
   const links = footer.locator("a")
-  await expect(links).toHaveCount(5)
+  await expect(links).toHaveCount(6)
 
   // Current live Wikidot footer: Help, Terms of Service and Privacy are
   // absolute www.wikidot.com URLs; Report a bug and Flag as objectionable are
-  // inert anchors whose listeners open the in-page report modules.
+  // inert anchors whose listeners open the in-page report modules, and the
+  // hidden consent entry holds the cookie-settings control.
   const expected = [
     "https://www.wikidot.com/doc",
     "https://www.wikidot.com/legal:terms-of-service",
     "https://www.wikidot.com/legal:privacy-policy",
+    "javascript:;",
     "javascript:;",
     "javascript:;"
   ]
@@ -212,6 +214,29 @@ test("imported Wikidot-layout footer reproduces the live Wikidot destinations", 
     anchors.map((anchor) => anchor.getAttribute("href"))
   )
   expect(hrefs).toEqual(expected)
+  await expect(page.locator("#consent-box")).toBeHidden()
+  await expect(page.locator("#footer")).toHaveAttribute(
+    "style",
+    "display: block; visibility: visible;"
+  )
+  await expect(page.locator("#footer > a")).toHaveAttribute(
+    "href",
+    "https://www.wikidot.com"
+  )
+  await expect(page.locator("#license-area a")).toHaveAttribute("rel", "license")
+
+  // The report controls keep Wikidot's inline handlers in the DOM, but a
+  // click stays inert: the CSP-safe binding replaces the handler, so the
+  // attribute is never compiled and no navigation happens.
+  const consoleErrors: string[] = []
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text())
+  })
+  const before = page.url()
+  await page.locator("#bug-report-button").click()
+  await page.locator("#abuse-report-button").click()
+  expect(page.url()).toBe(before)
+  expect(consoleErrors).toEqual([])
 
   const rootResolving = await links.evaluateAll((anchors) =>
     anchors

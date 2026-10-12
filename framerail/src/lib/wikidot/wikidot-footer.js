@@ -36,8 +36,18 @@ export const WIKIDOT_FOOTER_LINKS = Object.freeze([
     href: "https://www.wikidot.com/legal:privacy-policy",
     id: "wikidot-privacy-button"
   },
-  { label: "Report a bug", href: "javascript:;", id: "bug-report-button" },
-  { label: "Flag as objectionable", href: "javascript:;", id: "abuse-report-button" }
+  {
+    label: "Report a bug",
+    href: "javascript:;",
+    id: "bug-report-button",
+    onclick: "WIKIDOT.page.listeners.pageBugReport(event)"
+  },
+  {
+    label: "Flag as objectionable",
+    href: "javascript:;",
+    id: "abuse-report-button",
+    onclick: "WIKIDOT.page.listeners.flagPageObjectionable(event)"
+  }
 ])
 
 /**
@@ -56,11 +66,90 @@ export const WIKIDOT_FOOTER_LINKS_JA = Object.freeze([
     href: "https://www.wikidot.com/legal:privacy-policy",
     id: "wikidot-privacy-button"
   },
-  { label: "バグを報告", href: "javascript:;", id: "bug-report-button" },
-  { label: "不快フラグを立てる", href: "javascript:;", id: "abuse-report-button" }
+  {
+    label: "バグを報告",
+    href: "javascript:;",
+    id: "bug-report-button",
+    onclick: "WIKIDOT.page.listeners.pageBugReport(event)"
+  },
+  {
+    label: "不快フラグを立てる",
+    href: "javascript:;",
+    id: "abuse-report-button",
+    onclick: "WIKIDOT.page.listeners.flagPageObjectionable(event)"
+  }
 ])
 
 export const WIKIDOT_POWERED_BY = "Powered by Wikidot.com"
+
+/**
+ * Inline style the standard Wikidot server template puts on `#footer` and
+ * its `div.options`.
+ */
+export const WIKIDOT_FOOTER_STYLE = "display: block; visibility: visible;"
+
+/**
+ * The body of the standard Wikidot `#footer`, as the server template emits
+ * it: the same text nodes, `&nbsp;|` separators, the hidden cookie-consent
+ * entry and the linked "Powered by" line. The retained EN and JP shells
+ * (`scp-173`, 2026-09-29) and SCP-9506 (2026-10-12) are byte-identical
+ * apart from the localized link labels. The template's inline script,
+ * which toggles the consent entry for the nitroAds advertising stack, is
+ * third-party ad code and is not reproduced; the consent entry stays
+ * hidden, as it is whenever that stack is absent.
+ *
+ * @param {string | null | undefined} locale
+ */
+export const buildWikidotFooterHtml = (locale) => {
+  const links = buildWikidotFooterLinks(locale)
+    .map(
+      ({ label, href, id, onclick }) =>
+        `<a href="${href}" id="${id}"${onclick ? ` onclick="${onclick}"` : ""}>${label}</a>`
+    )
+    .join("\n    &nbsp;|\n    ")
+  return (
+    `\n                <div class="options" style="${WIKIDOT_FOOTER_STYLE}">\n    ${links}` +
+    `\n    <span id="consent-box" style="display:none">\n        &nbsp;|` +
+    `\n        <a href="javascript:;" onclick="window.__cmp('showModal');">Update cookie settings</a>` +
+    `\n    </span>\n\n    \n</div>` +
+    `\nPowered by <a href="https://www.wikidot.com">Wikidot.com</a>\n            `
+  )
+}
+
+/**
+ * The exact inline handlers of the standard footer controls. They stay in
+ * the served DOM for parity; the report modules and the consent dialog are
+ * not implemented, so the CSP-safe binding only keeps the click inert.
+ */
+export const WIKIDOT_FOOTER_ONCLICKS = Object.freeze([
+  "WIKIDOT.page.listeners.pageBugReport(event)",
+  "WIKIDOT.page.listeners.flagPageObjectionable(event)",
+  "window.__cmp('showModal');"
+])
+
+/**
+ * Keep the standard footer's inline handlers inert without compiling them:
+ * assigning `onclick` replaces the attribute's handler, and the attribute
+ * is only ever read as text.
+ *
+ * @param {HTMLElement} root
+ */
+export const wikidotFooterControls = (root) => {
+  /** @type {HTMLElement[]} */
+  const bound = []
+  for (const element of /** @type {NodeListOf<HTMLElement>} */ (
+    root.querySelectorAll("a[onclick]")
+  )) {
+    if (!WIKIDOT_FOOTER_ONCLICKS.includes(element.getAttribute("onclick") ?? "")) continue
+    element.onclick = () => false
+    bound.push(element)
+  }
+  return {
+    destroy() {
+      for (const element of bound) element.onclick = null
+    }
+  }
+}
 
 export const WIKIDOT_LOGIN_LABELS = Object.freeze({
   createAccount: "Create account",
@@ -165,10 +254,28 @@ export const buildWikidotLicenseHtml = ({
       return `特に明記しない限り、このページのコンテンツは次のライセンスの下にあります: <a href="${url}">${englishName}</a>`
     }
 
-    return `特に指定がない限り、このサイトのすべてのコンテンツは<a href="${url}">${name}</a> の元で利用可能です。`
+    const jaUrl = escapeHtml(wikidotLicenseUrl(licenseUrl, "ja"))
+    return `\n                    \n\n特に指定がない限り、このサイトのすべてのコンテンツは<a rel="license" href="${jaUrl}">${name}</a> の元で利用可能です。\n                `
   }
 
-  return `Unless otherwise stated, the content of this page is licensed under <a href="${url}">${name}</a>`
+  const enUrl = escapeHtml(wikidotLicenseUrl(licenseUrl, "en"))
+  return `\n                    Unless otherwise stated, the content of this page is licensed under\n\n <a rel="license" href="${enUrl}">${name}</a>\n                `
+}
+
+/**
+ * Wikidot links a Creative Commons license to its `http://` deed, and the
+ * Japanese template to the Japanese deed: `http://creativecommons.org/
+ * licenses/by-sa/3.0/` on scp-wiki and `…/by-sa/3.0/deed.ja` on scp-jp
+ * (retained shells, 2026-09-29). Other license URLs are kept.
+ *
+ * @param {string | null | undefined} licenseUrl
+ * @param {"en" | "ja"} language
+ */
+const wikidotLicenseUrl = (licenseUrl, language) => {
+  const url = licenseUrl || "/"
+  if (!/^https?:\/\/creativecommons\.org\/licenses\/[^?#]*\/$/u.test(url)) return url
+  const deed = url.replace(/^https:/u, "http:")
+  return language === "ja" ? `${deed}deed.ja` : deed
 }
 
 /**

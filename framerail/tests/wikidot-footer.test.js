@@ -1,17 +1,21 @@
 import { strict as assert } from "node:assert"
 import test from "node:test"
 
+import { readFileSync } from "node:fs"
+
 import {
   WIKIDOT_FOOTER_LINKS,
   WIKIDOT_FOOTER_LINKS_JA,
   WIKIDOT_POWERED_BY,
   buildWikidotAccountLabels,
+  buildWikidotFooterHtml,
   buildWikidotFooterLinks,
   buildWikidotLicenseHtml,
   buildWikidotLoginLabels,
   formatWikidotLicenseName,
   isImportedWikidotView,
-  shouldUseWikidotLicenseHtml
+  shouldUseWikidotLicenseHtml,
+  wikidotFooterControls
 } from "../src/lib/wikidot/wikidot-footer.js"
 
 test("uses Wikidot footer labels in source order", () => {
@@ -104,7 +108,7 @@ test("formats Wikidot license wording without Wikijump copy", () => {
       licenseName: "Creative Commons Attribution-ShareAlike 3.0",
       licenseUrl: "https://example.invalid/license"
     }),
-    'Unless otherwise stated, the content of this page is licensed under <a href="https://example.invalid/license">Creative Commons Attribution-ShareAlike 3.0 License</a>'
+    '\n                    Unless otherwise stated, the content of this page is licensed under\n\n <a rel="license" href="https://example.invalid/license">Creative Commons Attribution-ShareAlike 3.0 License</a>\n                '
   )
 })
 
@@ -129,7 +133,7 @@ test("formats Japanese Wikidot license wording for SCP-JP", () => {
       licenseUrl: "https://example.invalid/license",
       locale: "ja"
     }),
-    '特に指定がない限り、このサイトのすべてのコンテンツは<a href="https://example.invalid/license">クリエイティブ・コモンズ 表示 - 継承3.0ライセンス</a> の元で利用可能です。'
+    '\n                    \n\n特に指定がない限り、このサイトのすべてのコンテンツは<a rel="license" href="https://example.invalid/license">クリエイティブ・コモンズ 表示 - 継承3.0ライセンス</a> の元で利用可能です。\n                '
   )
 })
 
@@ -169,4 +173,80 @@ test("carries Wikidot's footer control ids for their hovertips", () => {
     WIKIDOT_FOOTER_LINKS_JA.map((link) => link.id),
     ids
   )
+})
+
+// Retained live DOM of the standard Wikidot shells (`scp-173`, 2026-09-29).
+// The served `#footer` and `#license-area` come straight from Wikidot's
+// server template; only the footer's nitroAds consent script is left out.
+const retainedShell = (directory) =>
+  readFileSync(
+    new URL(
+      `../../install/local/theme-lab/evidence/wikidot-runtime-surface-20260929.normal/${directory}/live.dom.html`,
+      import.meta.url
+    ),
+    "utf8"
+  )
+const innerHtml = (html, open, close) => {
+  const start = html.indexOf(open) + open.length
+  return html.slice(start, html.indexOf(close, start))
+}
+
+for (const [locale, directory] of [
+  ["en", "scp-wiki-scp-173-normal-20260929-5d64b862fb46"],
+  ["ja", "scp-jp-scp-173-normal-20260929-7984e750c954"]
+]) {
+  test(`reproduces the standard Wikidot footer and license area (${locale})`, () => {
+    const html = retainedShell(directory)
+    const footer = innerHtml(
+      html,
+      '<div id="footer" style="display: block; visibility: visible;">',
+      '</div>\n            \n                <div id="license-area"'
+    ).replace(/<script>[\s\S]*?<\/script>/u, "")
+    assert.equal(buildWikidotFooterHtml(locale), footer)
+
+    const license = innerHtml(
+      html,
+      '<div id="license-area" class="license-area">',
+      "</div>"
+    )
+    assert.equal(
+      buildWikidotLicenseHtml({
+        licenseName: "Creative Commons Attribution-ShareAlike 3.0",
+        licenseUrl: "https://creativecommons.org/licenses/by-sa/3.0/",
+        locale
+      }),
+      license
+    )
+  })
+}
+
+test("keeps the footer's inline handlers inert without compiling them", () => {
+  let handlerReads = 0
+  const control = (onclick) => {
+    let handler = null
+    return {
+      get onclick() {
+        handlerReads += 1
+        return handler
+      },
+      set onclick(value) {
+        handler = value
+      },
+      getAttribute: (name) => (name === "onclick" ? onclick : null)
+    }
+  }
+  const report = control("WIKIDOT.page.listeners.pageBugReport(event)")
+  const consent = control("window.__cmp('showModal');")
+  const authored = control("alert(1)")
+  const action = wikidotFooterControls({
+    querySelectorAll: (selector) =>
+      selector === "a[onclick]" ? [report, consent, authored] : []
+  })
+  assert.equal(handlerReads, 0)
+  assert.equal(report.onclick(), false)
+  assert.equal(consent.onclick(), false)
+  assert.equal(authored.onclick, null)
+  action.destroy()
+  assert.equal(report.onclick, null)
+  assert.equal(consent.onclick, null)
 })

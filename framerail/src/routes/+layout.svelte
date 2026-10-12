@@ -8,9 +8,9 @@
   import { pageLayoutState, errorPopupState } from "$lib/layout/stores.svelte"
   import { Layout } from "$lib/types"
   import {
-    WIKIDOT_POWERED_BY,
+    WIKIDOT_FOOTER_STYLE,
     buildWikidotAccountLabels,
-    buildWikidotFooterLinks,
+    buildWikidotFooterHtml,
     buildWikidotLicenseHtml,
     buildWikidotLoginLabels,
     isImportedWikidotView,
@@ -111,7 +111,7 @@
   const canonicalView = $derived(resolveCanonicalViewMetadata(page.error, page.data))
   const viewData = $derived(canonicalView.viewData)
   const wikidotLocale = $derived(canonicalView.locale)
-  const wikidotFooterLinks = $derived(buildWikidotFooterLinks(wikidotLocale))
+  const wikidotFooterHtml = $derived(buildWikidotFooterHtml(wikidotLocale))
   const nativeFooterLinks = $derived(
     resolveNativeFooterLinks(viewData?.native_footer_destinations)
   )
@@ -301,7 +301,7 @@
     </div>
     <div id="navi-bar-shadow">&nbsp;</div>
   {/if}
-  <Wikidot>
+  <Wikidot footerStyle={isImportedWikidotLayout ? WIKIDOT_FOOTER_STYLE : undefined}>
     {#snippet header()}
       <h1>
         <a class="active" href={resolve("/", {})}><span>{wikidotSiteTitle}</span></a>
@@ -387,20 +387,13 @@
 
     {#snippet footer()}
       {#if isImportedWikidotLayout}
-        <div class="options">
-          {#each wikidotFooterLinks as link, index (link.label)}
-            <!--
-              Wikidot destinations are absolute platform URLs or inert
-              `javascript:;` controls, so they are emitted verbatim rather than
-              through `resolve`, which only accepts internal pathnames.
-            -->
-            <a href={link.href} id={link.id}>{link.label}</a
-            >{#if index < wikidotFooterLinks.length - 1}
-              |
-            {/if}
-          {/each}
-        </div>
-        <div class="footer-powered-by">{WIKIDOT_POWERED_BY}</div>
+        <!--
+          Wikidot destinations are absolute platform URLs or inert
+          `javascript:;` controls, emitted verbatim in the standard
+          template's markup rather than through `resolve`, which only
+          accepts internal pathnames.
+        -->
+        {@html wikidotFooterHtml}
       {:else}
         <div class="options">
           <a href={resolve("/", {})}>{viewData?.internationalization?.docs}</a>
