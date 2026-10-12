@@ -164,9 +164,18 @@ export async function installCandidateFilePortRoute(
     const sourcePath = requestUrl.pathname;
     let response;
     for (let redirects = 0; ; redirects += 1) {
+      // APIRequestContext does not decode every encoding a browser advertises
+      // (notably Firefox's zstd). Request the uncompressed local representation
+      // so route.fulfill receives CSS/image bytes instead of a compressed frame.
       response = await route.fetch({
         url: requestUrl.href,
         maxRedirects: 0,
+        headers: {
+          ...(typeof route.request().headers === "function"
+            ? route.request().headers()
+            : {}),
+          "accept-encoding": "identity",
+        },
       });
       if (
         route.request().method?.() !== "GET" ||

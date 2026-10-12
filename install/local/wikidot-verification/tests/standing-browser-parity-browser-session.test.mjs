@@ -191,6 +191,7 @@ test("candidate file routing maps only the exact canonical file authority to its
   assert.deepEqual(fetchOptions, {
     url: "https://scp-wiki.wjfiles.localhost:18449/local--files/scp-9506/NFSI.png?download=true",
     maxRedirects: 0,
+      headers: {"accept-encoding": "identity"},
   });
   assert.deepEqual(fulfillment, { response });
 });
@@ -243,6 +244,7 @@ test("candidate file routing also gates an already-localized sealed-port file re
   assert.deepEqual(fetchOptions, {
     url: "https://scp-wiki.wjfiles.localhost:18449/local--files/theme%3Abasalt/basalt-theme-logo.svg",
     maxRedirects: 0,
+      headers: {"accept-encoding": "identity"},
   });
   assert.equal(admissions, 2);
 });
@@ -290,10 +292,12 @@ test("candidate file routing follows only same-authority redirects on the sealed
     {
       url: "https://scp-wiki.wjfiles.localhost:18449/local--files/scp-9506/NFSI.png",
       maxRedirects: 0,
+      headers: {"accept-encoding": "identity"},
     },
     {
       url: "https://scp-wiki.wjfiles.localhost:18449/-/file/scp-9506/NFSI.png",
       maxRedirects: 0,
+      headers: {"accept-encoding": "identity"},
     },
   ]);
   assert.deepEqual(fulfillment, { response: finalResponse });
@@ -401,6 +405,7 @@ test("candidate file routing resolves public image redirects through evidence re
     {
       url: "https://scp-wiki.wjfiles.localhost:18449/local--files/theme%3Abasalt/logo.svg",
       maxRedirects: 0,
+      headers: {"accept-encoding": "identity"},
     },
     { url: targetUrl, maxRedirects: 0 },
   ]);
@@ -913,4 +918,30 @@ test("standing file routing preserves canonical HTTPS origins while replaying so
     installed.map(({pattern}) => pattern),
     ["https://scp-wiki.wjfiles.localhost/**"],
   );
+});
+
+
+test("local file replay negotiates identity encoding while preserving request headers", async () => {
+  for (const [encoding, pathname] of [
+    ["gzip, deflate, br, zstd", "/local--code/theme:example/1"],
+    ["gzip, deflate, br", "/local--files/example/image.png"],
+    ["identity", "/local--code/component:example/2"],
+    ["", "/local--files/example/font.woff2"],
+  ]) {
+    let handler;
+    await installCandidateFilePortRoute({async route(_pattern, callback) {handler = callback;}}, [
+      "https://example.wikijump.localhost:18449",
+      "https://example.wjfiles.localhost:18449",
+    ]);
+    let observed;
+    const response = {status: () => 200, headers: () => ({"content-type": "text/css"})};
+    await handler({
+      request: () => ({url: () => `https://example.wjfiles.localhost:18449${pathname}`, method: () => "GET", headers: () => ({"accept-encoding": encoding, origin: "https://example.wikijump.localhost:18449", "x-fixture-header": "preserved"})}),
+      fetch: async options => {observed = options; return response;},
+      fulfill: async () => {},
+    });
+    assert.equal(observed.headers["accept-encoding"], "identity");
+    assert.equal(observed.headers.origin, "https://example.wikijump.localhost:18449");
+    assert.equal(observed.headers["x-fixture-header"], "preserved");
+  }
 });
