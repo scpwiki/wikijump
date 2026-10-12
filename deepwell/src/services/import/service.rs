@@ -132,6 +132,11 @@ impl ImportService {
                     if delete_old_if_same_name && old_fetched_at < fetched_at {
                         // This is a case where the settings + context indicate
                         // that we should mark the old one as since-deleted.
+                        info!(
+                            "Due to delete_old_if_same_name = true, marking old user ID {} as deleted in favor of new user ID {} (fetched at: {} < {})",
+                            old_user_id, user_id, old_fetched_at, fetched_at,
+                        );
+
                         let model = wikidot_user::ActiveModel {
                             user_id: Set(old_user_id),
                             is_deleted: Set(true),
