@@ -26,7 +26,6 @@ use time::{Date, OffsetDateTime};
 #[derive(Deserialize, Debug)]
 pub struct ImportUser {
     // Required fields
-
     /// The user ID of the Wikidot user.
     pub user_id: i32,
 
@@ -66,7 +65,6 @@ pub struct ImportUser {
     pub is_pro: bool,
 
     // Request metadata
-
     /// If a `wikidot_user` row with this ID exists, then update its fields.
     #[serde(default)]
     pub upsert: bool,
