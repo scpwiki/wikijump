@@ -140,3 +140,30 @@ L0044  * {{span}}
 L0045 * {{div#extra-div-6}}
 L0046 
 ```
+
+### Standard secondary page actions and hovertip text nodes
+
+Observation: `standard-secondary-actions-en-ja-20260929`, confirmed for the
+English Basalt canary on 2026-10-12. These rules describe standard Wikidot page
+chrome; they do not define the custom-layout PageOptionsBottom module.
+
+- The secondary row remains in the initial DOM with inline `display: none`.
+- Its anchor order is Edit Sections, Append, Edit Meta, Watchers, Backlinks,
+  Page Source, Parent, Lock Page, Rename, Delete. The Japanese shell uses the
+  corresponding retained Japanese labels in the same order.
+- Lock Page has ID `page-block-button`. The standard row contains neither
+  `layout-button` nor `lock-page-button`; anchors carry no `type` attribute.
+- Opening and closing the row retains its elements. The Options control uses
+  a nonbreaking space between its sign and label in the observed expanded state.
+- The hovertip initializer preserves the server template's text nodes inside
+  `div.content`, including indentation and the extra spaces in the English
+  Edit Sections message. Visible text layout still follows normal HTML
+  whitespace collapsing; hidden text nodes must not be trimmed.
+
+The frozen reduced observations and original capture SHA-256 values are in
+`framerail/tests/fixtures/wikidot-standard-page-chrome.json`. Their authorities
+are the EN and JP `live.dom.html` files in
+`install/local/theme-lab/evidence/wikidot-runtime-surface-20260929.normal/`.
+The two sites agree on order and DOM identifiers, differ in localized labels,
+and have no Layout action. The native Wikijump layout retains its own action
+order, Layout action, identifiers and translations.

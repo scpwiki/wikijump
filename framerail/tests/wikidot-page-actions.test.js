@@ -104,7 +104,15 @@ test("formats imported Wikidot action labels with source rating and comment coun
     siteTools: "Site tools",
     options: "Options",
     append: "Append",
-    backlinks: "Backlinks"
+    backlinks: "Backlinks",
+    viewSource: "Page Source",
+    parent: "Parent",
+    rename: "Rename",
+    editSections: "Edit Sections",
+    editMeta: "Edit Meta",
+    watchers: "Watchers",
+    lock: "Lock Page",
+    delete: "Delete"
   })
 })
 
@@ -129,7 +137,15 @@ test("falls back to count-less labels when imported snapshot counts are unavaila
     siteTools: "Site tools",
     options: "Options",
     append: "Append",
-    backlinks: "Backlinks"
+    backlinks: "Backlinks",
+    viewSource: "Page Source",
+    parent: "Parent",
+    rename: "Rename",
+    editSections: "Edit Sections",
+    editMeta: "Edit Meta",
+    watchers: "Watchers",
+    lock: "Lock Page",
+    delete: "Delete"
   })
 })
 
@@ -151,7 +167,15 @@ test("formats Japanese Wikidot action labels with source counts", () => {
       siteTools: "サイトツール",
       options: "オプション",
       append: "追加",
-      backlinks: "バックリンク"
+      backlinks: "バックリンク",
+      viewSource: "ページソース",
+      parent: "親ページ",
+      rename: "リネーム",
+      editSections: "セクションを編集",
+      editMeta: "メタを編集",
+      watchers: "ウォッチャー",
+      lock: "ページロック",
+      delete: "削除"
     }
   )
 })
@@ -179,7 +203,15 @@ test("can suppress source-disabled Wikidot page actions", () => {
       siteTools: "Site tools",
       options: "Options",
       append: "Append",
-      backlinks: "Backlinks"
+      backlinks: "Backlinks",
+      viewSource: "Page Source",
+      parent: "Parent",
+      rename: "Rename",
+      editSections: "Edit Sections",
+      editMeta: "Edit Meta",
+      watchers: "Watchers",
+      lock: "Lock Page",
+      delete: "Delete"
     }
   )
 })

@@ -1,0 +1,139 @@
+{
+  "schema": "wikijump.wikidot_standard_page_chrome.v1",
+  "cases": [
+    {
+      "locale": "ja",
+      "evidence": {
+        "path": "install/local/theme-lab/evidence/wikidot-runtime-surface-20260929.normal/scp-jp-scp-173-normal-20260929-7984e750c954/live.dom.html",
+        "sha256": "673f261ca5b2b3f37e1e7ea60e58f3593a04b2a6608a25452ec5b6e1cb708f3e"
+      },
+      "secondary_actions": [
+        {
+          "id": "edit-sections-button",
+          "text": "セクションを編集"
+        },
+        {
+          "id": "edit-append-button",
+          "text": "追加"
+        },
+        {
+          "id": "edit-meta-button",
+          "text": "メタを編集"
+        },
+        {
+          "id": "watchers-button",
+          "text": "ウォッチャー"
+        },
+        {
+          "id": "backlinks-button",
+          "text": "バックリンク"
+        },
+        {
+          "id": "view-source-button",
+          "text": "ページソース"
+        },
+        {
+          "id": "parent-page-button",
+          "text": "親ページ"
+        },
+        {
+          "id": "page-block-button",
+          "text": "ページロック"
+        },
+        {
+          "id": "rename-move-button",
+          "text": "リネーム"
+        },
+        {
+          "id": "delete-button",
+          "text": "削除"
+        }
+      ],
+      "tips": {
+        "edit-button": "\n        ページを編集するにはこのボタンをクリックしてください。    ",
+        "edit-sections-button": "\n        セクションごとの編集を切り替えるにはこのボタンをクリックしてください(ページにセクションが設定されている必要があります）。有効になった場合はセクションに\"編集\"ボタンが設置されます。    ",
+        "edit-append-button": "\n        ページのソース全体を編集せずに、コンテンツを追加します。    ",
+        "history-button": "\n        このページが過去にどのように変化したかを調べることができます。    ",
+        "discuss-button": "\n        このページについて話をしたいときは、これを使うのが一番簡単な方法です。    ",
+        "files-button": "\n        このページに添付されたファイルの閲覧や管理を行うことができます。    ",
+        "site-tools-button": "\n        サイトの管理についての便利なツール。    ",
+        "backlinks-button": "\n        このページへリンクしている、またはこのページをincludeしているページを表示します。    ",
+        "rename-move-button": "\n        このページの名前(それに伴いURLやページのカテゴリも)を変更します。    ",
+        "view-source-button": "\n        編集せずにこのページのソースコードを閲覧します。    ",
+        "parent-page-button": "  \n        親ページを設定/閲覧できます(パンくずリストの作成やサイトの構造化に用いられます)    ",
+        "abuse-report-button": "\n            管理者にページの違反を通知する。        ",
+        "bug-report-button": "\n            何か思い通りにいかないことがありますか? 何ができるか調べましょう。        ",
+        "wikidot-help-button": "\n            Wikidot.comのシステム概要とヘルプセクションです。        ",
+        "wikidot-tos-button": "\n            Wikidot 利用規約 ― 何ができるか、何をすべきでないか etc.        ",
+        "wikidot-privacy-button": "\n            Wikidot.com プライバシーポリシー          \n        "
+      }
+    },
+    {
+      "locale": "en",
+      "evidence": {
+        "path": "install/local/theme-lab/evidence/wikidot-runtime-surface-20260929.normal/scp-wiki-scp-173-normal-20260929-5d64b862fb46/live.dom.html",
+        "sha256": "4d04ac08589d92807d2c2894e5efcfcb22eed883c0f0075797a8af95ae01366d"
+      },
+      "secondary_actions": [
+        {
+          "id": "edit-sections-button",
+          "text": "Edit Sections"
+        },
+        {
+          "id": "edit-append-button",
+          "text": "Append"
+        },
+        {
+          "id": "edit-meta-button",
+          "text": "Edit Meta"
+        },
+        {
+          "id": "watchers-button",
+          "text": "Watchers"
+        },
+        {
+          "id": "backlinks-button",
+          "text": "Backlinks"
+        },
+        {
+          "id": "view-source-button",
+          "text": "Page Source"
+        },
+        {
+          "id": "parent-page-button",
+          "text": "Parent"
+        },
+        {
+          "id": "page-block-button",
+          "text": "Lock Page"
+        },
+        {
+          "id": "rename-move-button",
+          "text": "Rename"
+        },
+        {
+          "id": "delete-button",
+          "text": "Delete"
+        }
+      ],
+      "tips": {
+        "edit-button": "\n        Click here to edit contents of this page.    ",
+        "edit-sections-button": "\n        Click here to toggle editing of individual sections of the page (if possible).         Watch headings for an \"edit\" link when available.    ",
+        "edit-append-button": "\n        Append content without editing the whole page source.    ",
+        "history-button": "\n        Check out how this page has evolved in the past.    ",
+        "discuss-button": "\n        If you want to discuss contents of this page - this is the easiest way to do it.    ",
+        "files-button": "\n        View and manage file attachments for this page.    ",
+        "site-tools-button": "\n        A few useful tools to manage this Site.    ",
+        "backlinks-button": "\n        See pages that link to and include this page.    ",
+        "rename-move-button": "\n        Change the name (also URL address, possibly the category) of the page.    ",
+        "view-source-button": "\n        View wiki source for this page without editing.    ",
+        "parent-page-button": "  \n        View/set parent page (used for creating breadcrumbs and structured layout).    ",
+        "abuse-report-button": "\n            Notify administrators if there is objectionable content in this page.        ",
+        "bug-report-button": "\n            Something does not work as expected? Find out what you can do.        ",
+        "wikidot-help-button": "\n            General Wikidot.com documentation and help section.        ",
+        "wikidot-tos-button": "\n            Wikidot.com Terms of Service - what you can, what you should not etc.        ",
+        "wikidot-privacy-button": "\n            Wikidot.com Privacy Policy.          \n        "
+      }
+    }
+  ]
+}

@@ -14,88 +14,142 @@ import { isJapaneseWikidotLocale } from "./wikidot-locale.js"
  * `OZONE.dialog.hovertip` from the retained Wikidot `init.combined.js`.
  */
 
-/** @typedef {readonly (readonly [string, string])[]} WikidotHovertipTexts */
+/** @typedef {readonly (readonly [string, string, readonly string[]])[]} WikidotHovertipTexts */
+
+/**
+ * Text nodes the standard server template leaves around each tip text:
+ * `[before, after]`. dominit() moves them into `div.content` unchanged and
+ * a hidden tip's innerText exposes them, so they are part of the observed
+ * DOM.
+ */
+const PAGE_TIP = Object.freeze(["\n        ", "    "])
+const PARENT_TIP = Object.freeze(["  \n        ", "    "])
+const FOOTER_TIP = Object.freeze(["\n            ", "        "])
+const LAST_FOOTER_TIP = Object.freeze(["\n            ", "          \n        "])
 
 const ENGLISH_TIPS = Object.freeze({
-  first: Object.freeze([["edit-button", "Click here to edit contents of this page."]]),
+  first: Object.freeze([
+    ["edit-button", "Click here to edit contents of this page.", PAGE_TIP]
+  ]),
   second: Object.freeze([
     [
       "edit-sections-button",
-      "Click here to toggle editing of individual sections of the page (if possible). Watch headings for an &quot;edit&quot; link when available."
+      "Click here to toggle editing of individual sections of the page (if possible).         Watch headings for an &quot;edit&quot; link when available.",
+      PAGE_TIP
     ],
-    ["edit-append-button", "Append content without editing the whole page source."],
-    ["history-button", "Check out how this page has evolved in the past."],
+    [
+      "edit-append-button",
+      "Append content without editing the whole page source.",
+      PAGE_TIP
+    ],
+    ["history-button", "Check out how this page has evolved in the past.", PAGE_TIP],
     [
       "discuss-button",
-      "If you want to discuss contents of this page - this is the easiest way to do it."
+      "If you want to discuss contents of this page - this is the easiest way to do it.",
+      PAGE_TIP
     ],
-    ["files-button", "View and manage file attachments for this page."],
-    ["site-tools-button", "A few useful tools to manage this Site."],
-    ["backlinks-button", "See pages that link to and include this page."],
+    ["files-button", "View and manage file attachments for this page.", PAGE_TIP],
+    ["site-tools-button", "A few useful tools to manage this Site.", PAGE_TIP],
+    ["backlinks-button", "See pages that link to and include this page.", PAGE_TIP],
     [
       "rename-move-button",
-      "Change the name (also URL address, possibly the category) of the page."
+      "Change the name (also URL address, possibly the category) of the page.",
+      PAGE_TIP
     ],
-    ["view-source-button", "View wiki source for this page without editing."],
+    ["view-source-button", "View wiki source for this page without editing.", PAGE_TIP],
     [
       "parent-page-button",
-      "View/set parent page (used for creating breadcrumbs and structured layout)."
+      "View/set parent page (used for creating breadcrumbs and structured layout).",
+      PARENT_TIP
     ],
     [
       "abuse-report-button",
-      "Notify administrators if there is objectionable content in this page."
+      "Notify administrators if there is objectionable content in this page.",
+      FOOTER_TIP
     ],
     [
       "bug-report-button",
-      "Something does not work as expected? Find out what you can do."
+      "Something does not work as expected? Find out what you can do.",
+      FOOTER_TIP
     ],
-    ["wikidot-help-button", "General Wikidot.com documentation and help section."],
+    [
+      "wikidot-help-button",
+      "General Wikidot.com documentation and help section.",
+      FOOTER_TIP
+    ],
     [
       "wikidot-tos-button",
-      "Wikidot.com Terms of Service - what you can, what you should not etc."
+      "Wikidot.com Terms of Service - what you can, what you should not etc.",
+      FOOTER_TIP
     ],
-    ["wikidot-privacy-button", "Wikidot.com Privacy Policy."]
+    ["wikidot-privacy-button", "Wikidot.com Privacy Policy.", LAST_FOOTER_TIP]
   ])
 })
 
 const JAPANESE_TIPS = Object.freeze({
   first: Object.freeze([
-    ["edit-button", "ページを編集するにはこのボタンをクリックしてください。"]
+    ["edit-button", "ページを編集するにはこのボタンをクリックしてください。", PAGE_TIP]
   ]),
   second: Object.freeze([
     [
       "edit-sections-button",
-      "セクションごとの編集を切り替えるにはこのボタンをクリックしてください(ページにセクションが設定されている必要があります）。有効になった場合はセクションに&quot;編集&quot;ボタンが設置されます。"
+      "セクションごとの編集を切り替えるにはこのボタンをクリックしてください(ページにセクションが設定されている必要があります）。有効になった場合はセクションに&quot;編集&quot;ボタンが設置されます。",
+      PAGE_TIP
     ],
-    ["edit-append-button", "ページのソース全体を編集せずに、コンテンツを追加します。"],
-    ["history-button", "このページが過去にどのように変化したかを調べることができます。"],
+    [
+      "edit-append-button",
+      "ページのソース全体を編集せずに、コンテンツを追加します。",
+      PAGE_TIP
+    ],
+    [
+      "history-button",
+      "このページが過去にどのように変化したかを調べることができます。",
+      PAGE_TIP
+    ],
     [
       "discuss-button",
-      "このページについて話をしたいときは、これを使うのが一番簡単な方法です。"
+      "このページについて話をしたいときは、これを使うのが一番簡単な方法です。",
+      PAGE_TIP
     ],
-    ["files-button", "このページに添付されたファイルの閲覧や管理を行うことができます。"],
-    ["site-tools-button", "サイトの管理についての便利なツール。"],
+    [
+      "files-button",
+      "このページに添付されたファイルの閲覧や管理を行うことができます。",
+      PAGE_TIP
+    ],
+    ["site-tools-button", "サイトの管理についての便利なツール。", PAGE_TIP],
     [
       "backlinks-button",
-      "このページへリンクしている、またはこのページをincludeしているページを表示します。"
+      "このページへリンクしている、またはこのページをincludeしているページを表示します。",
+      PAGE_TIP
     ],
     [
       "rename-move-button",
-      "このページの名前(それに伴いURLやページのカテゴリも)を変更します。"
+      "このページの名前(それに伴いURLやページのカテゴリも)を変更します。",
+      PAGE_TIP
     ],
-    ["view-source-button", "編集せずにこのページのソースコードを閲覧します。"],
+    ["view-source-button", "編集せずにこのページのソースコードを閲覧します。", PAGE_TIP],
     [
       "parent-page-button",
-      "親ページを設定/閲覧できます(パンくずリストの作成やサイトの構造化に用いられます)"
+      "親ページを設定/閲覧できます(パンくずリストの作成やサイトの構造化に用いられます)",
+      PARENT_TIP
     ],
-    ["abuse-report-button", "管理者にページの違反を通知する。"],
+    ["abuse-report-button", "管理者にページの違反を通知する。", FOOTER_TIP],
     [
       "bug-report-button",
-      "何か思い通りにいかないことがありますか? 何ができるか調べましょう。"
+      "何か思い通りにいかないことがありますか? 何ができるか調べましょう。",
+      FOOTER_TIP
     ],
-    ["wikidot-help-button", "Wikidot.comのシステム概要とヘルプセクションです。"],
-    ["wikidot-tos-button", "Wikidot 利用規約 ― 何ができるか、何をすべきでないか etc."],
-    ["wikidot-privacy-button", "Wikidot.com プライバシーポリシー"]
+    [
+      "wikidot-help-button",
+      "Wikidot.comのシステム概要とヘルプセクションです。",
+      FOOTER_TIP
+    ],
+    [
+      "wikidot-tos-button",
+      "Wikidot 利用規約 ― 何ができるか、何をすべきでないか etc.",
+      FOOTER_TIP
+    ],
+    ["wikidot-privacy-button", "Wikidot.com プライバシーポリシー", LAST_FOOTER_TIP]
   ])
 })
 
@@ -105,7 +159,12 @@ export const wikidotHovertipTexts = (locale) =>
 
 /** @param {WikidotHovertipTexts} tips */
 const tipsHtml = (tips) =>
-  tips.map(([control, text]) => `<div id="${control}-hovertip">${text}</div>`).join("")
+  tips
+    .map(
+      ([control, text, [before, after]]) =>
+        `<div id="${control}-hovertip">${before}${text}${after}</div>`
+    )
+    .join("")
 
 /**
  * The two hidden tip containers Wikidot emits at the end of every page
