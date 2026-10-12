@@ -21,7 +21,6 @@
 use super::prelude::*;
 use crate::models::file::Model as FileModel;
 use crate::models::page::Model as PageModel;
-use crate::services::TextService;
 use crate::services::file::{GetFileOutput, GetPageFiles};
 use crate::services::page::{
     CreatePage, CreatePageOutput, DeletePage, DeletePageOutput, EditPage, EditPageOutput,
@@ -31,6 +30,7 @@ use crate::services::page::{
     SetPageLayout,
 };
 use crate::services::page_revision::RerenderType;
+use crate::services::{SiteService, TextService};
 use crate::types::{
     Action, Bytes, FileOrder, PageDetails, PageId, Reference, RerenderDepth,
 };
@@ -233,7 +233,15 @@ pub async fn page_edit_permission(
 ) -> Result<PageEditPermissionOutput> {
     let request = ctx.request();
     let site_id = request.site_id()?;
-    let page_reference = request.page_reference()?.clone();
+    let page_reference = match &request.page_reference {
+        Some(reference) => reference.clone(),
+        None => {
+            let site = SiteService::get(ctx, Reference::Id(site_id))
+                .await
+                .or_raise(|| Error::new("failed to get site", ErrorType::Page))?;
+            Reference::Slug(site.default_page.into())
+        }
+    };
 
     let can_edit =
         PageService::check_user_permission(ctx, site_id, page_reference, Action::Edit)

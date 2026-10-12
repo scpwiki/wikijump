@@ -537,7 +537,13 @@ impl PermissionService {
                     })
                 }
             }
-            _ => false,
+            // No category to scope by so we fallback to the unscoped permission
+            (Some(_), None) => permissions.contains(&Permission {
+                resource_type,
+                resource_category: None,
+                action,
+            }),
+            (None, _) => false,
         };
 
         Ok(has_permission)
