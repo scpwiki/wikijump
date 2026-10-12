@@ -4810,6 +4810,21 @@ async fn wikidot_forum_scoped_feeds_filter_to_the_named_object_and_hide_invisibl
         .collect();
     assert_eq!(thread_post_ids, vec![newer_post]);
 
+    // A visible thread in a sibling category is its own viewable scope and
+    // carries only its own posts.
+    let other_thread_posts = run_endpoint!(
+        runner,
+        wikidot_forum_feed,
+        json!({"site_id": site_id, "kind": "posts", "thread_id": other_thread}),
+    )
+    .expect("sibling thread post feed should be viewable");
+    let other_thread_post_ids: Vec<i64> = other_thread_posts
+        .items
+        .iter()
+        .map(|item| item.forum_post_id)
+        .collect();
+    assert_eq!(other_thread_post_ids, vec![other_post]);
+
     // Hidden, deleted and unknown scopes are indistinguishable from a missing
     // one: the route answers 404 without leaking that the object exists.
     for missing_scope in [
@@ -4818,7 +4833,7 @@ async fn wikidot_forum_scoped_feeds_filter_to_the_named_object_and_hide_invisibl
         json!({"kind": "threads", "category_id": other_thread}),
         json!({"kind": "posts", "thread_id": hidden_thread}),
         json!({"kind": "posts", "thread_id": deleted_thread}),
-        json!({"kind": "posts", "thread_id": other_thread}),
+        json!({"kind": "posts", "thread_id": i64::MAX}),
     ] {
         let mut params = json!({"site_id": site_id});
         params

@@ -27670,6 +27670,24 @@ async fn wikidot_site_changes_feed_is_empty_for_a_site_without_visible_revisions
         .expect("seeded test site should exist");
     let site_id = site.site.site_id;
 
+    // The seeded site carries page revisions. Soft-deleting every page inside
+    // this test's transaction leaves a viewable site whose revisions all
+    // belong to deleted pages, so none of them may surface in the feed.
+    let deleted = runner
+        .context()
+        .transaction()
+        .execute_raw(Statement::from_sql_and_values(
+            DatabaseBackend::Postgres,
+            "UPDATE page SET deleted_at = now() WHERE site_id = $1 AND deleted_at IS NULL",
+            [Value::from(site_id)],
+        ))
+        .await
+        .expect("seeded pages should be soft-deleted");
+    assert!(
+        deleted.rows_affected() > 0,
+        "the seeded site should have pages to hide"
+    );
+
     runner.set_request_context(RequestContext {
         user_id: None,
         site_id: Some(site_id),
@@ -27684,9 +27702,12 @@ async fn wikidot_site_changes_feed_is_empty_for_a_site_without_visible_revisions
     .expect("an empty site still exposes the feed channel");
 
     assert_eq!(feed.site_name, site.site.name);
+    // Revisions of other sites, including their file revisions, must never
+    // fill this site's feed.
     assert!(
         feed.items.is_empty(),
-        "no visible revisions should produce no feed rows"
+        "no visible revisions should produce no feed rows: {:?}",
+        feed.items
     );
 }
 

@@ -222,6 +222,7 @@ impl RenderService {
                            LEFT JOIN \"user\" local_user \
                              ON local_user.user_id = fr.user_id \
                             AND local_user.deleted_at IS NULL \
+                           WHERE fr.site_id = $1 \
                          ) activity \
                          ORDER BY created_at DESC, revision_id DESC \
                          LIMIT {batch_size} OFFSET {offset}"
