@@ -278,6 +278,7 @@ if __name__ == "__main__":
                 karma=karma_level,
                 is_pro=is_pro,
                 upsert=True,
+                delete_old_if_same_name=False,
                 importing_user_id=args.importer_user_id,
                 ip_address=args.importer_ip_address,
             )

@@ -82,6 +82,7 @@ class ImportUserData(NamedTuple):
     karma: int
     is_pro: bool
     upsert: bool
+    delete_old_if_same_name: bool
     importing_user_id: int
     ip_address: str
 
@@ -207,6 +208,7 @@ class Deepwell:
             "karma": request.karma,
             "is_pro": request.is_pro,
             "upsert": request.upsert,
+            "delete_old_if_same_name": request.delete_old_if_same_name,
             "importing_user_id": request.importing_user_id,
             "ip_address": request.ip_address,
         }
