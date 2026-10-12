@@ -124,7 +124,6 @@ export const showWikidotReadonlyDialog = (document, html, error = false) => {
     )
   }
   // OZONE does not close these windows on Escape or an outside click.
-  document.activeElement?.blur?.()
   if (error) window.querySelector(".button-bar a")?.focus()
   dialogs.set(document, { replace: hide })
 }

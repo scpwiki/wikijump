@@ -201,5 +201,5 @@ Source callback DOM and screenshots are retained under
 This callback replay proves rendering, not a server-side report submission.
 OZONE retains an empty hidden `odialog-container` after closing, removes the
 shader and blank iframe after 200ms, and does not bind Escape/outside dismissal.
-Bug close remains visible during that delay; ErrorDialog fades out for 100ms.
+Bug opening retains focus on its invoking control; closing remains visible during that delay; ErrorDialog fades out for 100ms.
 Unobserved authenticated flag reporting and JA error chrome remain unsupported.

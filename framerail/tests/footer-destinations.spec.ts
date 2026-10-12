@@ -234,6 +234,7 @@ test("imported Wikidot-layout footer reproduces the live Wikidot destinations", 
   const before = page.url()
   await page.locator("#bug-report-button").click()
   await expect(page.locator(".owindow .title")).toHaveText("Bug report")
+  await expect(page.locator("#bug-report-button")).toBeFocused()
   await expect(
     page.locator(".owindow a[href='https://feedback.wikidot.com/']")
   ).toHaveText("feedback.wikidot.com")
