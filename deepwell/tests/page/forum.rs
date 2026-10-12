@@ -3649,8 +3649,11 @@ async fn forum_start_and_recent_posts_filter_before_counts_order_and_pagination_
             .body
             .contains(r#"id="thread-container-posts""#)
             && thread_posts_ajax.body.contains("Visible Post 00")
+            // A page holds whole root trees: every reply to the single root
+            // stays on page one, and one page of roots needs no pager.
             && thread_posts_ajax.body.contains("Visible Post 19")
-            && !thread_posts_ajax.body.contains("Visible Post 20")
+            && thread_posts_ajax.body.contains("Visible Post 21")
+            && !thread_posts_ajax.body.contains(r#"<div class="pager">"#)
             && !thread_posts_ajax.body.contains("Private Newest Post")
             && thread_posts_ajax.body.contains("Visible Post 00 edited")
             && thread_posts_ajax
@@ -3663,6 +3666,16 @@ async fn forum_start_and_recent_posts_filter_before_counts_order_and_pagination_
         thread_posts_ajax.body,
     );
     assert_eq!(thread_posts_ajax.js_include.len(), 1);
+    let past_last_page = run_endpoint!(
+        runner,
+        wikidot_forum_module,
+        json!({
+            "site_id": site_id,
+            "module_name": "forum/ForumViewThreadPostsModule",
+            "parameters": {"t": visible_thread.to_string(), "pageNo": "2"},
+        }),
+    );
+    assert_eq!(past_last_page.status, "not_ok");
     assert!(
         thread_posts_ajax.js_include[0].ends_with("/ForumViewThreadPostsModule.js"),
         "{:?}",
