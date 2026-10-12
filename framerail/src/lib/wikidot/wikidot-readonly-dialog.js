@@ -83,10 +83,12 @@ export const showWikidotReadonlyDialog = (document, html, error = false) => {
     view?.addEventListener("mouseup", stopDrag)
   }
   let timer
+  let fadeTimer
   const hide = () => {
     view?.removeEventListener("mousemove", move)
     view?.removeEventListener("mouseup", stopDrag)
     if (timer) view?.clearTimeout(timer)
+    if (fadeTimer) view?.clearInterval(fadeTimer)
     container.replaceChildren()
     container.style.display = "none"
     shader.remove()
@@ -94,19 +96,26 @@ export const showWikidotReadonlyDialog = (document, html, error = false) => {
     dialogs.delete(document)
   }
   const close = () => {
-    // ErrorDialog.close fades out for 100ms, then cleanAll hides at 200ms.
+    // ErrorDialog.close runs jQuery 1.11 fadeOut(100): one synchronous tick,
+    // then 13 ms interval ticks with swing easing, hiding at completion.
+    // cleanAll hides the container at 200 ms.
     if (error && view) {
-      const start = view.performance.now()
-      const fade = (now) => {
-        const progress = Math.min((now - start) / 100, 1)
-        window.style.opacity = String(0.5 + Math.cos(progress * Math.PI) / 2)
-        if (progress < 1) view.requestAnimationFrame(fade)
-        else {
-          window.style.display = "none"
-          window.style.opacity = ""
+      const start = Date.now()
+      const tick = () => {
+        const progress = 1 - Math.max(0, start + 100 - Date.now()) / 100
+        if (progress < 1) {
+          window.style.opacity = String(0.5 + Math.cos(progress * Math.PI) / 2)
+          return true
         }
+        window.style.display = "none"
+        window.style.opacity = ""
+        return false
       }
-      view.requestAnimationFrame(fade)
+      if (tick()) {
+        fadeTimer = view.setInterval(() => {
+          if (!tick()) view.clearInterval(fadeTimer)
+        }, 13)
+      }
     }
     timer = view?.setTimeout(hide, 200)
   }
