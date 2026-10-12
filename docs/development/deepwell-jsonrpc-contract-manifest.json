@@ -10496,6 +10496,7 @@
         "alternatives": [
           "deepwell/tests/page/forum.rs#forum_comments_list_resolves_only_visible_page_discussions",
           "deepwell/tests/page/forum.rs#forum_module_dispatch_is_fail_closed_on_unexpected_parameters",
+          "deepwell/tests/page/forum.rs#forum_reply_controls_follow_effective_nesting_and_boundary_sibling_order",
           "deepwell/tests/page/forum.rs#forum_start_and_recent_posts_filter_before_counts_order_and_pagination"
         ],
         "source_contract_reference": "install/local/wikidot-verification/tests/deepwell-jsonrpc-contract-manifest.test.mjs#Deepwell JSON-RPC manifest exactly covers the current registered contract"
