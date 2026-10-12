@@ -6990,13 +6990,15 @@ async fn listpages_rss_link_and_rss_only_match_live_wikidot_markup() {
         normal.contains(concat!(
             r#"<div class="feedinfo"><span class="rss-icon"><img "#,
             r#"src="/common--theme/base/images/feed/feed-icon-14x14.png" "#,
-            r#"alt="rss icon"/></span><a href="http://scp-wiki.wikidot.com/feed/pages/"#,
+            r#"alt="rss icon"/></span><a href="/feed/pages/"#,
             r#"category/_default/tags/%2Bverification-listpages-rss/order/name/"#,
             r#"limit/1/t/Feed+Title/d/Description+%26+details/h/blog%3A_start">"#,
             "RSS feed</a></div>",
         ),),
-        "normal RSS output should use Wikidot's direct feed-info DOM and canonical URL:\n{normal}\nFULL:\n{html}",
+        "normal RSS output should use Wikidot's direct feed-info DOM on the current origin:\n{normal}\nFULL:\n{html}",
     );
+    // Feed links stay on the serving origin and never point at the Wikidot host.
+    assert!(!html.contains("wikidot.com/feed"), "{html}");
 
     let only = section("ONLY");
     assert!(only.contains(r#"<div class="feedinfo">"#), "{only}");
@@ -7011,7 +7013,7 @@ async fn listpages_rss_link_and_rss_only_match_live_wikidot_markup() {
     let path = section("PATH");
     assert!(
         path.contains(concat!(
-            r#"href="http://scp-wiki.wikidot.com/feed/pages/pagetype/%2A/"#,
+            r#"href="/feed/pages/pagetype/%2A/"#,
             "category/%2A%2C-deleted/tags/%2Balpha%2C-beta/parent/-/",
             "created_by/some_user/offset/7/rating/%3E%3D1/range/others/",
             "order/dateCreatedDesc/limit/3/t/RSS4/d/D/h/home",
@@ -7024,7 +7026,7 @@ async fn listpages_rss_link_and_rss_only_match_live_wikidot_markup() {
     let bypass = section("BYPASS");
     assert!(
         bypass.contains(concat!(
-            r#"href="http://scp-wiki.wikidot.com/feed/pages/category/_default/"#,
+            r#"href="/feed/pages/category/_default/"#,
             "range/before/order/_rank%3A%3Ainteger+desc/t/Bypass",
             r#"">RSS feed</a>"#,
         )),

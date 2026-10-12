@@ -1,6 +1,20 @@
 //! Runtime expansion for Wikidot membership modules.
 
-use super::*;
+#[cfg(test)]
+use super::membership_apply_action_count;
+use super::{
+    CompatHtmlFragments, GetSiteMember, LiteralRegionIndex,
+    MEMBERSHIP_APPLY_ALREADY_APPLIED_HTML, MEMBERSHIP_APPLY_ANONYMOUS_HTML,
+    MEMBERSHIP_APPLY_DISABLED_HTML, MEMBERSHIP_APPLY_FORM_HTML,
+    MEMBERSHIP_APPLY_MEMBER_HTML, MEMBERSHIP_BY_PASSWORD_ANONYMOUS_HTML,
+    MEMBERSHIP_BY_PASSWORD_DISABLED_HTML, MEMBERSHIP_BY_PASSWORD_FORM_HTML,
+    MEMBERSHIP_BY_PASSWORD_MEMBER_HTML, MEMBERSHIP_EMAIL_INVITATION_MISSING_HTML,
+    MEMBERSHIPAPPLY_MODULE_REGEX, MEMBERSHIPBYPASSWORD_MODULE_REGEX,
+    MembershipByPasswordResultCache, MembershipService, Reference, RelationObject,
+    RelationReference, RelationService, RelationType, RenderService, Result,
+    STATIC_ACCOUNT_MODULE_REGEX, ServiceContext, SiteService, UrlArguments, UserService,
+    WikitextSettings, render_membership_email_invitation_valid,
+};
 
 impl RenderService {
     pub(super) async fn expand_membership_apply_modules(

@@ -12,7 +12,14 @@
 
 //! Page-query selector normalization and deferred data-form filtering.
 
-use super::*;
+use super::{
+    BTreeMap, ColumnTrait, ComparisonOperation, Condition, DataFormSelector,
+    DateSelector, DateTimeResolution, EntityTrait, Error, ErrorType, Expr,
+    IncludedCategories, QueryFilter, Result, ResultExt, ScoreSelector, ServiceContext,
+    SimpleExpr, Value, effective_vote_count_sql, page, page_revision,
+    parse_static_wikidot_data_form_values, score_comparison_operator,
+    static_wikidot_data_form_matches, text,
+};
 
 pub(super) fn wikidot_name_pattern(value: &str) -> String {
     let mut pattern = String::with_capacity(value.len());

@@ -145,9 +145,9 @@ async fn create_scaling_site(
         ctx,
         CreateSite {
             slug: format!("perm-scale-{tag}"),
-            name: format!("Permission scaling site"),
+            name: "Permission scaling site".to_owned(),
             tagline: String::new(),
-            description: format!("Permission scaling site"),
+            description: "Permission scaling site".to_owned(),
             default_page: None,
             layout: None,
             license: License::CcBySa40,

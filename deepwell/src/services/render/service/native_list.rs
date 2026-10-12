@@ -1,6 +1,14 @@
 //! Native Wikidot list compatibility helpers.
 
-use super::*;
+use super::{
+    BTreeSet, MAX_NATIVE_LIST_COMPAT_DEPTH, MAX_WIKIDOT_COMPAT_FALLBACK_TITLE_LINKS,
+    WIKIDOT_EXTERNAL_LINK_REGEX, WIKIDOT_LABELED_LINK_REGEX, WIKIDOT_LOCAL_LINK_REGEX,
+    WIKIDOT_QUADRUPLE_LINK_REGEX, WIKIDOT_UNLABELED_LINK_REGEX,
+    WIKIDOT_USER_INLINE_REGEX, WIKIDOT_WIKIPEDIA_LINK_REGEX, WikidotCompatLinkTitleMap,
+    WikidotWikipediaLink, build_wikidot_wikipedia_link, escape_list_pages_html_attr,
+    escape_list_pages_html_text, native_list_page_link_ref,
+    sanitize_wikidot_compat_inline_tag,
+};
 
 pub(in crate::services::render) fn render_native_bullet_list_with_wikipedia_links(
     lines: &[&str],

@@ -1,6 +1,6 @@
 //! Rendered ListPages fragment normalization and trusted-marker placement.
 
-use super::*;
+use super::{CompatHtmlFragments, Range, RenderService, WikidotCompatLinkTitleMap};
 
 #[cfg(test)]
 use std::cell::Cell;

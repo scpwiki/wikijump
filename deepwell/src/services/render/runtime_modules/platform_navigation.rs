@@ -1,6 +1,9 @@
 //! Wikijump platform navigation for the default site sidebar.
 
-use super::*;
+use super::{
+    Cow, DomainService, LazyLock, LiteralRegionIndex, Reference, Regex, Result,
+    ServiceContext, SiteService, WikitextSettings,
+};
 
 static PLATFORM_NAVIGATION_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?i)\[\[module\s+PlatformNavigation\s*\]\]")

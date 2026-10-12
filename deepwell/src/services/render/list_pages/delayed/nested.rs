@@ -1,6 +1,10 @@
 //! Nested ListPages boundary-protection helpers for delayed rows.
 
-use super::*;
+use super::{
+    CompatHtmlFragments, SharedRenderCostBudget,
+    find_list_pages_module_matches_with_delayed_links,
+    find_list_pages_module_matches_with_delayed_links_budgeted,
+};
 
 pub(super) fn protect_nested_list_pages(
     source: &str,

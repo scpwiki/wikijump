@@ -1577,7 +1577,13 @@ pub(super) fn require_authenticated_mutation_actor(
     ctx: &ServiceContext<'_>,
     attribution_user_id: i64,
 ) -> Result<i64> {
-    require_matching_mutation_actor(ctx.request().user_id, attribution_user_id)
+    let actor = ctx.request().user_id().map_err(|_| {
+        Error::new(
+            "page mutation requires an authenticated request context",
+            ErrorType::PermissionDenied,
+        )
+    })?;
+    require_matching_mutation_actor(Some(actor), attribution_user_id)
 }
 
 fn require_matching_mutation_actor(

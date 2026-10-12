@@ -18,6 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#[cfg(test)]
+use self::head_validation::pinned_double_quote_ends_generic_argument;
 use super::super::literal_regions::{
     ListPagesScannerLiteralIndexes, ListPagesSourceProjection, LiteralRegionCursor,
     LiteralRegionIndex, TextTokenCursor, WikidotArgumentValueKind,
@@ -48,7 +50,18 @@ use self::event_merge::{
     mark_projection_changed_direct_heads, merge_module_event_streams,
     merge_projected_and_direct_events, ordered_direct_event, range_contains_start,
 };
-use self::head_validation::*;
+use self::head_validation::{
+    ModuleHeadValidation, continuation_revealed_argument_boundary,
+    final_unclosed_list_pages_head_boundary, is_horizontal_whitespace,
+    is_wikidot_head_spacing, list_pages_definite_invalid_head_can_execute,
+    list_pages_head_double_quotes_are_balanced, list_pages_url_value_quote_ends_at,
+    module_subname_end, nested_list_pages_head_token_end,
+    nested_list_pages_head_token_is_module, next_physical_line_resume,
+    physical_line_resume, quote_follows_argument_equals,
+    right_boundary_ends_physical_line, scanner_argument_boundary_at,
+    source_block_open_is_backslash_escaped, trimmed_utf8_span,
+    validate_generic_head_arguments, validate_module_head,
+};
 use self::legacy_heads::{
     crossing_list_pages_quote_ends_before_close, double_quote_ends_scanner_argument,
     is_module_argument_spacing, legacy_single_bracket_list_pages_opening,

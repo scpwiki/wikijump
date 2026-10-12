@@ -1,6 +1,9 @@
 //! Post-render Wikidot compatibility normalization helpers.
 
-use super::*;
+use super::{
+    RenderService, WIKIDOT_EMAIL_CLASS_SPAN_REGEX, WIKIDOT_OBFUSCATED_EMAIL_BODY_REGEX,
+    WIKIDOT_RECOVERABLE_REVERSED_EMAIL_BODY_REGEX,
+};
 
 impl RenderService {
     pub(in crate::services::render) fn remove_spurious_wikidot_email_classes(
