@@ -23,4 +23,4 @@
   })
 </script>
 
-<ForumModuleBody body={data.body} />
+<ForumModuleBody body={data.body} threadId={data.forumThreadId} />
