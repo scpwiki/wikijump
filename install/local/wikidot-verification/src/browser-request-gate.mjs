@@ -672,6 +672,12 @@ export function createBrowserResponseCache({maxEntries = DEFAULT_RESPONSE_CACHE_
       if (!loaded) throw new Error("persistent browser response cache must be loaded before lookup");
       return matchingRetainedEntry(responseCacheKey(key), null);
     },
+    // Read-only provenance query for the cache-only replay guard. It must not disturb the
+    // hit/miss accounting that measures how much evidence a replay actually reused.
+    hasRetainedEntry(key) {
+      if (!loaded) throw new Error("persistent browser response cache must be loaded before lookup");
+      return matchingRetainedEntry(responseCacheKey(key), null, {count: false}) !== null;
+    },
     store(key, entry, {requestHeaders = null} = {}) {
       if (!loaded) throw new Error("persistent browser response cache must be loaded before storage");
       if (!Buffer.isBuffer(entry?.body) || entry.body.length > retainedEntryMaxBytes) {
@@ -1359,6 +1365,13 @@ async function servePublicRoute(route, {gate, responseCache, cacheOnly = false, 
  *   publicOriginPredicate?: ((value: string, resourceType: string, method: string) => boolean) | null
  *   cacheOnly?: boolean
  * }} [options]
+ *
+ * With `cacheOnly`, a public response that the browser received from anywhere other than
+ * this installation is a replay-integrity failure: the response listener fails the gate
+ * closed whenever the response URL has retained evidence this installation never served.
+ * Route interception cannot observe every request a browser issues (Firefox upgrades an
+ * insecure subresource through an internal redirect it never routes), so silently
+ * continuing would let live network bytes replace retained evidence.
  */
 export async function installBrowserRequestGate(context, {gate, exemptOrigins = [], responseCache = null, publicOriginPredicate = null, cacheOnly = false} = {}) {
   if (!gate || typeof gate.acquire !== "function" || typeof gate.deferForRetryAfter !== "function" || typeof gate.failClosed !== "function" || typeof gate.recordLocalExempt !== "function" || typeof gate.recordUnsupportedRequestBlocked !== "function" || typeof gate.recordWebSocketBlocked !== "function") throw new Error("browser request gate is malformed");
@@ -1387,6 +1400,21 @@ export async function installBrowserRequestGate(context, {gate, exemptOrigins = 
     }));
     if (!(await abortRoute(route))) attributedAborts.delete(request);
   };
+  const gateServedRequests = new Map();
+  function requestIdentity(request) {
+    const url = typeof request.url === "function" ? request.url() : String(request.url ?? "");
+    const method = typeof request.method === "function" ? request.method() : "GET";
+    const resourceType = typeof request.resourceType === "function" ? request.resourceType() : "";
+    return `${method} ${resourceType} ${url}`;
+  }
+  function gateServedThisRequest(request) {
+    const identity = requestIdentity(request);
+    const remaining = gateServedRequests.get(identity) ?? 0;
+    if (remaining <= 0) return false;
+    if (remaining === 1) gateServedRequests.delete(identity);
+    else gateServedRequests.set(identity, remaining - 1);
+    return true;
+  }
   const fetchRetainedEntry = (route, request, targetUrl = request.url()) => fetchBrowserEvidenceResponse({
     route,
     gate,
@@ -1423,14 +1451,31 @@ export async function installBrowserRequestGate(context, {gate, exemptOrigins = 
         return;
       }
       const request = route.request();
-      await servePublicRoute(route, {
-        gate,
-        responseCache,
-        cacheOnly,
-        fetchRetainedEntry: responseCache?.evidenceReplay
-          ? (targetUrl) => fetchRetainedEntry(route, request, targetUrl)
-          : null,
-      });
+      // A cache-only replay must obtain every public response from retained evidence. The
+      // browser can still issue a request that route interception never sees (Firefox's
+      // internal mixed-content redirect is one such path), so record which request this
+      // installation served and let the response listener detect anything else.
+      const replayIdentity = cacheOnly ? requestIdentity(request) : null;
+      if (replayIdentity !== null) {
+        gateServedRequests.set(replayIdentity, (gateServedRequests.get(replayIdentity) ?? 0) + 1);
+      }
+      try {
+        await servePublicRoute(route, {
+          gate,
+          responseCache,
+          cacheOnly,
+          fetchRetainedEntry: responseCache?.evidenceReplay
+            ? (targetUrl) => fetchRetainedEntry(route, request, targetUrl)
+            : null,
+        });
+      } catch (error) {
+        if (replayIdentity !== null) {
+          const remaining = gateServedRequests.get(replayIdentity) ?? 0;
+          if (remaining > 1) gateServedRequests.set(replayIdentity, remaining - 1);
+          else gateServedRequests.delete(replayIdentity);
+        }
+        throw error;
+      }
     } catch (error) {
       gate.failClosed(error);
       await abortRoute(route);
@@ -1445,6 +1490,15 @@ export async function installBrowserRequestGate(context, {gate, exemptOrigins = 
       return;
     }
     if (!new Set(["http:", "https:"]).has(url.protocol) || exempt.has(url.origin)) return;
+    if (cacheOnly && typeof responseCache?.hasRetainedEntry === "function" && responseCache.hasRetainedEntry(url.href)) {
+      if (!gateServedThisRequest(typeof response.request === "function" ? response.request() : response)) {
+        // Retained evidence exists for this URL, so a cache-only replay was required to serve
+        // it. The browser obtained these bytes anywhere else, which means a request escaped
+        // route interception and the replay is no longer the sealed replay it claims to be.
+        gate.failClosed(new Error(`cache-only replay response escaped the request-gate evidence replay: ${url.href}`));
+        return;
+      }
+    }
     let status;
     let retryAfter;
     try {

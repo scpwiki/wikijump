@@ -1764,6 +1764,72 @@ test("candidate evidence replay never caches URL userinfo credentials", async ()
   assert.equal(responseCache.snapshot().stores, 0);
 });
 
+test("cache-only replay fails closed when a retained-evidence response escaped the request gate", async () => {
+  const gate = createBrowserRequestGate({intervalMs: 0});
+  const responseCache = createBrowserResponseCache({evidenceReplay: true});
+  const imageUrl = "https://cdn.example.test/scp/photo.jpg";
+  responseCache.store(imageUrl, {
+    status: 200,
+    headers: {"content-type": "image/jpeg"},
+    body: Buffer.from("retained-image-bytes"),
+  });
+  const context = createContext();
+  await installBrowserRequestGate(context, {gate, responseCache, cacheOnly: true});
+
+  // Firefox upgrades an insecure subresource through an internal redirect that route
+  // interception never observes, so the browser receives these bytes from its own network
+  // stack instead of this installation. The gate must not report that as a replayed image.
+  context.events.get("response")?.({
+    url: () => imageUrl,
+    status: () => 200,
+    headers: () => ({}),
+    request: () => ({url: () => imageUrl, method: () => "GET", resourceType: () => "image"}),
+  });
+
+  assert.equal(gate.snapshot().enforcement_failed, true);
+  await assert.rejects(gate.flush(), /escaped the request-gate evidence replay/u);
+});
+
+test("cache-only replay accepts the responses it served, including redirect targets and retained failures", async (t) => {
+  for (const [name, sourceStatus, targetStatus] of [
+    ["direct image", 200, null],
+    ["redirect image", 301, 200],
+    ["retained 404", 404, null],
+  ]) {
+    await t.test(name, async () => {
+      const gate = createBrowserRequestGate({intervalMs: 0});
+      const responseCache = createBrowserResponseCache({evidenceReplay: true});
+      const sourceUrl = "https://cdn.example.test/scp/source";
+      const targetUrl = "https://assets.example.test/scp/target";
+      responseCache.store(sourceUrl, {
+        status: sourceStatus,
+        headers: targetStatus === null ? {"content-type": "image/jpeg"} : {location: targetUrl},
+        body: targetStatus === null ? Buffer.from("retained-image-bytes") : Buffer.alloc(0),
+      });
+      if (targetStatus !== null) {
+        responseCache.store(targetUrl, {
+          status: targetStatus,
+          headers: {"content-type": "image/jpeg"},
+          body: Buffer.from("retained-target-image-bytes"),
+        });
+      }
+      const context = createContext();
+      await installBrowserRequestGate(context, {gate, responseCache, cacheOnly: true});
+      const route = createRoute(sourceUrl, {resourceType: "image"});
+
+      await context.routes[0].handler(route);
+      const served = context.events.get("response");
+      if (served !== undefined) {
+        served({url: () => route.request().url(), status: () => sourceStatus, headers: () => ({}), request: () => route.request()});
+      }
+
+      assert.deepEqual(route.actions, [{type: "fulfill", status: targetStatus ?? sourceStatus}]);
+      assert.equal(gate.snapshot().enforcement_failed, false);
+      assert.equal(gate.snapshot().external_network_requests, 0);
+    });
+  }
+});
+
 test("documents and no-store assets keep using the unchanged request gate", async () => {
   const clock = createClock();
   const gate = createBrowserRequestGate({intervalMs: 4_000, now: clock.now, sleep: clock.sleep});
