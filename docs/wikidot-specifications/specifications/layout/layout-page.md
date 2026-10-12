@@ -188,3 +188,18 @@ are the EN and JP `live.dom.html` files in
 The two sites agree on order and DOM identifiers, differ in localized labels,
 and have no Layout action. The native Wikijump layout retains its own action
 order, Layout action, identifiers and translations.
+
+### Read-only standard footer modules (2026-10-12)
+
+Anonymous EN and JA BugReportModule reads return the standard problem-report
+window linking to `https://feedback.wikidot.com/`. Anonymous FlagPageModule
+returns `no_permission`; the English callback builds the Permission error
+window, focuses its close button, and includes the sign-in/account message.
+The frozen module bodies are in `framerail/tests/fixtures/wikidot-footer-dialogs.json`.
+Source callback DOM and screenshots are retained under
+`/home/roku/.local/state/wikijump/scp9506-final-evidence/browser-final-20261012-source-footer-dialogs-callback`.
+This callback replay proves rendering, not a server-side report submission.
+OZONE retains an empty hidden `odialog-container` after closing, removes the
+shader and blank iframe after 200ms, and does not bind Escape/outside dismissal.
+Bug opening retains focus on its invoking control; closing remains visible during that delay; ErrorDialog fades out for 100ms.
+Unobserved authenticated flag reporting and JA error chrome remain unsupported.

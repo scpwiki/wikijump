@@ -225,18 +225,53 @@ test("imported Wikidot-layout footer reproduces the live Wikidot destinations", 
   )
   await expect(page.locator("#license-area a")).toHaveAttribute("rel", "license")
 
-  // The report controls keep Wikidot's inline handlers in the DOM, but a
-  // click stays inert: the CSP-safe binding replaces the handler, so the
-  // attribute is never compiled and no navigation happens.
+  // Read-only module windows; preserved names are bound without compiling
+  // inline scripts. No report submission or navigation is made.
   const consoleErrors: string[] = []
   page.on("console", (message) => {
     if (message.type() === "error") consoleErrors.push(message.text())
   })
   const before = page.url()
   await page.locator("#bug-report-button").click()
+  await expect(page.locator(".owindow .title")).toHaveText("Bug report")
+  await expect(page.locator("#bug-report-button")).toBeFocused()
+  await expect(
+    page.locator(".owindow a[href='https://feedback.wikidot.com/']")
+  ).toHaveText("feedback.wikidot.com")
+  await expect(page.locator("#odialog-shader-iframe")).toHaveAttribute(
+    "src",
+    "/common--misc/blank.html"
+  )
+  await page.keyboard.press("Escape")
+  await expect(page.locator(".owindow")).toBeVisible()
+  await page.locator(".owindow .button-bar a").click()
+  await expect(page.locator("#odialog-container")).toHaveAttribute(
+    "style",
+    "display: none;"
+  )
+  await expect(page.locator("#odialog-shader")).toHaveCount(0)
   await page.locator("#abuse-report-button").click()
+  await expect(page.locator(".owindow .title")).toHaveText("Permission error")
+  await expect(page.locator(".owindow .content p")).toHaveText(
+    "Please create a Wikidot account and/or sign in first"
+  )
+  await expect(page.locator(".owindow .button-bar a")).toBeFocused()
+  await page.keyboard.press("Enter")
+  await expect(page.locator("#odialog-container")).toHaveAttribute(
+    "style",
+    "display: none;"
+  )
   expect(page.url()).toBe(before)
-  expect(consoleErrors).toEqual([])
+  // Firefox eagerly diagnoses the preserved source inline attribute when
+  // adopting the inert template. It remains blocked by local CSP; the capture
+  // listener above performs the close. Require exactly that known diagnostic.
+  if (test.info().project.name === "firefox") {
+    expect(consoleErrors).toHaveLength(1)
+    expect(consoleErrors[0]).toContain("Content-Security-Policy")
+    expect(consoleErrors[0]).toContain(
+      "sha256-4aTRSFUq/gsEIW8GUbny4cLX9K4m7mgoe0wngr/tmrw="
+    )
+  } else expect(consoleErrors).toEqual([])
 
   const rootResolving = await links.evaluateAll((anchors) =>
     anchors
