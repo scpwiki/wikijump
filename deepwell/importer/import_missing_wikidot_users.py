@@ -125,6 +125,13 @@ if __name__ == "__main__":
         help="DEEPWELL port on the host",
     )
     argparser.add_argument(
+        "-o",
+        "--offset",
+        default=0,
+        type=int,
+        help="Start with _users file <n>.json",
+    )
+    argparser.add_argument(
         "--importer-user-id",
         default=-2,
         type=int,
@@ -154,6 +161,13 @@ if __name__ == "__main__":
         if filename == "pending.json":
             # not a user list
             continue
+
+        if args.offset is not None:
+            stem, _ = os.path.splitext(filename)
+            num = int(stem)
+            if num < args.offset:
+                logger.debug("Skipping %s (starting at %d)", filename, args.offset)
+                continue
 
         logger.info("Reading JSON file %s", json_path)
         for user in read_wikicomma_users(json_path):
