@@ -198,14 +198,6 @@ test("Backlinks SSR exposes a lazy read pane without page identifiers", () => {
   assert.doesNotMatch(body, /page[_-]id/u)
 })
 
-test("Backlinks lazy read submits a form-compatible empty POST body", async () => {
-  const source = await readFile(
-    new URL("../src/routes/[slug]/[...extra]/BacklinksPane.svelte", import.meta.url),
-    "utf8"
-  )
-  assert.match(source, /fetch\("\?\/backlinks", \{ method: "POST", body: "" \}\)/u)
-})
-
 test("Backlinks handler delegates the current route to the typed public Deepwell view", async () => {
   const calls = []
   client.request = async (method, params, context) => {
@@ -219,14 +211,22 @@ test("Backlinks handler delegates the current route to the typed public Deepwell
     throw new Error(`Unexpected Deepwell method ${method}`)
   }
 
+  // What the pane actually submits is fetch("?/backlinks", { method: "POST",
+  // body: "" }). A string body makes the browser send this content type, which
+  // SvelteKit accepts for form actions. The read carries no page identifier:
+  // the action resolves the route slug and trusted site context server-side.
+  const request = new Request("https://wikijump.test/fixture?/backlinks", {
+    method: "POST",
+    body: "",
+    headers: {
+      "X-Wikijump-Site-Id": "17",
+      "X-Wikijump-Site-Slug": "test"
+    }
+  })
+  assert.equal(request.headers.get("content-type"), "text/plain;charset=UTF-8")
+
   const result = await pageBacklinksAction({
-    request: new Request("https://wikijump.test/fixture?/backlinks", {
-      method: "POST",
-      headers: {
-        "X-Wikijump-Site-Id": "17",
-        "X-Wikijump-Site-Slug": "test"
-      }
-    }),
+    request,
     params: { slug: "fixture" },
     locals: {
       requestContext: {

@@ -1,5 +1,5 @@
-import { fixtureState, hasExactKeys } from "./context.js"
-import { forumPostsByPage, pages, parentBySlug } from "./data.js"
+import { fixtureState, hasExactKeys, isFixtureSiteId } from "./context.js"
+import { backlinksByPage, forumPostsByPage, pages, parentBySlug } from "./data.js"
 
 /**
  * @param {{
@@ -54,6 +54,16 @@ export const handlePageRelationshipRpc = ({ rpcRequest, request }) => {
             : []
         })
       : []
+  } else if (
+    rpcRequest.method === "page_backlinks_view" &&
+    hasExactKeys(rpcRequest.params, ["page", "site_id"]) &&
+    isFixtureSiteId(rpcRequest.params.site_id) &&
+    typeof rpcRequest.params.page === "string"
+  ) {
+    pageReadRequests.backlinksView.push(rpcRequest.params)
+    result = (backlinksByPage[rpcRequest.params.page] ?? []).map((backlink) => ({
+      ...backlink
+    }))
   } else if (
     rpcRequest.method === "forum_post_page_summary" &&
     hasExactKeys(rpcRequest.params, ["page", "site_id"]) &&

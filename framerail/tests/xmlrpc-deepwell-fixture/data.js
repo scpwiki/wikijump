@@ -848,6 +848,11 @@ export const parentBySlug = {
   "ambiguous-parent-child": ["main", "scp-173-parent"]
 }
 
+/** @type {Record<string, { slug: string; title: string }[]>} */
+export const backlinksByPage = {
+  "scp-173": [{ slug: "scp-173-parent", title: "SCP Foundation" }]
+}
+
 /**
  * @param {FixturePage | null} page
  * @param {PageDetails} details

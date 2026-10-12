@@ -1,5 +1,5 @@
 import { expect, test, waitForSvelteDelegatedHandler } from "./hermetic-playwright"
-import type { Route } from "@playwright/test"
+import type { Request, Route } from "@playwright/test"
 
 const SITE_HEADERS = {
   "X-Wikijump-Site-Id": "6000005",
@@ -176,6 +176,7 @@ for (const pane of ["backlinks", "watchers"] as const) {
     const pageErrors: string[] = []
     page.on("pageerror", (error) => pageErrors.push(error.message))
     let heldRoute: Route | undefined
+    let heldRequest: Request | undefined
     let releaseHeldRoute: (() => void) | undefined
     const otherPane = pane === "backlinks" ? "watchers" : "backlinks"
     await page.route(
@@ -187,6 +188,7 @@ for (const pane of ["backlinks", "watchers"] as const) {
             : "watchers"
         if (requestedPane === pane && !heldRoute) {
           heldRoute = route
+          heldRequest = route.request()
           await new Promise<void>((resolve) => {
             releaseHeldRoute = resolve
           })
@@ -230,6 +232,11 @@ for (const pane of ["backlinks", "watchers"] as const) {
     await expect.poll(() => heldRoute !== undefined).toBe(true)
     await page.locator("#action-area .action-area-close").click()
     await expect(page.locator("#action-area")).toHaveClass(/hidden/u)
+    await expect
+      .poll(() => heldRequest?.failure()?.errorText ?? null, {
+        message: "closing the pane must cancel the in-flight read"
+      })
+      .toMatch(/ABORTED/u)
     await selectPane(page, otherPane)
     if (otherPane === "backlinks") {
       await expect(page.getByText("No pages link to this page.")).toBeVisible()
