@@ -4482,11 +4482,11 @@ async fn renderer_epoch_invalidates_pre_freeze_compiled_artifacts() {
         .article_page_cache_key
         .expect("imported static page should have an anonymous cache key");
     assert!(
-        current_key.starts_with("deepwell:article-view:page:v20:"),
+        current_key.starts_with("deepwell:article-view:page:v21:"),
         "source-freeze cache key must carry the final renderer epoch: {current_key}",
     );
     let stale_key = current_key.replacen(
-        "deepwell:article-view:page:v20:",
+        "deepwell:article-view:page:v21:",
         "deepwell:article-view:page:v11:",
         1,
     );
