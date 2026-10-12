@@ -208,7 +208,10 @@ async function verifyRegistry(registry) {
         )
       }
       else {
-        const expectedIssue = record.surface_id === "framerail-route:/feed/forum/{feed}" ? 2091 : 1372
+        const expectedIssue = new Map([
+          ["framerail-route:/feed/forum/{feed}",2104],
+          ["framerail-route:/feed/site-changes.xml",2087],
+        ]).get(record.surface_id) ?? 1372
         assert.equal(link.issue, expectedIssue, `${record.surface_id} has an unresolved issue link`)
       }
     }
