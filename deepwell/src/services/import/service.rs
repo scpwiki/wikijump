@@ -49,6 +49,7 @@ use crate::utils::get_category_name;
 use ftml::layout::Layout;
 use sea_orm::UpdateResult;
 use sea_query::{Expr, OnConflict, Query};
+use time::OffsetDateTime;
 
 #[derive(Debug)]
 pub struct ImportService;
@@ -71,6 +72,7 @@ impl ImportService {
             karma,
             is_pro,
             upsert,
+            delete_old_if_same_name,
             importing_user_id,
             ip_address,
         }: ImportUser,
@@ -110,7 +112,47 @@ impl ImportService {
         }
 
         let (is_deleted, name, slug) = match wikidot_user_type {
-            ImportedUserType::Extant { name, slug } => (false, Some(name), Some(slug)),
+            ImportedUserType::Extant { name, slug } => {
+                // Check if a previous user has a colliding username or slug
+                let result: Option<(i32, OffsetDateTime)> = WikidotUser::find()
+                    .select_only()
+                    .column(wikidot_user::Column::UserId)
+                    .column(wikidot_user::Column::FetchedAt)
+                    .filter(
+                        Condition::any()
+                            .add(wikidot_user::Column::Name.eq(&name))
+                            .add(wikidot_user::Column::Slug.eq(&name)),
+                    )
+                    .into_tuple()
+                    .one(txn)
+                    .await
+                    .or_raise(make_error)?;
+
+                if let Some((old_user_id, old_fetched_at)) = result {
+                    if delete_old_if_same_name && old_fetched_at < fetched_at {
+                        // This is a case where the settings + context indicate
+                        // that we should mark the old one as since-deleted.
+                        let model = wikidot_user::ActiveModel {
+                            user_id: Set(old_user_id),
+                            is_deleted: Set(true),
+                            ..Default::default()
+                        };
+
+                        model.update(txn).await.or_raise(make_error)?;
+                    } else {
+                        // Otherwise, we should error due to a name collision
+                        bail!(Error::new(
+                            format!(
+                                "cannot import, prior undeleted user ID {} has conflicting name or slug",
+                                old_user_id,
+                            ),
+                            ErrorType::UserExists,
+                        ));
+                    }
+                }
+
+                (false, Some(name), Some(slug))
+            }
             ImportedUserType::Deleted => (true, None, None),
         };
 

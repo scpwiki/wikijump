@@ -48,6 +48,8 @@ pub struct ImportUser {
     // Request metadata
     #[serde(default)]
     pub upsert: bool,
+    #[serde(default)]
+    pub delete_old_if_same_name: bool,
     // Must be the same as the user who uploaded the avatar blob
     pub importing_user_id: i64,
     pub ip_address: IpAddr,
