@@ -29,6 +29,7 @@ use super::super::service::{
     RenderService, escape_list_pages_html_attr, escape_list_pages_html_text,
     format_wikidot_list_pages_date,
 };
+use super::super::wikidot_user_resources::{WIKIDOT_AVATAR_BASE, WIKIDOT_USER_INFO_URL};
 use super::parents::ListPagesParentDisplay;
 use super::substitution::{ListPagesSnapshotDisplay, WikidotUserDisplay};
 #[cfg(test)]
@@ -220,12 +221,14 @@ pub(in crate::services::render) fn render_list_pages_wikidot_user(
     format!(
         concat!(
             r#"<span class="printuser avatarhover" data-wikijump-compat-listpages-user="1">"#,
-            r#"<a href="http://www.wikidot.com/user:info/{slug}" onclick="WIKIDOT.page.listeners.userInfo({user_id}); return false;">"#,
-            r#"<img class="small" src="http://www.wikidot.com/avatar.php?userid={user_id}&amp;amp;size=small&amp;amp;timestamp={avatar_timestamp}" "#,
-            r#"alt="{name_attr}" style="background-image:url(http://www.wikidot.com/userkarma.php?u={user_id})" />"#,
-            r#"</a><a href="http://www.wikidot.com/user:info/{slug}" onclick="WIKIDOT.page.listeners.userInfo({user_id}); return false;">{name_text}</a>"#,
+            r#"<a href="{user_info}{slug}" onclick="WIKIDOT.page.listeners.userInfo({user_id}); return false;">"#,
+            r#"<img class="small" src="{avatar_base}/avatar.php?userid={user_id}&amp;amp;size=small&amp;amp;timestamp={avatar_timestamp}" "#,
+            r#"alt="{name_attr}" style="background-image:url({avatar_base}/userkarma.php?u={user_id})" />"#,
+            r#"</a><a href="{user_info}{slug}" onclick="WIKIDOT.page.listeners.userInfo({user_id}); return false;">{name_text}</a>"#,
             r#"</span>"#
         ),
+        user_info = WIKIDOT_USER_INFO_URL,
+        avatar_base = WIKIDOT_AVATAR_BASE,
         slug = escape_list_pages_html_attr(slug),
         user_id = user.user_id,
         avatar_timestamp = avatar_timestamp,
@@ -249,12 +252,14 @@ pub(in crate::services::render) fn render_list_pages_wikidot_feed_user(
     format!(
         concat!(
             r#"<span class="printuser avatarhover">"#,
-            r#"<a href="http://www.wikidot.com/user:info/{slug}" >"#,
-            r#"<img class="small" src="http://www.wikidot.com/avatar.php?userid={user_id}&amp;amp;size=small&amp;amp;timestamp={avatar_timestamp}" "#,
-            r#"alt="{name_attr}" style="background-image:url(http://www.wikidot.com/userkarma.php?u={user_id})" />"#,
-            r#"</a><a href="http://www.wikidot.com/user:info/{slug}" >{name_text}</a>"#,
+            r#"<a href="{user_info}{slug}" >"#,
+            r#"<img class="small" src="{avatar_base}/avatar.php?userid={user_id}&amp;amp;size=small&amp;amp;timestamp={avatar_timestamp}" "#,
+            r#"alt="{name_attr}" style="background-image:url({avatar_base}/userkarma.php?u={user_id})" />"#,
+            r#"</a><a href="{user_info}{slug}" >{name_text}</a>"#,
             r#"</span>"#
         ),
+        user_info = WIKIDOT_USER_INFO_URL,
+        avatar_base = WIKIDOT_AVATAR_BASE,
         slug = escape_list_pages_html_attr(slug),
         user_id = user.user_id,
         avatar_timestamp = avatar_timestamp,
@@ -464,13 +469,12 @@ mod tests {
             "unexpected user markup: {html}"
         );
         assert!(!html.contains(r#"alt="quoted" onload="alert(1)""#));
-        assert!(html.contains("http://www.wikidot.com/avatar.php?userid=42"));
-        assert!(
-            html.contains(
-                "background-image:url(http://www.wikidot.com/userkarma.php?u=42)"
-            )
-        );
-        assert!(html.contains("http://www.wikidot.com/user:info/quoted-user"));
+        assert!(html.contains("https://www.wikidot.com/avatar.php?userid=42"));
+        assert!(html.contains(
+            "background-image:url(https://www.wikidot.com/userkarma.php?u=42)"
+        ));
+        assert!(html.contains("https://www.wikidot.com/user:info/quoted-user"));
+        assert!(feed_html.contains("https://www.wikidot.com/user:info/quoted-user"));
         assert!(
             feed_html.contains(r##"alt="quoted&quot; onload=&quot;alert(1)&quot;""##),
             "unexpected feed user markup: {feed_html}"

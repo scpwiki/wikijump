@@ -1038,12 +1038,12 @@ async fn nextpreviouspage_module_renders_live_selection_templates_and_runtime_up
     );
     let default = section(&html, "DEFAULT_START", "DEFAULT_END");
     let expected_creator_href =
-        format!(r#"href="http://www.wikidot.com/user:info/{CREATOR_SLUG}""#);
+        format!(r#"href="https://www.wikidot.com/user:info/{CREATOR_SLUG}""#);
     let expected_avatar_src = format!(
-        "src=\"http://www.wikidot.com/avatar.php?userid={CREATOR_ID}&amp;amp;size=small&amp;amp;timestamp="
+        "src=\"https://www.wikidot.com/avatar.php?userid={CREATOR_ID}&amp;amp;size=small&amp;amp;timestamp="
     );
     let expected_karma_style = format!(
-        r#"style="background-image:url(http://www.wikidot.com/userkarma.php?u={CREATOR_ID})""#
+        r#"style="background-image:url(https://www.wikidot.com/userkarma.php?u={CREATOR_ID})""#
     );
     for expected in [
         r#"<div class="list-pages-box">"#,
@@ -7284,13 +7284,13 @@ async fn wikidot_listpages_feed_uses_imported_creator_identity_provenance() {
     let created_by_html = &output.items[0].created_by_html;
     for expected in [
         CREATOR_NAME.to_owned(),
-        format!("http://www.wikidot.com/user:info/{CREATOR_SLUG}"),
+        format!("https://www.wikidot.com/user:info/{CREATOR_SLUG}"),
         r#"<span class="printuser avatarhover">"#.to_owned(),
         format!(
-            "http://www.wikidot.com/avatar.php?userid={CREATOR_ID}&amp;amp;size=small&amp;amp;timestamp="
+            "https://www.wikidot.com/avatar.php?userid={CREATOR_ID}&amp;amp;size=small&amp;amp;timestamp="
         ),
         format!(
-            r#"style="background-image:url(http://www.wikidot.com/userkarma.php?u={CREATOR_ID})""#
+            r#"style="background-image:url(https://www.wikidot.com/userkarma.php?u={CREATOR_ID})""#
         ),
     ] {
         assert!(

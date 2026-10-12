@@ -3665,7 +3665,7 @@ async fn rerender_uses_latest_navigation_page_revision() {
     assert!(
         rerendered_home
             .compiled_generator
-            .ends_with("; deepwell-render/v18")
+            .ends_with("; deepwell-render/v19")
     );
 }
 
@@ -4482,11 +4482,11 @@ async fn renderer_epoch_invalidates_pre_freeze_compiled_artifacts() {
         .article_page_cache_key
         .expect("imported static page should have an anonymous cache key");
     assert!(
-        current_key.starts_with("deepwell:article-view:page:v18:"),
+        current_key.starts_with("deepwell:article-view:page:v19:"),
         "source-freeze cache key must carry the final renderer epoch: {current_key}",
     );
     let stale_key = current_key.replacen(
-        "deepwell:article-view:page:v18:",
+        "deepwell:article-view:page:v19:",
         "deepwell:article-view:page:v11:",
         1,
     );
@@ -4616,7 +4616,7 @@ async fn page_view_rerenders_stale_persisted_compiled_artifact() {
     assert!(
         page_revision
             .compiled_generator
-            .ends_with("; deepwell-render/v18")
+            .ends_with("; deepwell-render/v19")
     );
     assert!(compiled_body_html.contains(CURRENT_BODY));
     assert!(!compiled_body_html.contains(STALE_BODY));
@@ -4641,7 +4641,7 @@ async fn page_view_rerenders_stale_persisted_compiled_artifact() {
     assert!(
         page_revision
             .compiled_generator
-            .ends_with("; deepwell-render/v18"),
+            .ends_with("; deepwell-render/v19"),
         "page view must expose the current compiled generator",
     );
     assert!(compiled_body_html.contains(CURRENT_BODY));
@@ -4655,7 +4655,7 @@ async fn page_view_rerenders_stale_persisted_compiled_artifact() {
     assert!(
         persisted
             .compiled_generator
-            .ends_with("; deepwell-render/v18"),
+            .ends_with("; deepwell-render/v19"),
         "read-time refresh should persist the current compiled generator",
     );
     let persisted_body =
@@ -10030,7 +10030,7 @@ async fn wikidot_user_blocks_match_live_preview_and_saved_page_identity_boundari
         ("saved page", saved_html.as_str()),
     ] {
         assert!(
-            output.contains("http://www.wikidot.com/user:info/extant-user")
+            output.contains("https://www.wikidot.com/user:info/extant-user")
                 && output.contains(&format!(
                     "WIKIDOT.page.listeners.userInfo({EXTANT_USER_ID}); return false;"
                 ))
@@ -10038,7 +10038,7 @@ async fn wikidot_user_blocks_match_live_preview_and_saved_page_identity_boundari
             "{label} extant name and numeric ID references should share the imported identity:\n{output}",
         );
         assert!(
-            output.contains("http://www.wikidot.com/user:info/name-only-slug")
+            output.contains("https://www.wikidot.com/user:info/name-only-slug")
                 && output.contains(&format!(
                     "WIKIDOT.page.listeners.userInfo({NAME_ONLY_USER_ID}); return false;"
                 ))
@@ -10046,7 +10046,7 @@ async fn wikidot_user_blocks_match_live_preview_and_saved_page_identity_boundari
             "{label} should resolve the imported display name even when its slug differs:\n{output}",
         );
         assert!(
-            output.contains("http://www.wikidot.com/user:info/unicode-name")
+            output.contains("https://www.wikidot.com/user:info/unicode-name")
                 && output.contains(&format!(
                     "WIKIDOT.page.listeners.userInfo({UNICODE_USER_ID}); return false;"
                 ))
@@ -10054,13 +10054,13 @@ async fn wikidot_user_blocks_match_live_preview_and_saved_page_identity_boundari
             "{label} should use the shared Unicode whitespace and case normalization contract:\n{output}",
         );
         assert!(
-            !output.contains("http://www.wikidot.com/user:info/numeric-target")
+            !output.contains("https://www.wikidot.com/user:info/numeric-target")
                 && !output.contains("WIKIDOT.page.listeners.userInfo(2); return false;")
                 && !output.contains(">Numeric Target</a>"),
             "{label} digit lookup keys must resolve by name, never by numeric ID:\n{output}",
         );
         assert!(
-            output.contains("http://www.wikidot.com/user:info/display-two")
+            output.contains("https://www.wikidot.com/user:info/display-two")
                 && output.contains(&format!(
                     "WIKIDOT.page.listeners.userInfo({DISPLAY_NUMERIC_NAME_USER_ID}); return false;"
                 ))
@@ -10335,7 +10335,7 @@ async fn basalt_runtime_state_users_rerender_identity_profile_subtrees() {
             .as_u64()
             .expect("source occurrences should be an integer")
             as usize;
-        let profile = format!("http://www.wikidot.com/user:info/{slug}");
+        let profile = format!("https://www.wikidot.com/user:info/{slug}");
         let onclick =
             format!("WIKIDOT.page.listeners.userInfo({user_id}); return false;");
         let avatar_prefix = format!(

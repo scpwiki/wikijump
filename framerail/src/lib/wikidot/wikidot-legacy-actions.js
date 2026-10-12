@@ -60,7 +60,13 @@ const trustedRateHandlers = new WeakMap()
 
 const USER_INFO_ONCLICK =
   /^WIKIDOT\.page\.listeners\.userInfo\((-?[0-9]+)\); return false;$/u
-const WIKIDOT_USER_INFO_HREF = /^http:\/\/www\.wikidot\.com\/user:info\/([a-z0-9-]+)$/u
+const WIKIDOT_USER_INFO_HREF = /^https?:\/\/www\.wikidot\.com\/user:info\/([a-z0-9-]+)$/u
+// Wikidot links users over https since 2026-09-21; content it compiled
+// before then keeps http links.
+const WIKIDOT_PRINTUSER_LINKS = [
+  '.printuser > a[href^="https://www.wikidot.com/user:info/"][onclick]',
+  '.printuser > a[href^="http://www.wikidot.com/user:info/"][onclick]'
+].join(", ")
 
 const installDefaultWikidotUserInfoListener = () => {
   const wikidot = globalThis.WIKIDOT ?? (globalThis.WIKIDOT = {})
@@ -72,11 +78,9 @@ const installDefaultWikidotUserInfoListener = () => {
     const documentObject = globalThis.document
     if (!documentObject?.querySelectorAll) return false
     const expected = `WIKIDOT.page.listeners.userInfo(${userId}); return false;`
-    const anchor = [
-      ...documentObject.querySelectorAll(
-        '.printuser > a[href^="http://www.wikidot.com/user:info/"][onclick]'
-      )
-    ].find((element) => element.getAttribute("onclick") === expected)
+    const anchor = [...documentObject.querySelectorAll(WIKIDOT_PRINTUSER_LINKS)].find(
+      (element) => element.getAttribute("onclick") === expected
+    )
     const match = WIKIDOT_USER_INFO_HREF.exec(anchor?.getAttribute("href") ?? "")
     if (match) globalThis.location?.assign?.(`/user:info/${match[1]}`)
     return false
@@ -97,9 +101,7 @@ const bindWikidotUserInfoHandlers = (root) => {
   /** @type {HTMLElement[]} */
   const elements = []
   for (const element of /** @type {NodeListOf<HTMLElement>} */ (
-    root.querySelectorAll(
-      '.printuser > a[href^="http://www.wikidot.com/user:info/"][onclick]'
-    )
+    root.querySelectorAll(WIKIDOT_PRINTUSER_LINKS)
   )) {
     const match = USER_INFO_ONCLICK.exec(element.getAttribute("onclick") ?? "")
     if (!match) continue

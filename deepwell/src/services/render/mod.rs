@@ -78,6 +78,7 @@ mod structs;
 mod url_arguments;
 mod user_directory;
 mod wikidot_hosts;
+mod wikidot_user_resources;
 
 pub(crate) use self::authorized_page_selector::AuthorizedPageSelector;
 pub(crate) use self::corpus::{

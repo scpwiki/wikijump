@@ -27,6 +27,7 @@ use super::service::{
     RenderService, escape_list_pages_html_attr, escape_list_pages_html_text,
     format_wikidot_list_pages_date,
 };
+use super::wikidot_user_resources::WIKIDOT_USER_INFO_URL;
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::services::{CategoryService, ServiceContext};
@@ -663,9 +664,8 @@ fn push_site_changes_user(output: &mut String, revision: &SiteChangesRevisionRow
             .or(revision.wikidot_user_slug.as_deref()),
         revision.wikidot_user_slug.as_deref(),
     ) {
-        output.push_str(
-            "<span class=\"printuser\"><a href=\"http://www.wikidot.com/user:info/",
-        );
+        output.push_str("<span class=\"printuser\"><a href=\"");
+        output.push_str(WIKIDOT_USER_INFO_URL);
         output.push_str(&escape_list_pages_html_attr(slug));
         output.push_str("\" onclick=\"WIKIDOT.page.listeners.userInfo(");
         output.push_str(&revision.user_id.to_string());

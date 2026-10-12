@@ -81,7 +81,7 @@ test("renders typed WhoRated votes in the exact wikidot.py DOM boundary", () => 
         value: -1
       }
     ]),
-    '<h2>Users who rated:</h2>\n\n<div style="-moz-column-count:3"><span class="printuser avatarhover"><a href="http://www.wikidot.com/user:info/voter-one" onclick="WIKIDOT.page.listeners.userInfo(11111); return false;">Voter &lt;One&gt;</a></span>\n        <span style="color:#777">\n                    +              </span><br/><span class="printuser avatarhover"><a href="http://www.wikidot.com/user:info/voter-two" onclick="WIKIDOT.page.listeners.userInfo(22222); return false;">Voter Two</a></span>\n        <span style="color:#777">\n                    -              </span><br/></div>'
+    '<h2>Users who rated:</h2>\n\n<div style="-moz-column-count:3"><span class="printuser avatarhover"><a href="https://www.wikidot.com/user:info/voter-one" onclick="WIKIDOT.page.listeners.userInfo(11111); return false;">Voter &lt;One&gt;</a></span>\n        <span style="color:#777">\n                    +              </span><br/><span class="printuser avatarhover"><a href="https://www.wikidot.com/user:info/voter-two" onclick="WIKIDOT.page.listeners.userInfo(22222); return false;">Voter Two</a></span>\n        <span style="color:#777">\n                    -              </span><br/></div>'
   )
 })
 

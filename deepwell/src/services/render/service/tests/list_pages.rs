@@ -2807,8 +2807,9 @@ fn substitutes_wikidot_list_pages_author_and_created_at_variables() {
             .contains("avatar.php?userid=8955132&amp;amp;size=small&amp;amp;timestamp=")
     );
     assert!(rendered.contains(
-        r#"style="background-image:url(http://www.wikidot.com/userkarma.php?u=8955132)""#
+        r#"style="background-image:url(https://www.wikidot.com/userkarma.php?u=8955132)""#
     ));
+    assert!(rendered.contains("https://www.wikidot.com/user:info/scpaiueouiuiuiui"));
     assert!(rendered.contains(
         r#"<span class="odate time_1782003564 format_%25d%20%25b%20%25Y" data-wikijump-compat-date="1">21 Jun 2026 00:59</span>"#
     ));
