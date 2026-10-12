@@ -695,7 +695,15 @@
           >
             {wikidotPageActions.tags}
           </a>
-          {#if wikidotPageActions.showDiscuss}
+          {#if wikidotPageActions.showDiscuss && wikidotPageActions.discussHref}
+            <a
+              href={wikidotPageActions.discussHref}
+              class="btn btn-default"
+              id="discuss-button"
+            >
+              {wikidotPageActions.discuss}
+            </a>
+          {:else if wikidotPageActions.showDiscuss}
             <!-- svelte-ignore a11y_invalid_attribute -->
             <a
               id="discuss-button"

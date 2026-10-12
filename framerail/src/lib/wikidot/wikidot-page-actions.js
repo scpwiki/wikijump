@@ -8,6 +8,7 @@ const WIKIDOT_SITES_WITHOUT_STANDARD_PAGE_ACTIONS = new Set(["sandbox-for-codex"
  * @property {string} ratePrefix
  * @property {string | null} ratingText
  * @property {string} discuss
+ * @property {string | null} [discussHref]
  * @property {boolean} showRate
  * @property {boolean} showDiscuss
  * @property {string} edit
@@ -94,6 +95,33 @@ export const wikidotPageDiscussionPath = (response) => {
     return null
   }
   return `/forum/t-${response.thread_id}/${response.thread_unix_title}`
+}
+
+/**
+ * Wikidot links Discuss straight to an existing page discussion thread as
+ * `/forum/t-<thread id>/<page unix name>` (for example
+ * `/forum/t-102848/forum:start`), using the page name rather than the
+ * thread title. Without a thread, or for a page name outside Wikidot's
+ * unix-name alphabet, there is no link and the create-thread action
+ * applies.
+ *
+ * @param {{
+ *   discussionThreadId?: number | null
+ *   pageSlug?: string | null
+ * }} input
+ * @returns {string | null}
+ */
+export const wikidotPageDiscussHref = ({ discussionThreadId, pageSlug }) => {
+  if (
+    typeof discussionThreadId !== "number" ||
+    !Number.isSafeInteger(discussionThreadId) ||
+    discussionThreadId <= 0 ||
+    typeof pageSlug !== "string" ||
+    !/^[a-z0-9_-]+(?::[a-z0-9_-]+)?$/u.test(pageSlug)
+  ) {
+    return null
+  }
+  return `/forum/t-${discussionThreadId}/${pageSlug}`
 }
 
 /**
