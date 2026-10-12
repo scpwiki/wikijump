@@ -1,5 +1,6 @@
 <script lang="ts">
   import { wikidotCollapsibles } from "$lib/wikidot/wikidot-collapsibles"
+  import { wikidotFooterControls } from "$lib/wikidot/wikidot-footer"
 
   import type { HTMLAnchorAttributes } from "svelte/elements"
 
@@ -7,8 +8,17 @@
     name: "page-top"
   }
 
-  let { header, topBar, loginStatus, sideBar, content, footer, license, bottomToolbar } =
-    $props()
+  let {
+    header,
+    topBar,
+    loginStatus,
+    sideBar,
+    content,
+    footer,
+    footerStyle = undefined,
+    license,
+    bottomToolbar
+  } = $props()
 </script>
 
 <div id="skrollr-body" data-sveltekit-reload use:wikidotCollapsibles>
@@ -45,7 +55,7 @@
             {@render content?.()}
           </div>
         </div>
-        <div id="footer">
+        <div id="footer" style={footerStyle} use:wikidotFooterControls>
           {@render footer?.()}
         </div>
         <div id="license-area" class="license-area">

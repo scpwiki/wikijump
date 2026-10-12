@@ -187,7 +187,10 @@ test("visible page action text remains the anchor accessible name", async () => 
   }
 
   for (const [id, labelExpression] of Object.entries(actionKeys)) {
-    const start = pageView.indexOf(`id="${id}"`)
+    // Native ids are literal, or the native branch of an id that imported
+    // Wikidot pages replace with Wikidot's own (`page-block-button`).
+    const literal = pageView.indexOf(`id="${id}"`)
+    const start = literal >= 0 ? literal : pageView.indexOf(`: "${id}"}`)
     assert.ok(start >= 0, id)
     const end = pageView.indexOf("</a>", start)
     assert.ok(end >= start, id)

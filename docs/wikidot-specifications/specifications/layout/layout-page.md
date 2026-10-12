@@ -25,6 +25,27 @@ If the documentation is silent or contradictory, the implementation MUST fail cl
 The observations in this section are normative and override conflicting or
 incomplete documentation-derived evidence below.
 
+### Standard footer and license template preserve text nodes
+
+The retained English and Japanese standard shells captured on 2026-09-29
+emit the same footer structure with localized link labels. Preserve the
+template's whitespace text nodes, nonbreaking spaces before the separators,
+inline visibility styles, control IDs, and linked `Powered by` text. The
+cookie-consent entry remains hidden when the advertising consent runtime is
+absent. Wikijump does not execute the third-party advertising script; its
+known report and consent handlers remain inert under the local CSP boundary.
+
+The standard license area preserves template whitespace and `rel="license"`.
+Creative Commons links use the HTTP deed URL; the Japanese template appends
+`deed.ja`. Custom license HTML and copyright-only modes retain their separate
+contracts.
+
+Frozen browser DOM evidence and the byte-exact regression oracle:
+
+- `install/local/theme-lab/evidence/wikidot-runtime-surface-20260929.normal/scp-wiki-scp-173-normal-20260929-5d64b862fb46/live.dom.html`
+- `install/local/theme-lab/evidence/wikidot-runtime-surface-20260929.normal/scp-jp-scp-173-normal-20260929-7984e750c954/live.dom.html`
+- `framerail/tests/wikidot-footer.test.js`
+
 ### Wikidot document shells propagate the stored locale verbatim
 
 - Observation ID: `wikidot-document-shell-stored-locale-20260722`
