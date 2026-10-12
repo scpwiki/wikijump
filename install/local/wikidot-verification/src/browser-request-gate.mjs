@@ -1307,6 +1307,64 @@ async function fulfillRetainedEntry(route, { gate, responseCache, request, entry
   await route.fulfill({ response: resolved.response });
 }
 
+/**
+ * The scheme of an insecure request that the same origin also answers over HTTPS.
+ *
+ * A page may reference a subresource with an absolute `http://` URL on a Wikidot-family
+ * origin. The retained evidence for such a resource is the origin's HTTPS representation:
+ * the acquiring engine rewrites an insecure subresource URL to HTTPS before requesting it,
+ * and the retained snapshots record that rewritten URL as `currentSrc` for every one of
+ * those images. Resolving the request to that entry replays exactly the retained bytes,
+ * status, and headers; it never invents a response, and a request whose HTTPS variant is
+ * also unretained still fails closed.
+ *
+ * Returns `null` for every other request, including any URL that is not plain `http:`.
+ */
+function evidenceReplaySchemeVariant(value) {
+  let parsed;
+  try {
+    parsed = new URL(value);
+  } catch {
+    return null;
+  }
+  if (parsed.protocol !== "http:" || parsed.username || parsed.password) return null;
+  parsed.protocol = "https:";
+  return parsed.href;
+}
+
+/**
+ * Whether retained evidence exists for a URL, counting the HTTPS variant of an insecure
+ * request as the same resource (see `evidenceReplaySchemeVariant`).
+ */
+function hasRetainedReplayEvidence(responseCache, value) {
+  if (responseCache.hasRetainedEntry(value)) return true;
+  const schemeVariant = evidenceReplaySchemeVariant(value);
+  return schemeVariant !== null && responseCache.hasRetainedEntry(schemeVariant);
+}
+
+/**
+ * Serve a cache-only replay request from retained evidence.
+ *
+ * The request's own URL is looked up first so an explicitly retained `http://` entry still
+ * wins. Only when that misses does the HTTPS variant of the same origin and path answer the
+ * request, because that is the representation the retained evidence holds for the resource.
+ */
+function lookupRetainedReplayEntry(request, responseCache, requestHeaders) {
+  const requestUrl = request.url();
+  const schemeVariant = evidenceReplaySchemeVariant(requestUrl);
+  const canProbe = typeof responseCache.hasRetainedEntry === "function";
+  const hasOwnEntry = canProbe
+    ? responseCache.hasRetainedEntry(requestUrl)
+    : responseCache.lookup(responseCacheRequestKey(request, null, requestHeaders), {requestHeaders}) !== null;
+  // Probing first keeps the fallback from recording a phantom cache miss for a scheme the
+  // evidence was never acquired under. A genuinely unretained request still misses and still
+  // fails closed under its own URL.
+  if (!hasOwnEntry && schemeVariant !== null) {
+    return responseCache.lookup(responseCacheRequestKey(request, schemeVariant, requestHeaders), {requestHeaders});
+  }
+  return responseCache.lookup(responseCacheRequestKey(request, null, requestHeaders), {requestHeaders});
+}
+
 async function servePublicRoute(route, {gate, responseCache, cacheOnly = false, fetchRetainedEntry = null}) {
   const request = route.request();
   const requestHeaders = await requestHeadersForResponseCache(request);
@@ -1315,7 +1373,7 @@ async function servePublicRoute(route, {gate, responseCache, cacheOnly = false, 
       responseCache?.recordBypass();
       throw new Error(`candidate response cache cannot serve ${request.url()}`);
     }
-    const cached = responseCache.lookup(responseCacheRequestKey(request, null, requestHeaders), {requestHeaders});
+    const cached = lookupRetainedReplayEntry(request, responseCache, requestHeaders);
     if (cached === null) throw new Error(`candidate response cache miss: ${request.url()}`);
     await fulfillRetainedEntry(route, { gate, responseCache, request, entry: cached, cacheOnly: true });
     return;
@@ -1490,7 +1548,7 @@ export async function installBrowserRequestGate(context, {gate, exemptOrigins = 
       return;
     }
     if (!new Set(["http:", "https:"]).has(url.protocol) || exempt.has(url.origin)) return;
-    if (cacheOnly && typeof responseCache?.hasRetainedEntry === "function" && responseCache.hasRetainedEntry(url.href)) {
+    if (cacheOnly && typeof responseCache?.hasRetainedEntry === "function" && hasRetainedReplayEvidence(responseCache, url.href)) {
       if (!gateServedThisRequest(typeof response.request === "function" ? response.request() : response)) {
         // Retained evidence exists for this URL, so a cache-only replay was required to serve
         // it. The browser obtained these bytes anywhere else, which means a request escaped

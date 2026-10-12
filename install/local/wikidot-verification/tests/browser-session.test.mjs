@@ -5,6 +5,7 @@ import {test} from "node:test";
 import {
   browserContextOptions,
   defaultBrowserRoot,
+  firefoxEvidenceReplayLaunchOptions,
   openBrowser,
   resolveStorageStates,
 } from "../src/browser-session.mjs";
@@ -106,6 +107,18 @@ test("openBrowser can isolate source and local storage states", async () => {
   await session.close();
   assert.deepEqual(closedContexts, [1, 0]);
   assert.equal(closedBrowser, true);
+});
+
+test("firefox evidence replay launch options keep insecure subresources observable", () => {
+  const options = firefoxEvidenceReplayLaunchOptions("/path/to/firefox");
+  assert.equal(options.executablePath, "/path/to/firefox");
+  assert.equal(options.firefoxUserPrefs["security.mixed_content.upgrade_display_content"], false);
+  assert.equal(options.firefoxUserPrefs["dom.security.https_only_mode"], false);
+  assert.equal(options.firefoxUserPrefs["dom.security.https_only_mode_pbm"], false);
+  assert.equal(options.firefoxUserPrefs["dom.security.https_only_mode_ever_enabled"], false);
+  assert.deepEqual(Object.keys(options), ["executablePath", "firefoxUserPrefs"]);
+  assert.throws(() => firefoxEvidenceReplayLaunchOptions(""), /executable path/u);
+  assert.throws(() => firefoxEvidenceReplayLaunchOptions(undefined), /executable path/u);
 });
 
 test("source and local contexts share one response cache so local external assets do not refetch", async () => {

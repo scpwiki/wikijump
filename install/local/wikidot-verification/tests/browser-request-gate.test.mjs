@@ -1830,6 +1830,85 @@ test("cache-only replay accepts the responses it served, including redirect targ
   }
 });
 
+test("cache-only replay serves a page's http subresource from the retained HTTPS variant", async (t) => {
+  for (const [name, sourceStatus, targetStatus] of [
+    ["direct image", 200, null],
+    ["redirect image", 302, 200],
+  ]) {
+    await t.test(name, async () => {
+      const gate = createBrowserRequestGate({intervalMs: 0});
+      const responseCache = createBrowserResponseCache({evidenceReplay: true});
+      // The retained evidence holds the HTTPS representation of a resource the page HTML
+      // references as http://; the acquiring engine rewrote the subresource URL to HTTPS,
+      // which the retained snapshot records as currentSrc.
+      const httpsUrl = "https://cdn.example.test/scp/photo.jpg";
+      const httpUrl = "http://cdn.example.test/scp/photo.jpg";
+      const targetUrl = "https://assets.example.test/scp/photo.jpg";
+      responseCache.store(httpsUrl, {
+        status: sourceStatus,
+        headers: targetStatus === null ? {"content-type": "image/jpeg"} : {location: targetUrl},
+        body: targetStatus === null ? Buffer.from("retained-image-bytes") : Buffer.alloc(0),
+      });
+      if (targetStatus !== null) {
+        responseCache.store(targetUrl, {
+          status: targetStatus,
+          headers: {"content-type": "image/jpeg"},
+          body: Buffer.from("retained-target-image-bytes"),
+        });
+      }
+      const context = createContext();
+      await installBrowserRequestGate(context, {gate, responseCache, cacheOnly: true});
+      const route = createRoute(httpUrl, {resourceType: "image"});
+      const storesBefore = responseCache.snapshot().stores;
+      const hitsBefore = responseCache.snapshot().hits;
+      const missesBefore = responseCache.snapshot().misses;
+
+      await context.routes[0].handler(route);
+
+      assert.deepEqual(route.actions, [{type: "fulfill", status: targetStatus ?? sourceStatus}]);
+      assert.equal(gate.snapshot().enforcement_failed, false);
+      assert.equal(gate.snapshot().external_network_requests, 0);
+      assert.equal(gate.snapshot().public_requests, 0);
+      assert.equal(responseCache.snapshot().stores, storesBefore);
+      // The scheme fallback answers from retained evidence, so the replay records no miss for
+      // a scheme the evidence was never acquired under.
+      assert.equal(responseCache.snapshot().misses, missesBefore);
+      assert.equal(responseCache.snapshot().hits, hitsBefore + (targetStatus === null ? 1 : 2));
+    });
+  }
+});
+
+test("cache-only replay still fails closed when neither the http nor the HTTPS variant is retained", async () => {
+  const gate = createBrowserRequestGate({intervalMs: 0});
+  const responseCache = createBrowserResponseCache({evidenceReplay: true});
+  const context = createContext();
+  await installBrowserRequestGate(context, {gate, responseCache, cacheOnly: true});
+  const route = createRoute("http://cdn.example.test/scp/missing.jpg", {resourceType: "image"});
+
+  await context.routes[0].handler(route);
+
+  assert.deepEqual(route.actions, [{type: "abort", reason: "blockedbyclient"}]);
+  assert.equal(gate.snapshot().enforcement_failed, true);
+  await assert.rejects(gate.flush(), /candidate response cache miss: http:\/\/cdn\.example\.test\/scp\/missing\.jpg/u);
+});
+
+test("an explicitly retained http entry still wins over the HTTPS variant", async () => {
+  const gate = createBrowserRequestGate({intervalMs: 0});
+  const responseCache = createBrowserResponseCache({evidenceReplay: true});
+  const httpUrl = "http://cdn.example.test/scp/photo.jpg";
+  responseCache.store(httpUrl, {status: 200, headers: {"content-type": "image/png"}, body: Buffer.from("retained-http-bytes")});
+  responseCache.store("https://cdn.example.test/scp/photo.jpg", {status: 200, headers: {"content-type": "image/jpeg"}, body: Buffer.from("retained-https-bytes")});
+  const context = createContext();
+  await installBrowserRequestGate(context, {gate, responseCache, cacheOnly: true});
+  const route = createRoute(httpUrl, {resourceType: "image"});
+
+  await context.routes[0].handler(route);
+
+  assert.deepEqual(route.actions, [{type: "fulfill", status: 200}]);
+  assert.equal(gate.snapshot().enforcement_failed, false);
+  assert.equal(responseCache.get(httpUrl)?.body.toString(), "retained-http-bytes");
+});
+
 test("documents and no-store assets keep using the unchanged request gate", async () => {
   const clock = createClock();
   const gate = createBrowserRequestGate({intervalMs: 4_000, now: clock.now, sleep: clock.sleep});
