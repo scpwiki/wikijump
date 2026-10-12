@@ -256,6 +256,20 @@ test("imported Wikidot-layout footer reproduces the live Wikidot destinations", 
     "Please create a Wikidot account and/or sign in first"
   )
   await expect(page.locator(".owindow .button-bar a")).toBeFocused()
+  // jQuery's fadeOut ticks once synchronously, so the error window carries
+  // inline opacity 1 before any frame or timer runs.
+  expect(
+    await page.evaluate(() => {
+      document.querySelector<HTMLElement>(".owindow .button-bar a")?.click()
+      return document.querySelector<HTMLElement>(".owindow")?.style.opacity
+    })
+  ).toBe("1")
+  await expect(page.locator("#odialog-container")).toHaveAttribute(
+    "style",
+    "display: none;"
+  )
+  await page.locator("#abuse-report-button").click()
+  await expect(page.locator(".owindow .button-bar a")).toBeFocused()
   await page.keyboard.press("Enter")
   await expect(page.locator("#odialog-container")).toHaveAttribute(
     "style",
