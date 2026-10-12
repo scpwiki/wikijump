@@ -51,6 +51,7 @@ pub(super) struct RenderContext {
 
 #[derive(Clone, Debug)]
 pub(super) struct RenderInnerOptions<'a> {
+    pub(super) observed_user_info: Option<Vec<ftml::data::UserInfo<'static>>>,
     pub(super) render_context: RenderContext,
     pub(super) viewer_user_id: Option<i64>,
     pub(super) current_page_data_form_values: Option<BTreeMap<String, String>>,

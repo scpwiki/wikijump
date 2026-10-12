@@ -3,7 +3,7 @@
   "source_identities": {
     "jsonrpc_registry": {
       "path": "deepwell/src/api.rs",
-      "sha256": "fe7a45ac2db8a976463345b6ab02964cfdf4c9a0aa889d39cdab0cc8a7c3f73b"
+      "sha256": "14d8943265e024322e75b6f05c3fa4ffab7aaaf5aa9e3a1b3947c173b1706e45"
     },
     "request_context_middleware": {
       "path": "deepwell/src/middleware.rs",
@@ -26,7 +26,7 @@
       "classification": "historical"
     }
   ],
-  "method_count": 180,
+  "method_count": 181,
   "methods": [
     {
       "method": "admin_view",
@@ -3326,12 +3326,72 @@
       }
     },
     {
+      "method": "import_wikidot_discussion",
+      "endpoint_owner": {
+        "component": "deepwell",
+        "handler": "import_wikidot_discussion",
+        "source": "deepwell/src/endpoints/import.rs#import_wikidot_discussion",
+        "source_sha256": "24373036dcdcb55870100716ec66a357758c75728192ba6b495a77e94c1cb0ae",
+        "function_sha256": "10432b1db65634b2c92496b20c6461e141755fddac100e7fde37bf9736a4db3b"
+      },
+      "params_schema": {
+        "transport": "jsonrpsee::types::params::Params<'static>",
+        "parameter_name": "params",
+        "decoder": "parse!(params, DatabaseImport)"
+      },
+      "actor_context": {
+        "transport_authentication": {
+          "header_symbol": "AUTHORIZATION",
+          "header": "Authorization",
+          "scheme": "Bearer",
+          "token_format": "64 lowercase hexadecimal characters",
+          "duplicate_values": "rejected"
+        },
+        "request_context_headers": [
+          {
+            "header": "X-Deepwell-Session-Token",
+            "target": "session_token"
+          },
+          {
+            "header": "X-Deepwell-Site-Id",
+            "target": "site_id"
+          },
+          {
+            "header": "X-Deepwell-Page",
+            "target": "page_ref"
+          }
+        ],
+        "requirements": [
+          "mutation_authorization"
+        ],
+        "requirement_sources": [
+          "deepwell/src/endpoints/import.rs#import_wikidot_discussion"
+        ]
+      },
+      "mutation_class": {
+        "classification": "mutating",
+        "source_signals": [
+          "ImportService::add_discussion"
+        ]
+      },
+      "transaction_isolation": "default",
+      "test_witness": {
+        "kind": "endpoint_behavioral",
+        "reference": "deepwell/tests/discussion_import.rs#discussion_import_rejects_foreign_threads_and_incomplete_graph_before_identity_writes",
+        "alternatives": [
+          "deepwell/tests/discussion_import.rs#imported_discussion_preserves_ids_appends_revisions_and_creates_no_account",
+          "deepwell/tests/mutation_authorization.rs#wikidot_database_import_endpoints_require_platform_staff"
+        ],
+        "source_contract_reference": "install/local/wikidot-verification/tests/deepwell-jsonrpc-contract-manifest.test.mjs#Deepwell JSON-RPC manifest exactly covers the current registered contract"
+      }
+    },
+    {
       "method": "import_wikidot_page",
       "endpoint_owner": {
         "component": "deepwell",
         "handler": "import_wikidot_page",
         "source": "deepwell/src/endpoints/import.rs#import_wikidot_page",
-        "source_sha256": "92584fcf1144f3cdf3891639daf443eab9fd07d190070c1a659489b12e694ec2",
+        "source_sha256": "24373036dcdcb55870100716ec66a357758c75728192ba6b495a77e94c1cb0ae",
         "function_sha256": "da644f3051464bc6d433b51363d9d268d6beb3372d0a26045b7df3f0a9e60e91"
       },
       "params_schema": {
@@ -3392,7 +3452,7 @@
         "component": "deepwell",
         "handler": "import_wikidot_page_revision",
         "source": "deepwell/src/endpoints/import.rs#import_wikidot_page_revision",
-        "source_sha256": "92584fcf1144f3cdf3891639daf443eab9fd07d190070c1a659489b12e694ec2",
+        "source_sha256": "24373036dcdcb55870100716ec66a357758c75728192ba6b495a77e94c1cb0ae",
         "function_sha256": "161a3576abeb9101632a007906bbca70c72025dfc271214a4567881732f0abbc"
       },
       "params_schema": {
@@ -3453,7 +3513,7 @@
         "component": "deepwell",
         "handler": "import_wikidot_site",
         "source": "deepwell/src/endpoints/import.rs#import_wikidot_site",
-        "source_sha256": "92584fcf1144f3cdf3891639daf443eab9fd07d190070c1a659489b12e694ec2",
+        "source_sha256": "24373036dcdcb55870100716ec66a357758c75728192ba6b495a77e94c1cb0ae",
         "function_sha256": "d331b90f4c871cb978f761ce2a529eb964ae1de37e33fd54f98a1982ced93364"
       },
       "params_schema": {
@@ -3510,7 +3570,7 @@
         "component": "deepwell",
         "handler": "import_wikidot_user",
         "source": "deepwell/src/endpoints/import.rs#import_wikidot_user",
-        "source_sha256": "92584fcf1144f3cdf3891639daf443eab9fd07d190070c1a659489b12e694ec2",
+        "source_sha256": "24373036dcdcb55870100716ec66a357758c75728192ba6b495a77e94c1cb0ae",
         "function_sha256": "07634cc243555e6a4950e34f9d49a0681a2af40311bab006648fca078bc0678c"
       },
       "params_schema": {

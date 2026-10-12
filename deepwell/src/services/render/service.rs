@@ -738,6 +738,16 @@ impl RenderService {
         page_info: &PageInfo<'_>,
         settings: &WikitextSettings,
     ) -> Result<RenderOutput> {
+        Self::render_with_observed_users(ctx, wikitext, page_info, settings, None).await
+    }
+
+    pub(crate) async fn render_with_observed_users(
+        ctx: &ServiceContext<'_>,
+        wikitext: String,
+        page_info: &PageInfo<'_>,
+        settings: &WikitextSettings,
+        observed_user_info: Option<Vec<ftml::data::UserInfo<'static>>>,
+    ) -> Result<RenderOutput> {
         let wikitext_len = wikitext.len();
         let render_cost_budget = RenderCostBudget::new_default();
         let make_error = || {
@@ -761,6 +771,7 @@ impl RenderService {
             page_info,
             settings,
             RenderInnerOptions {
+                observed_user_info,
                 render_context: RenderContext::none(),
                 viewer_user_id: None,
                 current_page_data_form_values: None,
@@ -807,6 +818,7 @@ impl RenderService {
             page_info,
             &settings,
             RenderInnerOptions {
+                observed_user_info: None,
                 render_context: RenderContext::page_nav(site_id, category_id, page_id),
                 viewer_user_id: None,
                 current_page_data_form_values: None,
@@ -869,6 +881,7 @@ impl RenderService {
             &page_info,
             &settings,
             RenderInnerOptions {
+                observed_user_info: None,
                 render_context: RenderContext::ajax_module(site_id),
                 // The random ListPages cache retains only an order seed.
                 // Re-evaluate candidates and visibility for the current AMC
@@ -1109,6 +1122,7 @@ impl RenderService {
             page_info,
             &page_settings,
             RenderInnerOptions {
+                observed_user_info: None,
                 render_context: if persist_page_artifacts {
                     RenderContext::page(site_id, category_id, page_id)
                 } else {
@@ -1153,6 +1167,7 @@ impl RenderService {
                             page_info,
                             nav_settings,
                             RenderInnerOptions {
+                                observed_user_info: None,
                                 render_context: RenderContext::page_nav(
                                     site_id,
                                     category_id,
@@ -1959,6 +1974,7 @@ impl RenderService {
         // future instead of accumulating poll frames.
         tokio::task::yield_now().await;
         let RenderInnerOptions {
+            observed_user_info,
             render_context,
             viewer_user_id,
             current_page_data_form_values,
@@ -2041,6 +2057,7 @@ impl RenderService {
             trace,
             persist_compiled_text,
             trusted_corpus_render,
+            observed_user_info,
         ))
         .await
     }
@@ -2078,6 +2095,7 @@ impl RenderService {
             None,
             false,
             false,
+            None,
         )
         .await
     }
@@ -2098,6 +2116,7 @@ impl RenderService {
         trace: Option<(&CorpusRenderTrace, CorpusRenderScope)>,
         persist_compiled_text: bool,
         trusted_corpus_render: bool,
+        observed_user_info: Option<Vec<ftml::data::UserInfo<'static>>>,
     ) -> Result<RenderInnerOutput> {
         let config = ctx.config();
         let make_error =
@@ -2423,7 +2442,13 @@ impl RenderService {
             ),
             None => None,
         };
-        let user_info = UserInfoSnapshot::load(ctx, &user_references).await?;
+        let user_info = match observed_user_info {
+            Some(users) => UserInfoSnapshot::from_observed(users),
+            None => {
+                UserInfoSnapshot::load(ctx, &user_references, render_settings.layout)
+                    .await?
+            }
+        };
         let render_queued_at = worker_trace.as_ref().map(|_| Instant::now());
         let render_task = task::spawn_blocking(move || {
             let trace = worker_trace.as_ref().map(|(trace, scope)| (trace, *scope));

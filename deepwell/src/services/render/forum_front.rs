@@ -244,7 +244,7 @@ pub(super) async fn load(
                     "JOIN LATERAL (SELECT COUNT(fp.forum_post_id) AS post_count ",
                     " FROM forum_post fp WHERE fp.forum_thread_id = t.forum_thread_id ",
                     " AND fp.site_id = t.site_id AND fp.deleted_at IS NULL) counts ON TRUE ",
-                    "LEFT JOIN wikidot_user wu ON wu.user_id = root_post.user_id ",
+                    "LEFT JOIN wikidot_display_user wu ON wu.user_id = root_post.user_id ",
                     " AND wu.is_deleted = FALSE ",
                     "LEFT JOIN \"user\" local_user ON local_user.user_id = root_post.user_id ",
                     " AND local_user.deleted_at IS NULL ",

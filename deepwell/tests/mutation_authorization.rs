@@ -142,6 +142,7 @@ async fn wikidot_database_import_endpoints_require_platform_staff() {
     let mut runner = TestRunner::setup().await;
 
     let anonymous_errors = [
+        run_endpoint_err!(runner, import_wikidot_discussion, json!({})),
         run_endpoint_err!(runner, import_wikidot_user, json!({})),
         run_endpoint_err!(runner, import_wikidot_site, json!({})),
         run_endpoint_err!(runner, import_wikidot_page, json!({})),
@@ -156,6 +157,7 @@ async fn wikidot_database_import_endpoints_require_platform_staff() {
         ..Default::default()
     });
     let non_staff_errors = [
+        run_endpoint_err!(runner, import_wikidot_discussion, json!({})),
         run_endpoint_err!(runner, import_wikidot_user, json!({})),
         run_endpoint_err!(runner, import_wikidot_site, json!({})),
         run_endpoint_err!(runner, import_wikidot_page, json!({})),

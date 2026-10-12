@@ -596,3 +596,51 @@ node install/local/wikidot-verification/scripts/run-standing-browser-parity.mjs 
 The live policy is sealed before any browser request and names each tolerated external failure exactly. A candidate identity is sealed before local capture and binds its repository/tree, FTML pin, immutable image IDs, isolated configuration hashes, owner/expiry, non-443 endpoint, loopback address, and evidence seal. Before opening the browser, and again after browser, proxy, request-gate, and lock closure, the runner independently inspects the candidate Compose project. Every declared role must be running exactly once with the sealed image, provenance labels, expiry, artifact key, configuration hash, and a Caddy HTTPS mapping limited to the declared loopback non-443 endpoint. The identity also carries the expected aggregate hash of effective Docker service configuration. The runner computes that hash from command, entrypoint, environment, mounts, network, port, and security settings without recording secret values. Candidate mode runs only from a clean source checkout whose exact Wikijump tree and FTML lock pin match the candidate, and binds a canonical manifest of every parity module into the receipt. Standing mode instead binds the proof to the validated refresh receipt and keeps both canonical local HTTPS origins unchanged; local file redirects are resolved through retained evidence before Chromium follows them so a missing mirrored file does not turn a source response into a different cross-origin browser observation. The resulting receipts reject a missing canary, stale or mismatched source identity, local-only anomaly, omitted screenshot, incomplete load/font/image observation, or a record that lacks the `DOMContentLoaded` observation. A terminal ledger and receipt are published only after clean closure, with the final shared-gate snapshot bound into both. The immediate capture is DOM/CSS evidence at `DOMContentLoaded`, not a compositor-filmstrip claim.
 
 For a direct Framerail candidate that is not behind WWS, `--site-id ID` injects the non-secret trusted routing identity for the fixed `scp-wiki` authority. Omit it when exercising the complete edge path.
+
+
+## Bounded corpus page discussion import
+
+`capture-corpus-discussion-identities.py` is an explicit discovery tool. Run it
+through the local `wikidot.py` fork's pinned environment, with a previously
+retained thread document, its source URL, a private output directory, and a
+private response cache. It reads only `forum/ForumViewThreadPostsModule` as an
+anonymous actor. Persistent cache barriers prevent refetch after interrupted
+acquisition; complete responses replay without network access. Replay retains
+the original response capture time. This is not a CI acquisition command.
+
+`build-corpus-discussion-manifest.mjs` is offline. Its explicit inputs are the
+shared corpus root/branch/page, retained page DOM and thread document, visible
+and complete forum structure documents, the identity observation, target site
+and page IDs, and output path. It requires complete corpus membership and
+immutable post payloads, agrees with the retained source inventory and body,
+and binds their hashes in a `wikijump.corpus_discussion_import_manifest.v1`.
+XML-RPC avatar placeholders resolve only against the exact corresponding live
+user image authority. Attribute ordering introduced by the source client's
+HTML serializer is irrelevant to this data comparison; all values, DOM nodes,
+styles, timestamps and internal text remain compared.
+
+Send the manifest's `params` to `import_wikidot_discussion` with the existing
+trusted Deepwell service and platform-staff request actor. Caller-supplied
+user IDs do not authorize the import. The target must be an active imported
+page with a matching corpus page snapshot and comment count. The transaction
+preserves source category/thread/post IDs and reply links, appends changed
+post revisions, and journals source provenance. Identical snapshots are
+idempotent; older/conflicting observations, foreign IDs, local revisions,
+ambiguous containers, unobserved removals and restores fail closed. Deletion
+reconciliation, ordinary forum thread import, private source acquisition, and
+complete site forum import remain outside this bounded operation (#2075).
+
+Public identity observations populate `known_user` and descriptive metadata,
+without creating login accounts, roles, sessions, registration dates or full
+profiles. Full profiles remain authoritative for profile/directory surfaces.
+Wikidot user syntax and public forum author projection may use the observed
+identity. A cached source post body can retain a pre-rename identity while its
+author metadata is current; these observations stay scoped to the imported
+revision and pass through the ordinary FTML user resolver, not a copied HTML
+body. Source edits create revisions without fabricating missing history.
+
+Renderer epoch 17 marks the persisted rendering change. A candidate must run
+its normal source-owned rerender/finalizer before saved-page acceptance.
+Import into the isolated candidate first. Standing still requires the normal
+promotion and fresh browser proof; a manifest or successful import is not a
+compatibility acceptance receipt.
