@@ -83,7 +83,7 @@ fn syntax_renderer_streams_rendered_and_invalid_cases_as_json_lines() {
     assert!(anchor_whitespace["html"]
         .as_str()
         .unwrap()
-        .contains(r##"<a class="home" href="#">Front Page</a> <a href="#u-target-1">About Fog </a>"##));
+        .contains(r##"<a class="home" href="#">Front Page</a> <a href="#u-target-1">About Fog</a></p>"##));
 
     let default_context = &records[2];
     assert_eq!(default_context["case_id"], "renderer-default-context");
