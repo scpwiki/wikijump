@@ -9,6 +9,7 @@ import {
   requestWikidotPageDiscussion,
   sourceShowsStandardWikidotPageActions,
   wikidotPageActionVisibility,
+  wikidotPageDiscussHref,
   wikidotPageDiscussionPath
 } from "../src/lib/wikidot/wikidot-page-actions.js"
 
@@ -231,4 +232,30 @@ test("detects direct Wikidot fragment pages from page tags", () => {
   assert.equal(isWikidotFragmentPage(["scp"]), false)
   assert.equal(isWikidotFragmentPage([]), false)
   assert.equal(isWikidotFragmentPage(null), false)
+})
+
+test("Discuss links straight to an existing thread by the page name, as Wikidot does", () => {
+  assert.equal(
+    wikidotPageDiscussHref({ discussionThreadId: 17768232, pageSlug: "scp-9506" }),
+    "/forum/t-17768232/scp-9506"
+  )
+  assert.equal(
+    wikidotPageDiscussHref({ discussionThreadId: 102848, pageSlug: "forum:start" }),
+    "/forum/t-102848/forum:start"
+  )
+})
+
+test("Discuss keeps the create-thread action without a thread or a Wikidot page name", () => {
+  for (const input of [
+    { discussionThreadId: null, pageSlug: "scp-9506" },
+    { discussionThreadId: 0, pageSlug: "scp-9506" },
+    { discussionThreadId: 1.5, pageSlug: "scp-9506" },
+    { discussionThreadId: 17768232, pageSlug: "" },
+    { discussionThreadId: 17768232, pageSlug: "../admin" },
+    { discussionThreadId: 17768232, pageSlug: "a:b:c" },
+    { discussionThreadId: 17768232, pageSlug: "SCP-9506" },
+    { discussionThreadId: 17768232, pageSlug: null }
+  ]) {
+    assert.equal(wikidotPageDiscussHref(input), null, JSON.stringify(input))
+  }
 })

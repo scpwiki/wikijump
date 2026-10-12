@@ -175,3 +175,53 @@ test("imported page-info remains sourced from its retained Wikidot snapshot", ()
   assert.match(body, /<a[^>]*id="discuss-button"[^>]*>Discuss \(2\)<\/a>/u)
   assert.doesNotMatch(body, /id="discuss-button"[^>]*onclick=/u)
 })
+
+test("imported Discuss is a plain link to an existing page discussion thread", () => {
+  const response = {
+    ...localFoundPage,
+    data: {
+      ...localFoundPage.data,
+      page: {
+        ...localFoundPage.data.page,
+        slug: "scp-9506",
+        from_wikidot: true,
+        discussion_thread_id: 17768232
+      },
+      wikidot_snapshot: {
+        source_site: "scp-wiki",
+        source_revision_count: 49,
+        source_updated_at: "2026-10-04T21:03:51Z",
+        imported_rating: 461,
+        comments: 95
+      }
+    }
+  }
+
+  const presentation = buildWikidotPagePresentation(response, {
+    hasSession: false,
+    siteLocale: "en",
+    now: Date.parse("2026-10-12T00:00:00Z")
+  })
+  assert.equal(
+    presentation.wikidot_page_actions?.discussHref,
+    "/forum/t-17768232/scp-9506"
+  )
+
+  const body = render(pageComponent, {
+    props: {
+      data: {
+        ...response.data,
+        ...presentation,
+        site: { locale: "en" },
+        internationalization: {}
+      }
+    },
+    context: new Map([[PAGE_LAYOUT_CONTEXT_KEY, { current: Layout.WIKIDOT }]])
+  }).body
+
+  assert.match(
+    body,
+    /<a href="\/forum\/t-17768232\/scp-9506" class="btn btn-default(?: svelte-[a-z0-9]+)?" id="discuss-button">Discuss \(95\)<\/a>/u
+  )
+  assert.doesNotMatch(body, /id="discuss-button"[^>]*onclick=/u)
+})

@@ -2,7 +2,8 @@ import defaults from "$lib/defaults"
 
 import {
   buildWikidotPageActionLabels,
-  wikidotPageActionVisibility
+  wikidotPageActionVisibility,
+  wikidotPageDiscussHref
 } from "$lib/wikidot/wikidot-page-actions"
 import { buildWikidotPageInfoText } from "$lib/wikidot/wikidot-page-info"
 import { buildWikidotPageWatchLabel } from "$lib/wikidot/wikidot-page-watch"
@@ -224,13 +225,19 @@ export const buildWikidotPagePresentation = (
 
   return {
     wikidot_page_info: wikidotPageInfo,
-    wikidot_page_actions: buildWikidotPageActionLabels({
-      rating: snapshot?.imported_rating ?? null,
-      comments: sourceCommentCount,
-      locale: siteLocale,
-      showRate,
-      showDiscuss
-    }),
+    wikidot_page_actions: {
+      ...buildWikidotPageActionLabels({
+        rating: snapshot?.imported_rating ?? null,
+        comments: sourceCommentCount,
+        locale: siteLocale,
+        showRate,
+        showDiscuss
+      }),
+      discussHref: wikidotPageDiscussHref({
+        discussionThreadId: response.data.page.discussion_thread_id,
+        pageSlug: response.data.page.slug
+      })
+    },
     wikidot_page_watch: buildWikidotPageWatchLabel({
       sourceSite: snapshot?.source_site,
       hasSession,
