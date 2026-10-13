@@ -4,6 +4,11 @@ import path from 'node:path';
 
 import { codePointCompare, sha256Hex, stableStringify } from './canonical-json.mjs';
 import { isWikidotResourceHost } from './resource-manifest.mjs';
+import {
+  DEFAULT_CLOSURE_MAX_DEPTH,
+  DEFAULT_CLOSURE_MAX_PAGES,
+  expandIncludeClosure,
+} from './corpus-include-closure.mjs';
 
 export { sha256Hex, stableStringify } from './canonical-json.mjs';
 
@@ -660,13 +665,65 @@ function rowFromRecord({
   return row;
 }
 
-export function buildCorpusImportManifest({ corpusRoot = null, sourceBundleRoot = null, branch, sourceSite = null, sourceBranch = null, fullnames: fullnameFilter = null }) {
+export function summarizeIncludeClosure(closure) {
+  return {
+    included_count: closure.included.length,
+    added_count: closure.included.filter((page) => page.depth > 0).length,
+    max_depth: closure.included.reduce((max, page) => Math.max(max, page.depth), 0),
+    unresolved: [...closure.unresolved].sort(codePointCompare),
+    external: [...closure.external].sort(codePointCompare),
+    dynamic_target_count: closure.dynamic,
+    truncated: [...closure.truncated].sort(codePointCompare),
+  };
+}
+
+function corpusPageSourceAccess(pagesRoot) {
+  return {
+    pageExists: (slug) => fs.existsSync(path.join(pagesRoot, slug, 'source.wikidot.txt')),
+    readSource: (slug) => {
+      const sourcePath = path.join(pagesRoot, slug, 'source.wikidot.txt');
+      return fs.existsSync(sourcePath) ? readText(sourcePath) : null;
+    },
+  };
+}
+
+function resolveIncludeClosure({ pagesRoot, sourceSite, requestedFullnames, includeClosure }) {
+  const {
+    maxDepth = DEFAULT_CLOSURE_MAX_DEPTH,
+    maxPages = DEFAULT_CLOSURE_MAX_PAGES,
+    allowUnresolved = false,
+  } = includeClosure;
+  if (!Number.isInteger(maxDepth) || maxDepth < 0) {
+    throw new Error('includeClosure.maxDepth must be a non-negative integer');
+  }
+  if (!Number.isInteger(maxPages) || maxPages <= 0) {
+    throw new Error('includeClosure.maxPages must be a positive integer');
+  }
+  const { pageExists, readSource } = corpusPageSourceAccess(pagesRoot);
+  const closure = expandIncludeClosure({
+    roots: [...requestedFullnames].sort(codePointCompare),
+    readSource,
+    pageExists,
+    sourceSite,
+    maxDepth,
+    maxPages,
+  });
+  if (closure.unresolved.length > 0 && !allowUnresolved) {
+    throw new Error(`include closure has unresolved same-site targets: ${[...closure.unresolved].sort(codePointCompare).join(', ')}`);
+  }
+  return closure;
+}
+
+export function buildCorpusImportManifest({ corpusRoot = null, sourceBundleRoot = null, branch, sourceSite = null, sourceBranch = null, fullnames: fullnameFilter = null, includeClosure = null }) {
   if ((corpusRoot === null) === (sourceBundleRoot === null)) {
     throw new Error('exactly one of corpusRoot or sourceBundleRoot is required');
   }
   if (sourceBundleRoot !== null) {
     if (fullnameFilter !== null) {
       throw new Error('fullnames filtering is only supported with corpusRoot');
+    }
+    if (includeClosure !== null) {
+      throw new Error('includeClosure expansion is only supported with corpusRoot');
     }
     const sourceBundleInput = { sourceBundleRoot, sourceSite };
     if (sourceBranch !== null) sourceBundleInput.sourceBranch = sourceBranch;
@@ -680,16 +737,30 @@ export function buildCorpusImportManifest({ corpusRoot = null, sourceBundleRoot 
   if (requestedFullnames !== null && requestedFullnames.size === 0) {
     throw new Error('fullnames filter must name at least one page');
   }
+  if (includeClosure !== null && requestedFullnames === null) {
+    throw new Error('includeClosure expansion requires explicit fullnames');
+  }
+  const closure = includeClosure === null
+    ? null
+    : resolveIncludeClosure({ pagesRoot, sourceSite: effectiveSourceSite, requestedFullnames, includeClosure });
+  const closureBySlug = closure === null
+    ? null
+    : new Map(closure.included.map((page) => [page.slug, page]));
+  const wantedFullnames = closure === null
+    ? requestedFullnames
+    : new Set(closure.included.map((page) => page.slug));
   const entries = fs.readdirSync(pagesRoot, { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
-    .filter((entry) => requestedFullnames === null || requestedFullnames.has(entry.name))
+    .filter((entry) => wantedFullnames === null || wantedFullnames.has(entry.name))
     .map((entry) => entry.name)
     .sort(codePointCompare);
   // Requested pages absent from the corpus must fail closed, not silently
-  // shrink the manifest.
-  if (requestedFullnames !== null && entries.length !== requestedFullnames.size) {
+  // shrink the manifest. With closure expansion the wanted set is the
+  // closure union; explicit roots are still validated by the same rule.
+  const expectedFullnames = wantedFullnames ?? requestedFullnames;
+  if (expectedFullnames !== null && entries.length !== expectedFullnames.size) {
     const found = new Set(entries);
-    const missing = [...requestedFullnames].filter((name) => !found.has(name)).sort(codePointCompare);
+    const missing = [...expectedFullnames].filter((name) => !found.has(name)).sort(codePointCompare);
     throw new Error(`fullnames not found in corpus ${pagesRoot}: ${missing.join(', ')}`);
   }
 
@@ -740,7 +811,7 @@ export function buildCorpusImportManifest({ corpusRoot = null, sourceBundleRoot 
       ),
     });
 
-    rows.push(rowFromRecord({
+    const row = rowFromRecord({
       sourceSite: effectiveSourceSite,
       sourceBranch: effectiveSourceBranch,
       sourceEntityId: entityId,
@@ -751,7 +822,13 @@ export function buildCorpusImportManifest({ corpusRoot = null, sourceBundleRoot 
       entityIdPath,
       meta,
       attachments,
-    }));
+    });
+    if (closureBySlug !== null) {
+      const closurePage = closureBySlug.get(meta.fullname);
+      row.closure_depth = closurePage?.depth ?? 0;
+      row.closure_via = closurePage?.via ?? null;
+    }
+    rows.push(row);
   }
 
   return rows;

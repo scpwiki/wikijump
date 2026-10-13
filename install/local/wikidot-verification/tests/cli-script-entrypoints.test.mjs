@@ -171,12 +171,24 @@ test("corpus manifest CLI requires one source and derives corpus provenance", ()
     output: "manifest.jsonl",
     summary: "summary.json",
     fullnames: ["scp-1000"],
+    includeClosure: false,
+    closureMaxDepth: 32,
+    closureMaxPages: 10000,
+    allowUnresolvedClosure: false,
   });
+  assert.deepEqual(parseBuildManifestArgs([
+    "--corpus-root", "/tmp/corpus",
+    "--fullname", "scp-1000",
+    "--include-closure",
+    "--output", "manifest.jsonl",
+    "--summary", "summary.json",
+  ]).includeClosure, true);
   assert.throws(
     () => parseBuildManifestArgs(["--corpus-root", "a", "--source-bundle", "b", "--output", "o", "--summary", "s"]),
     /exactly one/u,
   );
   assert.match(buildManifestUsage(), /source-bundle/u);
+  assert.match(buildManifestUsage(), /include-closure/u);
 });
 
 test("report CLIs expose structural exit rules without reading artifacts", () => {

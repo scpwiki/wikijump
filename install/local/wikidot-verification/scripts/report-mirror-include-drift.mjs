@@ -12,9 +12,15 @@ import path from 'node:path';
 import {runCliIfMain} from '../src/cli-entry.mjs';
 import {createSqlExecutor} from '../src/corpus-import-sql.mjs';
 import {sqlInt, sqlQuote} from '../src/corpus-import-sql-values.mjs';
+import {
+  includeTargetSlug,
+  stripInactiveSourceSpans,
+  INCLUDE_PATTERN,
+} from '../src/corpus-include-closure.mjs';
 
-const INCLUDE = /\[\[\s*include\s+([^\s\]|]+)/giu;
-const SLUG = /^[a-z0-9][a-z0-9:_-]*$/u;
+const INCLUDE = INCLUDE_PATTERN;
+
+export { includeTargetSlug };
 
 export function parseArgs(argv) {
   const args = {
@@ -53,23 +59,6 @@ export function usage() {
   return 'Usage: report-mirror-include-drift.mjs --corpus-root <path> --root <slug>... [--branch en] [--source-site scp-wiki] [--site-id <id>] [--db-container <name> | --db-url <url>]';
 }
 
-/**
- * Normalize an include target to a local slug, or null when it names another
- * site, depends on an include variable, or is not a page name (for example
- * escaped documentation text).
- */
-export function includeTargetSlug(target, sourceSite) {
-  let slug = target.trim();
-  if (slug.includes('{$')) return null;
-  const crossSite = /^:([^:]+):(.+)$/u.exec(slug);
-  if (crossSite) {
-    if (crossSite[1].toLowerCase() !== sourceSite) return null;
-    slug = crossSite[2];
-  }
-  slug = slug.toLowerCase();
-  return SLUG.test(slug) ? slug : null;
-}
-
 /** Breadth-first include closure, roots first, each slug once. */
 export function includeClosure(roots, readSource, sourceSite) {
   const order = [];
@@ -84,13 +73,13 @@ export function includeClosure(roots, readSource, sourceSite) {
     if (source === null) continue;
     // Raw spans and comments contain display-only documentation. Includes
     // inside code blocks remain active under Wikidot's include contract.
-    const activeSource = source.toString('utf8')
-      .replace(/@@[^\r\n]*?@@/gu, '')
-      .replace(/\[!--[\s\S]*?--\]/gu, '');
+    const activeSource = stripInactiveSourceSpans(source.toString('utf8'));
+    INCLUDE.lastIndex = 0;
     for (const match of activeSource.matchAll(INCLUDE)) {
       const target = includeTargetSlug(match[1], sourceSite);
       if (target && !seen.has(target)) queue.push(target);
     }
+    INCLUDE.lastIndex = 0;
   }
   return order;
 }
