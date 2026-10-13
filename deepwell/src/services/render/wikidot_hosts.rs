@@ -65,8 +65,20 @@ pub(super) fn local_file_host_site_slug(host: &str, config: &Config) -> Option<S
         })
 }
 
+/// Wikidot's own `www` site is the wikidot.com service, not a wiki that owns a
+/// `wdfiles.com` file host. A live Wikidot render of
+/// `[[f=image https://www.wikidot.com/local--files/...]]` keeps the
+/// `https://www.wikidot.com/local--files/...` source as emitted (G06 capture,
+/// sha256 `f4e55f5d…`), so its attachments are neither mapped to
+/// `www.wdfiles.com` nor claimed by a mirror's file host.
+pub(super) fn is_wikidot_www_host(host: &str) -> bool {
+    let host = host.trim().trim_end_matches('.').to_ascii_lowercase();
+
+    matches!(host.as_str(), "www.wikidot.com" | "www.wdfiles.com")
+}
+
 pub(super) fn direct_wdfiles_local_file_url(host: &str, path: &str) -> Option<String> {
-    if !path.starts_with("/local--files/") {
+    if !path.starts_with("/local--files/") || is_wikidot_www_host(host) {
         return None;
     }
 
