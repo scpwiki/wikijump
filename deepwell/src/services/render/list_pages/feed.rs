@@ -291,14 +291,26 @@ impl RenderService {
                     });
                 }
             };
-            let body_html = TextService::get(ctx, &revision.compiled_body_html_hash)
+            let body_html = match TextService::get(ctx, &revision.compiled_body_html_hash)
                 .await
-                .or_raise(|| {
-                    Error::new(
-                        "failed to load ListPages feed page HTML",
-                        ErrorType::Render,
-                    )
-                })?;
+            {
+                Ok(body_html) => body_html,
+                Err(error) if error.error_type == ErrorType::TextNotFound => {
+                    warn!(
+                        "Skipping incomplete ListPages RSS page ID {} ({:?}): no compiled body HTML exists",
+                        page.page_id, page.slug,
+                    );
+                    continue;
+                }
+                Err(error) => {
+                    return Err(error).or_raise(|| {
+                        Error::new(
+                            "failed to load ListPages feed page HTML",
+                            ErrorType::Render,
+                        )
+                    });
+                }
+            };
             let snapshot = snapshot_displays.get(&page.page_id);
             let created_by_html = snapshot
                 .and_then(|snapshot| {
