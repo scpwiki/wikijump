@@ -186,7 +186,72 @@ fn is_optional_no_visible_wikidot_include(page_ref: &PageRef) -> bool {
         || (site.eq_ignore_ascii_case("crom") && page.eq_ignore_ascii_case("pixel"))
 }
 
+/// Wikidot page-name normalization strips trailing colons, so an include
+/// target such as `:scp-wiki:theme:basalt:` resolves to `theme:basalt`.
+/// FTML's normalizer instead keeps the last colon as the category separator,
+/// which lets a trailing colon steal that slot and dashes the real category
+/// separator (`component:license-box:` would look up `component-license-box`).
+/// Strip trailing colons from the page portion of the raw target before the
+/// include scan, so lookup, cross-site resolution, and the missing-include
+/// message all see the normalized name. Targets that would lose their whole
+/// page portion (`:site:`, `::page`) are left to the malformed-target pass.
+pub(super) fn normalize_trailing_colon_include_targets(wikitext: &mut String) {
+    let literal_regions = LiteralRegionIndex::new_wikidot_syntax(wikitext);
+    let directive_starts = wikidot_include_directive_ranges(wikitext)
+        .into_iter()
+        .map(|range| range.start)
+        .collect::<std::collections::HashSet<_>>();
+    let mut replacements = Vec::new();
+    for captures in INCLUDE_TARGET_REGEX.captures_iter(wikitext) {
+        let opening = captures
+            .name("opening")
+            .expect("include capture has an opening");
+        if !directive_starts.contains(&opening.start())
+            || literal_regions.contains(opening.start())
+        {
+            continue;
+        }
+        let target = captures
+            .name("target")
+            .expect("include capture has a target");
+        if let Some(normalized) = strip_trailing_colon_include_target(target.as_str()) {
+            replacements.push((target.range(), normalized));
+        }
+    }
+    replacements.sort_by_key(|(range, _)| range.start);
+    for (range, replacement) in replacements.into_iter().rev() {
+        wikitext.replace_range(range, &replacement);
+    }
+}
+
+fn strip_trailing_colon_include_target(target: &str) -> Option<String> {
+    if !target.ends_with(':') {
+        return None;
+    }
+    let page = match target.strip_prefix(':') {
+        // Cross-site targets keep their site prefix; `::page` stays malformed.
+        Some(qualified) if !qualified.starts_with(':') => {
+            match qualified.split_once(':') {
+                Some((_site, page)) => page,
+                None => return None,
+            }
+        }
+        Some(_) => return None,
+        None => target,
+    };
+    let stripped = page.trim_end_matches(':');
+    if stripped.is_empty() || stripped.len() == page.len() {
+        return None;
+    }
+    let prefix_len = target.len() - page.len();
+    let mut normalized = String::with_capacity(prefix_len + stripped.len());
+    normalized.push_str(&target[..prefix_len]);
+    normalized.push_str(stripped);
+    Some(normalized)
+}
+
 pub(super) fn expand_malformed_include_targets(wikitext: &mut String) {
+    normalize_trailing_colon_include_targets(wikitext);
     if !EMPTY_INCLUDE_TARGET_REGEX.is_match(wikitext)
         && !SITE_ONLY_INCLUDE_TARGET_REGEX.is_match(wikitext)
         && !EMPTY_SITE_INCLUDE_TARGET_REGEX.is_match(wikitext)
@@ -230,6 +295,89 @@ pub(super) fn expand_malformed_include_targets(wikitext: &mut String) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn trailing_colon_include_targets_resolve_to_normalized_pages() {
+        let mut source = concat!(
+            "[[include :scp-wiki:component:license-box:]]\n",
+            "[[include component:license-box-end:]]\n",
+            "[[include :scp-wiki:theme:basalt: centertitle=a|acs-itemnum=a]]\n",
+            "[[include :destinox:metodologia:]]\n",
+        )
+        .to_owned();
+        // Drive the pipeline entry point so the test pins the wiring, not
+        // just the helper.
+        expand_malformed_include_targets(&mut source);
+        assert!(source.contains("[[include :scp-wiki:component:license-box]]"));
+        assert!(source.contains("[[include component:license-box-end]]"));
+        assert!(
+            source.contains(
+                "[[include :scp-wiki:theme:basalt centertitle=a|acs-itemnum=a]]"
+            )
+        );
+        assert!(source.contains("[[include :destinox:metodologia]]"));
+        assert!(!source.contains(":]]"));
+
+        let pages = collect_include_display_pages(&source);
+        let license = PageRef::page_and_site("scp-wiki", "component:license-box");
+        assert_eq!(
+            pages
+                .get(&license)
+                .and_then(|values| values.front())
+                .map(String::as_str),
+            Some("component:license-box"),
+        );
+        let basalt = PageRef::page_and_site("scp-wiki", "theme:basalt");
+        assert_eq!(
+            pages
+                .get(&basalt)
+                .and_then(|values| values.front())
+                .map(String::as_str),
+            Some("theme:basalt"),
+        );
+
+        // A genuinely missing trailing-colon target reports the normalized name,
+        // matching the observed Wikidot message for :destinox:metodologia:.
+        let mut missing_source = "[[include :destinox:metodologia:]]".to_owned();
+        normalize_trailing_colon_include_targets(&mut missing_source);
+        let mut display_pages = collect_include_display_pages(&missing_source);
+        let includes = vec![IncludeRef::page_only(PageRef::page_and_site(
+            "destinox",
+            "metodologia",
+        ))];
+        let mut compat_text = CompatTextFragments::new(&missing_source);
+        let replacements = collect_missing_include_replacements(
+            &includes,
+            &[None::<String>],
+            &mut display_pages,
+            &mut compat_text,
+        );
+        let replacement = replacements.front().expect("replacement exists");
+        assert!(
+            replacement.contains("Included page \"metodologia\" does not exist"),
+            "{replacement}",
+        );
+        assert!(!replacement.contains("metodologia:"), "{replacement}");
+    }
+
+    #[test]
+    fn trailing_colon_normalization_leaves_other_shapes_alone() {
+        for source in [
+            "[[include :scp-wiki:]]",
+            "[[include ::page]]",
+            "[[include ::page:]]",
+            "[[include :scp-wiki:component:license-box-]]",
+            "[[include :scp-wiki:component:license-box]]",
+            "[[code]]\n[[include component:license-box:]]\n[[/code]]",
+        ] {
+            let mut rewritten = source.to_owned();
+            normalize_trailing_colon_include_targets(&mut rewritten);
+            assert_eq!(rewritten, source, "shape must be preserved: {source}");
+        }
+        let mut doubled = "[[include component:license-box::]]".to_owned();
+        normalize_trailing_colon_include_targets(&mut doubled);
+        assert_eq!(doubled, "[[include component:license-box]]");
+    }
 
     #[test]
     fn targetless_include_spacing_matches_each_live_shape() {
