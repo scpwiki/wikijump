@@ -3,7 +3,11 @@
   import { invalidateAll } from "$app/navigation"
   import { errorPopupState } from "$lib/layout/stores.svelte"
   import { getPageLayoutContext } from "$lib/layout/page-layout-context"
-  import { defaultHistoryComparePair } from "$lib/history-compare-defaults"
+  import {
+    comparableHistoryTimelineNumbers,
+    defaultHistoryComparePair,
+    isComparableHistoryRevision
+  } from "$lib/history-compare-defaults"
 
   import { Layout } from "$lib/types"
   import {
@@ -207,6 +211,27 @@
       : "Historical page snapshot unavailable"
   }
 
+  function compareUnavailableLabel() {
+    const key = "wiki-page-revision-diff.unavailable"
+    const translated = data.internationalization?.[key]
+    return translated && translated !== key
+      ? translated
+      : "There are not two page revisions available to compare"
+  }
+
+  // Timeline numbers the Compare selector may offer. File/attachment
+  // events stay visible in the timeline above but are never comparison
+  // endpoints: they are not page-source revisions. Refs #2143.
+  let comparableTimelineNumbers = $derived(
+    comparableHistoryTimelineNumbers([...revisionMap.values()])
+  )
+  let comparePairValid = $derived(
+    fromRevisionNumber !== undefined &&
+      toRevisionNumber !== undefined &&
+      comparableTimelineNumbers.includes(fromRevisionNumber) &&
+      comparableTimelineNumbers.includes(toRevisionNumber)
+  )
+
   async function getRevision(
     timelineNumber: number,
     compiledHtml: boolean,
@@ -352,6 +377,10 @@
                 name="from"
                 value={revisionItem.revision_id}
                 checked={revisionItem.timeline_number === fromRevisionNumber}
+                disabled={!isComparableHistoryRevision(revisionItem)}
+                title={isComparableHistoryRevision(revisionItem)
+                  ? ""
+                  : compareUnavailableLabel()}
                 aria-label={`${data.internationalization?.["wiki-page-revision-diff.from"]}: ${revisionItem.timeline_number + 1}`}
                 onchange={() => {
                   fromRevisionNumber = revisionItem.timeline_number
@@ -364,6 +393,10 @@
                 name="to"
                 value={revisionItem.revision_id}
                 checked={revisionItem.timeline_number === toRevisionNumber}
+                disabled={!isComparableHistoryRevision(revisionItem)}
+                title={isComparableHistoryRevision(revisionItem)
+                  ? ""
+                  : compareUnavailableLabel()}
                 aria-label={`${data.internationalization?.["wiki-page-revision-diff.to"]}: ${revisionItem.timeline_number + 1}`}
                 onchange={() => {
                   toRevisionNumber = revisionItem.timeline_number
@@ -572,7 +605,7 @@
         onchange={clearRevisionDiff}
         bind:value={fromRevisionNumber}
       >
-        {#each [...revisionMap.keys()].sort((a, b) => a - b) as revisionNumber (revisionNumber)}
+        {#each comparableTimelineNumbers as revisionNumber (revisionNumber)}
           <option value={revisionNumber}>{revisionNumber + 1}</option>
         {/each}
       </select>
@@ -584,7 +617,7 @@
         onchange={clearRevisionDiff}
         bind:value={toRevisionNumber}
       >
-        {#each [...revisionMap.keys()].sort((a, b) => a - b) as revisionNumber (revisionNumber)}
+        {#each comparableTimelineNumbers as revisionNumber (revisionNumber)}
           <option value={revisionNumber}>{revisionNumber + 1}</option>
         {/each}
       </select>
@@ -594,7 +627,7 @@
       <button
         bind:this={revisionDiffCompareButton}
         class="action-button clickable"
-        disabled={revisionDiffLoading}
+        disabled={revisionDiffLoading || !comparePairValid}
         onclick={fetchRevisionDiff}
         type="button"
       >
@@ -603,6 +636,9 @@
           : data.internationalization?.["wiki-page-revision-diff.compare"]}
       </button>
     </div>
+    {#if !comparePairValid}
+      <p class="revision-diff-unavailable">{compareUnavailableLabel()}</p>
+    {/if}
     {#if revisionDiff}
       {#if revisionDiff.lines.length === 0}
         <p>{data.internationalization?.["wiki-page-revision-diff.no-changes"]}</p>
@@ -646,6 +682,10 @@
 
   .revision-diff-panel {
     margin-top: 1rem;
+  }
+
+  .revision-diff-unavailable {
+    margin-top: 0.5rem;
   }
 
   .revision-diff-controls {
