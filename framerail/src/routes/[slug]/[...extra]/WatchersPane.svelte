@@ -1,5 +1,7 @@
 <script lang="ts">
   import { deserialize } from "$app/forms"
+  import { getPageLayoutContext } from "$lib/layout/page-layout-context"
+  import { Layout } from "$lib/types"
 
   import WatchersList from "./WatchersList.svelte"
 
@@ -11,10 +13,21 @@
     | { status: "failure" }
     | { status: "success"; items: UserInfo[] }
 
-  let { data }: PageProps = $props()
+  let {
+    data,
+    onPaneReadStateChange
+  }: PageProps & {
+    onPaneReadStateChange?: (state: "loading" | "success" | "failure") => void
+  } = $props()
+  const pageLayoutContext = getPageLayoutContext()
+  let wikidot = $derived(pageLayoutContext.current === Layout.WIKIDOT)
   let state = $state<WatchersState>({ status: "loading" })
   let requestId = 0
   let requestController: AbortController | undefined
+
+  function reportReadState(readState: "loading" | "success" | "failure") {
+    onPaneReadStateChange?.(readState)
+  }
 
   async function getWatchers(pageId: number | undefined) {
     requestController?.abort()
@@ -22,6 +35,7 @@
     const controller = new AbortController()
     requestController = controller
     state = { status: "loading" }
+    reportReadState("loading")
 
     try {
       const response = await fetch("?/watchers", {
@@ -40,13 +54,16 @@
       if (currentRequestId !== requestId) return
       if (result.type !== "success" || !Array.isArray(result.data?.res)) {
         state = { status: "failure" }
+        reportReadState("failure")
         return
       }
 
       state = { status: "success", items: result.data.res }
+      reportReadState("success")
     } catch {
       if (currentRequestId === requestId && !controller.signal.aborted) {
         state = { status: "failure" }
+        reportReadState("failure")
       }
     } finally {
       if (requestController === controller) requestController = undefined
@@ -65,20 +82,31 @@
   })
 </script>
 
-<h1 class="page-watchers-header">Watchers</h1>
-{#if state.status === "loading"}
-  <p role="status">Loading…</p>
-{:else if state.status === "failure"}
-  <p role="alert">
-    Could not load watchers.
-    <button
-      aria-label="Retry loading watchers"
-      onclick={() => void getWatchers(data.page?.page_id)}
-      type="button"
-    >
-      Retry
-    </button>
-  </p>
-{:else}
-  <WatchersList watchers={state.items} />
+<!--
+  Source Wikidot leaves `#action-area` hidden and empty when a read-only
+  WhoWatches request fails (issue #2241): no roster, no error dialog, no
+  retry control, and never a fabricated empty list. The parent hides the
+  action area once this pane reports its read failed, so a failed
+  Wikidot-layout read renders nothing at all. While the read is in flight
+  the pane keeps its loading state (and the parent's close control), and
+  the native layout keeps the visible error/retry affordance.
+-->
+{#if !wikidot || state.status !== "failure"}
+  <h1 class="page-watchers-header">Watchers</h1>
+  {#if state.status === "loading"}
+    <p role="status">Loading…</p>
+  {:else if state.status === "failure"}
+    <p role="alert">
+      Could not load watchers.
+      <button
+        aria-label="Retry loading watchers"
+        onclick={() => void getWatchers(data.page?.page_id)}
+        type="button"
+      >
+        Retry
+      </button>
+    </p>
+  {:else}
+    <WatchersList watchers={state.items} />
+  {/if}
 {/if}

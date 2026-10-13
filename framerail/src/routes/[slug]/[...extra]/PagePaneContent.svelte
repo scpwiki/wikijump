@@ -14,6 +14,7 @@
     wikidot,
     initialFileList = null,
     onFileListVisibilityChange,
+    onPaneReadStateChange,
     setRevision,
     setShowRevision
   }: {
@@ -23,6 +24,10 @@
     wikidot: boolean
     initialFileList?: PageFile[] | null
     onFileListVisibilityChange?: (ready: boolean) => void
+    onPaneReadStateChange?: (
+      pane: "backlinks" | "watchers",
+      readState: "loading" | "success" | "failure"
+    ) => void
     setRevision: (revision: Optional<PageRevisionModelFiltered>) => void
     setShowRevision: (state: boolean) => void
   } = $props()
@@ -104,7 +109,11 @@
     {/if}
   {:else if pagePaneState === PagePane.Backlinks}
     {#if BacklinksPane}
-      <BacklinksPane {...props} />
+      <BacklinksPane
+        {...props}
+        onPaneReadStateChange={(readState: "loading" | "success" | "failure") =>
+          onPaneReadStateChange?.("backlinks", readState)}
+      />
     {:else}
       <p class="pane-loading" aria-live="polite">Loading…</p>
     {/if}
@@ -158,7 +167,11 @@
     {/if}
   {:else if pagePaneState === PagePane.Watchers}
     {#if WatchersPane}
-      <WatchersPane {...props} />
+      <WatchersPane
+        {...props}
+        onPaneReadStateChange={(readState: "loading" | "success" | "failure") =>
+          onPaneReadStateChange?.("watchers", readState)}
+      />
     {:else}
       <p class="pane-loading" aria-live="polite">Loading…</p>
     {/if}

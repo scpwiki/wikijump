@@ -160,10 +160,9 @@ test("anonymous file history has no Revert control and emits no rollback request
   expect(rollbackRequests).toHaveLength(0)
 })
 
-test("authorized file history retains its existing rollback request", async ({
-  page
-}) => {
+test("cancelled file revert sends no rollback request", async ({ page }) => {
   const rollbackRequests: Route[] = []
+  page.on("dialog", (dialog) => void dialog.dismiss())
   await page.setExtraHTTPHeaders(AUTHENTICATED_HEADERS)
   await openFileHistory(page, true, rollbackRequests)
 
@@ -172,8 +171,28 @@ test("authorized file history retains its existing rollback request", async ({
   )
   await expect(revertControl).toHaveCount(1)
   await revertControl.click()
+  await page.waitForTimeout(300)
 
-  await expect.poll(() => rollbackRequests.length).toBe(1)
+  expect(rollbackRequests).toHaveLength(0)
+})
+
+test("confirmed file revert sends one rollback request", async ({ page }) => {
+  const rollbackRequests: Route[] = []
+  page.on("dialog", (dialog) => void dialog.accept())
+  await page.setExtraHTTPHeaders(AUTHENTICATED_HEADERS)
+  await openFileHistory(page, true, rollbackRequests)
+
+  const revertControl = page.locator(
+    ".revision-row .revision-attribute.action a, .revision-row .revision-attribute.action button"
+  )
+  await expect(revertControl).toHaveCount(1)
+  const rollbackSent = page.waitForResponse(
+    (response) => new URL(response.url()).search === "?/fileRollback"
+  )
+  await revertControl.click()
+  await rollbackSent
+
+  expect(rollbackRequests).toHaveLength(1)
   expect(JSON.parse(rollbackRequests[0].request().postData() ?? "{}")).toMatchObject({
     siteId: 6000005,
     pageId: 3000340,
