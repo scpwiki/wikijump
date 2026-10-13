@@ -14,6 +14,16 @@ const WIKIDOT_ROUTE_PREFIX: Partial<Record<SiteIconSourceKind, string>> = {
   windows: "/local--wp8icon/"
 }
 
+/**
+ * Whether an icon source is a same-origin local file route.
+ *
+ * Only these sources can be served without depending on Wikidot at request
+ * time; anything else needs materialized bytes to avoid hotlinking.
+ */
+export function isSiteLocalFileSource(source: string): boolean {
+  return safeLocalFileSource(source)
+}
+
 function safeLocalFileSource(source: string): boolean {
   if (!source.startsWith("/local--files/")) return false
 

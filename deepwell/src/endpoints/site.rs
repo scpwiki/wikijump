@@ -24,7 +24,8 @@ use crate::services::MutationAuthorization;
 use crate::services::SettingsService;
 use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::services::site::{
-    CreateSite, CreateSiteOutput, GetSite, GetSiteOutput, UpdateSite,
+    CreateSite, CreateSiteOutput, GetSite, GetSiteIcon, GetSiteIconOutput, GetSiteOutput,
+    SetSiteIcon, SetSiteIconOutput, UpdateSite,
 };
 use crate::types::{Action, AliasType, Permission, Reference, Resource};
 
@@ -137,4 +138,45 @@ pub async fn site_update(
     )
     .await
     .or_raise(|| Error::new("failed to update site data", ErrorType::Site))
+}
+
+pub async fn site_icon_set(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<SetSiteIconOutput> {
+    let SetSiteIcon {
+        site,
+        kind,
+        ip_address,
+        source,
+        mime,
+        data,
+    } = parse!(params, Site);
+    let actor_user_id =
+        MutationAuthorization::require_platform_staff(ctx, "set site icon data")?;
+
+    info!("Setting '{kind}' icon for site reference '{site:?}'");
+    SiteService::set_site_icon(
+        ctx,
+        site,
+        &kind,
+        source,
+        mime,
+        data,
+        actor_user_id,
+        ip_address,
+    )
+    .await
+    .or_raise(|| Error::new("failed to set site icon", ErrorType::Site))
+}
+
+pub async fn site_icon_get(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Option<GetSiteIconOutput>> {
+    let GetSiteIcon { site, kind } = parse!(params, Site);
+
+    SiteService::get_site_icon(ctx, site, &kind)
+        .await
+        .or_raise(|| Error::new("failed to get site icon", ErrorType::Site))
 }

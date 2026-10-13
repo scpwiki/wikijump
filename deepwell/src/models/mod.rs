@@ -40,6 +40,7 @@ pub mod role_permission;
 pub mod session;
 pub mod site;
 pub mod site_domain;
+pub mod site_icon;
 pub mod text;
 pub mod text_block;
 pub mod user;

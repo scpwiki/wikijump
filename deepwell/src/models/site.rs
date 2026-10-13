@@ -105,6 +105,8 @@ pub enum Relation {
     RolePermission,
     #[sea_orm(has_many = "super::site_domain::Entity")]
     SiteDomain,
+    #[sea_orm(has_many = "super::site_icon::Entity")]
+    SiteIcon,
     #[sea_orm(
         belongs_to = "super::site_domain::Entity",
         from = "Column::PreferredDomain",
@@ -216,6 +218,12 @@ impl Related<super::role_permission::Entity> for Entity {
 impl Related<super::site_domain::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::SiteDomain.def()
+    }
+}
+
+impl Related<super::site_icon::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::SiteIcon.def()
     }
 }
 
