@@ -376,3 +376,13 @@ mod tests {
 pub struct PageEditPermissionOutput {
     pub can_edit: bool,
 }
+
+#[derive(Serialize, Debug, Clone)]
+pub struct PageMovePermissionOutput {
+    pub can_move: bool,
+}
+
+#[derive(Serialize, Debug, Clone)]
+pub struct PageDeletePermissionOutput {
+    pub can_delete: bool,
+}

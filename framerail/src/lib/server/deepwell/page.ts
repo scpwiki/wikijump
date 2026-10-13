@@ -432,6 +432,18 @@ export async function pageEditPermission(
   return client.request("page_edit_permission", {}, requestContext)
 }
 
+export async function pageMovePermission(
+  requestContext: RequestContext = {}
+): Promise<{ can_move: boolean }> {
+  return client.request("page_move_permission", {}, requestContext)
+}
+
+export async function pageDeletePermission(
+  requestContext: RequestContext = {}
+): Promise<{ can_delete: boolean }> {
+  return client.request("page_delete_permission", {}, requestContext)
+}
+
 export async function wikidotLegacySetTags(
   pageId: number,
   lastRevisionId: number,
@@ -600,7 +612,10 @@ export async function pageHistory(
         revisionNumber < 0 ||
         revision.timeline_number <= revisionNumber
     )
-    .slice(0, Math.min(Math.max(requestedLimit, 1), MAX_PAGE_HISTORY_REVISIONS)) as PageHistoryEntry[]
+    .slice(
+      0,
+      Math.min(Math.max(requestedLimit, 1), MAX_PAGE_HISTORY_REVISIONS)
+    ) as PageHistoryEntry[]
 }
 
 export interface PageRevisionCountOutput {

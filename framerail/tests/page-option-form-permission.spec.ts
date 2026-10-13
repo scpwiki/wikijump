@@ -41,15 +41,19 @@ const successBody = (value: unknown) =>
   JSON.stringify({ type: "success", status: 200, data: devalue(value) })
 
 /**
- * Open the page `+ Options` menu on the probe page with a stubbed
- * `?/editPermission` answer, and record every permission check.
+ * Open the page `+ Options` menu on the probe page with stubbed permission
+ * answers, and record every permission check. The move and delete routes
+ * are stubbed alongside edit so Move/Delete clicks can be attributed to
+ * their own server gate (issue #2177).
  */
 const openOptionsMenu = async (
   page: Page,
   canEdit: boolean,
   permissionRequests: Route[],
   headers: Record<string, string>,
-  pagePath = "/page-workflow-probe"
+  pagePath = "/page-workflow-probe",
+  moveDeleteGrants: { canMove?: boolean; canDelete?: boolean } = {},
+  moveDeleteRequests: { move?: Route[]; delete?: Route[] } = {}
 ) => {
   await page.setExtraHTTPHeaders(headers)
   await page.route(
@@ -60,6 +64,30 @@ const openOptionsMenu = async (
         status: 200,
         contentType: "application/json",
         body: successBody({ res: { can_edit: canEdit } })
+      })
+    }
+  )
+  await page.route(
+    (url) => url.search === "?/movePermission",
+    async (route) => {
+      moveDeleteRequests.move?.push(route)
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: successBody({ res: { can_move: moveDeleteGrants.canMove ?? false } })
+      })
+    }
+  )
+  await page.route(
+    (url) => url.search === "?/deletePermission",
+    async (route) => {
+      moveDeleteRequests.delete?.push(route)
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: successBody({
+          res: { can_delete: moveDeleteGrants.canDelete ?? false }
+        })
       })
     }
   )
@@ -167,6 +195,108 @@ test.describe("authorized existing-page Append and Parent options", () => {
     await expect(page.locator("#page-parent")).toBeVisible()
     await expect(page.locator("#odialog-container")).toHaveCount(0)
     expect(permissionRequests).toHaveLength(1)
+  })
+})
+
+// Move and Delete must obey their own Wikidot permission boundary (issue
+// #2177): an anonymous click answers with the move/delete denial dialog
+// and mounts no writable form, and each click is attributed to exactly one
+// permission request on its own route.
+test.describe("anonymous existing-page Move and Delete options", () => {
+  test("Move answers with the move-permission dialog and opens no form", async ({
+    page
+  }) => {
+    const permissionRequests: Route[] = []
+    const moveRequests: Route[] = []
+    await openOptionsMenu(
+      page,
+      false,
+      permissionRequests,
+      SITE_HEADERS,
+      "/page-workflow-probe",
+      {},
+      { move: moveRequests }
+    )
+
+    await page.locator("#rename-move-button").click()
+
+    await expect(page.locator("#odialog-container .owindow.error")).toBeVisible()
+    await expect(page.locator("#modal-title")).toHaveText(
+      "You don't have permission to move this page."
+    )
+    await expectNoWritableSurface(page, "#page-move")
+    expect(moveRequests).toHaveLength(1)
+    expect(permissionRequests).toHaveLength(0)
+  })
+
+  test("Delete answers with the delete-permission dialog and opens no form", async ({
+    page
+  }) => {
+    const permissionRequests: Route[] = []
+    const deleteRequests: Route[] = []
+    await openOptionsMenu(
+      page,
+      false,
+      permissionRequests,
+      SITE_HEADERS,
+      "/page-workflow-probe",
+      {},
+      { delete: deleteRequests }
+    )
+
+    await page.locator("#delete-button").click()
+
+    await expect(page.locator("#odialog-container .owindow.error")).toBeVisible()
+    await expect(page.locator("#modal-title")).toHaveText(
+      "You don't have permission to delete this page."
+    )
+    await expectNoWritableSurface(page, "#page-delete")
+    expect(deleteRequests).toHaveLength(1)
+    expect(permissionRequests).toHaveLength(0)
+  })
+})
+
+test.describe("authorized existing-page Move and Delete options", () => {
+  test("Move opens the move form without a permission dialog", async ({ page }) => {
+    const permissionRequests: Route[] = []
+    const moveRequests: Route[] = []
+    await openOptionsMenu(
+      page,
+      false,
+      permissionRequests,
+      AUTHENTICATED_HEADERS,
+      "/page-workflow-probe",
+      { canMove: true },
+      { move: moveRequests }
+    )
+
+    await page.locator("#rename-move-button").click()
+
+    await expect(page.locator("#page-move")).toBeVisible()
+    await expect(page.locator("#odialog-container")).toHaveCount(0)
+    expect(moveRequests).toHaveLength(1)
+    expect(permissionRequests).toHaveLength(0)
+  })
+
+  test("Delete opens the delete form without a permission dialog", async ({ page }) => {
+    const permissionRequests: Route[] = []
+    const deleteRequests: Route[] = []
+    await openOptionsMenu(
+      page,
+      false,
+      permissionRequests,
+      AUTHENTICATED_HEADERS,
+      "/page-workflow-probe",
+      { canDelete: true },
+      { delete: deleteRequests }
+    )
+
+    await page.locator("#delete-button").click()
+
+    await expect(page.locator("#page-delete")).toBeVisible()
+    await expect(page.locator("#odialog-container")).toHaveCount(0)
+    expect(deleteRequests).toHaveLength(1)
+    expect(permissionRequests).toHaveLength(0)
   })
 })
 

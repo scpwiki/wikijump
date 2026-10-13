@@ -6,7 +6,11 @@
   import { getPageLayoutContext } from "$lib/layout/page-layout-context"
   import { errorPopupState } from "$lib/layout/stores.svelte"
   import { Layout, PagePane } from "$lib/types"
-  import { editPermissionDeniedMessage } from "$lib/wikidot/wikidot-locale"
+  import {
+    deletePermissionDeniedMessage,
+    editPermissionDeniedMessage,
+    movePermissionDeniedMessage
+  } from "$lib/wikidot/wikidot-locale"
   import { resolve } from "$app/paths"
   import {
     buildGeneratedPageStylesHead,
@@ -175,19 +179,36 @@
   }
 
   /**
-   * The single edit-permission boundary shared by the option-bar Edit
-   * click and the `#_editpage` / `#_edittags` Hash Magic dispatch. It
-   * calls the same server action and surfaces the same localized denial
-   * dialog; it never grants, denies, or authorizes from hash text.
+   * The permission boundary shared by the option-bar write actions and the
+   * `#_editpage` / `#_edittags` Hash Magic dispatch. Each action calls its
+   * own server action (edit, move, or delete permission, matching the
+   * authority the matching mutation enforces) and surfaces the matching
+   * denial dialog before any writable form is mounted; it never grants,
+   * denies, or authorizes from client state.
    */
-  async function checkEditPermission(): Promise<boolean> {
-    const res = await fetch("?/editPermission", {
+  async function checkPagePermission(kind: "edit" | "move" | "delete"): Promise<boolean> {
+    const routes = {
+      edit: "?/editPermission",
+      move: "?/movePermission",
+      delete: "?/deletePermission"
+    } as const
+    const grantKeys = {
+      edit: "can_edit",
+      move: "can_move",
+      delete: "can_delete"
+    } as const
+    const denialMessages = {
+      edit: editPermissionDeniedMessage(data.site.locale),
+      move: movePermissionDeniedMessage(),
+      delete: deletePermissionDeniedMessage()
+    } as const
+    const res = await fetch(routes[kind], {
       method: "POST",
       body: ""
     }).then((res) => res.text())
 
     const result = deserialize<
-      { res: { can_edit: boolean } },
+      { res: Record<string, boolean> },
       { message: string; code: string; data: Record<string, unknown> }
     >(res)
 
@@ -199,15 +220,20 @@
       }
       return false
     }
-    if (result.type === "success" && result.data?.res && !result.data.res.can_edit) {
+    const grantKey = grantKeys[kind]
+    if (result.type === "success" && result.data?.res && !result.data.res[grantKey]) {
       errorPopupState.current = {
         state: true,
-        message: editPermissionDeniedMessage(data.site.locale),
+        message: denialMessages[kind],
         data: null
       }
       return false
     }
-    return result.type === "success" && result.data?.res?.can_edit === true
+    return result.type === "success" && result.data?.res?.[grantKey] === true
+  }
+
+  async function checkEditPermission(): Promise<boolean> {
+    return checkPagePermission("edit")
   }
 
   async function navigateEdit() {
@@ -270,15 +296,19 @@
 
   /**
    * Opens a page pane after the checks its write surface requires. Append
-   * and Parent write under the page `edit` permission, so they are gated
-   * before their editable form (or protected revision data) is mounted.
-   * Move and Delete are not gated here: Deepwell exposes no move or delete
-   * permission signal to the client, so they keep their existing behavior.
+   * and Parent write under the page `edit` permission; Move writes under
+   * the `rename` permission and Delete under the `delete` permission, each
+   * matching the authority the matching server mutation enforces. The gate
+   * runs before the editable form (or protected revision data) is mounted.
    * The server still rechecks every mutation at submission time.
    */
   async function openPagePane(pane: PagePane) {
     if (pane === PagePane.Append || pane === PagePane.Parent) {
       if (!(await checkEditPermission())) return
+    } else if (pane === PagePane.Move) {
+      if (!(await checkPagePermission("move"))) return
+    } else if (pane === PagePane.Delete) {
+      if (!(await checkPagePermission("delete"))) return
     }
     activatePagePane(pane)
   }
@@ -904,7 +934,7 @@
         id="rename-move-button"
         class="btn btn-default"
         href="javascript:;"
-        onclick={() => activatePagePane(PagePane.Move)}
+        onclick={() => openPagePane(PagePane.Move)}
         type={wikidotPageActions ? undefined : "button"}
       >
         {wikidotPageActions?.rename ??
@@ -915,7 +945,7 @@
         id="delete-button"
         class="btn btn-default"
         href="javascript:;"
-        onclick={() => activatePagePane(PagePane.Delete)}
+        onclick={() => openPagePane(PagePane.Delete)}
         type={wikidotPageActions ? undefined : "button"}
       >
         {wikidotPageActions?.delete ?? data.internationalization?.delete}
