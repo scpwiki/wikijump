@@ -37,6 +37,22 @@ export const createPageDeniedMessage = () =>
   "Sorry, you can not create a new page in this category. Only members of this site, site administrators and perhaps selected moderators are allowed to do it."
 
 /**
+ * Native-equivalent denials for the Move and Delete option-bar actions.
+ * Wikidot answers both with a role-specific PERMISSION ERROR modal before
+ * any form is shown; only the English denial category (move/delete
+ * permission, not a writable form) is evidenced here, so non-English
+ * locales receive the same English sentence until their copy is observed.
+ *
+ * @returns {string}
+ */
+export const movePermissionDeniedMessage = () =>
+  "You don't have permission to move this page."
+
+/** @returns {string} */
+export const deletePermissionDeniedMessage = () =>
+  "You don't have permission to delete this page."
+
+/**
  * Wikidot exposes `ja-corrections` as a site language identifier, but it
  * is not a valid BCP 47 locale and JavaScript's Intl APIs reject it.
  * Preserve the raw identifier at the Wikidot compatibility boundary and

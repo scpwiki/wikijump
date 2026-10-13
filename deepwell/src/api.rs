@@ -524,6 +524,8 @@ async fn build_module(app_state: ServerState) -> Result<RpcModule<ServerState>> 
     register!("wikidot_legacy_set_tags", wikidot_legacy_set_tags);
     register!("page_edit", page_edit);
     register!("page_edit_permission", page_edit_permission);
+    register!("page_move_permission", page_move_permission);
+    register!("page_delete_permission", page_delete_permission);
     register!("page_delete", page_delete);
     register!("page_move", page_move);
     register!("page_rollback", page_rollback);

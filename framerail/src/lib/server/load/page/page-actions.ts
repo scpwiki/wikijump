@@ -1,9 +1,11 @@
 import {
   pageDeleteAction,
+  pageDeletePermissionAction,
   pageEditAction,
   pageEditPermissionAction,
   pageLayoutAction,
-  pageMoveAction
+  pageMoveAction,
+  pageMovePermissionAction
 } from "$lib/server/load/page/page-edit-actions"
 import {
   pageFileDeleteAction,
@@ -52,6 +54,8 @@ export const pageActions = {
   delete: pageDeleteAction,
   edit: pageEditAction,
   editPermission: pageEditPermissionAction,
+  movePermission: pageMovePermissionAction,
+  deletePermission: pageDeletePermissionAction,
   fileList: pageFileListAction,
   fileUpload: pageFileUploadAction,
   fileDelete: pageFileDeleteAction,

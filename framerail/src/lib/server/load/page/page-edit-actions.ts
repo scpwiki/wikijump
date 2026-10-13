@@ -1,9 +1,11 @@
 import {
   pageDelete,
+  pageDeletePermission,
   pageEdit,
   pageEditPermission,
   pageLayout,
   pageMove,
+  pageMovePermission,
   pageParentUpdate
 } from "$lib/server/deepwell/page"
 import { pageView } from "$lib/server/deepwell/views"
@@ -188,6 +190,26 @@ export async function pageEditPermissionAction(event: RequestEvent) {
   try {
     const context = await resolvePageActionRequestContext(event)
     const res = await pageEditPermission(context.requestContext)
+    return { res }
+  } catch (error) {
+    return failForActionError(error)
+  }
+}
+
+export async function pageMovePermissionAction(event: RequestEvent) {
+  try {
+    const context = await resolvePageActionRequestContext(event)
+    const res = await pageMovePermission(context.requestContext)
+    return { res }
+  } catch (error) {
+    return failForActionError(error)
+  }
+}
+
+export async function pageDeletePermissionAction(event: RequestEvent) {
+  try {
+    const context = await resolvePageActionRequestContext(event)
+    const res = await pageDeletePermission(context.requestContext)
     return { res }
   } catch (error) {
     return failForActionError(error)
