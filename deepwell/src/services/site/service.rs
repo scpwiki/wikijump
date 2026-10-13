@@ -52,8 +52,8 @@ pub struct SiteService;
 const RESERVED_PLATFORM_HOSTNAME_SLUGS: &[&str] = &["acme", "dns", "ech"];
 const LOCAL_FILE_SOURCE_PREFIX: &str = "/local--files/";
 
-#[derive(Debug, Copy, Clone)]
-enum SiteIconSourceKind {
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub(super) enum SiteIconSourceKind {
     Favicon,
     Ios,
     Windows,
@@ -65,6 +65,23 @@ impl SiteIconSourceKind {
             Self::Favicon => "favicon",
             Self::Ios => "iOS icon",
             Self::Windows => "Windows tile",
+        }
+    }
+
+    pub(super) fn parse(kind: &str) -> Option<Self> {
+        match kind {
+            "favicon" => Some(Self::Favicon),
+            "ios" => Some(Self::Ios),
+            "windows" => Some(Self::Windows),
+            _ => None,
+        }
+    }
+
+    pub(super) fn as_str(self) -> &'static str {
+        match self {
+            Self::Favicon => "favicon",
+            Self::Ios => "ios",
+            Self::Windows => "windows",
         }
     }
 
@@ -156,7 +173,7 @@ fn is_site_owned_icon_source(
     })
 }
 
-fn validate_site_icon_source(
+pub(super) fn validate_site_icon_source(
     site_slug: &str,
     from_wikidot: bool,
     source: &Option<String>,
@@ -914,7 +931,7 @@ impl SiteService {
         find_or_error!(Self::get_optional(ctx, reference), "site", Site)
     }
 
-    async fn get_for_update(
+    pub(super) async fn get_for_update(
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
     ) -> Result<SiteModel> {

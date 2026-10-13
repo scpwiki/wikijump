@@ -451,6 +451,8 @@ async fn build_module(app_state: ServerState) -> Result<RpcModule<ServerState>> 
     register!("site_create", site_create);
     register!("site_get", site_get);
     register!("site_update", site_update);
+    register!("site_icon_set", site_icon_set);
+    register!("site_icon_get", site_icon_get);
     register!("site_domain", site_get_domain);
 
     // Site bans

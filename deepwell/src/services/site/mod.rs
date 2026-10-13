@@ -18,11 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod icons;
 mod service;
 mod structs;
 
 pub use self::service::SiteService;
 pub use self::structs::{
-    CreateSite, CreateSiteOutput, EducationalUpgrade, GetSite, GetSiteOutput, UpdateSite,
+    CreateSite, CreateSiteOutput, EducationalUpgrade, GetSite, GetSiteIcon,
+    GetSiteIconOutput, GetSiteOutput, SetSiteIcon, SetSiteIconOutput, UpdateSite,
     UpdateSiteBody,
 };

@@ -55,6 +55,46 @@ pub struct GetSite<'a> {
     pub site: Reference<'a>,
 }
 
+#[derive(Deserialize, Debug, Clone)]
+pub struct GetSiteIcon<'a> {
+    pub site: Reference<'a>,
+    pub kind: String,
+}
+
+#[derive(Serialize, Debug, Clone)]
+pub struct GetSiteIconOutput {
+    pub site_id: i64,
+    pub kind: String,
+    pub mime: String,
+    pub sha256_hex: String,
+    pub data: Vec<u8>,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct SetSiteIcon<'a> {
+    pub site: Reference<'a>,
+    pub kind: String,
+    pub ip_address: IpAddr,
+    /// Absent leaves the source untouched, null clears it (and any bytes).
+    #[serde(default)]
+    pub source: Option<Option<String>>,
+    /// Required when `data` sets new bytes.
+    #[serde(default)]
+    pub mime: Option<String>,
+    /// Absent leaves bytes untouched, null deletes them.
+    #[serde(default)]
+    pub data: Option<Option<Vec<u8>>>,
+}
+
+#[derive(Serialize, Debug, Clone)]
+pub struct SetSiteIconOutput {
+    pub site_id: i64,
+    pub kind: String,
+    pub source: Option<String>,
+    pub mime: Option<String>,
+    pub sha256_hex: Option<String>,
+}
+
 #[derive(Serialize, Debug, Clone)]
 pub struct GetSiteOutput {
     #[serde(flatten)]

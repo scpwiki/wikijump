@@ -38,6 +38,7 @@ pub use super::role_permission::Entity as RolePermission;
 pub use super::session::Entity as Session;
 pub use super::site::Entity as Site;
 pub use super::site_domain::Entity as SiteDomain;
+pub use super::site_icon::Entity as SiteIcon;
 pub use super::text::Entity as Text;
 pub use super::text_block::Entity as TextBlock;
 pub use super::user::Entity as User;

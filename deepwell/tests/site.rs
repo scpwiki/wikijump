@@ -22,7 +22,7 @@
 mod common;
 
 use self::common::TestRunner;
-use deepwell::constants::SYSTEM_USER_ID;
+use deepwell::constants::{ADMIN_USER_ID, SYSTEM_USER_ID};
 use deepwell::error::prelude::*;
 use deepwell::license::License;
 use deepwell::models::alias::{self, Entity as AliasTable};
@@ -1522,4 +1522,297 @@ async fn platform_hostname_policy_covers_site_and_alias_lifecycle_paths() {
     .await
     .expect("unrelated slug containing a reserved word should remain valid");
     assert_eq!(unrelated.slug, unrelated_slug);
+}
+
+/// Retained live Wikidot bytes for scp-wiki's favicon route
+/// (`https://scp-wiki.wikidot.com/local--favicon/favicon.gif`, HTTP 200,
+/// `image/gif`, etag `"e711917c63f9c9783d819cc402f3359d"`, captured
+/// 2026-10-12 into `scp9506-live-20261012-chromium149`). The body is a 16x16
+/// PNG despite the gif declaration, which the favicon slot must tolerate.
+const SITE_ICON_FIXTURE: &[u8] =
+    include_bytes!("fixtures/site-icon-favicon-scp-wiki.gif");
+const SITE_ICON_FIXTURE_SHA256: &str =
+    "5dfe8fdaa35561856164200c8619fefa2f22d0668393fb777788df0a00c2bd0e";
+
+#[tokio::test]
+async fn site_icon_import_roundtrip_serves_retained_wikidot_bytes() {
+    let runner = TestRunner::setup().await;
+    let n = next_n();
+    let site_id = create_site(&runner, n).await;
+    let actor = create_user(&runner, n, "icon-importer").await;
+    let source = "/local--files/site/favicon.gif";
+
+    let set = SiteService::set_site_icon(
+        runner.context(),
+        Reference::Id(site_id),
+        "favicon",
+        Some(Some(source.to_string())),
+        Some(String::from("image/gif")),
+        Some(Some(SITE_ICON_FIXTURE.to_vec())),
+        actor,
+        common::IP_ADDRESS,
+    )
+    .await
+    .expect("setting the imported favicon should succeed");
+
+    assert_eq!(set.site_id, site_id);
+    assert_eq!(set.kind, "favicon");
+    assert_eq!(set.source.as_deref(), Some(source));
+    assert_eq!(set.mime.as_deref(), Some("image/gif"));
+    assert_eq!(
+        set.sha256_hex.as_deref(),
+        Some(SITE_ICON_FIXTURE_SHA256),
+        "stored hash must match the retained Wikidot bytes",
+    );
+
+    let get =
+        SiteService::get_site_icon(runner.context(), Reference::Id(site_id), "favicon")
+            .await
+            .expect("getting the imported favicon should succeed")
+            .expect("imported favicon should be present");
+    assert_eq!(get.mime, "image/gif");
+    assert_eq!(get.sha256_hex, SITE_ICON_FIXTURE_SHA256);
+    assert_eq!(
+        get.data, SITE_ICON_FIXTURE,
+        "served bytes must equal the retained Wikidot bytes",
+    );
+
+    let site = SiteTable::find_by_id(site_id)
+        .one(runner.context().transaction())
+        .await
+        .expect("site lookup should succeed")
+        .expect("site should exist");
+    assert_eq!(site.favicon_source.as_deref(), Some(source));
+}
+
+/// Refreshing an icon updates it idempotently; removing the source clears
+/// the stale bytes in the same call.
+#[tokio::test]
+async fn site_icon_refresh_updates_and_removal_clears_state() {
+    let runner = TestRunner::setup().await;
+    let n = next_n();
+    let site_id = create_site(&runner, n).await;
+    let actor = create_user(&runner, n, "icon-refresher").await;
+    let source = "/local--files/site/favicon.gif";
+
+    SiteService::set_site_icon(
+        runner.context(),
+        Reference::Id(site_id),
+        "favicon",
+        Some(Some(source.to_string())),
+        Some(String::from("image/gif")),
+        Some(Some(SITE_ICON_FIXTURE.to_vec())),
+        actor,
+        common::IP_ADDRESS,
+    )
+    .await
+    .expect("initial icon import should succeed");
+
+    // Minimal valid GIF refresh: bytes change, source stays.
+    let refreshed = vec![0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x01, 0x00, 0x01, 0x00];
+    let set = SiteService::set_site_icon(
+        runner.context(),
+        Reference::Id(site_id),
+        "favicon",
+        None,
+        Some(String::from("image/gif")),
+        Some(Some(refreshed.clone())),
+        actor,
+        common::IP_ADDRESS,
+    )
+    .await
+    .expect("icon refresh should succeed");
+    assert_ne!(
+        set.sha256_hex.as_deref(),
+        Some(SITE_ICON_FIXTURE_SHA256),
+        "refresh must change the stored identity",
+    );
+
+    let get =
+        SiteService::get_site_icon(runner.context(), Reference::Id(site_id), "favicon")
+            .await
+            .expect("get after refresh should succeed")
+            .expect("refreshed icon should be present");
+    assert_eq!(get.data, refreshed);
+
+    // Source removal clears the stale bytes with it.
+    SiteService::set_site_icon(
+        runner.context(),
+        Reference::Id(site_id),
+        "favicon",
+        Some(None),
+        None,
+        Some(None),
+        actor,
+        common::IP_ADDRESS,
+    )
+    .await
+    .expect("icon removal should succeed");
+    let get =
+        SiteService::get_site_icon(runner.context(), Reference::Id(site_id), "favicon")
+            .await
+            .expect("get after removal should succeed");
+    assert!(get.is_none(), "removed icon must serve nothing");
+    let site = SiteTable::find_by_id(site_id)
+        .one(runner.context().transaction())
+        .await
+        .expect("site lookup should succeed")
+        .expect("site should exist");
+    assert_eq!(site.favicon_source, None);
+}
+
+/// Inconsistent and foreign icon state stays rejected.
+#[tokio::test]
+async fn site_icon_rejects_inconsistent_and_foreign_state() {
+    let runner = TestRunner::setup().await;
+    let n = next_n();
+    let site_id = create_site(&runner, n).await;
+    let actor = create_user(&runner, n, "icon-rejector").await;
+    let ctx = runner.context();
+
+    // Unknown kinds never touch storage.
+    assert!(
+        SiteService::set_site_icon(
+            ctx,
+            Reference::Id(site_id),
+            "touch",
+            Some(Some(String::from("/local--files/site/x.gif"))),
+            None,
+            None,
+            actor,
+            common::IP_ADDRESS,
+        )
+        .await
+        .is_err(),
+    );
+    assert!(
+        SiteService::get_site_icon(ctx, Reference::Id(site_id), "touch")
+            .await
+            .is_err(),
+    );
+
+    // Bytes without a configured source would serve undeclared routes.
+    assert!(
+        SiteService::set_site_icon(
+            ctx,
+            Reference::Id(site_id),
+            "favicon",
+            None,
+            Some(String::from("image/gif")),
+            Some(Some(SITE_ICON_FIXTURE.to_vec())),
+            actor,
+            common::IP_ADDRESS,
+        )
+        .await
+        .is_err(),
+    );
+
+    // Bytes without a MIME type cannot be served with an identity.
+    assert!(
+        SiteService::set_site_icon(
+            ctx,
+            Reference::Id(site_id),
+            "favicon",
+            Some(Some(String::from("/local--files/site/favicon.gif"))),
+            None,
+            Some(Some(SITE_ICON_FIXTURE.to_vec())),
+            actor,
+            common::IP_ADDRESS,
+        )
+        .await
+        .is_err(),
+    );
+
+    // Non-image bytes are not icons.
+    assert!(
+        SiteService::set_site_icon(
+            ctx,
+            Reference::Id(site_id),
+            "favicon",
+            Some(Some(String::from("/local--files/site/favicon.gif"))),
+            Some(String::from("image/gif")),
+            Some(Some(b"not an image".to_vec())),
+            actor,
+            common::IP_ADDRESS,
+        )
+        .await
+        .is_err(),
+    );
+
+    // External sources stay rejected for local sites, as with site settings.
+    assert!(
+        SiteService::set_site_icon(
+            ctx,
+            Reference::Id(site_id),
+            "favicon",
+            Some(Some(String::from("https://evil.example/favicon.gif"))),
+            None,
+            None,
+            actor,
+            common::IP_ADDRESS,
+        )
+        .await
+        .is_err(),
+    );
+
+    // Nothing was stored by the rejected calls.
+    let get = SiteService::get_site_icon(ctx, Reference::Id(site_id), "favicon")
+        .await
+        .expect("get should succeed");
+    assert!(get.is_none());
+}
+
+/// The JSON-RPC boundary round-trips icon import and anonymous reads.
+#[tokio::test]
+async fn site_icon_endpoints_roundtrip_as_staff_and_anonymous() {
+    let mut runner = TestRunner::setup().await;
+    let n = next_n();
+    let site_id = create_site(&runner, n).await;
+    runner.set_request_context(RequestContext {
+        user_id: Some(ADMIN_USER_ID),
+        ..Default::default()
+    });
+
+    let source = "/local--files/site/favicon.gif";
+    let set = run_endpoint!(
+        runner,
+        site_icon_set,
+        json!({
+            "site": site_id,
+            "kind": "favicon",
+            "source": source,
+            "mime": "image/gif",
+            "data": SITE_ICON_FIXTURE.to_vec(),
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_eq!(set.site_id, site_id);
+    assert_eq!(set.sha256_hex.as_deref(), Some(SITE_ICON_FIXTURE_SHA256));
+
+    // Anonymous readers (favicon fetches) can read the stored bytes.
+    runner.set_request_context(RequestContext::default());
+    let get = run_endpoint!(
+        runner,
+        site_icon_get,
+        json!({
+            "site": site_id,
+            "kind": "favicon",
+        }),
+    )
+    .expect("anonymous icon read should succeed");
+    assert_eq!(get.mime, "image/gif");
+    assert_eq!(get.sha256_hex, SITE_ICON_FIXTURE_SHA256);
+    assert_eq!(get.data, SITE_ICON_FIXTURE);
+
+    // Anonymous writers are still refused.
+    run_endpoint_err!(
+        runner,
+        site_icon_set,
+        json!({
+            "site": site_id,
+            "kind": "favicon",
+            "source": source,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
 }
