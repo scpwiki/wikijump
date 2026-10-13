@@ -50,7 +50,10 @@
   } from "$lib/wikidot/wikidot-hovertips"
   import WikidotBottomToolbar from "$lib/wikidot/WikidotBottomToolbar.svelte"
   import WikidotLoginDialog from "$lib/wikidot/WikidotLoginDialog.svelte"
-  import { isPlainPrimaryActivation } from "$lib/wikidot/wikidot-login-dialog.js"
+  import {
+    installWikidotLoginActionHandler,
+    isPlainPrimaryActivation
+  } from "$lib/wikidot/wikidot-login-dialog.js"
   import {
     installWikidotSearchAll,
     submitWikidotTopSearch
@@ -190,6 +193,14 @@
     let stop: (() => void) | undefined
     const uninstallSearchAll = installWikidotSearchAll(window)
     const uninstallJavascriptAnchorGuard = installJavascriptAnchorGuard(document)
+    // Permission-denial `#action:login` links reuse the in-place sign-in
+    // surface while it is available; otherwise they keep their behaviour.
+    const uninstallLoginActionHandler = installWikidotLoginActionHandler(document, {
+      isSurfaceAvailable: () => isImportedWikidotLayout && !viewData?.user_session,
+      openSurface: () => {
+        wikidotSignInOpen = true
+      }
+    })
     installWikidotCategories(window)
     installWikidotNewPageHelper(window)
     const uninstallHovertips = isImportedWikidotLayout
@@ -210,6 +221,7 @@
       stop?.()
       uninstallSearchAll()
       uninstallJavascriptAnchorGuard()
+      uninstallLoginActionHandler()
       uninstallHovertips()
       wikidotSearchForm?.removeEventListener("submit", submitWikidotSearch)
       wikidotSearchInput?.removeEventListener("focus", clearWikidotSearchPrompt)

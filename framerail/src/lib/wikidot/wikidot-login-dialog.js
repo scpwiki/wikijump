@@ -72,3 +72,48 @@ export const isPlainPrimaryActivation = (event) =>
   !event.ctrlKey &&
   !event.shiftKey &&
   !event.altKey
+
+/**
+ * Wikidot permission-denial copy offers sign-in through this legacy action
+ * href (for example the NewPage "Sign in as Wikidot user" link and the
+ * file-attach denial action link). The href stays verbatim so the observed
+ * Wikidot markup is preserved; the delegated installer below gives it the
+ * in-place surface on pages where that surface exists.
+ */
+export const WIKIDOT_LOGIN_ACTION_HREF = "#action:login"
+
+const WIKIDOT_LOGIN_ACTION_ANCHOR = `a[href="${WIKIDOT_LOGIN_ACTION_HREF}"]`
+
+/**
+ * Route legacy `#action:login` activations to the same in-place sign-in
+ * surface that owns the login-status Sign in control. Only plain primary
+ * activations are intercepted, and only while the surface is available
+ * (imported Wikidot layout, anonymous viewer). Everywhere else the click
+ * keeps its existing behaviour, so native layouts and modified clicks are
+ * unchanged.
+ *
+ * @param {Pick<
+ *   EventTarget,
+ *   "addEventListener" | "removeEventListener"
+ * >} root
+ * @param {{
+ *   isSurfaceAvailable: () => boolean
+ *   openSurface: () => void
+ * }} hooks
+ * @returns {() => void} Uninstall function
+ */
+export const installWikidotLoginActionHandler = (root, hooks) => {
+  const handler = (event) => {
+    if (event.defaultPrevented) return
+    const target = event.target
+    if (typeof target?.closest !== "function") return
+    if (!target.closest(WIKIDOT_LOGIN_ACTION_ANCHOR)) return
+    if (!isPlainPrimaryActivation(event)) return
+    if (!hooks.isSurfaceAvailable()) return
+    event.preventDefault()
+    hooks.openSurface()
+  }
+
+  root.addEventListener("click", handler)
+  return () => root.removeEventListener("click", handler)
+}
