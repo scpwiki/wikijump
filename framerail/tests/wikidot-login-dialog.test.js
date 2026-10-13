@@ -2,7 +2,9 @@ import assert from "node:assert/strict"
 import test from "node:test"
 
 import {
+  WIKIDOT_LOGIN_ACTION_HREF,
   WIKIDOT_LOGIN_DIALOG_LABELS,
+  installWikidotLoginActionHandler,
   interpretLoginActionResult,
   isPlainPrimaryActivation
 } from "../src/lib/wikidot/wikidot-login-dialog.js"
@@ -72,4 +74,91 @@ test("in-place sign-in labels are defined for the surface", () => {
     assert.equal(typeof value, "string", key)
     assert.notEqual(value.trim(), "", key)
   }
+})
+
+const installLoginActionHarness = ({ available = true } = {}) => {
+  let listener = null
+  const root = {
+    addEventListener: (type, handler) => {
+      listener = { type, handler }
+    },
+    removeEventListener: (type, handler) => {
+      if (listener?.type === type && listener?.handler === handler) listener = null
+    }
+  }
+  let opened = 0
+  const uninstall = installWikidotLoginActionHandler(root, {
+    isSurfaceAvailable: () => available,
+    openSurface: () => {
+      opened += 1
+    }
+  })
+  const anchor = (href) => ({
+    closest: (selector) =>
+      selector === `a[href="${href}"]` && href === WIKIDOT_LOGIN_ACTION_HREF
+        ? { href }
+        : null
+  })
+  const click = (target, overrides = {}) => {
+    const event = {
+      button: 0,
+      metaKey: false,
+      ctrlKey: false,
+      shiftKey: false,
+      altKey: false,
+      defaultPrevented: false,
+      preventDefault: () => {
+        event.defaultPrevented = true
+      },
+      target,
+      ...overrides
+    }
+    listener?.handler(event)
+    return event
+  }
+  return {
+    click,
+    anchor,
+    opened: () => opened,
+    uninstall,
+    isInstalled: () => listener?.type === "click"
+  }
+}
+
+test("permission-denial login actions reuse the in-place surface", () => {
+  assert.equal(WIKIDOT_LOGIN_ACTION_HREF, "#action:login")
+  const harness = installLoginActionHarness()
+  assert.equal(harness.isInstalled(), true)
+  const event = harness.click(harness.anchor("#action:login"))
+  assert.equal(event.defaultPrevented, true)
+  assert.equal(harness.opened(), 1)
+})
+
+test("login actions keep existing behaviour without the surface", () => {
+  const unavailable = installLoginActionHarness({ available: false })
+  const event = unavailable.click(unavailable.anchor("#action:login"))
+  assert.equal(event.defaultPrevented, false)
+  assert.equal(unavailable.opened(), 0)
+
+  const harness = installLoginActionHarness()
+  for (const overrides of [
+    { button: 1 },
+    { metaKey: true },
+    { ctrlKey: true },
+    { defaultPrevented: true }
+  ]) {
+    const skipped = harness.click(harness.anchor("#action:login"), overrides)
+    assert.equal(skipped.defaultPrevented, overrides.defaultPrevented === true)
+  }
+  assert.equal(harness.opened(), 0)
+
+  const other = harness.click(harness.anchor("/-/login"))
+  assert.equal(other.defaultPrevented, false)
+  assert.equal(harness.opened(), 0)
+})
+
+test("login action handler uninstalls cleanly", () => {
+  const harness = installLoginActionHarness()
+  harness.uninstall()
+  assert.equal(harness.isInstalled(), false)
 })

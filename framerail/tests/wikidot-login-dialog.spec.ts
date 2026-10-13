@@ -119,6 +119,35 @@ test("MFA-required sign-in points to the native sign-in page without carrying a 
   await expect(page).toHaveURL(WIKI_PAGE)
 })
 
+test("permission-denial sign-in links reuse the in-place surface", async ({ page }) => {
+  await openAnonymousWikiPage(page)
+  const historyLength = await page.evaluate(() => history.length)
+
+  // Permission-denial copy (NewPage/FileList) offers Wikidot's legacy
+  // `#action:login` link; it must open the same owner as Sign in.
+  await page.evaluate(() => {
+    const link = document.createElement("a")
+    link.id = "login-action-probe"
+    link.href = "#action:login"
+    link.textContent = "Sign in as Wikidot user"
+    document.body.append(link)
+  })
+  // openAnonymousWikiPage already waited for hydration (the Sign in
+  // control's delegated handler), which runs after the layout onMount that
+  // installs the document-level login-action interceptor.
+  await page.locator("#login-action-probe").click()
+
+  const dialog = page.locator("dialog.wikidot-login-dialog")
+  await expect(dialog).toBeVisible()
+  await expect(page).toHaveURL(WIKI_PAGE)
+  await expect(page.locator("#page-content")).toBeVisible()
+
+  await page.getByRole("button", { name: "Cancel" }).click()
+  await expect(dialog).toBeHidden()
+  await expect(page).toHaveURL(WIKI_PAGE)
+  expect(await page.evaluate(() => history.length)).toBe(historyLength)
+})
+
 test.describe("without JavaScript", () => {
   test.use({ javaScriptEnabled: false })
 
