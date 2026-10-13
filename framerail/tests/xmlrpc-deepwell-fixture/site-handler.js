@@ -223,7 +223,12 @@ export const handleSiteRpc = ({ rpcRequest }) => {
           : null
   } else if (
     rpcRequest.method === "translate" &&
-    hasExactKeys(rpcRequest.params, ["locales", "messages", "strip_message_keys"]) &&
+    hasExactKeys(rpcRequest.params, [
+      "locales",
+      "messages",
+      "strip_message_keys",
+      "allow_missing"
+    ]) &&
     Array.isArray(rpcRequest.params.locales) &&
     typeof rpcRequest.params.messages === "object" &&
     rpcRequest.params.messages !== null &&
