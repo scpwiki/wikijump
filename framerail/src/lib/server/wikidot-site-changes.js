@@ -5,7 +5,9 @@ const BROWSER_OPTIONS = new Set([
   '{"source":true}',
   '{"files":true}'
 ])
-const BROWSER_PERPAGE = new Set(["-1", "0", "1", "10", "20", "100"])
+// The rendered #rev-perpage control offers 10/20/50/100/200; "-1", "0", and
+// "1" are the observed control/empty shapes accepted alongside them.
+const BROWSER_PERPAGE = new Set(["-1", "0", "1", "10", "20", "50", "100", "200"])
 const CONTROL_FIELDS = new Set([
   "moduleName",
   "wikidot_token7",

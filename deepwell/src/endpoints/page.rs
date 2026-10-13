@@ -521,7 +521,9 @@ fn site_changes_browser_perpage(value: &str) -> Option<SiteChangesBrowserPerpage
         "1" => Some(SiteChangesBrowserPerpage::Rows(1)),
         "10" => Some(SiteChangesBrowserPerpage::Rows(10)),
         "20" => Some(SiteChangesBrowserPerpage::Rows(20)),
+        "50" => Some(SiteChangesBrowserPerpage::Rows(50)),
         "100" => Some(SiteChangesBrowserPerpage::Rows(100)),
+        "200" => Some(SiteChangesBrowserPerpage::Rows(200)),
         _ => None,
     }
 }
@@ -1627,7 +1629,14 @@ mod tests {
 
     #[test]
     fn site_changes_browser_perpage_accepts_only_observed_positive_values() {
-        for (value, expected) in [("1", 1), ("10", 10), ("20", 20), ("100", 100)] {
+        for (value, expected) in [
+            ("1", 1),
+            ("10", 10),
+            ("20", 20),
+            ("50", 50),
+            ("100", 100),
+            ("200", 200),
+        ] {
             assert_eq!(
                 site_changes_browser_perpage(value),
                 Some(SiteChangesBrowserPerpage::Rows(expected))

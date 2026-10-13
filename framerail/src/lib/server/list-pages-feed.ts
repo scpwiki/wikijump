@@ -152,11 +152,16 @@ export function formatWikidotFeedDate(value: Date): string {
 
 function feedItemXml(origin: string, item: WikidotListPagesFeedItem): string {
   const pageUrl = `${origin}/${item.slug}`
+  // Legacy Wikidot GUIDs keep the http:// scheme while navigational links use
+  // the request origin, matching the forum and site-changes feed serializers.
+  const guidOrigin = new URL(origin)
+  guidOrigin.protocol = "http:"
+  const guidUrl = `${guidOrigin.origin}/${item.slug}`
   const author = `<p>by ${item.created_by_html}</p>`
   const content = `${item.body_html}\n${author}`
   return [
     "\t\t<item>",
-    `\t\t\t<guid>${escapeXml(pageUrl)}</guid>`,
+    `\t\t\t<guid>${escapeXml(guidUrl)}</guid>`,
     `\t\t\t<title>${escapeXml(item.title)}</title>`,
     `\t\t\t<link>${escapeXml(pageUrl)}</link>`,
     `\t\t\t<description>${escapeXml(content)}</description>`,
