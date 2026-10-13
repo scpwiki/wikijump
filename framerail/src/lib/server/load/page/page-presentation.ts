@@ -85,6 +85,7 @@ const foundPageTranslateKeys = (
     "wiki-page-revision-diff.swap": {},
     "wiki-page-revision-diff.loading": {},
     "wiki-page-revision-diff.no-changes": {},
+    "wiki-page-revision-diff.unavailable": {},
     "wiki-page-revision-view-unavailable": {},
     "wiki-page-revision-number": {},
     "wiki-page-revision-created-at": {},
