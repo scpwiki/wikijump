@@ -8,6 +8,7 @@
   import { Layout, PagePane } from "$lib/types"
   import {
     deletePermissionDeniedMessage,
+    editPermissionDeniedDialog,
     editPermissionDeniedMessage,
     movePermissionDeniedMessage
   } from "$lib/wikidot/wikidot-locale"
@@ -240,11 +241,18 @@
     }
     const grantKey = grantKeys[kind]
     if (result.type === "success" && result.data?.res && !result.data.res[grantKey]) {
-      errorPopupState.current = {
-        state: true,
-        message: denialMessages[kind],
-        data: null
-      }
+      // Anonymous EN edit denial renders the retained Wikidot Permission
+      // error window (issue #2336). Other locales and actions keep the
+      // localized generic denial; server failures keep their message above.
+      const deniedDialog =
+        kind === "edit" ? editPermissionDeniedDialog(data.site.locale) : null
+      errorPopupState.current = deniedDialog
+        ? { state: true, ...deniedDialog, data: null }
+        : {
+            state: true,
+            message: denialMessages[kind],
+            data: null
+          }
       return false
     }
     return result.type === "success" && result.data?.res?.[grantKey] === true

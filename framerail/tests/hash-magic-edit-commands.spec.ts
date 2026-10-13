@@ -10,7 +10,23 @@ const AUTHENTICATED_HEADERS = {
 }
 const APP_URL = `http://localhost:${process.env.PLAYWRIGHT_APP_PORT ?? "4173"}`
 const PAGE_PATH = "/scp-173"
-const PERMISSION_MESSAGE = "You don't have permission to edit this page."
+// Retained Wikidot anonymous edit-denial contract (issue #2336).
+const DENIAL_TITLE = "Permission error"
+const DENIAL_HEADING = "Please note:"
+const DENIAL_POLICY =
+  "Sorry, you can not edit this page. Only members of this site, owner (creator) of this page, site administrators and perhaps selected moderators are allowed to do it."
+
+const expectEditDeniedDialog = async (page: import("@playwright/test").Page) => {
+  await expect(page.locator("#odialog-container .owindow.error")).toBeVisible()
+  await expect(page.locator("#owindow-1 .title")).toHaveText(DENIAL_TITLE)
+  await expect(page.locator("#modal-title")).toHaveText(DENIAL_HEADING)
+  const policy = page.locator(".modal-message-extra")
+  await expect(policy).toContainText(DENIAL_POLICY)
+  await expect(policy.locator('a[href="#action:login"]')).toHaveText(
+    "Sign in as Wikidot user"
+  )
+  await expect(page.locator("#odialog-container .button-close-message")).toBeVisible()
+}
 
 const waitForWikidotHydration = (page: import("@playwright/test").Page) =>
   page.waitForFunction(() => {
@@ -36,8 +52,7 @@ test("anonymous #_editpage dispatch answers with the permission dialog once", as
   await waitForWikidotHydration(page)
 
   const dialog = page.locator("#odialog-container .owindow.error")
-  await expect(dialog).toBeVisible()
-  await expect(page.locator("#modal-title")).toHaveText(PERMISSION_MESSAGE)
+  await expectEditDeniedDialog(page)
   // The dialog is a single instance, the hash is preserved, and no editor mounts.
   await expect(page.locator("#odialog-container")).toHaveCount(1)
   await expect(page).toHaveURL(/#_editpage$/u)
@@ -59,8 +74,7 @@ test("anonymous #_edittags dispatch answers with the same permission dialog", as
   await page.goto(`${APP_URL}${PAGE_PATH}#_edittags`)
   await waitForWikidotHydration(page)
 
-  await expect(page.locator("#odialog-container .owindow.error")).toBeVisible()
-  await expect(page.locator("#modal-title")).toHaveText(PERMISSION_MESSAGE)
+  await expectEditDeniedDialog(page)
   // The tag editor form is not mounted for an unauthorized actor.
   await expect(page.locator("#page-tags")).toHaveCount(0)
   await expect(page.locator("#action-area")).toHaveClass(/hidden/u)
