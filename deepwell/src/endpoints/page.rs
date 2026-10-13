@@ -23,6 +23,9 @@ mod output;
 mod permissions;
 
 use output::{build_page_deleted_output, build_page_file_output, build_page_output};
+pub use permissions::{
+    page_delete_permission, page_edit_permission, page_move_permission,
+};
 use permissions::{
     ensure_deleted_page_delete_permission_and_get_category_id,
     ensure_page_action_permission, ensure_page_create_permission,
@@ -1365,45 +1368,6 @@ pub async fn wikidot_legacy_set_tags(
     )
     .await
     .or_raise(|| Error::new("failed to apply set-tags action", ErrorType::Page))
-}
-
-pub async fn page_edit_permission(
-    ctx: &ServiceContext<'_>,
-    _params: Params<'static>,
-) -> Result<PageEditPermissionOutput> {
-    let can_edit = PageService::check_user_permission(ctx, Action::Edit)
-        .await
-        .or_raise(|| {
-            Error::new("failed to check page edit permission", ErrorType::Page)
-        })?;
-
-    Ok(PageEditPermissionOutput { can_edit })
-}
-
-pub async fn page_move_permission(
-    ctx: &ServiceContext<'_>,
-    _params: Params<'static>,
-) -> Result<PageMovePermissionOutput> {
-    let can_move = PageService::check_user_permission(ctx, Action::Rename)
-        .await
-        .or_raise(|| {
-            Error::new("failed to check page move permission", ErrorType::Page)
-        })?;
-
-    Ok(PageMovePermissionOutput { can_move })
-}
-
-pub async fn page_delete_permission(
-    ctx: &ServiceContext<'_>,
-    _params: Params<'static>,
-) -> Result<PageDeletePermissionOutput> {
-    let can_delete = PageService::check_user_permission(ctx, Action::Delete)
-        .await
-        .or_raise(|| {
-            Error::new("failed to check page delete permission", ErrorType::Page)
-        })?;
-
-    Ok(PageDeletePermissionOutput { can_delete })
 }
 
 pub async fn page_delete(
