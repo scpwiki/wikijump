@@ -9,6 +9,14 @@ export type PageErrorData = {
   selected_template_page_id?: number | null
   data_form?: DataFormEditor | null
   can_create?: boolean
+  /**
+   * Server-computed recoverability for a missing page. True only when the
+   * viewer holds a session and Deepwell reports deleted pages recoverable
+   * under that slug. Absent or false must never render a Restore control
+   * (Refs #2090): Restore visibility must not be decided from "page lookup
+   * returned missing" alone.
+   */
+  restore_available?: boolean
   site: {
     site_id: number
     default_page: string
@@ -56,6 +64,12 @@ export function isPageErrorData(value: unknown): value is PageErrorData {
     return false
   }
   if (typeof value.compiled_body_html !== "string") return false
+  if (
+    value.restore_available !== undefined &&
+    typeof value.restore_available !== "boolean"
+  ) {
+    return false
+  }
   if (value.internationalization !== undefined && !isRecord(value.internationalization)) {
     return false
   }

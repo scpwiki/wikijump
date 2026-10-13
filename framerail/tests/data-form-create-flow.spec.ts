@@ -35,17 +35,20 @@ test("data-form create flow renders controls and stores Wikidot source", async (
   })
   const anonymousMissingResponse = await page.goto("/data-form-create-flow:example")
   expect(anonymousMissingResponse?.status()).toBe(404)
-  await expect(page.locator("[id='404-message']")).toHaveCount(1)
+  // Refs #2090: a never-existing slug renders one coherent missing-page
+  // shell with no Restore control in either layout.
+  await expect(page.locator("#page-content")).toHaveCount(1)
+  await expect(page.locator("[id='404-message']")).toHaveCount(0)
   await expect(page.locator("#restore-button")).toHaveCount(0)
+  await expect(page.locator(".button-restore")).toHaveCount(0)
 
   await page.setExtraHTTPHeaders(AUTHENTICATED_HEADERS)
   const missingResponse = await page.goto("/data-form-create-flow:example")
   expect(missingResponse?.status()).toBe(404)
-  await expect(page.locator("[id='404-message']")).toHaveCount(1)
+  await expect(page.locator("#page-content")).toHaveCount(1)
+  await expect(page.locator("[id='404-message']")).toHaveCount(0)
   await expect(page.locator("#restore-button")).toHaveCount(0)
-  await expect(page.locator("[id='404-message']")).toContainText(
-    "data-form-create-flow:example"
-  )
+  await expect(page.locator(".button-restore")).toHaveCount(0)
   await expect(page.locator("#create-it-now-link")).toHaveText("Create page")
   await page.locator("#create-it-now-link a").click()
   await expect(page).toHaveURL(/data-form-create-flow:example\/edit\/true$/u)

@@ -118,6 +118,11 @@
   const missingPageTitle = $derived(
     missingPageName.charAt(0).toUpperCase() + missingPageName.slice(1)
   )
+  // Refs #2090: Restore is a recoverability signal, not a missing-page
+  // signal. The server sets restore_available only for a session holder
+  // whose slug has recoverable deleted pages; anything else (anonymous,
+  // never-existing, unauthorized) must not render the control. Fail closed.
+  const canRestore = $derived(errorData.restore_available === true)
 
   function handlePageTemplateChange() {
     if (
@@ -157,7 +162,9 @@
       }
     } else if (result.type === "success" && result.data?.res) {
       deletedPages = result.data.res
-      showRestoreAction = true
+      // An empty recoverable set means nothing is restorable; keep the
+      // control surface closed rather than opening an empty restore form.
+      showRestoreAction = deletedPages.length > 0
     }
   }
 
@@ -309,9 +316,6 @@
     {/if}
   {:else}
     <div id="page-content">
-      <p id="404-message">
-        The page <em>{missingPageSlug}</em> you want to access does not exist.
-      </p>
       <ul id="create-it-now-link">
         <li>
           <a href={resolve(`/${missingPageSlug}/edit/true`, {})} onclick={startCreate}
@@ -322,31 +326,33 @@
       {@html errorData.compiled_body_html}
     </div>
 
-    {#if pageLayoutContext.current === Layout.WIKIDOT}
-      <div id="page-options-container">
-        <div id="page-options-bottom" class="page-options-bottom">
-          <!-- svelte-ignore a11y_invalid_attribute -->
-          <a
-            id="restore-button"
-            class="btn btn-default"
-            href="javascript:;"
+    {#if canRestore}
+      {#if pageLayoutContext.current === Layout.WIKIDOT}
+        <div id="page-options-container">
+          <div id="page-options-bottom" class="page-options-bottom">
+            <!-- svelte-ignore a11y_invalid_attribute -->
+            <a
+              id="restore-button"
+              class="btn btn-default"
+              href="javascript:;"
+              onclick={getDeleted}
+              type="button"
+            >
+              {errorData.internationalization?.restore}
+            </a>
+          </div>
+        </div>
+      {:else}
+        <div class="action-row editor-actions">
+          <button
+            class="action-button editor-button button-restore clickable"
             onclick={getDeleted}
             type="button"
           >
             {errorData.internationalization?.restore}
-          </a>
+          </button>
         </div>
-      </div>
-    {:else}
-      <div class="action-row editor-actions">
-        <button
-          class="action-button editor-button button-restore clickable"
-          onclick={getDeleted}
-          type="button"
-        >
-          {errorData.internationalization?.restore}
-        </button>
-      </div>
+      {/if}
     {/if}
 
     {#if showRestoreAction}
