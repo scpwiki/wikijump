@@ -476,7 +476,22 @@ mod tests {
             .find(|page| page.slug == "scp-3922")
             .expect("scp-3922 seed page");
         assert_eq!(scp_3922.title, "SCP-3922");
-        assert_eq!(scp_3922.tags, ["scp"]);
+        // Full source tag set carried into the seed (Refs #2077).
+        assert_eq!(
+            scp_3922.tags,
+            [
+                "_cc",
+                "_licensebox",
+                "cinema",
+                "electronic",
+                "inscription",
+                "media",
+                "metafiction",
+                "safe",
+                "scp",
+                "three-moons-initiative"
+            ]
+        );
         assert!(scp_3922.wikitext.contains("**Item #:** SCP-3922"));
 
         let scp_9506 = pages
@@ -484,7 +499,24 @@ mod tests {
             .find(|page| page.slug == "scp-9506")
             .expect("scp-9506 seed page");
         assert_eq!(scp_9506.title, "National Fog Safety Initiative");
-        assert_eq!(scp_9506.tags, ["scp"]);
+        // Full source tag set carried into the seed (Refs #2077).
+        assert_eq!(
+            scp_9506.tags,
+            [
+                "airborne",
+                "dystopian",
+                "esoteric-class",
+                "gaseous",
+                "horror",
+                "illustrated",
+                "scp",
+                "transfiguration",
+                "uncontained",
+                "_cc",
+                "_cc4",
+                "_licensebox"
+            ]
+        );
         assert!(scp_9506.wikitext.contains("National Fog Safety Initiative"));
         assert!(scp_9506.wikitext.contains("local--files/scp-9506/NFSI.png"));
 
