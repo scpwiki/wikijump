@@ -1,10 +1,36 @@
 @media (max-width: 767px) {
   #page-content table {
     width: 100%;
+    table-layout: fixed;
   }
 
   #page-content th,
   #page-content td {
     overflow-wrap: anywhere;
+  }
+
+  /*
+   * An auto-layout table's minimum content width wins over max-width, so a
+   * fixed-width descendant (for example a transcript dialogue block with an
+   * explicit pixel width) forces the whole table past the article column and
+   * widens the document on phones (issue #2166). Fixed layout pins the table
+   * to the article column; the rules below keep fixed-width descendants and
+   * media inside their cell so wrapping, not document overflow, absorbs them.
+   * Content is never removed: text wraps and media scales, so every cell
+   * stays reachable by touch and keyboard with no local scroll region.
+   */
+  #page-content table :is(blockquote, div, pre, figure, ul, ol, aside) {
+    max-width: 100%;
+  }
+
+  #page-content table img,
+  #page-content table video,
+  #page-content table iframe {
+    max-width: 100%;
+    height: auto;
+  }
+
+  #page-content table pre {
+    white-space: pre-wrap;
   }
 }

@@ -6,6 +6,7 @@ import { createTestViteServer } from "./vite-test-server.js"
 
 let vite
 let buildPageTranslateKeys
+let finalizePreloadData
 let getPreloadBackendLocales
 
 before(async () => {
@@ -13,7 +14,7 @@ before(async () => {
   ;({ buildPageTranslateKeys } = await vite.ssrLoadModule(
     "/src/lib/server/load/page/page-presentation.ts"
   ))
-  ;({ getPreloadBackendLocales } = await vite.ssrLoadModule(
+  ;({ finalizePreloadData, getPreloadBackendLocales } = await vite.ssrLoadModule(
     "/src/lib/server/load/preload.ts"
   ))
 })
@@ -39,7 +40,10 @@ const pageActionKeys = [
   "wiki-page-action-backlinks",
   "wiki-page-action-lock",
   "wiki-page-action-rename-move",
-  "wiki-page-file-history"
+  "wiki-page-file-history",
+  "wiki-page-parent",
+  "wiki-page-edit",
+  "wiki-page-lock"
 ]
 
 test("page presentation requests every primary and expanded action label", () => {
@@ -160,6 +164,132 @@ test("English fallback and Japanese catalogs define the exact page action labels
 test("non-Japanese page locales retain the English fallback after their preferred locale", () => {
   assert.deepEqual(getPreloadBackendLocales(["ja"]), ["ja", "en"])
   assert.deepEqual(getPreloadBackendLocales(["zh-Hans"]), ["zh-Hans", "en"])
+})
+
+const foundResponse = {
+  type: "found",
+  data: {
+    page: { created_at: "2026-10-01T00:00:00.000Z" },
+    page_revision: { revision_number: 1 }
+  }
+}
+
+const foundKeysContext = {
+  licenseName: "CC BY-SA",
+  licenseUrl: "https://example.test/license",
+  locales: ["ja"],
+  now: 0
+}
+
+// Keys owned by other surfaces are excluded: the platform footer (tasks
+// T33-T35), the spinny status component catalog, and account-form strings
+// (cluster S09). Everything else requested for a found page is page
+// action/pane chrome owned here and must exist in English and Japanese.
+const EXCLUDED_PAGE_KEYS = new Set([
+  "footer-powered-by",
+  "footer-license-unless",
+  "terms-conditions",
+  "privacy",
+  "docs",
+  "security",
+  "spinny-label.active",
+  "spinny-label.error",
+  "spinny-label.success",
+  "spinny-label.warning",
+  "message-loading",
+  "field-required",
+  "hold-to-show-password"
+])
+const ownsPageKey = (key) => !key.startsWith("footer-") && !EXCLUDED_PAGE_KEYS.has(key)
+
+const catalogFor = (key) => (key.startsWith("wiki-page-") ? "wiki-page" : "base")
+
+const parseCatalog = (source) => {
+  const messages = new Map()
+  let current = null
+  for (const line of source.split("\n")) {
+    const message = line.match(/^([A-Za-z][A-Za-z0-9_-]*) = ?(.*)$/)
+    if (message) {
+      current = { value: message[2], attributes: new Set() }
+      messages.set(message[1], current)
+      continue
+    }
+    const attribute = line.match(/^ {2}\.([A-Za-z0-9_-]+) =/)
+    if (attribute && current) current.attributes.add(attribute[1])
+  }
+  return messages
+}
+
+test("English and Japanese catalogs define every requested page key", async () => {
+  const keys = Object.keys(
+    buildPageTranslateKeys(foundResponse, foundKeysContext)
+  ).filter(ownsPageKey)
+  assert.ok(keys.length > 100, `expected a full page key set, saw ${keys.length}`)
+
+  const sources = {}
+  for (const catalog of ["base", "wiki-page"]) {
+    for (const locale of ["en", "ja"]) {
+      sources[`${catalog}/${locale}`] = parseCatalog(
+        await readFile(
+          new URL(`../../locales/fluent/${catalog}/${locale}.ftl`, import.meta.url),
+          "utf8"
+        )
+      )
+    }
+  }
+
+  for (const key of keys) {
+    const catalog = catalogFor(key)
+    const dot = key.indexOf(".")
+    const message = dot < 0 ? key : key.slice(0, dot)
+    const attribute = dot < 0 ? null : key.slice(dot + 1)
+    for (const locale of ["en", "ja"]) {
+      const entry = sources[`${catalog}/${locale}`].get(message)
+      assert.ok(entry, `${locale}: missing message ${message} (for ${key})`)
+      if (attribute) {
+        assert.ok(
+          entry.attributes.has(attribute),
+          `${locale}: ${message} is missing attribute ${attribute}`
+        )
+      } else {
+        assert.ok(entry.value.length > 0, `${locale}: ${message} has no value`)
+      }
+    }
+  }
+})
+
+const preloadResponse = (siteLocale, userLocales) => ({
+  site: { locale: siteLocale },
+  site_settings: {},
+  promoted_sites: [],
+  site_file_domain: "files.example.test",
+  license_name: "CC BY-SA",
+  license_url: "https://example.test/license",
+  license_kind: "standard",
+  license_html: null,
+  user_session: userLocales ? { user: { locales: userLocales } } : null
+})
+
+test("the site language defines the page interface ahead of browser preferences", () => {
+  // Anonymous English-browser visitor on a Japanese site: Japanese first,
+  // English fallback retained (issues #2170, #2178).
+  assert.deepEqual(
+    finalizePreloadData(preloadResponse("ja", null), ["en-US", "en"]).locales,
+    ["ja", "en", "en-US"]
+  )
+  // Anonymous Japanese-browser visitor on an English site: English first.
+  assert.deepEqual(finalizePreloadData(preloadResponse("en", null), ["ja"]).locales, [
+    "en",
+    "ja"
+  ])
+})
+
+test("explicit user locale preferences outrank the site language", () => {
+  assert.deepEqual(finalizePreloadData(preloadResponse("ja", ["ko"]), ["en"]).locales, [
+    "ko",
+    "ja",
+    "en"
+  ])
 })
 
 test("visible page action text remains the anchor accessible name", async () => {

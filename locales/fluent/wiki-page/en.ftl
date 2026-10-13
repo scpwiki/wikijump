@@ -35,6 +35,7 @@ wiki-page-revision-diff = Compare revisions
   .swap = Swap
   .loading = Loading comparison…
   .no-changes = No differences.
+  .unavailable = There are not two page revisions available to compare
 
 wiki-page-revision-view-unavailable = Historical page snapshot unavailable
 

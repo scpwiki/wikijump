@@ -80,7 +80,7 @@
     onclick={() => activatePagePane(PagePane.Watchers)}
     type="button"
   >
-    Watchers
+    {data.internationalization?.["wiki-page-action-watchers"]}
   </button>
   <button
     class="action-button button-vote clickable"
