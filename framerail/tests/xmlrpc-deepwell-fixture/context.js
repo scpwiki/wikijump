@@ -63,6 +63,7 @@ export const fixtureState = {
   lastPageSelectParams: null,
   /** @type {Record<string, unknown[]>} */
   pageReadRequests: {
+    backlinksView: [],
     forumPostSelect: [],
     forumPostPageSummary: [],
     forumPostGet: [],
