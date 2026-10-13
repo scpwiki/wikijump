@@ -9,6 +9,7 @@ import {
   renderWikidotPageRevisionVersion,
   renderWikidotEditMeta,
   renderWikidotWhoRated,
+  renderWikidotWhoRatedUnavailable,
   renderWikidotViewSource
 } from "../src/lib/server/ajax-module-connector-page-reads.js"
 
@@ -109,6 +110,15 @@ test("WhoRated rejects unevidenced vote values instead of widening its DOM", () 
       ]),
     /only observed plus\/minus/u
   )
+})
+
+test("WhoRated unavailable state keeps the dialog title with no roster markup", () => {
+  const body = renderWikidotWhoRatedUnavailable()
+  assert.match(body, /^<h2>Users who rated:<\/h2>/u)
+  assert.match(body, /not imported/u)
+  assert.doesNotMatch(body, /-moz-column-count/u)
+  assert.doesNotMatch(body, /printuser/u)
+  assert.doesNotMatch(body, /user:info\//u)
 })
 
 test("renders attached files in the Wikidot client parsing boundary", () => {
