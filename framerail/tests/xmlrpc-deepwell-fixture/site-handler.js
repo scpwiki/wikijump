@@ -86,7 +86,10 @@ export const handleSiteRpc = ({ rpcRequest }) => {
                   user_type: "regular",
                   name: "Fixture Member",
                   slug: "fixture-member",
-                  locales: ["en"]
+                  // The authenticated preload follows the live fixture
+                  // user so a saved display-language order survives a
+                  // reload, matching Deepwell. Reset restores ["en"].
+                  locales: [...fixtureState.authenticatedUser.locales]
                 }
               }
             : null
