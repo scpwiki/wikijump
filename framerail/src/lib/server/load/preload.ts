@@ -38,20 +38,20 @@ export function getPreloadBackendLocales(locales: string[]): string[] {
 }
 
 export function finalizePreloadData(response: Viewer, locales: string[]): PreloadData {
-  let resolvedLocales = uniqueLocales(locales)
-
-  if (response.user_session?.user.locales) {
-    resolvedLocales = uniqueLocales([
-      ...limitLocalePreferences(response.user_session.user.locales),
-      ...resolvedLocales
-    ])
-  }
+  const acceptLocales = uniqueLocales(locales)
+  const userLocales = response.user_session?.user.locales
+    ? limitLocalePreferences(response.user_session.user.locales)
+    : []
 
   const requiredLocales = [response?.site?.locale, defaults.fallbackLocale].filter(
     (locale): locale is string => Boolean(locale)
   )
-  resolvedLocales = limitLocalePreferences(
-    [...resolvedLocales, ...requiredLocales],
+  // Explicit user preferences win. Otherwise the site's own language defines
+  // the page interface: current Wikidot serves e.g. scp-jp chrome in Japanese
+  // regardless of the visitor's Accept-Language, so the site locale outranks
+  // browser preferences, with the English fallback last.
+  const resolvedLocales = limitLocalePreferences(
+    [...userLocales, ...requiredLocales, ...acceptLocales],
     requiredLocales
   )
 
