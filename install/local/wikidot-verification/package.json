@@ -41,6 +41,7 @@
     "runtime-differential": "node scripts/run-generic-runtime-differential.mjs",
     "runtime-differential-stack": "node scripts/run-generic-runtime-differential-stack.mjs",
     "identity-bound-differential": "node scripts/run-identity-bound-differential.mjs",
+    "firefox-evidence-replay": "node scripts/replay-firefox-evidence.mjs",
     "candidate-cases": "node scripts/run-candidate-cases.mjs",
     "candidate-campaign": "node scripts/run-candidate-campaign.mjs",
     "candidate-campaign-aggregate": "node scripts/aggregate-candidate-case-campaign.mjs",
