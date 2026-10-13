@@ -35,8 +35,8 @@ const FORUM_FEED_ITEM_LIMIT: usize = 60;
 const FORUM_FEED_BATCH_LIMIT: usize = 250;
 const FORUM_FEED_SCAN_LIMIT: usize = 10_000;
 const MAX_CATEGORY_PAGE: u32 = 50;
-const THREAD_POSTS_SCRIPT: &str = "http://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--modules/js/forum/ForumViewThreadPostsModule.js";
-const THREAD_SCRIPT: &str = "http://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--modules/js/forum/ForumViewThreadModule.js";
+const THREAD_POSTS_SCRIPT: &str = "https://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--modules/js/forum/ForumViewThreadPostsModule.js";
+const THREAD_SCRIPT: &str = "https://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--modules/js/forum/ForumViewThreadModule.js";
 
 #[derive(Clone, Debug)]
 pub struct WikidotForumModuleRequest {
