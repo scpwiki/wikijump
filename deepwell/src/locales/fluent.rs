@@ -161,21 +161,18 @@ impl Localizations {
     }
 
     /// Retrieve the specified Fluent pattern from the associated bundle.
+    ///
+    /// Missing-message errors are returned with their specific `ErrorType`
+    /// variants (not wrapped in `ErrorType::Localization`) so that
+    /// `translate_option()` can distinguish "no such translation" from
+    /// genuine failures.
     fn get_pattern(
         &self,
         locale: &LanguageIdentifier,
         path: &str,
         attribute: Option<&str>,
     ) -> Result<(&FluentBundle, &Pattern<&str>)> {
-        let (bundle, message) = self.get_message(locale, path).or_raise(|| {
-            Error::new(
-                format!(
-                    "failed to get Fluent pattern for path '{}' (attribute {:?})",
-                    path, attribute,
-                ),
-                ErrorType::Localization,
-            )
-        })?;
+        let (bundle, message) = self.get_message(locale, path)?;
 
         let pattern = match attribute {
             Some(attribute) => match message.get_attribute(attribute) {
@@ -261,11 +258,26 @@ impl Localizations {
         I: IntoIterator<Item = L>,
     {
         let (path, attribute) = Self::parse_selector(key);
-        let (locale, bundle, pattern) = self
-            .get_pattern_locales(locales, path, attribute)
+        self.translate_parsed(locales, key, path, attribute, args)
             .or_raise(|| {
                 Error::new("failed to translate message", ErrorType::Localization)
-            })?;
+            })
+    }
+
+    fn translate_parsed<'a, L, I>(
+        &'a self,
+        locales: I,
+        key: &str,
+        path: &str,
+        attribute: Option<&str>,
+        args: &'a FluentArgs<'a>,
+    ) -> Result<Cow<'a, str>>
+    where
+        L: AsRef<LanguageIdentifier> + Display + 'a,
+        I: IntoIterator<Item = L>,
+    {
+        let (locale, bundle, pattern) =
+            self.get_pattern_locales(locales, path, attribute)?;
 
         let mut errors = vec![];
         let output = bundle.format_pattern(pattern, Some(args), &mut errors);
@@ -292,7 +304,9 @@ impl Localizations {
     /// A variant of `translate()` which returns `Option`.
     ///
     /// This way, if a translation cannot be found, instead of returning
-    /// an error, it instead returns `Ok(None)`.
+    /// an error, it instead returns `Ok(None)`. Only genuinely missing
+    /// translations (locale, message, value, or attribute) map to `None`;
+    /// any other failure is still returned as an error.
     pub fn translate_option<'a, L, I>(
         &'a self,
         locales: I,
@@ -303,7 +317,8 @@ impl Localizations {
         L: AsRef<LanguageIdentifier> + Display + 'a,
         I: IntoIterator<Item = L>,
     {
-        match self.translate(locales, key, args) {
+        let (path, attribute) = Self::parse_selector(key);
+        match self.translate_parsed(locales, key, path, attribute, args) {
             Ok(translation) => Ok(Some(translation)),
             Err(error) => match error.error_type {
                 ErrorType::LocaleMissing { .. }
@@ -383,7 +398,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn translate_option_propagates_wrapped_missing_translation_errors() {
+    async fn translate_option_returns_none_for_missing_translations() {
         let root = fresh_locale_dir("missing");
         fs::write(root.join("fluent/core/en.ftl"), "hello = Hello\n").unwrap();
         let localizations = Localizations::open(&root).await.unwrap();
@@ -391,27 +406,75 @@ mod tests {
         let fr: LanguageIdentifier = "fr".parse().unwrap();
         let args = FluentArgs::new();
 
+        // Missing message, missing attribute, and missing locale all
+        // resolve to None so that batch translation can fall back
+        // per key instead of failing the whole request.
         let missing_message = localizations
             .translate_option([en.clone()], "missing", &args)
-            .unwrap_err();
+            .unwrap();
         let missing_attribute = localizations
-            .translate_option([en], "hello.title", &args)
-            .unwrap_err();
+            .translate_option([en.clone()], "hello.title", &args)
+            .unwrap();
         let missing_locale = localizations
             .translate_option([fr], "hello", &args)
-            .unwrap_err();
+            .unwrap();
 
+        assert_eq!(missing_message, None);
+        assert_eq!(missing_attribute, None);
+        assert_eq!(missing_locale, None);
+
+        // Present translations still resolve, and the strict variant
+        // still reports missing translations as errors.
+        let present = localizations
+            .translate_option([en.clone()], "hello", &args)
+            .unwrap();
+        assert!(present.is_some());
+        let strict_error = localizations.translate([en], "missing", &args).unwrap_err();
         assert!(matches!(
-            missing_message.error_type,
+            strict_error.error_type,
             ErrorType::Localization
         ));
-        assert!(matches!(
-            missing_attribute.error_type,
-            ErrorType::Localization
-        ));
-        assert!(matches!(missing_locale.error_type, ErrorType::Localization));
 
         fs::remove_dir_all(root).unwrap();
+    }
+
+    #[tokio::test]
+    async fn basic_error_keys_resolve_in_default_locale() {
+        // Regression coverage for the basic-error localization path:
+        // every basic-error message and its title attribute must resolve
+        // in the default locale so that missing-page fallbacks never fail
+        // with "could not find any translation patterns".
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../locales");
+        let localizations = Localizations::open(&root).await.unwrap();
+        let en: LanguageIdentifier = "en".parse().unwrap();
+        let args = FluentArgs::new();
+
+        let keys = [
+            "basic-error-site-slug",
+            "basic-error-site-custom",
+            "basic-error-page-slug",
+            "basic-error-page-fetch",
+            "basic-error-file-name",
+            "basic-error-file-fetch",
+            "basic-error-text-block",
+            "basic-error-file-root",
+            "basic-error-blob-fetch",
+            "basic-error-user-fetch",
+            "basic-error-user-avatar",
+        ];
+
+        for key in keys {
+            let body = localizations
+                .translate([en.clone()], key, &args)
+                .expect("basic-error body should resolve in en");
+            assert!(!body.is_empty(), "empty body for {key}");
+
+            let title_key = format!("{key}.title");
+            let title = localizations
+                .translate([en.clone()], &title_key, &args)
+                .expect("basic-error title should resolve in en");
+            assert!(!title.is_empty(), "empty title for {title_key}");
+        }
     }
 
     #[tokio::test]
