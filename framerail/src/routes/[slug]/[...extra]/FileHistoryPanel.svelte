@@ -105,6 +105,14 @@
   }
 
   async function rollbackFileRevision(revisionNumber: number, comments?: string) {
+    // A file rollback writes a new file revision. Ask before sending it;
+    // cancelling sends no request. This mirrors the page-history rollback
+    // confirmation (issue #2197) for the attachment-history boundary
+    // (issue #2195): a single click must never dispatch a mutation POST.
+    const label = data.internationalization?.["wiki-page-revision-rollback"] ?? "Revert"
+    // eslint-disable-next-line no-alert
+    if (!globalThis.confirm(`${label} ${revisionNumber}?`)) return
+
     const res = await fetch("?/fileRollback", {
       method: "POST",
       body: JSON.stringify({

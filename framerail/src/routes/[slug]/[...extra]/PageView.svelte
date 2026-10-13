@@ -78,6 +78,22 @@
   let wikidotFilesListReady = $state(false)
   let wikidotFilesPrefetched = $state<PageFile[] | null>(null)
   let wikidotFilesRequestId = 0
+  // Wikidot leaves #action-area hidden and empty when a read-only Backlinks
+  // or WhoWatches request fails (issue #2241): no result list, no error
+  // dialog, no retry control. Each pane reports its read state; only a
+  // reported failure hides the area. While the read is in flight the area
+  // keeps its loading state and close control, preserving the abort-on-close
+  // contract for hung reads.
+  let wikidotBacklinksFailed = $state(false)
+  let wikidotWatchersFailed = $state(false)
+
+  function onAuxPaneReadStateChange(
+    pane: "backlinks" | "watchers",
+    readState: "loading" | "success" | "failure"
+  ) {
+    if (pane === "backlinks") wikidotBacklinksFailed = readState === "failure"
+    else wikidotWatchersFailed = readState === "failure"
+  }
 
   async function preloadWikidotFiles() {
     const requestId = ++wikidotFilesRequestId
@@ -122,7 +138,9 @@
   let dataFormEditing = $derived(!!data.options?.edit && !!data.data_form)
   let actionAreaHidden = $derived(
     (!showSource && pagePaneState === PagePane.None && !editSection) ||
-      (pagePaneState === PagePane.File && !wikidotFilesListReady)
+      (pagePaneState === PagePane.File && !wikidotFilesListReady) ||
+      (pagePaneState === PagePane.Backlinks && wikidotBacklinksFailed) ||
+      (pagePaneState === PagePane.Watchers && wikidotWatchersFailed)
   )
   let isDirectWikidotFragmentPage = $derived(
     pageLayoutContext.current === Layout.WIKIDOT &&
@@ -291,6 +309,10 @@
         void preloadWikidotFiles()
       }
     }
+    // A newly opened Backlinks/Watchers pane starts a fresh read, clearing
+    // any failure inherited from its previous mount.
+    if (pane === PagePane.Backlinks) wikidotBacklinksFailed = false
+    if (pane === PagePane.Watchers) wikidotWatchersFailed = false
     pagePaneState = pane
   }
 
@@ -958,7 +980,7 @@
       class:hidden={actionAreaHidden}
       style:display={actionAreaHidden ? "none" : undefined}
     >
-      {#if (showSource || pagePaneState !== PagePane.None || editSection) && (pagePaneState !== PagePane.File || wikidotFilesListReady)}
+      {#if (showSource || pagePaneState !== PagePane.None || editSection) && (pagePaneState !== PagePane.File || wikidotFilesListReady) && (pagePaneState !== PagePane.Backlinks || !wikidotBacklinksFailed) && (pagePaneState !== PagePane.Watchers || !wikidotWatchersFailed)}
         <!-- svelte-ignore a11y_invalid_attribute -->
         <a
           class="action-area-close btn btn-danger"
@@ -993,6 +1015,7 @@
           wikidot
           initialFileList={wikidotFilesPrefetched}
           onFileListVisibilityChange={(ready) => (wikidotFilesListReady = ready)}
+          onPaneReadStateChange={onAuxPaneReadStateChange}
           bind:pagePaneState
         />
       {/if}

@@ -80,7 +80,7 @@ const selectPane = async (page: import("@playwright/test").Page, pane: Pane) => 
 }
 
 for (const pane of ["backlinks", "watchers"] as const) {
-  test(`${pane} failures stay distinct from empty results and can be retried`, async ({
+  test(`${pane} failures keep the Wikidot action area hidden with no invented UI`, async ({
     page
   }) => {
     await page.setExtraHTTPHeaders(SITE_HEADERS)
@@ -122,26 +122,38 @@ for (const pane of ["backlinks", "watchers"] as const) {
       }
     )
 
-    await openPane(page, pane)
-    const alert = page.getByRole("alert")
-    const retry = page.getByRole("button", { name: `Retry loading ${pane}` })
+    // Source Wikidot leaves #action-area hidden and empty when one of these
+    // read-only requests fails (issue #2241): no Loading hang, no fabricated
+    // empty roster, and no error/retry widget. The Wikidot layout has no
+    // retry control, so each mode opens the pane on a fresh page load.
     for (const failure of [
       "unavailable",
       "network",
       "malformed",
       "action-failure"
     ] as const) {
-      if (failure !== "unavailable") {
-        mode = failure
-        await retry.click()
-      }
-      await expect(alert).toContainText(`Could not load ${pane}.`)
+      mode = failure
+      await openPane(page, pane)
+      await expect(page.locator("#action-area")).toBeHidden()
+      await expect(page.getByRole("alert")).toHaveCount(0)
+      await expect(
+        page.getByRole("button", { name: `Retry loading ${pane}` })
+      ).toHaveCount(0)
+      await expect(page.getByText(`Could not load ${pane}.`)).toHaveCount(0)
       await expect(page.getByText(/SECRET detail/u)).toHaveCount(0)
+      if (pane === "backlinks") {
+        await expect(page.locator("#page-backlinks-list")).toHaveCount(0)
+      } else {
+        await expect(page.locator(".page-watchers-list")).toHaveCount(0)
+      }
     }
 
+    // A true successful empty result is not a failure: it renders the exact
+    // source empty-result DOM in a visible action area.
     mode = "empty"
-    await retry.click()
-    await expect(alert).toHaveCount(0)
+    await openPane(page, pane)
+    await expect(page.locator("#action-area")).toBeVisible()
+    await expect(page.getByRole("alert")).toHaveCount(0)
     if (pane === "backlinks") {
       await expect(page.getByText("No pages link to this page.")).toBeVisible()
     } else {
@@ -149,15 +161,7 @@ for (const pane of ["backlinks", "watchers"] as const) {
     }
 
     mode = "populated"
-    await page.reload({ waitUntil: "domcontentloaded" })
-    await page.waitForFunction(() => {
-      const content = document.querySelector("#page-content")
-      return content !== null && content.firstChild?.nodeType !== Node.COMMENT_NODE
-    })
-    await waitForSvelteDelegatedHandler(page, "#more-options-button")
-    await page.locator("#more-options-button").click()
-    await waitForSvelteDelegatedHandler(page, `#${pane}-button`)
-    await page.locator(`#${pane}-button`).click()
+    await openPane(page, pane)
     if (pane === "backlinks") {
       await expect(page.getByRole("link", { name: "Linked fixture page" })).toBeVisible()
     } else {

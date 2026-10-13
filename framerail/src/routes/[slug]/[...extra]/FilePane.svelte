@@ -263,6 +263,7 @@
   }
 
   let canMoveFile = $state(false)
+  let movePermissionKnown = $state(false)
   let movePermissionRequestId = 0
 
   async function fetchMovePermission() {
@@ -286,7 +287,34 @@
 
     if (requestId !== movePermissionRequestId) return
     canMoveFile = allowed
+    movePermissionKnown = true
   }
+
+  // Wikidot answers an anonymous File Move with a role-specific PERMISSION
+  // ERROR before any edit form (issue #2190). The move form above only renders
+  // for viewers who may edit, so without this an unauthorized Move click would
+  // silently do nothing. Once the permission answer is known, replace the
+  // unopenable form with the source-compatible denial. Any failure fails
+  // closed toward the denial.
+  $effect(() => {
+    if (activeFileAction === "move" && movePermissionKnown && !canMoveFile) {
+      activeFileAction = null
+      moveReset()
+      errorPopupState.current = {
+        state: true,
+        title: "PERMISSION ERROR",
+        leadIn: "Please note:",
+        message: "Sorry, you can not move file attachment to another page.",
+        extraMessage:
+          "Only owner (creator) of this page, site administrators and perhaps selected moderators are allowed to do it.",
+        actionLink: {
+          href: "#action:login",
+          label: "Sign in as Wikidot user"
+        },
+        data: null
+      }
+    }
+  })
 
   $effect(() => {
     // Wikidot layout receives the successful initial list from PageView.

@@ -116,6 +116,19 @@ test("anonymous viewers are not offered the File Move form", async ({ page }) =>
   await expect(page.locator("#file-move")).toHaveCount(0)
   await expect(page.locator(".file-panel .file-move-destination-page")).toHaveCount(0)
   expect(moveRequests).toHaveLength(0)
+
+  // Wikidot answers the same anonymous Move with a role-specific PERMISSION
+  // ERROR before any edit form (issue #2190), not a silent no-op.
+  const dialog = page.locator("#odialog-container .owindow.error")
+  await expect(dialog.locator(".title")).toHaveText("PERMISSION ERROR")
+  await expect(dialog.locator(".content")).toContainText(
+    "Please note: Sorry, you can not move file attachment to another page."
+  )
+  await expect(dialog.locator(".content")).toContainText(
+    "Only owner (creator) of this page, site administrators and perhaps selected moderators are allowed to do it."
+  )
+  const signIn = dialog.getByRole("link", { name: "Sign in as Wikidot user" })
+  await expect(signIn).toHaveAttribute("href", "#action:login")
 })
 
 test("authorized editors keep the File Move form", async ({ page }) => {
