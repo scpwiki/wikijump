@@ -159,6 +159,32 @@ function browserSession({browser, sourceContext, localContext, sourceResponseCac
   };
 }
 
+/**
+ * Firefox launch options for a retained-evidence replay.
+ *
+ * Firefox upgrades an insecure subresource through an internal redirect that Playwright's
+ * route interception never observes, so an evidence replay would never be asked for the
+ * page's `http://` subresources and would silently fetch them from the network instead.
+ * Disabling that upgrade makes the browser issue the request as written, which keeps every
+ * request observable and therefore serveable from retained evidence. Chromium and WebKit do
+ * not need this: they either rewrite the subresource URL before requesting it or keep a
+ * request the gate can route.
+ */
+export function firefoxEvidenceReplayLaunchOptions(executable) {
+  if (typeof executable !== "string" || executable === "") {
+    throw new Error("firefox evidence replay launch options require an executable path");
+  }
+  return {
+    executablePath: executable,
+    firefoxUserPrefs: {
+      "dom.security.https_only_mode": false,
+      "dom.security.https_only_mode_pbm": false,
+      "dom.security.https_only_mode_ever_enabled": false,
+      "security.mixed_content.upgrade_display_content": false,
+    },
+  };
+}
+
 export async function openBrowser({
   chromium,
   cdpEndpoint,
