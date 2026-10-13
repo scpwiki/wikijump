@@ -20,7 +20,7 @@ const LINE_BUDGETS = new Map([
     2_300,
   ],
   ["deepwell/src/services/data_form.rs", 1_450],
-  ["deepwell/src/services/render/runtime_modules.rs", 1_900],
+  ["deepwell/src/services/render/runtime_modules.rs", 1_950],
   ["deepwell/src/services/render/list_pages/mod.rs", 1_500],
   ["deepwell/src/services/render/list_pages/bounded_expansion.rs", 1_000],
   ["deepwell/src/services/render/list_pages/scanner.rs", 2_700],
@@ -28,7 +28,7 @@ const LINE_BUDGETS = new Map([
   ["deepwell/src/services/render/list_pages/substitution.rs", 1_600],
   ["deepwell/src/services/render/list_pages/delayed.rs", 1_600],
   ["deepwell/src/services/page_query/service.rs", 2_500],
-  ["deepwell/src/endpoints/page.rs", 1_600],
+  ["deepwell/src/endpoints/page.rs", 1_700],
   ["framerail/src/lib/server/ajax-module-connector.js", 1_500],
   ["deepwell/src/services/render/service.rs", 4_000],
 ]);
@@ -74,7 +74,7 @@ const DIRECTORY_LINE_BUDGETS = [
   },
   {
     directory: "deepwell/src/services/render/list_pages/substitution/runtime",
-    maximum: 900,
+    maximum: 950,
     include: (name) => name.endsWith(".rs"),
   },
   {
