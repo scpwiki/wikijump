@@ -3627,9 +3627,14 @@ async fn forum_start_and_recent_posts_filter_before_counts_order_and_pagination_
         thread_ajax.body,
     );
     assert_eq!(thread_ajax.js_include.len(), 2);
+    // Since 2026-09-21 Wikidot serves module scripts over https; the live
+    // scp-wiki thread view of 2026-10-12 lists both thread scripts with an
+    // https cloudfront URL, matching the Comments module.
     assert!(
-        thread_ajax.js_include[0].ends_with("/ForumViewThreadPostsModule.js")
-            && thread_ajax.js_include[1].ends_with("/ForumViewThreadModule.js"),
+        thread_ajax.js_include[0]
+            == "https://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--modules/js/forum/ForumViewThreadPostsModule.js"
+            && thread_ajax.js_include[1]
+                == "https://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--modules/js/forum/ForumViewThreadModule.js",
         "{:?}",
         thread_ajax.js_include,
     );
@@ -3678,7 +3683,8 @@ async fn forum_start_and_recent_posts_filter_before_counts_order_and_pagination_
     );
     assert_eq!(past_last_page.status, "not_ok");
     assert!(
-        thread_posts_ajax.js_include[0].ends_with("/ForumViewThreadPostsModule.js"),
+        thread_posts_ajax.js_include[0]
+            == "https://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--modules/js/forum/ForumViewThreadPostsModule.js",
         "{:?}",
         thread_posts_ajax.js_include,
     );
