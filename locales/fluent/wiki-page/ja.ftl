@@ -80,6 +80,7 @@ wiki-page-revision-diff = バージョンを比較
   .swap = 入れ替え
   .loading = 比較を読み込み中…
   .no-changes = 差分がありません。
+  .unavailable = 比較できるページリビジョンが2つありません
 
 wiki-page-revision-number = リビジョン番号
 
