@@ -51,7 +51,7 @@ use crate::services::render::{
     LegacyActionRegistry, LegacyBrowserAction, SiteChangesLoad, WikidotForumFeedKind,
     WikidotForumFeedOutput, WikidotForumFeedScope, WikidotForumModuleRequest,
     WikidotForumModuleResponse, WikidotListPagesFeedInput, WikidotListPagesFeedOutput,
-    WikidotMembersListModuleResponse, WikidotSiteChangesFeedOutput,
+    WikidotMembersListModuleResponse, WikidotSiteChangesFeedOutput, WikidotSitemapOutput,
     WikidotSiteChangesFilter, WikidotSiteChangesModuleRequest,
     WikidotSiteChangesModuleResponse, wikidot_site_changes_empty_response,
 };
@@ -655,6 +655,31 @@ pub async fn wikidot_site_changes_feed(
         .into());
     }
     RenderService::wikidot_site_changes_feed(ctx, input.site_id).await
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct WikidotSitemapInput {
+    site_id: i64,
+}
+
+pub async fn wikidot_sitemap(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Option<WikidotSitemapOutput>> {
+    let input: WikidotSitemapInput = parse!(params, Page);
+    if ctx
+        .request()
+        .site_id
+        .is_some_and(|request_site_id| request_site_id != input.site_id)
+    {
+        return Err(Error::new(
+            "sitemap site does not match the request context",
+            ErrorType::PermissionDenied,
+        )
+        .into());
+    }
+    RenderService::wikidot_sitemap(ctx, input.site_id).await
 }
 
 pub async fn wikidot_members_list_module(
