@@ -380,7 +380,7 @@ async fn current_ftml_pin_preserves_promoted_image_dom() {
             r#"[[f=image https://www.wikidot.com/local--files/files/wikidot_logo_100x30.png width="100px" alt="G06_IMAGE_ALT"]]"#,
             concat!(
                 r#"<div class="image-container">"#,
-                r#"<img src="https://www.wdfiles.com/local--files/files/wikidot_logo_100x30.png" width="100px" class="image" alt="G06_IMAGE_ALT">"#,
+                r#"<img src="https://www.wikidot.com/local--files/files/wikidot_logo_100x30.png" width="100px" class="image" alt="G06_IMAGE_ALT">"#,
                 "</div>",
             ),
         ),

@@ -141,8 +141,8 @@ use super::site_utility_modules::resolve_typed_root_site_grid_runtime_modules;
 use super::structs::{RenderOutput, RenderPageOutput};
 use super::url_arguments::UrlArguments;
 use super::wikidot_hosts::{
-    direct_wdfiles_local_file_url, local_file_host_site_slug, preferred_domain_host,
-    preferred_domain_wikidot_slug,
+    direct_wdfiles_local_file_url, is_wikidot_www_host, local_file_host_site_slug,
+    preferred_domain_host, preferred_domain_wikidot_slug,
 };
 use crate::config::Config;
 use crate::error::prelude::{Error, ErrorType, ExnError, OptionExt, Result, ResultExt};
@@ -3883,6 +3883,10 @@ fn site_accepts_cross_site_wdfiles_local_file(
     path: &str,
 ) -> bool {
     if !path.starts_with("/local--files/") {
+        return false;
+    }
+
+    if is_wikidot_www_host(host) {
         return false;
     }
 

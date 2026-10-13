@@ -1295,6 +1295,50 @@ fn final_render_localizes_restored_wdfiles_urls_in_body_and_generated_styles() {
 }
 
 #[test]
+fn keeps_wikidot_www_site_attachments_on_their_own_host_in_final_output() {
+    // The final-output pass re-reads URLs the first pass already emitted. The
+    // www site's attachments must survive that second pass unchanged, while
+    // same-site and foreign corpus attachments on a mirror are still localized.
+    let site = wikidot_site("scp-wiki", Some("scp-wiki.wikidot.com"));
+    let mut config = Config::integration_testing();
+    config.files_domain = ".wjfiles.localhost".to_owned();
+    config.files_domain_no_dot = "wjfiles.localhost".to_owned();
+    let mut body = concat!(
+        r#"<img src="https://www.wikidot.com/local--files/files/wikidot_logo_100x30.png">"#,
+        r#"<img src="https://www.wdfiles.com/local--files/files/wikidot_logo_100x30.png">"#,
+        r#"<img src="https://scp-wiki.wdfiles.com/local--files/scp-3922/theend.jpg">"#,
+        r#"<img src="https://scp-sandbox-3.wdfiles.com/local--files/harry-blank-9/Lillihammer_Preview.png">"#,
+    )
+    .to_owned();
+    let mut styles = vec![
+        r#".logo{background:url(https://www.wikidot.com/local--files/files/wikidot_logo_100x30.png)}"#.to_owned(),
+    ];
+
+    RenderService::localize_wikidot_render_output_file_urls(
+        &mut body,
+        &mut styles,
+        Some(&site),
+        &config,
+    );
+
+    assert_eq!(
+        body,
+        concat!(
+            r#"<img src="https://www.wikidot.com/local--files/files/wikidot_logo_100x30.png">"#,
+            r#"<img src="https://www.wdfiles.com/local--files/files/wikidot_logo_100x30.png">"#,
+            r#"<img src="https://scp-wiki.wjfiles.localhost/local--files/scp-3922/theend.jpg">"#,
+            r#"<img src="https://scp-wiki.wjfiles.localhost/local--files/harry-blank-9/Lillihammer_Preview.png">"#,
+        ),
+    );
+    assert_eq!(
+        styles,
+        [
+            r#".logo{background:url(https://www.wikidot.com/local--files/files/wikidot_logo_100x30.png)}"#,
+        ],
+    );
+}
+
+#[test]
 fn sends_cross_site_wikidot_attachments_directly_to_the_file_host() {
     let site = wikidot_site(
         "scp-wiki-en-corpus-scp9506-slice-v2",
