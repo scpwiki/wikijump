@@ -150,11 +150,14 @@ test("anonymous file history has no Revert control and emits no rollback request
   await expect(revertControls).toHaveCount(0)
   await expect(page.locator(".revision-row form")).toHaveCount(0)
   await expect(page.getByRole("dialog")).toHaveCount(0)
+  // Scoped to the action cell: the revision's page cell legitimately keeps
+  // its title link (see file-history-page-identity.spec.ts), so a row-wide
+  // focusable sweep can no longer read as "no Revert control".
   const focusableActions = await page
-    .locator(".revision-row")
+    .locator(".revision-row .revision-attribute.action")
     .evaluate(
-      (row) =>
-        row.querySelectorAll("a, button, input, select, textarea, [tabindex]").length
+      (cell) =>
+        cell.querySelectorAll("a, button, input, select, textarea, [tabindex]").length
     )
   expect(focusableActions).toBe(0)
   expect(rollbackRequests).toHaveLength(0)

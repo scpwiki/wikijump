@@ -5,6 +5,9 @@
   import { onDestroy } from "svelte"
   import { SvelteMap } from "svelte/reactivity"
 
+  import RevisionAuthor from "./RevisionAuthor.svelte"
+  import WikidotRevisionAuthor from "./WikidotRevisionAuthor.svelte"
+
   import type { PageFile } from "$lib/server/deepwell/page-file"
   import type { FileRevisionModel, Optional } from "$lib/types"
   import type { SvelteMap as SvelteMapType } from "svelte/reactivity"
@@ -30,6 +33,7 @@
   } = $props()
 
   const fileRevisionMap = new SvelteMap<number, FileRevisionModel>()
+  let fileHistoryLoading = $state(false)
   let requestedHistoryRequestId = $state(-1)
   // Only the most recently requested file history may update the pane. A
   // slower response for an earlier file must not replace the revisions or
@@ -47,37 +51,52 @@
     data.internationalization?.["wiki-page-file-history"] ?? "File history"
   )
 
-  async function loadFileHistory(fileId: number) {
+  async function loadFileHistory(fileId: number, reopenHistory = false) {
     requestedHistoryRequestId = historyRequestId
     const requestId = ++fileHistoryRequestId
-    const res = await fetch("?/fileHistory", {
-      method: "POST",
-      body: JSON.stringify({
-        siteId: data.site.site_id,
-        pageId: data.page?.page_id,
-        fileId
-      })
-    }).then((response) => response.text())
+    // Drop the previous file's rows the moment a new history load starts, so
+    // a slow response can never leave stale revisions on screen for the file
+    // the reader asked for last (issue #2192).
+    fileRevisionMap.clear()
+    fileHistoryLoading = true
+    try {
+      const res = await fetch("?/fileHistory", {
+        method: "POST",
+        body: JSON.stringify({
+          siteId: data.site.site_id,
+          pageId: data.page?.page_id,
+          fileId
+        })
+      }).then((response) => response.text())
 
-    if (requestId !== fileHistoryRequestId) return
+      if (requestId !== fileHistoryRequestId || fileEditId !== fileId) return
 
-    const result = deserialize<
-      { res: FileRevisionModel[] },
-      { message: string; code: string; data: Record<string, unknown> }
-    >(res)
+      const result = deserialize<
+        { res: FileRevisionModel[] },
+        { message: string; code: string; data: Record<string, unknown> }
+      >(res)
 
-    if (result.type === "failure" && result.data?.message) {
-      errorPopupState.current = {
-        state: true,
-        message: result.data.message,
-        data: result.data
+      if (result.type === "failure" && result.data?.message) {
+        errorPopupState.current = {
+          state: true,
+          message: result.data.message,
+          data: result.data
+        }
+      } else if (result.type === "success" && result.data?.res) {
+        fileRevisionMap.clear()
+        result.data.res.forEach((revision) => {
+          fileRevisionMap.set(revision.revision_number, revision)
+        })
+        // A late response must not yank the reader out of a newer file
+        // action. Only the post-rollback refetch reopens its history view.
+        if (reopenHistory || activeFileAction === "history") {
+          activeFileAction = "history"
+        }
       }
-    } else if (result.type === "success" && result.data?.res) {
-      fileRevisionMap.clear()
-      result.data.res.forEach((revision) => {
-        fileRevisionMap.set(revision.revision_number, revision)
-      })
-      activeFileAction = "history"
+    } finally {
+      if (requestId === fileHistoryRequestId) {
+        fileHistoryLoading = false
+      }
     }
   }
 
@@ -141,7 +160,7 @@
       requestedHistoryRequestId = -1
       fileRevisionMap.clear()
       await getFileList()
-      await loadFileHistory(fileEditId)
+      await loadFileHistory(fileEditId, true)
       await invalidateAll()
     }
   }
@@ -179,6 +198,7 @@
     class="revision-list-scroll"
     role="region"
     aria-label={fileHistoryRegionLabel}
+    aria-busy={fileHistoryLoading}
     tabindex="0"
   >
     <div class="revision-list">
@@ -254,7 +274,21 @@
             {new Date(revisionItem.created_at).toLocaleString()}
           </div>
           <div class="revision-attribute user">
-            {revisionItem.user_id}
+            <!--
+              The uploader is the revision's resolved public identity, the
+              same author projection the page History pane renders. A
+              revision without one (unknown, deleted, or synthetic import
+              actor) keeps that pane's deleted-user marker: the raw numeric
+              ID is never user-facing text (issue #2199).
+            -->
+            {#if wikidot}
+              <WikidotRevisionAuthor
+                author={revisionItem.author}
+                userId={revisionItem.user_id}
+              />
+            {:else}
+              <RevisionAuthor author={revisionItem.author} />
+            {/if}
           </div>
           <div class="revision-attribute page">
             {#if data.page?.page_id === revisionItem.page_id && data.site.site_id === revisionItem.site_id}

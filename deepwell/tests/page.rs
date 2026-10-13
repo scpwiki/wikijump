@@ -16308,7 +16308,7 @@ async fn file_revision_reads_require_parent_page_view_permission_and_tuple_bindi
         }),
     );
     assert_eq!(public_revisions.len(), 1);
-    assert_eq!(public_revisions[0].file_id, public_file_id);
+    assert_eq!(public_revisions[0].revision.file_id, public_file_id);
 
     let mismatched_revision = run_endpoint!(
         runner,
@@ -16403,7 +16403,15 @@ async fn file_revision_reads_require_parent_page_view_permission_and_tuple_bindi
         }),
     );
     assert_eq!(private_revisions.len(), 1);
-    assert_eq!(private_revisions[0].file_id, private_file_id);
+    assert_eq!(private_revisions[0].revision.file_id, private_file_id);
+
+    // Issue #2199: an attached author must be the revision's own uploader,
+    // never another file's identity.
+    for entry in public_revisions.iter().chain(private_revisions.iter()) {
+        if let Some(author) = &entry.author {
+            assert_eq!(author.user_id, entry.revision.user_id);
+        }
+    }
 }
 
 #[tokio::test]

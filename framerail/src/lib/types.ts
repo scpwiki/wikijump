@@ -200,7 +200,8 @@ export interface PageRevisionModel {
   tags: string[]
 }
 
-// deepwell src/models/file_revision.rs
+// deepwell file_revision_range (with the page timeline's public author
+// projection attached, issue #2199)
 export interface FileRevisionModel {
   revision_id: number
   revision_type: FileRevisionType
@@ -210,6 +211,7 @@ export interface FileRevisionModel {
   page_id: number
   site_id: number
   user_id: number
+  author: Nullable<UserInfo>
   name: Nullable<string>
   s3_hash: Nullable<number[]>
   mime: Nullable<string>

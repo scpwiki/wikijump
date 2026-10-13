@@ -145,3 +145,69 @@ test("a superseded file-history response cannot replace the selected file's revi
   await expect(page.locator(".revision-row")).toContainText(FILE_B.comments)
   await expect(page.locator(".revision-row")).not.toContainText(FILE_A.comments)
 })
+
+test("switching files clears the previous revisions while the new ones load", async ({
+  page
+}) => {
+  await page.setExtraHTTPHeaders(AUTHENTICATED_HEADERS)
+  const heldHistoryForB: Route[] = []
+
+  await page.route(
+    (url) => url.search === "?/fileList",
+    async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: successBody({ res: [fileRecord(FILE_A), fileRecord(FILE_B)] })
+      })
+    }
+  )
+  await page.route(
+    (url) => url.search === "?/fileHistory",
+    async (route) => {
+      const body = JSON.parse(route.request().postData() ?? "{}") as { fileId?: number }
+      if (body.fileId === FILE_B.file_id) {
+        // Hold file B's history so the switch-over state is observable.
+        heldHistoryForB.push(route)
+        return
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: successBody({ res: [revisionRecord(FILE_A)] })
+      })
+    }
+  )
+
+  await page.goto("/page-workflow-probe", { waitUntil: "domcontentloaded" })
+  await waitForSvelteDelegatedHandler(page, "#files-button")
+  await page.locator("#files-button").click()
+  const rowFor = (file: typeof FILE_A) =>
+    page.locator(`.file-row[data-id="${file.file_id}"]`)
+  await expect(rowFor(FILE_A)).toBeVisible()
+
+  await rowFor(FILE_A).getByRole("link", { name: "history", exact: true }).click()
+  await expect(page.locator(".revision-row")).toContainText(FILE_A.comments)
+
+  await rowFor(FILE_B).getByRole("link", { name: "history", exact: true }).click()
+  await expect.poll(() => heldHistoryForB.length).toBe(1)
+  // File A's rows must vanish the moment file B is selected, instead of
+  // staying on screen (with stale Revert targets) until B arrives.
+  await expect(page.locator(".revision-row")).toHaveCount(0)
+
+  const historyResponse = page.waitForResponse(
+    (response) =>
+      new URL(response.url()).search === "?/fileHistory" &&
+      (response.request().postData() ?? "").includes(`"fileId":${FILE_B.file_id}`)
+  )
+  await heldHistoryForB[0].fulfill({
+    status: 200,
+    contentType: "application/json",
+    body: successBody({ res: [revisionRecord(FILE_B)] })
+  })
+  await historyResponse
+  await page.waitForTimeout(500)
+
+  await expect(page.locator(".revision-row")).toContainText(FILE_B.comments)
+  await expect(page.locator(".revision-row")).not.toContainText(FILE_A.comments)
+})
