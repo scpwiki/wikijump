@@ -74,6 +74,7 @@ mod service;
 mod site_changes;
 mod site_changes_feed;
 mod site_utility_modules;
+mod sitemap;
 mod structs;
 mod url_arguments;
 mod user_directory;
@@ -127,6 +128,9 @@ pub use self::site_changes::{
 pub use self::site_changes_feed::{
     SITE_CHANGES_FEED_ITEM_LIMIT, WikidotSiteChangesFeedItem,
     WikidotSiteChangesFeedOutput, wikidot_site_changes_change_type,
+};
+pub use self::sitemap::{
+    SITEMAP_MAX_ENTRIES, WikidotSitemapEntry, WikidotSitemapOutput,
 };
 pub use self::structs::{
     RenderOutput, RenderPageOutput, WikidotListPagesFeedInput, WikidotListPagesFeedItem,

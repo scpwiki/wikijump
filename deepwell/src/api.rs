@@ -513,6 +513,7 @@ async fn build_module(app_state: ServerState) -> Result<RpcModule<ServerState>> 
     );
     register!("wikidot_site_changes_module", wikidot_site_changes_module);
     register!("wikidot_site_changes_feed", wikidot_site_changes_feed);
+    register!("wikidot_sitemap", wikidot_sitemap);
     register!("wikidot_forum_module", wikidot_forum_module);
     register!("wikidot_forum_feed", wikidot_forum_feed);
     register!("wikidot_members_list_module", wikidot_members_list_module);

@@ -242,6 +242,10 @@
 
 <svelte:head>
   <title>{documentTitle}</title>
+  {#if viewData?.site?.description}
+    <meta name="description" content={viewData.site.description} />
+    <meta name="og:site_name" content={viewData.site.name} />
+  {/if}
   {#if analyticsProfile}
     <meta
       name="wikidot-site-analytics-profile"

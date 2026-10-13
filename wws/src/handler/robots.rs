@@ -22,15 +22,27 @@
 
 use super::{TargetServer, get_target_server};
 use axum::body::Body;
-use axum::http::header::{self, HeaderMap};
+use axum::http::header::{self, HOST, HeaderMap};
 use axum::http::status::StatusCode;
 use axum::response::Response;
 
 const ROBOTS_TXT_ALLOW_ALL: &str = "User-agent: *\nAllow: /\n";
 
 pub async fn handle_robots_txt(headers: HeaderMap) -> Response {
+    // The main site publishes a sitemap index at `/sitemap.xml` (Wikidot
+    // route shape), so its crawler policy points at that index. The host
+    // comes from the request itself, never a hard-coded domain. Without a
+    // host, or on the files target which serves no sitemap, the policy stays
+    // a plain allow-all.
     let body = match get_target_server(&headers) {
-        TargetServer::Main | TargetServer::Files => ROBOTS_TXT_ALLOW_ALL,
+        TargetServer::Main => match headers.get(HOST).and_then(|value| value.to_str().ok())
+        {
+            Some(host) => {
+                format!("{ROBOTS_TXT_ALLOW_ALL}Sitemap: https://{host}/sitemap.xml\n")
+            }
+            None => ROBOTS_TXT_ALLOW_ALL.to_owned(),
+        },
+        TargetServer::Files => ROBOTS_TXT_ALLOW_ALL.to_owned(),
     };
 
     Response::builder()
@@ -75,6 +87,43 @@ mod tests {
         let response = handle_robots_txt(target_headers("files"))
             .await
             .into_response();
+
+        assert_eq!(response.status(), StatusCode::OK);
+        let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+        assert_eq!(body.as_ref(), b"User-agent: *\nAllow: /\n");
+    }
+
+    fn main_headers_with_host(host: &'static str) -> HeaderMap {
+        let mut headers = target_headers("main");
+        headers.insert(HOST, HeaderValue::from_static(host));
+        headers
+    }
+
+    #[tokio::test]
+    async fn robots_txt_main_target_advertises_host_sitemap_index() {
+        let response = handle_robots_txt(main_headers_with_host("scp-wiki.example"))
+            .await
+            .into_response();
+
+        assert_eq!(response.status(), StatusCode::OK);
+        assert_eq!(
+            response.headers()[CONTENT_TYPE],
+            "text/plain; charset=utf-8",
+        );
+
+        let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+        assert_eq!(
+            body.as_ref(),
+            b"User-agent: *\nAllow: /\nSitemap: https://scp-wiki.example/sitemap.xml\n",
+        );
+    }
+
+    #[tokio::test]
+    async fn robots_txt_files_target_ignores_host_header() {
+        let mut headers = target_headers("files");
+        headers.insert(HOST, HeaderValue::from_static("files.example"));
+
+        let response = handle_robots_txt(headers).await.into_response();
 
         assert_eq!(response.status(), StatusCode::OK);
         let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();

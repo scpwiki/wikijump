@@ -354,6 +354,29 @@ export async function wikidotSiteChangesFeed(
   )
 }
 
+/* ----- Sitemap ----- */
+export interface WikidotSitemapEntry {
+  slug: string
+  last_modified: string
+}
+
+export interface WikidotSitemapOutput {
+  entries: WikidotSitemapEntry[]
+}
+
+export async function wikidotSitemap(
+  siteId: number,
+  requestContext: RequestContext = {}
+): Promise<WikidotSitemapOutput | null> {
+  return client.request(
+    "wikidot_sitemap",
+    {
+      site_id: siteId
+    },
+    requestContext
+  )
+}
+
 export async function pageMetaTagSet(
   siteId: number,
   pageId: number,
