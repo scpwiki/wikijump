@@ -16,6 +16,33 @@ const ACTIVE_FILE_NAME = "theme-lab-visual-fixture"
 // The page-workflow-probe fixture uses the Wikidot layout.
 const FILE_ACTION_ROW = ".buttons"
 
+/**
+ * Encode a value in SvelteKit's flat devalue shape, as `deserialize`
+ * expects.
+ */
+const devalue = (value: unknown): string => {
+  const flat: unknown[] = []
+  const add = (item: unknown): number => {
+    const index = flat.length
+    flat.push(null)
+    if (Array.isArray(item)) {
+      flat[index] = item.map(add)
+    } else if (item !== null && typeof item === "object") {
+      const encoded: Record<string, number> = {}
+      for (const [key, child] of Object.entries(item)) encoded[key] = add(child)
+      flat[index] = encoded
+    } else {
+      flat[index] = item
+    }
+    return index
+  }
+  add(value)
+  return JSON.stringify(flat)
+}
+
+const successBody = (value: unknown) =>
+  JSON.stringify({ type: "success", status: 200, data: devalue(value) })
+
 test("a late first Files result cannot replace History after the viewer switches", async ({
   page
 }) => {
@@ -99,6 +126,97 @@ test("a late failed Files response cannot replace History or show an error", asy
   await expect(page.getByText("Stale failure")).toHaveCount(0)
   await expect(page.locator("#action-area .page-revision-header")).toBeVisible()
   await expect(page.locator(".file-list")).toHaveCount(0)
+})
+
+test("a late deleted-files response cannot replace the active list after reopening", async ({
+  page
+}) => {
+  await page.setExtraHTTPHeaders(AUTHENTICATED_HEADERS)
+  const heldDeletedLists: Route[] = []
+  let deletedListRequests = 0
+  const activeFile = (fileId: number, name: string) => ({
+    file_id: fileId,
+    file_created_at: "2026-10-01T00:00:00Z",
+    file_updated_at: null,
+    file_deleted_at: null,
+    page_id: 3000340,
+    revision_id: fileId + 1000,
+    revision_type: "create",
+    revision_created_at: "2026-10-01T00:00:00Z",
+    revision_number: 0,
+    revision_user_id: 123,
+    name,
+    data: null,
+    mime: "text/plain",
+    size: 12,
+    s3_hash: "fixture-hash",
+    revision_comments: "",
+    hidden_fields: []
+  })
+  const deletedFile = (fileId: number, name: string) => ({
+    ...activeFile(fileId, name),
+    file_deleted_at: "2026-10-02T00:00:00Z",
+    revision_type: "delete"
+  })
+  await page.route(
+    (url) => url.search === "?/fileList",
+    async (route) => {
+      const body = JSON.parse(route.request().postData() ?? "{}") as {
+        deleted?: boolean
+      }
+      const payload = body.deleted
+        ? [
+            deletedFile(91301, "restore-race-deleted-a.txt"),
+            deletedFile(91302, "restore-race-deleted-b.txt")
+          ]
+        : [
+            activeFile(91201, "restore-race-active-a.txt"),
+            activeFile(91202, "restore-race-active-b.txt")
+          ]
+      if (body.deleted) {
+        deletedListRequests += 1
+        if (deletedListRequests === 2) {
+          heldDeletedLists.push(route)
+          return
+        }
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: successBody({ res: payload })
+      })
+    }
+  )
+
+  await page.goto("/page-workflow-probe", { waitUntil: "domcontentloaded" })
+  await waitForSvelteDelegatedHandler(page, "#files-button")
+  await page.locator("#files-button").click()
+  await expect(page.locator(".file-list")).toContainText("restore-race-active-a.txt")
+
+  const restoreToggle = page
+    .locator(".file-panel")
+    .getByRole("button", { name: "restore", exact: true })
+  await restoreToggle.click()
+  await expect(page.locator(".file-list")).toContainText("restore-race-deleted-a.txt")
+
+  await restoreToggle.click()
+  await expect.poll(() => heldDeletedLists.length).toBe(1)
+
+  await page.locator("#action-area .action-area-close").click()
+  await expect(page.locator("#action-area")).toHaveClass(/hidden/u)
+  await expect
+    .poll(() => page.locator("#action-area").evaluate((area) => area.children.length))
+    .toBe(0)
+
+  await page.locator("#files-button").click()
+  await expect(page.locator(".file-list")).toContainText("restore-race-active-a.txt")
+
+  await heldDeletedLists[0].continue()
+  await page.waitForTimeout(500)
+  // Only the last user-selected mode wins: the stale deleted-files reply
+  // cannot flip the reopened pane back to Restore rows.
+  await expect(page.locator(".file-list")).toContainText("restore-race-active-a.txt")
+  await expect(page.locator(".file-list")).not.toContainText("restore-race-deleted-a.txt")
 })
 
 test("an initial file-list 503 shows no result area instead of a false empty inventory", async ({

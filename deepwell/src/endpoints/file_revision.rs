@@ -98,27 +98,65 @@ pub async fn file_revision_get(
 pub async fn file_revision_range(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
-) -> Result<Vec<FileRevisionModelFiltered>> {
+) -> Result<Vec<PageFileRevisionHistoryModelFiltered>> {
     let input: GetFileRevisionRange = parse!(params, FileRevision);
+    let make_error = || {
+        Error::new(
+            "failed to get range of file revisions",
+            ErrorType::FileRevision,
+        )
+    };
     ensure_parent_page_view_permission(ctx, input.site_id, input.page_id, None)
         .await
-        .or_raise(|| {
-            Error::new(
-                "failed to check file revision range parent-page visibility",
-                ErrorType::FileRevision,
-            )
-        })?;
+        .or_raise(make_error)?;
 
     let revisions = FileRevisionService::get_range(ctx, input)
         .await
-        .or_raise(|| {
-            Error::new(
-                "failed to get range of file revisions",
-                ErrorType::FileRevision,
-            )
-        })?;
+        .or_raise(make_error)?;
 
-    revisions.into_iter().map(filter_file_revision).collect()
+    // Like the page timeline's file history, each revision carries the
+    // author's public identity (issue #2199), so the Files pane never has
+    // to render raw user IDs.
+    let authors = resolve_file_revision_authors(ctx, &revisions)
+        .await
+        .or_raise(make_error)?;
+
+    revisions
+        .into_iter()
+        .map(|revision| attach_file_revision_author(revision, &authors))
+        .collect()
+}
+
+async fn resolve_file_revision_authors(
+    ctx: &ServiceContext<'_>,
+    revisions: &[FileRevisionModel],
+) -> Result<BTreeMap<i64, UserInfo<'static>>> {
+    let user_ids = revisions
+        .iter()
+        .map(|revision| revision.user_id)
+        .collect::<BTreeSet<_>>();
+    let mut authors = BTreeMap::new();
+    for user_id in user_ids {
+        let Some(user) = UserService::get_optional(ctx, Reference::Id(user_id)).await?
+        else {
+            continue;
+        };
+        if let Some(author) = user.into_public_identity() {
+            authors.insert(user_id, author);
+        }
+    }
+    Ok(authors)
+}
+
+fn attach_file_revision_author(
+    revision: FileRevisionModel,
+    authors: &BTreeMap<i64, UserInfo<'static>>,
+) -> Result<PageFileRevisionHistoryModelFiltered> {
+    let author = authors.get(&revision.user_id).cloned();
+    Ok(PageFileRevisionHistoryModelFiltered {
+        revision: filter_file_revision(revision)?,
+        author,
+    })
 }
 
 pub async fn file_revision_page_history(
@@ -144,32 +182,19 @@ pub async fn file_revision_page_history(
             )
         })?;
 
-    let user_ids = history
-        .revisions
-        .iter()
-        .map(|revision| revision.user_id)
-        .collect::<BTreeSet<_>>();
-    let mut authors = BTreeMap::<i64, UserInfo<'static>>::new();
-    for user_id in user_ids {
-        let Some(user) = UserService::get_optional(ctx, Reference::Id(user_id)).await?
-        else {
-            continue;
-        };
-        if let Some(author) = user.into_public_identity() {
-            authors.insert(user_id, author);
-        }
-    }
+    let authors = resolve_file_revision_authors(ctx, &history.revisions)
+        .await
+        .or_raise(|| {
+            Error::new(
+                "failed to get file revision history for page",
+                ErrorType::FileRevision,
+            )
+        })?;
 
     let revisions = history
         .revisions
         .into_iter()
-        .map(|revision| {
-            let author = authors.get(&revision.user_id).cloned();
-            Ok(PageFileRevisionHistoryModelFiltered {
-                revision: filter_file_revision(revision)?,
-                author,
-            })
-        })
+        .map(|revision| attach_file_revision_author(revision, &authors))
         .collect::<Result<Vec<_>>>()?;
 
     Ok(PageFileRevisionHistoryOutput {
@@ -341,5 +366,52 @@ mod tests {
         let result = filter_file_revision(revision(vec!["revision_id".to_owned()]));
 
         assert!(result.is_err(), "unknown hidden fields must fail closed");
+    }
+
+    #[test]
+    fn attaches_author_by_user_id_not_position() {
+        let authors = BTreeMap::from([(37, UserInfo::dummy())]);
+        let attached = attach_file_revision_author(revision(Vec::new()), &authors)
+            .expect("known revision should attach");
+
+        assert_eq!(attached.revision.file_id, 23);
+        let author = attached
+            .author
+            .expect("matching user ID should attach its author");
+        assert_eq!(author, UserInfo::dummy());
+
+        let others = BTreeMap::from([(999, UserInfo::dummy())]);
+        let unattached = attach_file_revision_author(revision(Vec::new()), &others)
+            .expect("known revision should attach");
+        assert!(
+            unattached.author.is_none(),
+            "an unrelated user ID must not attach",
+        );
+    }
+
+    #[test]
+    fn leaves_author_empty_without_a_public_identity() {
+        let attached =
+            attach_file_revision_author(revision(Vec::new()), &BTreeMap::new())
+                .expect("known revision should attach");
+
+        // Unknown, deleted, and synthetic import actors (e.g. user -1/-2)
+        // resolve to no public identity, so the pane must fall back to its
+        // deleted-user marker instead of a raw numeric ID (issue #2199).
+        assert!(attached.author.is_none());
+        assert_eq!(attached.revision.user_id, 37);
+    }
+
+    #[test]
+    fn serializes_author_flat_alongside_revision_fields() {
+        let authors = BTreeMap::from([(37, UserInfo::dummy())]);
+        let attached = attach_file_revision_author(revision(Vec::new()), &authors)
+            .expect("known revision should attach");
+
+        let serialized =
+            serde_json::to_value(attached).expect("attached revision should serialize");
+        assert_eq!(serialized["file_id"], 23);
+        assert!(serialized.get("author").is_some());
+        assert!(serialized.get("revision").is_none());
     }
 }
