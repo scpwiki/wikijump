@@ -75,7 +75,13 @@ export async function loadRegisterPage(request: Request, preloadData: PreloadDat
 
     // errors
     "error-form.password-mismatch": {},
-    "error-form.password-too-short": {}
+    "error-form.password-too-short": {},
+    "error-form.email-invalid": {},
+
+    // The locale selector label reuses the same advertised-language wording
+    // as the account display settings, so registration and settings never
+    // disagree about the deployment's supported interface locales.
+    "dashboard-account.language": {}
   }
 
   const internationalization = await translate(locales, translateKeys)

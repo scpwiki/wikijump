@@ -15,6 +15,7 @@ mfa-code = MFA コード
 error-form =
   .password-mismatch = パスワードが一致しません。
   .password-too-short = パスワードは15文字以上で入力してください。
+  .email-invalid = メールアドレスの形式が正しくありません。
 
 ## Wiki page action terms
 delete = 削除

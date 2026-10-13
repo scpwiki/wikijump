@@ -82,9 +82,7 @@
       />
       <p class="description">{data.internationalization?.["email.info"]}</p>
       {#if $errors.email}
-        <!-- Although `error-api.INVALID_EMAIL` is almost the same as this one, it should
-            get another name in `error-form` to avoid confusion -->
-        <p class="error">UNTRANSLATED: Email format is invalid.</p>
+        <p class="error">{data.internationalization?.["error-form.email-invalid"]}</p>
       {/if}
     </div>
 
@@ -136,7 +134,9 @@
       {/if}
     </div>
 
-    <label for="locale">UNTRANSLATED:Locale</label>
+    <label for="locale">
+      {data.internationalization?.["dashboard-account.language"]}
+    </label>
     <div class="input-container">
       <!-- TODO: Implement a multi select component -->
       <!-- I know it's ugly, but we can implement a better looking component later on -->

@@ -75,7 +75,10 @@ export async function loadUser(
     "footer-license-unless": {
       license: parentData.license_name,
       "license_url": parentData.license_url
-    }
+    },
+    // The user error boundary renders for every failure view, including
+    // unexpected ones, so the generic fallback is always available there.
+    "error-api.GENERIC": {}
   }
 
   let errorStatus = null

@@ -75,7 +75,11 @@ export async function loadAdminPage(
     "footer-license-unless": {
       license: parentData.license_name,
       "license_url": parentData.license_url
-    }
+    },
+    // The admin error boundary renders for the permission-denied and
+    // unexpected-failure views, so both messages are always available there.
+    "admin-unauthorized": {},
+    "error-api.GENERIC": {}
   }
 
   let errorStatus = null
