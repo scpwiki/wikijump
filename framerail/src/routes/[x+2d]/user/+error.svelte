@@ -5,7 +5,7 @@
   let errorData: PageData | null = $derived(page.error as unknown as PageData)
 </script>
 
-<h1>UNTRANSLATED:Svelte Error</h1>
+<h1>{errorData?.internationalization?.["error"]}</h1>
 
 <p><textarea class="debug">{JSON.stringify(page, null, 2)}</textarea></p>
 
@@ -20,7 +20,7 @@ as soon as we can figure out prettier support for it.
     {errorData.internationalization?.["user-not-exist"]}
   {/if}
 {:else}
-  UNTRANSLATED:Fatal error: Unable to display view
+  {errorData?.internationalization?.["error-api.GENERIC"]}
 {/if}
 
 <style global lang="scss">

@@ -997,7 +997,13 @@ describe("Wikidot site settings public boundaries", () => {
 
     const error = {
       view: "admin_permissions",
-      html: "<strong>Permission boundary fixture</strong>"
+      html: "<strong>Permission boundary fixture</strong>",
+      internationalization: {
+        error: "Error",
+        "admin-unauthorized":
+          "You do not have the permissions to access the admin panel.",
+        "error-api.GENERIC": "Something went wrong with your request."
+      }
     }
     const errorContext = requestContext(adminData, {
       error,
@@ -1010,7 +1016,9 @@ describe("Wikidot site settings public boundaries", () => {
       requestContext(adminData, { error, routeId: "/_admin" })
     ).body
     for (const body of [canonicalErrorBody, legacyErrorBody]) {
-      assert.match(body, /UNTRANSLATED:Lacks permissions for page/u)
+      assert.doesNotMatch(body, /UNTRANSLATED:/u)
+      assert.match(body, /<h1[^>]*>Error<\/h1>/u)
+      assert.match(body, /You do not have the permissions to access the admin panel\./u)
       assert.match(body, /<strong>Permission boundary fixture<\/strong>/u)
     }
   })
