@@ -86,7 +86,10 @@ export const handleSiteRpc = ({ rpcRequest }) => {
                   user_type: "regular",
                   name: "Fixture Member",
                   slug: "fixture-member",
-                  locales: ["en"]
+                  // The authenticated preload follows the live fixture
+                  // user so a saved display-language order survives a
+                  // reload, matching Deepwell. Reset restores ["en"].
+                  locales: [...fixtureState.authenticatedUser.locales]
                 }
               }
             : null
@@ -220,7 +223,12 @@ export const handleSiteRpc = ({ rpcRequest }) => {
           : null
   } else if (
     rpcRequest.method === "translate" &&
-    hasExactKeys(rpcRequest.params, ["locales", "messages", "strip_message_keys"]) &&
+    hasExactKeys(rpcRequest.params, [
+      "locales",
+      "messages",
+      "strip_message_keys",
+      "allow_missing"
+    ]) &&
     Array.isArray(rpcRequest.params.locales) &&
     typeof rpcRequest.params.messages === "object" &&
     rpcRequest.params.messages !== null &&
