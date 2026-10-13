@@ -24,19 +24,65 @@ const escapePageSourceHtml = (source) =>
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;")
 
-const SOURCE_COMPONENT_INCLUDE =
-  /^(\[\[include[\t ]+)(component:[a-z0-9][a-z0-9_-]*)(\]\][\t ]*)$/u
-const SOURCE_COMPONENT_INCLUDE_OPEN =
-  /^(\[\[include[\t ]+)(component:[a-z0-9][a-z0-9_-]*)([\t ]*)$/u
+const SOURCE_INCLUDE_OPEN = /^(\[\[include[\t ]+)([^\t \r\n\]|<>&"'#?]+)/u
+const SOURCE_INCLUDE_PAGE_CHARS = /^[A-Za-z0-9_.:-]*$/u
+const SOURCE_INCLUDE_SITE = /^[a-z0-9][a-z0-9-]*$/iu
+
+const parseSourceIncludeTarget = (target) => {
+  if (target.startsWith(":")) {
+    const separator = target.indexOf(":", 1)
+    if (separator < 0) return null
+    const site = target.slice(1, separator)
+    const page = target.slice(separator + 1)
+    if (!SOURCE_INCLUDE_SITE.test(site)) return null
+    if (
+      page.length === 0 ||
+      page.endsWith(":") ||
+      !SOURCE_INCLUDE_PAGE_CHARS.test(page)
+    ) {
+      return null
+    }
+    // Match the absolute source URL live Wikidot renders for cross-site
+    // include targets. A local page is never invented: navigation stays on
+    // the authoritative source host even when the target was not imported.
+    const href = `https://${site.toLowerCase()}.wikidot.com/${page
+      .split(":")
+      .map((segment) => encodeURIComponent(segment))
+      .join(":")}`
+    return { text: target, href }
+  }
+  if (
+    target.endsWith(":") ||
+    target.includes("::") ||
+    !SOURCE_INCLUDE_PAGE_CHARS.test(target)
+  ) {
+    return null
+  }
+  return { text: target, href: `/${encodeURIComponent(target)}` }
+}
 
 const sourceLineContent = (line) => line.replace(/\r?\n$/u, "")
 
 const parameterBlockEnd = (lines, start) => {
   for (let index = start + 1; index < lines.length; index += 1) {
     const line = sourceLineContent(lines[index])
-    if (line.includes("[[") || line.includes("[!--") || line.includes("@@")) return -1
-    if (/^[\t ]*\|[A-Za-z_][A-Za-z0-9_]*=[^\n]*\]\][\t ]*$/u.test(line)) return index
-    if (/^[\t ]*\|[A-Za-z_][A-Za-z0-9_]*=[^\n]*$/u.test(line)) continue
+    // A new block-level directive ends the parameter scan. Inline `[[`
+    // markup inside a parameter value (for example footnoted image-block
+    // captions) does not; only a line starting a directive aborts.
+    if (/^[\t ]*(\[\[|\[!--|@@)/u.test(line)) return -1
+    if (/^[\t ]*\|[A-Za-z_][A-Za-z0-9_-]*[\t ]*=[^\n]*\]\][\t ]*$/u.test(line)) {
+      return index
+    }
+    if (/^[\t ]*\|[A-Za-z_][A-Za-z0-9_-]*[\t ]*=[^\n]*$/u.test(line)) continue
+    // Trailing-pipe parameter style used by multi-line image-block includes
+    // (for example `name=Eye.jpg|`), evidenced by the 21-link SCP-5382
+    // source view covering every include directive on the page.
+    if (/^[\t ]*[A-Za-z_][A-Za-z0-9_-]*[\t ]*=[^\n]*\|[\t ]*$/u.test(line)) {
+      continue
+    }
+    if (/^[\t ]*[A-Za-z_][A-Za-z0-9_-]*[\t ]*=[^\n]*\|[\t ]*\]\][\t ]*$/u.test(line)) {
+      return index
+    }
     if (/^[\t ]*\]\][\t ]*$/u.test(line)) return index
     return -1
   }
@@ -44,9 +90,11 @@ const parameterBlockEnd = (lines, start) => {
 }
 
 /**
- * Render only the narrowly evidenced same-site component include form as a
- * link. All other source remains escaped text so the read-only source view
- * cannot execute authored markup or guess cross-site routing.
+ * Render the documented `[[include]]` target forms as links: same-site
+ * page targets resolve locally, while `:site:page` targets resolve to the
+ * absolute source URL live Wikidot renders. All other source remains
+ * escaped text so the read-only source view cannot execute authored markup
+ * or guess cross-site routing.
  *
  * @param {string} source
  */
@@ -58,19 +106,19 @@ export const wikidotPageSourceHtml = (source) => {
   return lines
     .map((line, index) => {
       const content = sourceLineContent(line)
-      const simpleInclude =
-        !inComment && !inCode && SOURCE_COMPONENT_INCLUDE.exec(content)
-      const openInclude =
-        !inComment && !inCode && SOURCE_COMPONENT_INCLUDE_OPEN.exec(content)
-      const candidate =
-        simpleInclude ??
-        (openInclude && parameterBlockEnd(lines, index) >= 0 ? openInclude : null)
+      const openInclude = !inComment && !inCode && SOURCE_INCLUDE_OPEN.exec(content)
+      const parsed = openInclude ? parseSourceIncludeTarget(openInclude[2]) : null
+      const rest = openInclude ? content.slice(openInclude[0].length) : ""
+      // The directive must terminate on this line or continue as a valid
+      // parameter block. Unterminated directives stay literal.
+      const closed =
+        parsed !== null && (rest.includes("]]") || parameterBlockEnd(lines, index) >= 0)
 
       let rendered = escapePageSourceHtml(content)
-      if (candidate) {
-        const [, before, target, after] = candidate
-        const href = `/${encodeURIComponent(target)}`
-        rendered = `${escapePageSourceHtml(before)}<a href="${escapePageSourceHtml(href)}">${escapePageSourceHtml(target)}</a>${escapePageSourceHtml(after)}`
+      if (openInclude && closed && parsed !== null) {
+        const before = openInclude[1]
+        const target = openInclude[2]
+        rendered = `${escapePageSourceHtml(before)}<a href="${escapePageSourceHtml(parsed.href)}">${escapePageSourceHtml(target)}</a>${escapePageSourceHtml(rest)}`
       }
 
       // Source examples and comments stay literal. Do not decorate a matching
