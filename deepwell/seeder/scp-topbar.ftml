@@ -1,0 +1,130 @@
+[[div class="top-bar"]]
+* About
+ * [[[about-the-scp-foundation|About Us]]]
+ * [[[Site Rules]]]
+ * [[[FAQ]]]
+ * [[[licensing-guide|Licensing]]]
+ * [[[Criticism Policy]]]
+ * [[[deletions-guide|Article Deletions]]]
+* Community
+ * [[[news | Site News]]]
+ * [[[chat-guide | IRC Chat]]]
+ * [[[authors-pages | Authors' Pages]]]
+ * [[[artist-directory|]]]
+ * [[[Contest Archive]]]
+ * [[[http://05command.wikidot.com/staff-list | Staff List]]]
+* Resources
+ * [[[Guide Hub|Guides]]]
+ * [[[essay-resource-hub|Essays & Resources]]]
+ * [[[Wiki Syntax]]]
+ * [[[Sandbox]]]
+ * [[[Usertools]]]
+* [[[contact-staff | Contact Us]]]
+[[/div]]
+
+[[div class="mobile-top-bar"]]
+
+[[div class="open-menu"]]
+[#side-bar ≡]
+[[/div]]
+
+* About
+ * [[[about-the-scp-foundation|About Us]]]
+ * [[[Site Rules]]]
+ * [[[FAQ]]]
+ * [[[licensing-guide|Licensing]]]
+ * [[[Criticism Policy]]]
+ * [[[deletions-guide|Article Deletions]]]
+ * [[[Contact Staff]]]
+* Community
+ * [[[news | Site News]]]
+ * [[[chat-guide | IRC Chat]]]
+ * [[[authors-pages | Authors' Pages]]]
+ * [[[artist-directory|]]]
+ * [[[Contest Archive]]]
+ * [[[http://05command.wikidot.com/staff-list | Staff List]]]
+* Resources
+ * [[[Guide Hub|Guides]]]
+ * [[[essay-resource-hub|Essays & Resources]]]
+ * [[[Wiki Syntax]]]
+ * [[[Sandbox]]]
+ * [[[Usertools]]]
+[[/div]]
+
+[!-- Stylesheet load pop-up. For questions or support, reach out to the Technical Team --]
+[[div_ class="side-block ios-cache-issue-notification"]]
+[[div style="float: right; clear: both; position: relative; z-index: 999999;" class="hide-ios-cache-issue-notification"]]
+[[collapsible show="✖"]]
+[[/collapsible]]
+[[/div]]
+[[div_]]
+The SCP Wiki's default theme failed to load. If you see this error and are experiencing graphical issues, you may be able to resolve it by refreshing the page. If you are on iOS or are using Firefox, you may also need to clear your cache. [https://support.apple.com/en-us/105082 Here's how to do this on iOS], and [https://support.mozilla.org/en-US/kb/how-clear-firefox-cache here's how to do this on Firefox].
+@@ @@
+[[collapsible show="Seeing this error by mistake?"]]
+If the page you are on "looks fine," it is most likely (but not certainly) because its theme is overriding the SCP Wiki's default Sigma-10 theme. If you were to then navigate to a Sigma-10 page, such as the [https://scp-wiki.wikidot.com/ Front Page], it would likely appear broken.
+
+Alternatively, if you know for sure that Sigma-10 //is// loading, the error is most likely mistakenly appearing because you switched the Sigma-10 theme to a different theme using the [https://www.wikidot.com/doc-modules:themepreviewer-module ThemePreviewer] module or another similar feature. If this is the case, and you are the author of the page, add the following code to it to remove the warning:
+[[div class="code"]]
+@@[[module css]]@@
+@@#top-bar .ios-cache-issue-notification {@@
+@@  display: none !important;@@
+@@}@@
+@@[[/module]]@@
+[[/div]]
+If you are //not// the author of this page, please contact the author or a member of the [https://05command.wikidot.com/technical-staff-main SCP Wiki Technical Team] so that they may fix it. If possible, in your report, please include the browser and operating system of your device, along with the full URL to the offending page.
+[[/collapsible]]
+[[/div]]
+[[/div]]
+
+[[module css]]
+.hide-ios-cache-issue-notification {
+  width: fit-content;
+  margin-left: 2em;
+}
+
+.ios-cache-issue-notification:has(.hide-ios-cache-issue-notification .collapsible-block-unfolded:not([style*="none"])) {
+  display: none;
+}
+
+.ios-cache-issue-notification a:not(.collapsible-block-link) {
+  text-decoration: underline;
+}
+
+.ios-cache-issue-notification .code {
+  background-color: #fffafa;
+  border-radius: 10px;
+  border: 1px solid #f00;
+}
+
+.ios-cache-issue-notification {
+  line-height: 1.5;
+  position: fixed;
+  top: 65px;
+  left: 10px;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 5px black;
+  border: 1px solid red;
+  font-size: 125%;
+  color: black;
+  background-color: #fee;
+  z-index: 999999999;
+  width: calc(100vw - 70px);
+  clear: none;
+  max-height: calc(100vh - 130px);
+  overflow: auto;
+  animation: ios-cache-issue-notification-fadein 0.5s;
+  animation-delay: 2s;
+  animation-fill-mode: both;
+  max-width: 40em;
+}
+
+@keyframes ios-cache-issue-notification-fadein {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.ios-cache-issue-notification a {
+  color: #b01 !important;
+} 
+[[/module]]

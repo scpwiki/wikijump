@@ -304,6 +304,199 @@ async fn import_user_deleted_snapshot_clears_public_profile_without_local_accoun
 }
 
 #[tokio::test]
+async fn mirror_seed_carries_source_tags_and_navigation() {
+    // T14 (issues #2077, #2079): the repository-owned scp-wiki mirror
+    // bootstrap must materialize the source tag sets and the source
+    // navigation pages instead of collapsing to generic seed content.
+    //
+    // Expected tag sets are the authoritative shared-corpus page metadata
+    // (corpus/en/pages/<slug>/meta.json, status active; the 2026-10-11 run
+    // for scp-002/scp-3352/scp-3922/scp-5382/scp-7000, and the scp-9506 set
+    // corroborated by the 2026-10-07 live observation of 12 tags). The
+    // expected nav:top source is corpus/en/pages/nav:top/source.wikidot.txt
+    // from the same 2026-10-11 run.
+    let runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki mirror site should exist");
+    let site_id = site.site.site_id;
+
+    for (slug, expected) in [
+        (
+            "scp-002",
+            vec![
+                "_cc",
+                "_licensebox",
+                "alive",
+                "body-horror",
+                "euclid",
+                "featured",
+                "horror",
+                "illustrated",
+                "scp",
+                "structure",
+                "transfiguration",
+            ],
+        ),
+        (
+            "scp-3352",
+            vec![
+                "_cc",
+                "_licensebox",
+                "anomalous-event",
+                "fire",
+                "indestructible",
+                "inscription",
+                "neutralized",
+                "reviewers-spotlight",
+                "scp",
+                "structure",
+            ],
+        ),
+        (
+            "scp-3922",
+            vec![
+                "_cc",
+                "_licensebox",
+                "cinema",
+                "electronic",
+                "inscription",
+                "media",
+                "metafiction",
+                "safe",
+                "scp",
+                "three-moons-initiative",
+            ],
+        ),
+        (
+            "scp-5382",
+            vec![
+                "_cc",
+                "director-scout",
+                "doctor-blank",
+                "document",
+                "giftschreiber",
+                "historical",
+                "language",
+                "medical",
+                "ocular",
+                "on-guard-43",
+                "scp",
+                "skeletal",
+                "thaumiel",
+                "thilo-zwist",
+                "visual",
+            ],
+        ),
+        (
+            "scp-7000",
+            vec![
+                "7000",
+                "_cc",
+                "_licensebox",
+                "agent-adams",
+                "chaos-insurgency",
+                "concept",
+                "doctor-blank",
+                "doctor-dan",
+                "doctor-sokolsky",
+                "doctor-wettle",
+                "ettra",
+                "euclid",
+                "foundation-personnel",
+                "goldbaker-reinz",
+                "humanoid",
+                "illustrated",
+                "k-class-scenario",
+                "no-return",
+                "on-guard-43",
+                "phenomenon",
+                "probability",
+                "reality-bending",
+                "sauelsuesor",
+                "scp",
+                "the-engineer",
+            ],
+        ),
+        (
+            "scp-9506",
+            vec![
+                "airborne",
+                "dystopian",
+                "esoteric-class",
+                "gaseous",
+                "horror",
+                "illustrated",
+                "scp",
+                "transfiguration",
+                "uncontained",
+                "_cc",
+                "_cc4",
+                "_licensebox",
+            ],
+        ),
+    ] {
+        let page =
+            run_endpoint!(runner, page_get, json!({"site_id": site_id, "page": slug}),)
+                .unwrap_or_else(|| panic!("seeded mirror page '{slug}' should exist"));
+        let mut actual = page.tags.clone();
+        actual.sort();
+        let mut expected: Vec<String> = expected.into_iter().map(str::to_owned).collect();
+        expected.sort();
+        assert_eq!(
+            actual, expected,
+            "seeded mirror page '{slug}' must carry its full source tag set",
+        );
+    }
+
+    let nav_top = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": "nav:top",
+            "details": {"wikitext": true},
+        }),
+    )
+    .expect("seeded mirror nav:top should exist");
+    let wikitext = nav_top.wikitext.expect("nav:top source should be readable");
+    assert!(
+        wikitext.contains("[[div class=\"top-bar\"]]"),
+        "mirror nav:top must be the source top bar, not generic seed content",
+    );
+    assert!(
+        wikitext.contains("About Us"),
+        "mirror nav:top must expose the source navigation groups",
+    );
+    assert!(
+        !wikitext.contains("Wikijump Blog"),
+        "mirror nav:top must not fall back to generic seed navigation:\n{wikitext}",
+    );
+
+    // Control: freshly created native sites keep the generic navigation.
+    let native = run_endpoint!(runner, site_get, json!({"site": "test"}))
+        .expect("seeded native test site should exist");
+    let native_nav = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": native.site.site_id,
+            "page": "nav:top",
+            "details": {"wikitext": true},
+        }),
+    )
+    .expect("native nav:top should exist");
+    assert!(
+        native_nav
+            .wikitext
+            .as_deref()
+            .is_some_and(|wikitext| wikitext.contains("Wikijump Blog")),
+        "native sites must retain the generic default navigation",
+    );
+
+    runner.teardown().await;
+}
+
+#[tokio::test]
 async fn failed_import_rolls_back_new_known_user_with_caller_transaction() {
     let runner = TestRunner::setup().await;
     let state = runner.state().clone();

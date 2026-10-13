@@ -309,38 +309,38 @@
             "slug": "scp-002",
             "title": "SCP-002",
             "alt-title": "The Living Room",
-            "tags": ["scp"],
+            "tags": ["_cc", "_licensebox", "alive", "body-horror", "euclid", "featured", "horror", "illustrated", "scp", "structure", "transfiguration"],
             "wikitext": "scp-002"
         },
         {
             "slug": "scp-3352",
             "title": "SCP-3352",
-            "tags": ["scp"],
+            "tags": ["_cc", "_licensebox", "anomalous-event", "fire", "indestructible", "inscription", "neutralized", "reviewers-spotlight", "scp", "structure"],
             "wikitext": "scp-3352"
         },
         {
             "slug": "scp-3922",
             "title": "SCP-3922",
-            "tags": ["scp"],
+            "tags": ["_cc", "_licensebox", "cinema", "electronic", "inscription", "media", "metafiction", "safe", "scp", "three-moons-initiative"],
             "created-by": -21,
             "wikitext": "scp-3922"
         },
         {
             "slug": "scp-5382",
             "title": "SCP-5382",
-            "tags": ["scp"],
+            "tags": ["_cc", "director-scout", "doctor-blank", "document", "giftschreiber", "historical", "language", "medical", "ocular", "on-guard-43", "scp", "skeletal", "thaumiel", "thilo-zwist", "visual"],
             "wikitext": "empty-page"
         },
         {
             "slug": "scp-7000",
             "title": "SCP-7000",
-            "tags": ["scp"],
+            "tags": ["7000", "_cc", "_licensebox", "agent-adams", "chaos-insurgency", "concept", "doctor-blank", "doctor-dan", "doctor-sokolsky", "doctor-wettle", "ettra", "euclid", "foundation-personnel", "goldbaker-reinz", "humanoid", "illustrated", "k-class-scenario", "no-return", "on-guard-43", "phenomenon", "probability", "reality-bending", "sauelsuesor", "scp", "the-engineer"],
             "wikitext": "empty-page"
         },
         {
             "slug": "scp-9506",
             "title": "National Fog Safety Initiative",
-            "tags": ["scp"],
+            "tags": ["airborne", "dystopian", "esoteric-class", "gaseous", "horror", "illustrated", "scp", "transfiguration", "uncontained", "_cc", "_cc4", "_licensebox"],
             "created-by": -20,
             "wikitext": "scp-9506"
         },
@@ -352,7 +352,7 @@
         {
             "slug": "nav:top",
             "title": "Topbar",
-            "wikitext": "topbar"
+            "wikitext": "scp-topbar"
         },
         {
             "slug": "_admin",
