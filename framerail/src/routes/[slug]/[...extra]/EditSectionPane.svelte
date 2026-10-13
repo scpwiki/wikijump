@@ -4,7 +4,10 @@
   import { resolve } from "$app/paths"
   import { errorPopupState } from "$lib/layout/stores.svelte"
   import { buildWikidotSectionEditSubmission } from "$lib/wikidot/wikidot-edit-sections"
-  import { editPermissionDeniedMessage } from "$lib/wikidot/wikidot-locale"
+  import {
+    editPermissionDeniedDialog,
+    editPermissionDeniedMessage
+  } from "$lib/wikidot/wikidot-locale"
   import { superForm } from "sveltekit-superforms"
   import { onMount, untrack } from "svelte"
 
@@ -48,22 +51,36 @@
         }
 
         permissionState = "denied"
-        errorPopupState.current = {
-          state: true,
-          message:
-            result.type === "failure" && result.data?.message
-              ? result.data.message
-              : editPermissionDeniedMessage(data.site.locale),
-          data: result.type === "failure" ? result.data : null
+        // Server failures surface their own message. A clean can_edit=false
+        // denial renders the retained EN Wikidot window (issue #2336);
+        // other locales keep the localized generic denial.
+        if (result.type === "failure" && result.data?.message) {
+          errorPopupState.current = {
+            state: true,
+            message: result.data.message,
+            data: result.data
+          }
+        } else {
+          const deniedDialog = editPermissionDeniedDialog(data.site.locale)
+          errorPopupState.current = deniedDialog
+            ? { state: true, ...deniedDialog, data: null }
+            : {
+                state: true,
+                message: editPermissionDeniedMessage(data.site.locale),
+                data: null
+              }
         }
       } catch {
         if (!active) return
         permissionState = "denied"
-        errorPopupState.current = {
-          state: true,
-          message: editPermissionDeniedMessage(data.site.locale),
-          data: null
-        }
+        const deniedDialog = editPermissionDeniedDialog(data.site.locale)
+        errorPopupState.current = deniedDialog
+          ? { state: true, ...deniedDialog, data: null }
+          : {
+              state: true,
+              message: editPermissionDeniedMessage(data.site.locale),
+              data: null
+            }
       }
     }
 

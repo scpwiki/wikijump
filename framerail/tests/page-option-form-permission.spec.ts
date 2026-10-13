@@ -11,7 +11,25 @@ const AUTHENTICATED_HEADERS = {
   cookie: "wikijump_token=fixture-session-token",
   origin: `http://localhost:${process.env.PLAYWRIGHT_APP_PORT ?? "4173"}`
 }
-const PERMISSION_MESSAGE = "You don't have permission to edit this page."
+// Retained Wikidot anonymous edit-denial contract (issue #2336): the EN
+// Permission error window with a Please note: heading, one policy
+// paragraph, and an inline #action:login sign-in anchor.
+const DENIAL_TITLE = "Permission error"
+const DENIAL_HEADING = "Please note:"
+const DENIAL_POLICY =
+  "Sorry, you can not edit this page. Only members of this site, owner (creator) of this page, site administrators and perhaps selected moderators are allowed to do it."
+
+const expectEditDeniedDialog = async (page: Page) => {
+  await expect(page.locator("#odialog-container .owindow.error")).toBeVisible()
+  await expect(page.locator("#owindow-1 .title")).toHaveText(DENIAL_TITLE)
+  await expect(page.locator("#modal-title")).toHaveText(DENIAL_HEADING)
+  const policy = page.locator(".modal-message-extra")
+  await expect(policy).toContainText(DENIAL_POLICY)
+  await expect(policy.locator('a[href="#action:login"]')).toHaveText(
+    "Sign in as Wikidot user"
+  )
+  await expect(page.locator("#odialog-container .button-close-message")).toBeVisible()
+}
 
 /**
  * Encode a value in SvelteKit's flat devalue shape, as `deserialize`
@@ -152,8 +170,7 @@ test.describe("anonymous existing-page Append and Parent options", () => {
 
     await page.locator("#edit-append-button").click()
 
-    await expect(page.locator("#odialog-container .owindow.error")).toBeVisible()
-    await expect(page.locator("#modal-title")).toHaveText(PERMISSION_MESSAGE)
+    await expectEditDeniedDialog(page)
     await expectNoWritableSurface(page, "#page-append")
     expect(permissionRequests).toHaveLength(1)
   })
@@ -166,8 +183,7 @@ test.describe("anonymous existing-page Append and Parent options", () => {
 
     await page.locator("#parent-page-button").click()
 
-    await expect(page.locator("#odialog-container .owindow.error")).toBeVisible()
-    await expect(page.locator("#modal-title")).toHaveText(PERMISSION_MESSAGE)
+    await expectEditDeniedDialog(page)
     await expectNoWritableSurface(page, "#page-parent")
     expect(permissionRequests).toHaveLength(1)
   })
@@ -318,8 +334,7 @@ test.describe("Wikidot Tags option permission parity", () => {
 
     await page.locator("#tags-button").click()
 
-    await expect(page.locator("#odialog-container .owindow.error")).toBeVisible()
-    await expect(page.locator("#modal-title")).toHaveText(PERMISSION_MESSAGE)
+    await expectEditDeniedDialog(page)
     await expectNoWritableSurface(page, "#page-tags")
     expect(permissionRequests).toHaveLength(1)
   })

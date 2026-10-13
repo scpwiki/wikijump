@@ -33,6 +33,18 @@
     errorPopupState.current.extraMessage ??
       publicErrorExtraMessage(errorPopupState.current.data)
   )
+  // A Wikidot-evidenced denial (issue #2336) renders its sign-in anchor
+  // inline at the end of the policy paragraph, matching the retained source
+  // `<p>... <a href="#action:login">...</a></p>`. Every other denial keeps
+  // the established separate action-link paragraph.
+  const popupActionLink = $derived(errorPopupState.current.actionLink ?? null)
+  const inlineAction = $derived(
+    errorPopupState.current.inlineActionLink === true &&
+      errorExtraMessage !== null &&
+      popupActionLink !== null
+      ? { href: popupActionLink.href, label: popupActionLink.label }
+      : null
+  )
   let actionLink = $state<HTMLAnchorElement | undefined>(undefined)
 
   $effect(() => {
@@ -83,10 +95,15 @@
         </h1>
         {#if errorExtraMessage}
           <p id="model-message-extra" class="modal-message-extra">
-            {errorExtraMessage}
+            {errorExtraMessage}{#if inlineAction}
+              <!-- eslint-disable-next-line svelte/no-useless-mustaches -->
+              {" "}<a bind:this={actionLink} href={inlineAction.href}
+                >{inlineAction.label}</a
+              >
+            {/if}
           </p>
         {/if}
-        {#if errorPopupState.current.actionLink}
+        {#if errorPopupState.current.actionLink && !inlineAction}
           <p class="modal-action-link">
             <a bind:this={actionLink} href={errorPopupState.current.actionLink.href}
               >{errorPopupState.current.actionLink.label}</a

@@ -9,6 +9,44 @@ export const isJapaneseWikidotLocale = (locale) => {
 
 /**
  * @param {string | null | undefined} locale
+ * @returns {boolean}
+ */
+export const isEnglishWikidotLocale = (locale) => {
+  const normalized = `${locale ?? ""}`.toLowerCase().replaceAll("_", "-")
+  return normalized === "en" || normalized.startsWith("en-")
+}
+
+/**
+ * Retained live Wikidot evidence (anonymous Chromium on the real EN
+ * article, issue #2336): Edit and Tags clicks yield the same `Permission
+ * error` window with an `h1` of `Please note:`, one policy paragraph, and
+ * an inline `#action:login` sign-in anchor. Only the English dialog is
+ * evidenced here; every other locale returns null so callers keep their
+ * existing localized denial instead of applying the EN text universally.
+ *
+ * @param {string | null | undefined} locale
+ * @returns {{
+ *   title: string
+ *   message: string
+ *   extraMessage: string
+ *   actionLink: { href: string; label: string }
+ *   inlineActionLink: boolean
+ * } | null}
+ */
+export const editPermissionDeniedDialog = (locale) => {
+  if (!isEnglishWikidotLocale(locale)) return null
+  return {
+    title: "Permission error",
+    message: "Please note:",
+    extraMessage:
+      "Sorry, you can not edit this page. Only members of this site, owner (creator) of this page, site administrators and perhaps selected moderators are allowed to do it.",
+    actionLink: { href: "#action:login", label: "Sign in as Wikidot user" },
+    inlineActionLink: true
+  }
+}
+
+/**
+ * @param {string | null | undefined} locale
  * @returns {string}
  */
 export const editPermissionDeniedMessage = (locale) => {

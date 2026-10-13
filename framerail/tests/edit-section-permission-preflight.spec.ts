@@ -5,7 +5,11 @@ const SITE_HEADERS = {
   "X-Wikijump-Site-Slug": "scp-wiki"
 }
 const PAGE_PATH = "/edit-section-permission-probe"
-const DENIAL_MESSAGE = "You don't have permission to edit this page."
+// Retained Wikidot anonymous edit-denial contract (issue #2336).
+const DENIAL_TITLE = "Permission error"
+const DENIAL_HEADING = "Please note:"
+const DENIAL_POLICY =
+  "Sorry, you can not edit this page. Only members of this site, owner (creator) of this page, site administrators and perhaps selected moderators are allowed to do it."
 
 const openSectionEditor = async (page: import("@playwright/test").Page) => {
   await page.goto(PAGE_PATH, { waitUntil: "domcontentloaded" })
@@ -29,7 +33,13 @@ test("anonymous Edit Sections viewers see denial without an editor or mutation",
   await openSectionEditor(page)
 
   await expect(page.locator("#odialog-container .owindow.error")).toBeVisible()
-  await expect(page.locator("#modal-title")).toHaveText(DENIAL_MESSAGE)
+  await expect(page.locator("#owindow-1 .title")).toHaveText(DENIAL_TITLE)
+  await expect(page.locator("#modal-title")).toHaveText(DENIAL_HEADING)
+  const policy = page.locator(".modal-message-extra")
+  await expect(policy).toContainText(DENIAL_POLICY)
+  await expect(policy.locator('a[href="#action:login"]')).toHaveText(
+    "Sign in as Wikidot user"
+  )
   await expect(page.locator("#edit-section-content form#editor")).toHaveCount(0)
   await expect(page.getByRole("status")).toHaveCount(0)
   expect(actionRequests.filter((action) => action === "?/editPermission")).toHaveLength(1)
