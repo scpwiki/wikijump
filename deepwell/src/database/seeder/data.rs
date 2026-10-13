@@ -358,6 +358,93 @@ mod tests {
         assert!(!start.wikitext.contains("Creative Commons"));
     }
 
+    fn find_module_open(rest: &str) -> Option<usize> {
+        const NEEDLE: &[u8] = b"[[module";
+        let bytes = rest.as_bytes();
+        if bytes.len() < NEEDLE.len() {
+            return None;
+        }
+        (0..=bytes.len() - NEEDLE.len())
+            .find(|&i| bytes[i..i + NEEDLE.len()].eq_ignore_ascii_case(NEEDLE))
+    }
+
+    fn seeded_module_names(wikitext: &str) -> Vec<String> {
+        let mut names = Vec::new();
+        let mut rest = wikitext;
+        while let Some(offset) = find_module_open(rest) {
+            let mut after = &rest[offset + "[[module".len()..];
+            // Only a whitespace boundary starts a module invocation.
+            if !after.starts_with(|b: char| b.is_whitespace()) {
+                rest = after;
+                continue;
+            }
+            after = after.trim_start();
+            let end = after
+                .find(|b: char| !(b.is_ascii_alphanumeric() || b == '_'))
+                .unwrap_or(after.len());
+            if end > 0 {
+                names.push(after[..end].to_ascii_lowercase());
+            }
+            rest = &after[end..];
+        }
+        names
+    }
+
+    #[test]
+    fn www_platform_site_serves_new_site_system_page() {
+        // Refs #2052: the canonical platform site must resolve /new-site as
+        // the special system page whose source is [[module NewSite]], so
+        // browsers receive the NewSite runtime state instead of missing-page
+        // UI. Anonymous output is the retained Wikidot state; submission,
+        // bootstrap, and redirect remain open lifecycle work tracked there.
+        let seeder_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("seeder");
+        let seed = SeedData::load(&seeder_path).expect("seed data should load");
+        let pages = seed.pages.get("www").expect("www platform pages");
+        let new_site = pages
+            .iter()
+            .find(|page| page.slug == "new-site")
+            .expect("www new-site system page");
+        assert_eq!(new_site.wikitext.trim(), "[[module NewSite]]");
+    }
+
+    #[test]
+    fn www_platform_pages_contain_only_owned_modules() {
+        // Refs #2064: first-party platform pages must never ship module
+        // syntax with no runtime owner. Owned here means a Deepwell runtime
+        // expansion exists: PlatformActivity and PlatformSites render from
+        // live instance state (platform_directory.rs), SearchAll renders the
+        // frozen form/unavailable contract (search_feed.rs), and SearchUsers
+        // renders through the account-module runtime (runtime_modules.rs).
+        // Adding a module to these pages without an owner must fail here
+        // instead of leaking raw [[module ...]] source to end users.
+        const OWNED: &[&str] = &[
+            "platformactivity",
+            "platformsites",
+            "searchall",
+            "searchusers",
+        ];
+        let seeder_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("seeder");
+        let seed = SeedData::load(&seeder_path).expect("seed data should load");
+        let pages = seed.pages.get("www").expect("www platform pages");
+        for slug in ["platform:activity", "platform:sites", "platform:search"] {
+            let page = pages
+                .iter()
+                .find(|page| page.slug == slug)
+                .unwrap_or_else(|| panic!("www {slug} platform page"));
+            let names = seeded_module_names(&page.wikitext);
+            assert!(
+                !names.is_empty(),
+                "www {slug} must keep its advertised module content",
+            );
+            for name in names {
+                assert!(
+                    OWNED.contains(&name.as_str()),
+                    "www {slug} ships module '{name}' with no runtime owner",
+                );
+            }
+        }
+    }
+
     #[test]
     fn scp_jp_seed_claims_only_its_local_development_domain() {
         let seeder_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("seeder");

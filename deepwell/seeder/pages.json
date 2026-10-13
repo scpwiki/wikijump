@@ -36,6 +36,11 @@
             "wikitext": "platform-search"
         },
         {
+            "slug": "new-site",
+            "title": "New site",
+            "wikitext": "new-site"
+        },
+        {
             "slug": "system:join",
             "title": "Join this site",
             "wikitext": "join"
