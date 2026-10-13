@@ -88,11 +88,19 @@ export const requestLegacyRateCancel = (runtime, input) => {
   return requestLegacyRate(runtime, input)
 }
 
-/** Read the authoritative score for the route page after a vote mutation. */
+/**
+ * Read the authoritative score for the route page after a vote mutation.
+ *
+ * The score request carries an explicit (empty) JSON body. SvelteKit rejects
+ * a bodyless named-action POST with HTTP 415 before the action executes
+ * (issue #2060), so this must never regress to a bodyless fetch.
+ */
 /**
  * @param {LegacyRequestRuntime} runtime
  * @returns {Promise<{ score: number } | undefined>}
  */
 export const requestLegacyScore = (runtime) => {
-  return /** @type {Promise<{ score: number } | undefined>} */ (submit(runtime, "score"))
+  return /** @type {Promise<{ score: number } | undefined>} */ (
+    submit(runtime, "score", {})
+  )
 }

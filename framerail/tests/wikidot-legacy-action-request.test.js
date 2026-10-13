@@ -77,6 +77,13 @@ test("Rate requests submit only the server registry binding", async () => {
   })
   await requestLegacyScore(recorder)
 
+  const scoreRequest = recorder.requests.find(({ url }) => url === "?/score")
+  assert.equal(scoreRequest?.init.method, "POST")
+  // A bodyless score POST is rejected with HTTP 415 before the SvelteKit
+  // action executes (issue #2060); the JSON body must always be present.
+  assert.equal(typeof scoreRequest?.init.body, "string")
+  assert.deepEqual(JSON.parse(scoreRequest?.init.body), {})
+
   assert.deepEqual(
     recorder.requests.map(({ url, init }) => [url, init.body && JSON.parse(init.body)]),
     [
@@ -98,7 +105,7 @@ test("Rate requests submit only the server registry binding", async () => {
           pageId: 42
         }
       ],
-      ["?/score", undefined]
+      ["?/score", {}]
     ]
   )
 })
