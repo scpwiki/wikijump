@@ -48,6 +48,19 @@ pub struct TranslateInput {
     /// an error will be returned.
     #[serde(default)]
     strip_message_keys: HashSet<String>,
+
+    /// When `false` (the default), a message key with no translation in any
+    /// requested locale fails the whole request with the precise
+    /// missing-translation error (`LocaleMissing`, `LocaleMessageMissing`,
+    /// `LocaleMessageValueMissing`, or `LocaleMessageAttributeMissing`).
+    ///
+    /// When `true`, such keys instead resolve to `null` in the response so
+    /// that presentation batches (for example Framerail page loads) render
+    /// with a per-key fallback instead of answering HTTP 500. Missing
+    /// translations are still logged server-side by the localization service.
+    /// Callers must treat `null` values as "no translation available".
+    #[serde(default)]
+    allow_missing: bool,
 }
 
 type TranslateOutput = HashMap<String, Option<String>>;
@@ -83,6 +96,7 @@ pub async fn translate_strings(
         locales: locales_str,
         messages,
         strip_message_keys,
+        allow_missing,
     } = parse!(params, Localization);
 
     // Check that locales are specified
@@ -136,16 +150,39 @@ pub async fn translate_strings(
                     ),
                     ErrorType::Localization,
                 )
-            })?
-            .map(|translation| {
+            })?;
+
+        let translation = match (translation, allow_missing) {
+            (Some(translation), _) => {
                 let mut translation = translation.to_string();
 
                 if strip_message_keys.contains(&message_key) {
                     strip_fluent_control_chars(&mut translation);
                 }
 
-                translation
-            });
+                Some(translation)
+            }
+            // Lenient presentation batches resolve missing keys to null
+            // so one missing key cannot fail the whole request.
+            (None, true) => None,
+            // Strict callers keep the precise missing-translation error.
+            // Re-running the strict lookup reproduces it; the lookup is
+            // deterministic, so this cannot succeed when the option
+            // lookup just found nothing.
+            (None, false) => ctx
+                .localization()
+                .translate(&locales, &message_key, &arguments)
+                .map(|translation| Some(translation.to_string()))
+                .or_raise(|| {
+                    Error::new(
+                        format!(
+                            "failed to get translation for message '{}' with locales {:?}",
+                            message_key, locales_str,
+                        ),
+                        ErrorType::Localization,
+                    )
+                })?,
+        };
 
         output.insert(message_key, translation);
     }
