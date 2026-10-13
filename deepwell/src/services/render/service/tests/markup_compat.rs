@@ -787,6 +787,49 @@ fn restores_color_inside_inline_monospace_from_ralliston_authorpage() {
 }
 
 #[test]
+fn restores_color_spans_inside_authored_code_div_from_component_coltop() {
+    // Refs #2352. Live Wikidot renders `##color|text##` inside the authored
+    // `[[div class="code"]]` on `component:coltop` as color spans; Wikijump
+    // leaked raw `WIKIJUMPWIKIDOTCOMPATHTML` markers there because the color
+    // restoration pass treated the authored div as a code block. A real
+    // `[[code]]` block keeps its contents literal (no markers are created for
+    // it at protect time).
+    let page_info = fallback_test_page_info("component:coltop", "ColTop Component");
+    let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+    let mut wikitext = concat!(
+        "[[div class=\"code\"]]\n",
+        "##blue|**bold**##\n",
+        "[[/div]]\n",
+        "[[code]]\n",
+        "##blue|literal##\n",
+        "[[/code]]\n",
+    )
+    .to_owned();
+
+    let color_spans =
+        RenderService::protect_wikidot_color_spans(&mut wikitext, &settings);
+    assert_eq!(color_spans.len(), 1);
+    assert!(wikitext.contains("##blue|literal##"));
+
+    ftml::preprocess_for_layout(&mut wikitext, settings.layout);
+    let tokens = ftml::tokenize(&wikitext);
+    let result = ftml::parse(&tokens, &page_info, &settings);
+    let (tree, errors) = result.into();
+    assert!(errors.is_empty(), "{errors:?}");
+
+    let rendered = HtmlRender.render(&tree, &page_info, &settings).body;
+    let rendered =
+        RenderService::restore_protected_wikidot_color_spans(rendered, &color_spans);
+
+    assert!(rendered.contains(r#"<div class="code">"#));
+    assert!(
+        rendered.contains(r#"<span style="color: blue"><strong>bold</strong></span>"#)
+    );
+    assert!(rendered.contains("##blue|literal##"));
+    assert!(!rendered.contains(WIKIDOT_COMPAT_HTML_SENTINEL_PREFIX));
+}
+
+#[test]
 fn protects_wikidot_hash_prefixed_hex_colors_without_shifted_matches() {
     let page_info = fallback_test_page_info("scp-6670", "SCP-6670");
     let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);

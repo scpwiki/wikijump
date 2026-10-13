@@ -1453,7 +1453,12 @@ mod tests {
     }
 
     #[test]
-    fn color_restore_expands_inline_code_but_preserves_block_literals() {
+    fn color_restore_expands_inline_code_and_authored_code_div() {
+        // An authored `<div class="code">` is an ordinary div: live Wikidot
+        // renders color spans inside `[[div class="code"]]` (see
+        // `component:coltop`). Only `<pre>`/`<script>`-style block literals
+        // keep markers unrestored here; real `[[code]]` output is `<wj-code>`
+        // at this pipeline stage.
         let mut fragments = CompatHtmlFragments::new("");
         let marker = fragments.push_html("<span>trusted</span>".to_owned());
         let html = format!(
@@ -1463,7 +1468,7 @@ mod tests {
         assert_eq!(
             fragments.restore_outside_block_html_literals(&html),
             format!(
-                "<code class=\"wj-monospace\"><span>trusted</span></code><pre><code>{marker}</code></pre><div class=\"code\"><code>{marker}</code></div><script>{marker}</script>",
+                "<code class=\"wj-monospace\"><span>trusted</span></code><pre><code>{marker}</code></pre><div class=\"code\"><code><span>trusted</span></code></div><script>{marker}</script>",
             ),
         );
     }

@@ -193,7 +193,11 @@ fn runtime_meta_raw_owns_exactly_six_delimiter_bytes() {
 }
 
 #[test]
-fn color_restoration_treats_only_standalone_code_as_non_literal() {
+fn color_restoration_treats_authored_code_div_as_ordinary() {
+    // Live Wikidot renders color spans inside an authored
+    // `[[div class="code"]]` (see `component:coltop`), so the color
+    // restoration pass must not treat that div as a literal code block.
+    // Real `[[code]]` output is `<wj-code>` at this pipeline stage.
     let source = concat!(
         r#"<code class="wj-monospace">inline-marker</code>"#,
         "\n<pre><code>pre-marker</code></pre>",
@@ -202,8 +206,10 @@ fn color_restoration_treats_only_standalone_code_as_non_literal() {
     );
     let index = LiteralRegionIndex::new_html_color_restoration(source);
 
-    assert!(!index.contains(source.find("inline-marker").unwrap()));
-    for marker in ["pre-marker", "panel-marker", "script-marker"] {
+    for marker in ["inline-marker", "panel-marker"] {
+        assert!(!index.contains(source.find(marker).unwrap()), "{marker}");
+    }
+    for marker in ["pre-marker", "script-marker"] {
         assert!(index.contains(source.find(marker).unwrap()), "{marker}");
     }
 }
