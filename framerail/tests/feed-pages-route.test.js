@@ -116,8 +116,12 @@ test("anonymous exact feed/pages renders the generic missing-page shell", async 
   const missingBody = await missingResponse.text()
 
   assert.equal(missingResponse.status, 404)
-  assert.match(missingBody, /id="404-message"/u)
-  assert.match(missingBody, /<em[^>]*>feed<\/em>/u)
+  // Refs #2090: one coherent missing-page shell — create guidance plus the
+  // site _404 body, with no duplicated hardcoded message and no Restore
+  // control for a viewer without server-confirmed recoverability.
+  assert.match(missingBody, /id="create-it-now-link"/u)
+  assert.doesNotMatch(missingBody, /id="404-message"/u)
+  assert.doesNotMatch(missingBody, /id="restore-button"/u)
 })
 
 test("empty selector feeds retain the Wikidot root separator", async () => {
