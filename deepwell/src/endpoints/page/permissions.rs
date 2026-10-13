@@ -188,3 +188,42 @@ pub(super) async fn ensure_page_view_permission(
         .into())
     }
 }
+
+pub async fn page_edit_permission(
+    ctx: &ServiceContext<'_>,
+    _params: Params<'static>,
+) -> Result<PageEditPermissionOutput> {
+    let can_edit = PageService::check_user_permission(ctx, Action::Edit)
+        .await
+        .or_raise(|| {
+            Error::new("failed to check page edit permission", ErrorType::Page)
+        })?;
+
+    Ok(PageEditPermissionOutput { can_edit })
+}
+
+pub async fn page_move_permission(
+    ctx: &ServiceContext<'_>,
+    _params: Params<'static>,
+) -> Result<PageMovePermissionOutput> {
+    let can_move = PageService::check_user_permission(ctx, Action::Rename)
+        .await
+        .or_raise(|| {
+            Error::new("failed to check page move permission", ErrorType::Page)
+        })?;
+
+    Ok(PageMovePermissionOutput { can_move })
+}
+
+pub async fn page_delete_permission(
+    ctx: &ServiceContext<'_>,
+    _params: Params<'static>,
+) -> Result<PageDeletePermissionOutput> {
+    let can_delete = PageService::check_user_permission(ctx, Action::Delete)
+        .await
+        .or_raise(|| {
+            Error::new("failed to check page delete permission", ErrorType::Page)
+        })?;
+
+    Ok(PageDeletePermissionOutput { can_delete })
+}
