@@ -7572,7 +7572,7 @@
         "products"
       ],
       "anchors": [
-        "framerail/tests/wikidot-interwiki.test.js#builds an inert styleFrame document without parent access"
+        "framerail/tests/wikidot-interwiki.test.js#serves Wikidot's static styleFrame document without echoing its query"
       ],
       "migrated_from_campaign_only": false
     },
@@ -15881,7 +15881,7 @@
         "products"
       ],
       "anchors": [
-        "framerail/tests/wikidot-page-actions.test.js::discussion action uses the frozen Wikidot DOM marker and escapes its label"
+        "framerail/tests/wikidot-discussion-action.spec.ts#imported Discuss uses the Wikidot request without an inline handler"
       ],
       "migrated_from_campaign_only": false
     },

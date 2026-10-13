@@ -69,7 +69,7 @@ test("candidate Wikidot-family dependency miss fetches once and is reused from c
   const gate = createBrowserRequestGate({intervalMs: 0});
   const responseCache = createBrowserResponseCache();
   const context = createContext();
-  await installBrowserRequestGate(context, {gate, responseCache, cacheOnly: true});
+  await installBrowserRequestGate(context, {gate, responseCache});
   const handler = context.routes[0].handler;
   const url = "https://scp-wiki.wdfiles.com/local--files/component:theme/font-bauhaus.css";
   const miss = createRoute(url, {response: createResponse("cached-wikidot-asset")});
