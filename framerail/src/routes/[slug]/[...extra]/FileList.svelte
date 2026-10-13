@@ -76,6 +76,31 @@
     activeFileAction = "upload"
   }
 
+  // Wikidot denies anonymous attachment rename before rendering any editor
+  // (source scp-9506, issue #2324). The editable rename form is only
+  // reachable once a signed-in actor opens it; the server still authorizes
+  // every ?/fileEdit POST independently.
+  function openFileRename(fileId: number) {
+    if (wikidot && !data.user_session) {
+      errorPopupState.current = {
+        state: true,
+        title: "PERMISSION ERROR",
+        leadIn: "Please note:",
+        message: "Sorry, you can not rename file attachment in this page.",
+        extraMessage:
+          "Only owner (creator) of this page, site administrators and perhaps selected moderators are allowed to do it.",
+        actionLink: {
+          href: "#action:login",
+          label: "Sign in as Wikidot user"
+        },
+        data: null
+      }
+      return
+    }
+
+    openFileAction(fileId, "edit")
+  }
+
   function requestDelete(event: MouseEvent, file: PageFile) {
     deleteTrigger = event.currentTarget as HTMLElement
     pendingDelete = {
@@ -244,7 +269,7 @@
               <a
                 class="btn btn-primary btn-sm btn-small"
                 href="javascript:;"
-                onclick={() => openFileAction(file.file_id, "edit")}
+                onclick={() => openFileRename(file.file_id)}
               >
                 {data.internationalization?.edit}
               </a>
