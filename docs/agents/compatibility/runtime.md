@@ -2,7 +2,7 @@
 
 ## Build and freeze the material identity
 
-Develop in the local incremental stack; produce production/release images only after source batch is review-ready and release suffix is needed. Commit and push the exact tree before the immutable build so review, build, and measurement share one identity. Freeze generated denominators, reviews, fixtures, source-owned verification tools, source-writer roster, and image-producer inputs from that tree; regenerate source-bound final-frozen inputs when source identity changes, preserving exact frozen verifier/tool bytes or their source-owned snapshot when a receipt binds them.
+Develop in the local incremental stack; produce production/release images only after source batch is review-ready and release suffix is needed. Commit and push the exact tree before the immutable build so review, build, and measurement share one identity. The final-frozen receipt (`wikijump.final_frozen_receipt.v2`) is derived only from executed evidence of that tree: run `install/local/wikidot-verification/scripts/run-consolidated-validation.mjs --repository <clean checkout> --base <standing commit> --output <receipt>` (the final preflight barrier; it seals every selected group and per-check result, tool versions, and a fail receipt naming each failing check), then `scripts/emit-final-frozen-receipt.mjs --source-root <checkout> --validation-receipt <receipt> --image-producer <sealed image producer output> --output <final-frozen>`. No review, roster, or sign-off input exists; a failing or missing check blocks promotion by name. Regenerate both when source identity changes.
 
 ## Candidate inputs and execution
 

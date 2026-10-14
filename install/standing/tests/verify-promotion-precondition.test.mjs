@@ -36,35 +36,25 @@ async function finalFrozenFixture(root, identity) {
   await fs.mkdir(path.join(directory, "deepwell"), { recursive: true });
   const paths = {
     lockfile: path.join(directory, "deepwell", "Cargo.lock"),
-    verifier: path.join(directory, "verifier.mjs"),
-    fixture: path.join(directory, "fixture.json"),
-    tool: path.join(directory, "tool.mjs"),
-    denominator: path.join(directory, "denominator.json"),
     images: path.join(directory, "images.json"),
-    standardsReview: path.join(directory, "standards-review.json"),
-    specReview: path.join(directory, "spec-review.json"),
-    manifest: path.join(directory, "inputs.json"),
-    writers: path.join(directory, "writers.json"),
+    validation: path.join(directory, "validation.json"),
     receipt: path.join(directory, "receipt.json"),
   };
   await fs.writeFile(paths.lockfile, "lock\n");
-  await fs.writeFile(paths.verifier, "verifier\n");
-  await fs.writeFile(paths.fixture, "fixture\n");
-  await fs.writeFile(paths.tool, "tool\n");
-  await fs.writeFile(paths.denominator, "denominator\n");
-  for (const [axis, reviewPath] of [
-    ["standards", paths.standardsReview],
-    ["spec", paths.specReview],
-  ]) {
-    await writeJson(reviewPath, {
-      schema: "wikijump.compatibility_review.v1",
-      axis,
-      status: "pass",
-      wikijump_commit: identity.candidate.wikijump_commit,
-      wikijump_tree: identity.candidate.wikijump_tree,
-      findings: [],
-    });
-  }
+  await writeJson(paths.validation, {
+    schema: "wikijump.consolidated_validation_receipt.v2",
+    status: "pass",
+    started_at: "2026-10-15T00:00:00.000Z",
+    completed_at: "2026-10-15T01:00:00.000Z",
+    wikijump_commit: identity.candidate.wikijump_commit,
+    wikijump_tree: identity.candidate.wikijump_tree,
+    base_commit: git("1"),
+    mode: "final",
+    groups: { deepwell: true, verification: true },
+    checks: [{ name: "deepwell full tests", status: "ok" }],
+    tool_versions: { node: "v24" },
+    preflight: { exit: 0, log: { path: "/log", sha256: hash("log") }, source_sha256: {} },
+  });
   await writeJson(paths.images, {
     status: "pass",
     wikijump_sha: identity.candidate.wikijump_commit,
@@ -72,31 +62,12 @@ async function finalFrozenFixture(root, identity) {
     ftml_sha: identity.candidate.ftml_sha,
     images: { deepwell: { id: image("f") } },
   });
-  await writeJson(paths.manifest, {
-    lockfiles: [paths.lockfile],
-    verifier: [paths.verifier],
-    fixtures: [paths.fixture],
-    tools: [paths.tool],
-    denominator: [paths.denominator],
-    reviews: {
-      standards: paths.standardsReview,
-      spec: paths.specReview,
-    },
-    images: paths.images,
-  });
-  await writeJson(paths.writers, {
-    schema: "wikijump.phase4.source_writer_roster.v1",
-    status: "pass",
-    wikijump_commit: identity.candidate.wikijump_commit,
-    wikijump_tree: identity.candidate.wikijump_tree,
-    lanes: [{ name: "candidate", state: "stopped" }],
-  });
   const ref = async (filePath) => ({
     path: filePath,
     sha256: await sha256File(filePath),
   });
   await writeJson(paths.receipt, {
-    schema: "wikijump.phase4.final_frozen_receipt.v1",
+    schema: "wikijump.final_frozen_receipt.v2",
     status: "FINAL_FROZEN",
     source: {
       wikijump_commit: identity.candidate.wikijump_commit,
@@ -104,27 +75,16 @@ async function finalFrozenFixture(root, identity) {
       ftml_sha: identity.candidate.ftml_sha,
       lockfiles: [await ref(paths.lockfile)],
     },
-    verifier: {
-      wikijump_commit: identity.candidate.wikijump_commit,
-      wikijump_tree: identity.candidate.wikijump_tree,
-      files: [await ref(paths.verifier)],
-    },
-    fixtures: [await ref(paths.fixture)],
-    tools: [await ref(paths.tool)],
-    denominator: [await ref(paths.denominator)],
-    reviews: {
-      standards: await ref(paths.standardsReview),
-      spec: await ref(paths.specReview),
+    validation: {
+      ...(await ref(paths.validation)),
+      base_commit: git("1"),
+      check_count: 1,
+      groups: { deepwell: true, verification: true },
     },
     images: {
       producer: await ref(paths.images),
       identities: { deepwell: image("f") },
     },
-    inputs: {
-      manifest: await ref(paths.manifest),
-      source_writers: await ref(paths.writers),
-    },
-    source_writers: [],
   });
   return paths.receipt;
 }

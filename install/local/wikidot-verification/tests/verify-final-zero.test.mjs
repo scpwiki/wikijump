@@ -7,7 +7,7 @@ import path from "node:path";
 import {promisify} from "node:util";
 import test from "node:test";
 
-import {buildFinalFrozenReceipt} from "../scripts/emit-final-frozen-receipt.mjs";
+import {LOCKFILES, buildFinalFrozenReceipt} from "../scripts/emit-final-frozen-receipt.mjs";
 import {main, parseArgs, verifyFinalZero} from "../scripts/verify-final-zero.mjs";
 
 const execFile = promisify(execFileCallback);
@@ -133,9 +133,21 @@ async function fixtures(t, options = {}) {
   const candidateArtifact = await writeBytes(root, "candidate-artifact.json", "candidate\n");
   const standingArtifact = await writeBytes(root, "standing-artifact.json", "standing\n");
   const promotionArtifact = await writeJson(root, "promotion-precondition.json", promotion);
-  const review = (axis) => ({schema: "wikijump.compatibility_review.v1", axis, status: "pass", wikijump_commit: repository.candidateCommit, wikijump_tree: wikijumpTree, findings: []});
-  const standardsReview = await writeJson(root, "standards-review.json", review("standards"));
-  const specReview = await writeJson(root, "spec-review.json", review("spec"));
+  const validationReceipt = (commit, baseCommit) => ({
+    schema: "wikijump.consolidated_validation_receipt.v2",
+    status: "pass",
+    started_at: "2026-09-12T00:00:00.000Z",
+    completed_at: "2026-09-12T01:00:00.000Z",
+    wikijump_commit: commit,
+    wikijump_tree: wikijumpTree,
+    base_commit: baseCommit,
+    mode: "final",
+    groups: {deepwell: true, verification: true},
+    checks: [{name: "deepwell full tests", status: "ok"}],
+    tool_versions: {node: "v24"},
+    preflight: {exit: 0, log: {path: "/log", sha256: "4".repeat(64)}, source_sha256: {}},
+  });
+  const candidateValidation = await writeJson(root, "candidate-validation.json", validationReceipt(repository.candidateCommit, "5".repeat(40)));
   const frozenImageProducer = await writeJson(root, "frozen-images.json", {
     status: "pass",
     wikijump_sha: repository.candidateCommit,
@@ -143,33 +155,15 @@ async function fixtures(t, options = {}) {
     ftml_sha: ftmlCommit,
     images: {deepwell: {id: `sha256:${"1".repeat(64)}`}, framerail: {id: `sha256:${"2".repeat(64)}`}, wws: {id: `sha256:${"3".repeat(64)}`}},
   });
-  await fs.mkdir(path.join(root, "deepwell"), {recursive: true});
-  const frozenLock = await writeBytes(root, "deepwell/Cargo.lock", "lock\n");
-  const frozenVerifier = await writeBytes(root, "frozen-verifier.mjs", "verifier\n");
-  const frozenFixture = await writeBytes(root, "frozen-fixture.json", "fixture\n");
-  const frozenTool = await writeBytes(root, "frozen-tool.mjs", "tool\n");
-  const frozenDenominator = await writeBytes(root, "frozen-denominator.json", "denominator\n");
-  const frozenManifest = await writeJson(root, "frozen-manifest.json", {
-    lockfiles: [frozenLock.path],
-    verifier: [frozenVerifier.path],
-    fixtures: [frozenFixture.path],
-    tools: [frozenTool.path],
-    denominator: [frozenDenominator.path],
-    reviews: {standards: standardsReview.path, spec: specReview.path},
-    images: frozenImageProducer.path,
-  });
-  const frozenWriters = await writeJson(root, "frozen-writers.json", {
-    schema: "wikijump.phase4.source_writer_roster.v1",
-    status: "pass",
-    wikijump_commit: repository.candidateCommit,
-    wikijump_tree: wikijumpTree,
-    lanes: [{name: "campaign", state: "stopped"}],
-  });
+  for (const lockfile of LOCKFILES) {
+    await fs.mkdir(path.dirname(path.join(root, lockfile)), {recursive: true});
+    await writeBytes(root, lockfile, `lock ${lockfile}\n`);
+  }
   const frozenReceipt = await buildFinalFrozenReceipt({
     source: {wikijump_commit: repository.candidateCommit, wikijump_tree: wikijumpTree, ftml_sha: ftmlCommit},
-    inputManifestPath: frozenManifest.path,
-    sourceWritersPath: frozenWriters.path,
     sourceRoot: root,
+    validationReceiptPath: candidateValidation.path,
+    imageProducerPath: frozenImageProducer.path,
   });
   const finalFrozen = await writeJson(root, "final-frozen.json", frozenReceipt);
   const activeImages = Object.fromEntries(["deepwell", "framerail", "wws"].map((service, index) => [service, {reference: `sha256:${String(index + 1).repeat(64)}`, id: `sha256:${String(index + 1).repeat(64)}`, repo_digests: [], labels: {}}]));
@@ -236,22 +230,12 @@ async function fixtures(t, options = {}) {
     standing_refresh: standingRefresh,
     rows: [{surface_id: surfaceId, source_local_id: sourceLocalId, kind: "catalog_feature", status: "pass", artifacts: [standingArtifact]}],
   };
-  const consolidatedValidation = {
-    schema: "wikijump.consolidated_validation_receipt.v1",
-    status: "pass",
-    completed_at: "2026-09-12T00:00:00.000Z",
-    wikijump_commit: wikijumpCommit,
-    wikijump_tree: wikijumpTree,
-    base_commit: await git(repository.path, "rev-parse", `${wikijumpCommit}^1`),
-    preflight: {
-      mode: "final",
-      source_sha256: Object.fromEntries(await Promise.all([
-        "scripts/preflight.sh",
-        "scripts/run-test-no-external-network.sh",
-        "install/local/wikidot-verification/scripts/run-deepwell-integration-validation.mjs",
-      ].map(async (relative) => [relative, sha256(await fs.readFile(path.join(repository.path, relative)))]))),
-    },
-  };
+  const consolidatedValidation = validationReceipt(wikijumpCommit, await git(repository.path, "rev-parse", `${wikijumpCommit}^1`));
+  consolidatedValidation.preflight.source_sha256 = Object.fromEntries(await Promise.all([
+    "scripts/preflight.sh",
+    "scripts/run-test-no-external-network.sh",
+    "install/local/wikidot-verification/scripts/run-deepwell-integration-validation.mjs",
+  ].map(async (relative) => [relative, sha256(await fs.readFile(path.join(repository.path, relative)))])));
   const openIssues = {
     schema: "wikijump.current_open_issues.v1",
     repository: "Rokurolize/wikijump",
@@ -334,19 +318,20 @@ test("final-zero rejects missing or drifted semantic row values", async (t) => {
   await assert.rejects(verifyFinalZero(inputMap(drifted)), /semantic value is missing or drifted/u);
 });
 
-test("final-zero treats public tests and independent reviews as distinct gates", async (t) => {
+test("final-zero treats public tests and the frozen validation as distinct gates", async (t) => {
   const missingTest = await fixtures(t);
   missingTest.ledger.rows[0].tests = {state: "missing", reason: "not_written"};
   await writeJson(missingTest.paths.root, "ledger.json", missingTest.ledger);
   await assert.rejects(verifyFinalZero(inputMap(missingTest)), /unrepresented_charter_requirements=1/u);
 
-  const staleReview = await fixtures(t);
-  const frozen = JSON.parse(await fs.readFile(staleReview.paths.finalFrozen, "utf8"));
-  const reviewPath = frozen.reviews.standards.path;
-  const reviewValue = JSON.parse(await fs.readFile(reviewPath, "utf8"));
-  reviewValue.findings = [{severity: "error", message: "unresolved"}];
-  await fs.writeFile(reviewPath, `${JSON.stringify(reviewValue)}\n`);
-  await assert.rejects(verifyFinalZero(inputMap(staleReview)), /final frozen standards review is stale|standards review is not a passing zero-finding review/u);
+  const failedValidation = await fixtures(t);
+  const frozen = JSON.parse(await fs.readFile(failedValidation.paths.finalFrozen, "utf8"));
+  const validationPath = frozen.validation.path;
+  const validationValue = JSON.parse(await fs.readFile(validationPath, "utf8"));
+  validationValue.status = "fail";
+  validationValue.checks = [{name: "deepwell full tests", status: "failed"}];
+  await fs.writeFile(validationPath, `${JSON.stringify(validationValue)}\n`);
+  await assert.rejects(verifyFinalZero(inputMap(failedValidation)), /final frozen consolidated validation is stale|did not pass/u);
 });
 
 test("final-zero rejects a non-exact deferred wikidot.py/XML-RPC exclusion", async (t) => {
@@ -428,7 +413,7 @@ test("final-zero rejects missing, stale, or non-final consolidated validation", 
   const stale = await fixtures(t);
   stale.consolidatedValidation.wikijump_commit = stale.repository.candidateCommit;
   await writeJson(stale.paths.root, "consolidated-validation.json", stale.consolidatedValidation);
-  await assert.rejects(verifyFinalZero(inputMap(stale)), /not bound to the merge source/u);
+  await assert.rejects(verifyFinalZero(inputMap(stale)), /source identity is stale/u);
 
   const wrongBase = await fixtures(t);
   wrongBase.consolidatedValidation.base_commit = wrongBase.repository.candidateCommit;
@@ -436,9 +421,9 @@ test("final-zero rejects missing, stale, or non-final consolidated validation", 
   await assert.rejects(verifyFinalZero(inputMap(wrongBase)), /base is not the merge first parent/u);
 
   const checkpoint = await fixtures(t);
-  checkpoint.consolidatedValidation.preflight.mode = "checkpoint";
+  checkpoint.consolidatedValidation.mode = "checkpoint";
   await writeJson(checkpoint.paths.root, "consolidated-validation.json", checkpoint.consolidatedValidation);
-  await assert.rejects(verifyFinalZero(inputMap(checkpoint)), /did not run the final preflight/u);
+  await assert.rejects(verifyFinalZero(inputMap(checkpoint)), /must run the final barrier/u);
 });
 
 test("final-zero rejects symlinked input and artifact paths", async (t) => {
