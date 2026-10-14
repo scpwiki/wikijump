@@ -3357,6 +3357,11 @@
       "target": "wikijump.deepwell"
     },
     {
+      "source": "deepwell-jsonrpc:page_delete_permission",
+      "type": "implemented_by",
+      "target": "wikijump.deepwell"
+    },
+    {
       "source": "deepwell-jsonrpc:page_delete",
       "type": "implemented_by",
       "target": "wikijump.deepwell"
@@ -3468,6 +3473,11 @@
     },
     {
       "source": "deepwell-jsonrpc:page_meta_tags",
+      "type": "implemented_by",
+      "target": "wikijump.deepwell"
+    },
+    {
+      "source": "deepwell-jsonrpc:page_move_permission",
       "type": "implemented_by",
       "target": "wikijump.deepwell"
     },
@@ -3652,6 +3662,16 @@
       "target": "wikijump.deepwell"
     },
     {
+      "source": "deepwell-jsonrpc:site_icon_get",
+      "type": "implemented_by",
+      "target": "wikijump.deepwell"
+    },
+    {
+      "source": "deepwell-jsonrpc:site_icon_set",
+      "type": "implemented_by",
+      "target": "wikijump.deepwell"
+    },
+    {
       "source": "deepwell-jsonrpc:site_tools_list_drafts",
       "type": "implemented_by",
       "target": "wikijump.deepwell"
@@ -3813,6 +3833,11 @@
     },
     {
       "source": "deepwell-jsonrpc:wikidot_site_changes_module",
+      "type": "implemented_by",
+      "target": "wikijump.deepwell"
+    },
+    {
+      "source": "deepwell-jsonrpc:wikidot_sitemap",
       "type": "implemented_by",
       "target": "wikijump.deepwell"
     },
@@ -4117,6 +4142,16 @@
       "target": "wikijump.framerail"
     },
     {
+      "source": "framerail-route:/sitemap_page_{n}.xml",
+      "type": "implemented_by",
+      "target": "wikijump.framerail"
+    },
+    {
+      "source": "framerail-route:/sitemap.xml",
+      "type": "implemented_by",
+      "target": "wikijump.framerail"
+    },
+    {
       "source": "framerail-route:/user:info/{target}",
       "type": "implemented_by",
       "target": "wikijump.framerail"
@@ -4317,6 +4352,11 @@
       "target": "wikijump.framerail"
     },
     {
+      "source": "framerail-server-action:/?/deletePermission",
+      "type": "implemented_by",
+      "target": "wikijump.framerail"
+    },
+    {
       "source": "framerail-server-action:/?/edit",
       "type": "implemented_by",
       "target": "wikijump.framerail"
@@ -4427,6 +4467,11 @@
       "target": "wikijump.framerail"
     },
     {
+      "source": "framerail-server-action:/?/movePermission",
+      "type": "implemented_by",
+      "target": "wikijump.framerail"
+    },
+    {
       "source": "framerail-server-action:/?/parentGet",
       "type": "implemented_by",
       "target": "wikijump.framerail"
@@ -4493,6 +4538,11 @@
     },
     {
       "source": "framerail-server-action:/{slug}/{*extra}?/delete",
+      "type": "implemented_by",
+      "target": "wikijump.framerail"
+    },
+    {
+      "source": "framerail-server-action:/{slug}/{*extra}?/deletePermission",
       "type": "implemented_by",
       "target": "wikijump.framerail"
     },
@@ -4603,6 +4653,11 @@
     },
     {
       "source": "framerail-server-action:/{slug}/{*extra}?/move",
+      "type": "implemented_by",
+      "target": "wikijump.framerail"
+    },
+    {
+      "source": "framerail-server-action:/{slug}/{*extra}?/movePermission",
       "type": "implemented_by",
       "target": "wikijump.framerail"
     },
@@ -11420,7 +11475,7 @@
   },
   "provenance": {
     "wikijump": {
-      "source_input_set_sha256": "e101d39f1c65658d925ef48eaea35f202bb973434e699e74a88d3d6cdf4a1385"
+      "source_input_set_sha256": "f6943d79f69c80c1581adf468064d674fd9dba929f544b3f00137d29e95cd172"
     },
     "ftml": {
       "commit": "17dbc236a5bc879c1bcd451e2308bb080d854f15",
@@ -11437,7 +11492,7 @@
       },
       {
         "path": "deepwell/src/api.rs",
-        "sha256": "bf4d26f45298a35a97f971770e68914924ef1e841750770d85d72d448b3a62d3"
+        "sha256": "04f4f3289ded4f796118004fecfe211f49a0e02612ba20140cba4077bef5c9ee"
       },
       {
         "path": "deepwell/src/endpoints/auth.rs",
@@ -11469,7 +11524,7 @@
       },
       {
         "path": "deepwell/src/endpoints/file_revision.rs",
-        "sha256": "2e02b6c45fb78c4e8028d45b333eff9fd7ca3cd5122fc6be8e5dc246264d74eb"
+        "sha256": "c33aa99210e43f8efe49643923e04c4cb7f1e77cfeeb6858fbd5fb37a2aece95"
       },
       {
         "path": "deepwell/src/endpoints/file.rs",
@@ -11497,7 +11552,7 @@
       },
       {
         "path": "deepwell/src/endpoints/locale.rs",
-        "sha256": "f72fedb64bd32c46adde0a184cce7b962e4f8eacdf421f497a32717e652d9cbf"
+        "sha256": "a7727e0dbac698ad3ed149b66814305b70a012a4b33355e786b17588726ccfe1"
       },
       {
         "path": "deepwell/src/endpoints/message.rs",
@@ -11525,7 +11580,11 @@
       },
       {
         "path": "deepwell/src/endpoints/page.rs",
-        "sha256": "70855644fc67125870138c6dccb34609101881c53877ab15b4a03db74fe90d5e"
+        "sha256": "9e4f1965368874d69bfa0b7707beadcd4f7e98e4142a2f740fe94cb7e0fcc325"
+      },
+      {
+        "path": "deepwell/src/endpoints/page/permissions.rs",
+        "sha256": "34e5893429f45e68d97d9cfa8ecb6ef8d424f95719cdfba0fade8d76eb11f1d8"
       },
       {
         "path": "deepwell/src/endpoints/parent.rs",
@@ -11545,7 +11604,7 @@
       },
       {
         "path": "deepwell/src/endpoints/site.rs",
-        "sha256": "90571957a7060b00f5782a3db428d3644e51c8babffb66c1f6a621122f1db49f"
+        "sha256": "fe88eb98e88ce8686ceed7b34a7288d5350e20a2bd3751378849b93d2f807e0b"
       },
       {
         "path": "deepwell/src/endpoints/text_block.rs",
@@ -11581,7 +11640,7 @@
       },
       {
         "path": "docs/development/deepwell-jsonrpc-contract-manifest.json",
-        "sha256": "2b79380441c089ec28fda2db73265e46f11ca79cda831a4105d5be531ee8fb86"
+        "sha256": "48cf969f0da01e7437ac9698d076231ac26d963f108a92f335182623384b767c"
       },
       {
         "path": "docs/development/framerail-amc-wire-contracts.json",
@@ -11589,7 +11648,7 @@
       },
       {
         "path": "docs/development/framerail-route-action-evidence.json",
-        "sha256": "b0d7bc32164841bdb8c3f00060b238c19c8e0e3fb3116f37f3c75f423e8457d2"
+        "sha256": "71435c9e6b774c446f585fcca5f24e5b2301d435ee67051f5077b363066061f5"
       },
       {
         "path": "docs/development/open43-a-actions-membership-closure-audit.json",
@@ -11629,7 +11688,7 @@
       },
       {
         "path": "docs/development/wikidot-page-action-surfaces.json",
-        "sha256": "7bbaa2b0c18372aed724c48c5a880c0fc55123feec72793076fcb0ea0a89ecb4"
+        "sha256": "1517015d3fe44f359d8e46a5c1a9d9713955955d7cbec80a3c663cbb3a1712ad"
       },
       {
         "path": "docs/development/wikidot-py-amc-client-parity.json",
@@ -11645,7 +11704,7 @@
       },
       {
         "path": "docs/development/wws-route-registration-denominator.json",
-        "sha256": "6f7101d9bf81bb26e930c8993a5f27581631d1e645dac4193fab7ce2fa004408"
+        "sha256": "f31a65e2ef9dc9bb8318932ac0d360b5721745a4e2e2e4052f3250a2b1bb67f7"
       },
       {
         "path": "docs/wikidot-specifications/catalog.json",
@@ -11669,7 +11728,7 @@
       },
       {
         "path": "framerail/src/lib/server/load/page/page-actions.ts",
-        "sha256": "13bfc494f60d509442ab91ae58fdfc0b8509c281bb992d78cdfea4ea55adf813"
+        "sha256": "99a99dd3d2c2833ada833da220503a42224facb7e77cb45c1932078d6c953479"
       },
       {
         "path": "framerail/src/lib/server/load/page/page-revision-actions.ts",
@@ -11681,7 +11740,7 @@
       },
       {
         "path": "framerail/src/lib/server/wikidot-site-changes.js",
-        "sha256": "f32cc924612ba4231fc07de1808324bb27e8a3ecafd56d249a42cd8011834092"
+        "sha256": "2faf6bebd3d9481b4fe1ba865adc3f23b2ecfea08fac988eac08d975bdb4ee4d"
       },
       {
         "path": "framerail/src/lib/server/xmlrpc/methods.ts",
@@ -11753,7 +11812,7 @@
       },
       {
         "path": "framerail/src/routes/[x+2d]/register/+page.svelte",
-        "sha256": "6e3b2193ca0ea83026f6b5246e69c871a0d9ca5ac9683b1d787f24d4e2220835"
+        "sha256": "959e9c140316931ccb52d9de180ae840f9b0375074a461fd7ac03914ddda6d36"
       },
       {
         "path": "framerail/src/routes/[x+2d]/settings/+page.server.ts",
@@ -11805,7 +11864,7 @@
       },
       {
         "path": "framerail/src/routes/ajax-module-connector.php/+server.ts",
-        "sha256": "756a488d3ab89089e8bcdbb2f08f8337a816e59c6d8ece48edfbc0193bd37d16"
+        "sha256": "10ddc928d336744bec18816162b1514e9b85c15190cbf9517a5d070d24c7f924"
       },
       {
         "path": "framerail/src/routes/common--images/jquery-raty/[asset]/+server.ts",
@@ -11861,15 +11920,15 @@
       },
       {
         "path": "framerail/src/routes/local--favicon/[filename]/+server.ts",
-        "sha256": "24736c9ddd3ed65195ad15d011c75ff75b1c8f594929e63a0c5597357239b28b"
+        "sha256": "f9cdd7d232973b3c3b344b1547063e0221a32ee2fc07e4880295796cb6c21a82"
       },
       {
         "path": "framerail/src/routes/local--iosicon/[filename]/+server.ts",
-        "sha256": "9c5542121551d475bd64195ade3ef4b3cab7a08c6f0f6b6ee956f62dbc688ae6"
+        "sha256": "c12811963a8e5a8684300e147bfe59b8de44ed00595a199f850a7ea293b29d17"
       },
       {
         "path": "framerail/src/routes/local--wp8icon/[filename]/+server.ts",
-        "sha256": "f77680d24f23cd6bb3ab5ea1f4e37b31505af6c2bcf4a1755aba40245620b6da"
+        "sha256": "046fd150ed6e87b67bf2a7f1e1eca4826192d7086bd899e1216900694c6b75b4"
       },
       {
         "path": "framerail/src/routes/printer--friendly/[...path]/+page.server.ts",
@@ -11878,6 +11937,14 @@
       {
         "path": "framerail/src/routes/printer--friendly/[...path]/+page.svelte",
         "sha256": "48ea625cdf3e2eeb0dece65b257e1c2d806dde855391125bcd82cf677fa66478"
+      },
+      {
+        "path": "framerail/src/routes/sitemap_page_[n].xml/+server.ts",
+        "sha256": "73294f9c7986801955d03ed6008788033e341e16fd0e181ec3133efbe6724daa"
+      },
+      {
+        "path": "framerail/src/routes/sitemap.xml/+server.ts",
+        "sha256": "478dcd63d86018be9dd2af48c9a801a6b248a47d7dcdd9d1b5d74cea5a6f7bbf"
       },
       {
         "path": "framerail/src/routes/user[x+3a]info/[target]/+page.server.ts",
@@ -11889,7 +11956,7 @@
       },
       {
         "path": "framerail/src/routes/WikiPageError.svelte",
-        "sha256": "fa24a16b8638b6e27603d79c50be4bafd59913558bc52767c193d9c2412f098c"
+        "sha256": "6ff1e28fdfa78facc511bb3eefc8ed4fb15fc58fce9e8d1fb57543976f3964c9"
       },
       {
         "path": "framerail/src/routes/xml-rpc-api.php/+server.ts",
@@ -12016,14 +12083,14 @@
     ]
   },
   "counts": {
-    "total": 961,
+    "total": 972,
     "by_kind": {
       "catalog_feature": 210,
-      "deepwell_jsonrpc_method": 181,
+      "deepwell_jsonrpc_method": 186,
       "framerail_amc_action_shape": 2,
       "framerail_amc_module_shape": 27,
-      "framerail_route": 33,
-      "framerail_server_action": 107,
+      "framerail_route": 35,
+      "framerail_server_action": 111,
       "framerail_xmlrpc_method": 17,
       "missing_page_control": 2,
       "open43_audit_case": 285,
@@ -26319,6 +26386,51 @@
       ]
     },
     {
+      "surface_id": "deepwell-jsonrpc:page_delete_permission",
+      "kind": "deepwell_jsonrpc_method",
+      "public_reference": [
+        "deepwell/src/api.rs#register:page_delete_permission",
+        "deepwell/src/endpoints/page/permissions.rs#page_delete_permission"
+      ],
+      "existing_refs": {
+        "issues": [
+          1368
+        ],
+        "cases": [],
+        "tests": [
+          "install/local/wikidot-verification/tests/deepwell-jsonrpc-contract-manifest.test.mjs#Deepwell JSON-RPC manifest exactly covers the current registered contract"
+        ]
+      },
+      "evidence": {
+        "status": "available",
+        "references": [
+          "docs/development/deepwell-jsonrpc-contract-manifest.json"
+        ]
+      },
+      "source": {
+        "status": "implemented",
+        "references": [
+          "deepwell/src/endpoints/page/permissions.rs"
+        ]
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:deepwell-jsonrpc",
+      "implementation_owners": [
+        "wikijump.deepwell"
+      ]
+    },
+    {
       "surface_id": "deepwell-jsonrpc:page_draft_exists",
       "kind": "deepwell_jsonrpc_method",
       "public_reference": [
@@ -26503,7 +26615,7 @@
       "kind": "deepwell_jsonrpc_method",
       "public_reference": [
         "deepwell/src/api.rs#register:page_edit_permission",
-        "deepwell/src/endpoints/page.rs#page_edit_permission"
+        "deepwell/src/endpoints/page/permissions.rs#page_edit_permission"
       ],
       "existing_refs": {
         "issues": [
@@ -26523,7 +26635,7 @@
       "source": {
         "status": "implemented",
         "references": [
-          "deepwell/src/endpoints/page.rs"
+          "deepwell/src/endpoints/page/permissions.rs"
         ]
       },
       "candidate": {
@@ -26556,7 +26668,7 @@
         ],
         "cases": [],
         "tests": [
-          "deepwell/tests/list_pages.rs#imported_revision_count_current_page_only_adds_local_revisions"
+          "deepwell/tests/import.rs#mirror_seed_carries_source_tags_and_navigation"
         ]
       },
       "evidence": {
@@ -27334,6 +27446,51 @@
         "status": "implemented",
         "references": [
           "deepwell/src/endpoints/page.rs"
+        ]
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:deepwell-jsonrpc",
+      "implementation_owners": [
+        "wikijump.deepwell"
+      ]
+    },
+    {
+      "surface_id": "deepwell-jsonrpc:page_move_permission",
+      "kind": "deepwell_jsonrpc_method",
+      "public_reference": [
+        "deepwell/src/api.rs#register:page_move_permission",
+        "deepwell/src/endpoints/page/permissions.rs#page_move_permission"
+      ],
+      "existing_refs": {
+        "issues": [
+          1368
+        ],
+        "cases": [],
+        "tests": [
+          "install/local/wikidot-verification/tests/deepwell-jsonrpc-contract-manifest.test.mjs#Deepwell JSON-RPC manifest exactly covers the current registered contract"
+        ]
+      },
+      "evidence": {
+        "status": "available",
+        "references": [
+          "docs/development/deepwell-jsonrpc-contract-manifest.json"
+        ]
+      },
+      "source": {
+        "status": "implemented",
+        "references": [
+          "deepwell/src/endpoints/page/permissions.rs"
         ]
       },
       "candidate": {
@@ -28929,6 +29086,96 @@
       ]
     },
     {
+      "surface_id": "deepwell-jsonrpc:site_icon_get",
+      "kind": "deepwell_jsonrpc_method",
+      "public_reference": [
+        "deepwell/src/api.rs#register:site_icon_get",
+        "deepwell/src/endpoints/site.rs#site_icon_get"
+      ],
+      "existing_refs": {
+        "issues": [
+          1368
+        ],
+        "cases": [],
+        "tests": [
+          "deepwell/tests/site.rs#site_icon_endpoints_roundtrip_as_staff_and_anonymous"
+        ]
+      },
+      "evidence": {
+        "status": "available",
+        "references": [
+          "docs/development/deepwell-jsonrpc-contract-manifest.json"
+        ]
+      },
+      "source": {
+        "status": "implemented",
+        "references": [
+          "deepwell/src/endpoints/site.rs"
+        ]
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:deepwell-jsonrpc",
+      "implementation_owners": [
+        "wikijump.deepwell"
+      ]
+    },
+    {
+      "surface_id": "deepwell-jsonrpc:site_icon_set",
+      "kind": "deepwell_jsonrpc_method",
+      "public_reference": [
+        "deepwell/src/api.rs#register:site_icon_set",
+        "deepwell/src/endpoints/site.rs#site_icon_set"
+      ],
+      "existing_refs": {
+        "issues": [
+          1368
+        ],
+        "cases": [],
+        "tests": [
+          "deepwell/tests/site.rs#site_icon_endpoints_roundtrip_as_staff_and_anonymous"
+        ]
+      },
+      "evidence": {
+        "status": "available",
+        "references": [
+          "docs/development/deepwell-jsonrpc-contract-manifest.json"
+        ]
+      },
+      "source": {
+        "status": "implemented",
+        "references": [
+          "deepwell/src/endpoints/site.rs"
+        ]
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:deepwell-jsonrpc",
+      "implementation_owners": [
+        "wikijump.deepwell"
+      ]
+    },
+    {
       "surface_id": "deepwell-jsonrpc:site_tools_list_drafts",
       "kind": "deepwell_jsonrpc_method",
       "public_reference": [
@@ -30382,6 +30629,51 @@
         "cases": [],
         "tests": [
           "deepwell/tests/page.rs#wikidot_site_changes_ajax_endpoint_filters_before_pagination_and_matches_observed_reads"
+        ]
+      },
+      "evidence": {
+        "status": "available",
+        "references": [
+          "docs/development/deepwell-jsonrpc-contract-manifest.json"
+        ]
+      },
+      "source": {
+        "status": "implemented",
+        "references": [
+          "deepwell/src/endpoints/page.rs"
+        ]
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:deepwell-jsonrpc",
+      "implementation_owners": [
+        "wikijump.deepwell"
+      ]
+    },
+    {
+      "surface_id": "deepwell-jsonrpc:wikidot_sitemap",
+      "kind": "deepwell_jsonrpc_method",
+      "public_reference": [
+        "deepwell/src/api.rs#register:wikidot_sitemap",
+        "deepwell/src/endpoints/page.rs#wikidot_sitemap"
+      ],
+      "existing_refs": {
+        "issues": [
+          1368
+        ],
+        "cases": [],
+        "tests": [
+          "install/local/wikidot-verification/tests/deepwell-jsonrpc-contract-manifest.test.mjs#Deepwell JSON-RPC manifest exactly covers the current registered contract"
         ]
       },
       "evidence": {
@@ -32858,6 +33150,87 @@
       ]
     },
     {
+      "surface_id": "framerail-route:/sitemap_page_{n}.xml",
+      "kind": "framerail_route",
+      "public_reference": [
+        "framerail/src/routes/sitemap_page_[n].xml/+server.ts#methods:GET"
+      ],
+      "existing_refs": {
+        "issues": [
+          1372
+        ],
+        "cases": [],
+        "tests": [
+          "framerail/tests/sitemap.test.ts#builds a shard urlset with escaped locations and lastmod dates",
+          "framerail/tests/sitemap.test.ts#parses shard numbers starting at 1 and rejects anything else"
+        ]
+      },
+      "evidence": {
+        "status": "missing",
+        "references": []
+      },
+      "source": {
+        "status": "implemented",
+        "references": []
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:framerail-route",
+      "implementation_owners": [
+        "wikijump.framerail"
+      ]
+    },
+    {
+      "surface_id": "framerail-route:/sitemap.xml",
+      "kind": "framerail_route",
+      "public_reference": [
+        "framerail/src/routes/sitemap.xml/+server.ts#methods:GET"
+      ],
+      "existing_refs": {
+        "issues": [
+          1372
+        ],
+        "cases": [],
+        "tests": [
+          "framerail/tests/sitemap.test.ts#builds a sitemap index pointing at each shard page"
+        ]
+      },
+      "evidence": {
+        "status": "missing",
+        "references": []
+      },
+      "source": {
+        "status": "implemented",
+        "references": []
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:framerail-route",
+      "implementation_owners": [
+        "wikijump.framerail"
+      ]
+    },
+    {
       "surface_id": "framerail-route:/user:info/{target}",
       "kind": "framerail_route",
       "public_reference": [
@@ -34477,6 +34850,47 @@
       ]
     },
     {
+      "surface_id": "framerail-server-action:/?/deletePermission",
+      "kind": "framerail_server_action",
+      "public_reference": [
+        "framerail/src/lib/server/load/page/page-actions.ts#action:deletePermission",
+        "framerail/src/routes/+page.server.ts#action:deletePermission"
+      ],
+      "existing_refs": {
+        "issues": [
+          1372
+        ],
+        "cases": [],
+        "tests": [
+          "framerail/tests/page-option-form-permission.spec.ts#Delete answers with the delete-permission dialog and opens no form"
+        ]
+      },
+      "evidence": {
+        "status": "missing",
+        "references": []
+      },
+      "source": {
+        "status": "implemented",
+        "references": []
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:framerail-action",
+      "implementation_owners": [
+        "wikijump.framerail"
+      ]
+    },
+    {
       "surface_id": "framerail-server-action:/?/edit",
       "kind": "framerail_server_action",
       "public_reference": [
@@ -35379,6 +35793,47 @@
       ]
     },
     {
+      "surface_id": "framerail-server-action:/?/movePermission",
+      "kind": "framerail_server_action",
+      "public_reference": [
+        "framerail/src/lib/server/load/page/page-actions.ts#action:movePermission",
+        "framerail/src/routes/+page.server.ts#action:movePermission"
+      ],
+      "existing_refs": {
+        "issues": [
+          1372
+        ],
+        "cases": [],
+        "tests": [
+          "framerail/tests/page-option-form-permission.spec.ts#Move answers with the move-permission dialog and opens no form"
+        ]
+      },
+      "evidence": {
+        "status": "missing",
+        "references": []
+      },
+      "source": {
+        "status": "implemented",
+        "references": []
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:framerail-action",
+      "implementation_owners": [
+        "wikijump.framerail"
+      ]
+    },
+    {
       "surface_id": "framerail-server-action:/?/parentGet",
       "kind": "framerail_server_action",
       "public_reference": [
@@ -35925,6 +36380,47 @@
         "cases": [],
         "tests": [
           "framerail/tests/page-deleted-authorization.test.js#deleted-page actions use the authenticated route context"
+        ]
+      },
+      "evidence": {
+        "status": "missing",
+        "references": []
+      },
+      "source": {
+        "status": "implemented",
+        "references": []
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:framerail-action",
+      "implementation_owners": [
+        "wikijump.framerail"
+      ]
+    },
+    {
+      "surface_id": "framerail-server-action:/{slug}/{*extra}?/deletePermission",
+      "kind": "framerail_server_action",
+      "public_reference": [
+        "framerail/src/lib/server/load/page/page-actions.ts#action:deletePermission",
+        "framerail/src/routes/[slug]/[...extra]/+page.server.ts#action:deletePermission"
+      ],
+      "existing_refs": {
+        "issues": [
+          1372
+        ],
+        "cases": [],
+        "tests": [
+          "framerail/tests/page-option-form-permission.spec.ts#Delete answers with the delete-permission dialog and opens no form"
         ]
       },
       "evidence": {
@@ -36827,6 +37323,47 @@
         "cases": [],
         "tests": [
           "framerail/tests/page-move-action-boundary.test.js#native page move resolves the routed page before moving it"
+        ]
+      },
+      "evidence": {
+        "status": "missing",
+        "references": []
+      },
+      "source": {
+        "status": "implemented",
+        "references": []
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:framerail-action",
+      "implementation_owners": [
+        "wikijump.framerail"
+      ]
+    },
+    {
+      "surface_id": "framerail-server-action:/{slug}/{*extra}?/movePermission",
+      "kind": "framerail_server_action",
+      "public_reference": [
+        "framerail/src/lib/server/load/page/page-actions.ts#action:movePermission",
+        "framerail/src/routes/[slug]/[...extra]/+page.server.ts#action:movePermission"
+      ],
+      "existing_refs": {
+        "issues": [
+          1372
+        ],
+        "cases": [],
+        "tests": [
+          "framerail/tests/page-option-form-permission.spec.ts#Move answers with the move-permission dialog and opens no form"
         ]
       },
       "evidence": {
@@ -38022,7 +38559,7 @@
       "source_identities": [
         {
           "path": "framerail/src/routes/WikiPageError.svelte",
-          "sha256": "fa24a16b8638b6e27603d79c50be4bafd59913558bc52767c193d9c2412f098c"
+          "sha256": "6ff1e28fdfa78facc511bb3eefc8ed4fb15fc58fce9e8d1fb57543976f3964c9"
         },
         {
           "path": "framerail/src/routes/+error.svelte",
@@ -38030,7 +38567,7 @@
         },
         {
           "path": "framerail/src/lib/server/load/page/page-actions.ts",
-          "sha256": "13bfc494f60d509442ab91ae58fdfc0b8509c281bb992d78cdfea4ea55adf813"
+          "sha256": "99a99dd3d2c2833ada833da220503a42224facb7e77cb45c1932078d6c953479"
         }
       ],
       "specification_owner": "wikijump.registry:missing-page-control",
@@ -38122,7 +38659,7 @@
       "source_identities": [
         {
           "path": "framerail/src/routes/WikiPageError.svelte",
-          "sha256": "fa24a16b8638b6e27603d79c50be4bafd59913558bc52767c193d9c2412f098c"
+          "sha256": "6ff1e28fdfa78facc511bb3eefc8ed4fb15fc58fce9e8d1fb57543976f3964c9"
         },
         {
           "path": "framerail/src/routes/+error.svelte",
@@ -38130,7 +38667,7 @@
         },
         {
           "path": "framerail/src/lib/server/load/page/page-actions.ts",
-          "sha256": "13bfc494f60d509442ab91ae58fdfc0b8509c281bb992d78cdfea4ea55adf813"
+          "sha256": "99a99dd3d2c2833ada833da220503a42224facb7e77cb45c1932078d6c953479"
         },
         {
           "path": "framerail/src/lib/server/load/page/page.ts",
