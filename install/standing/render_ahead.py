@@ -40,7 +40,19 @@ import time
 MIGRATION_PATH = "/opt/deepwell/migrations/20261014120000_page_revision_render_ahead.sql"
 DEEPWELL_BINARY = "/usr/local/bin/deepwell"
 CONFIG_PATH = "/etc/deepwell.toml"
-LINK_TABLES = ("page_connection", "page_connection_missing", "page_link")
+# Link content only: rendering rewrites rows and their timestamps even when
+# the links are unchanged.
+LINK_TABLES = {
+    "page_connection": ("from_page_id", "to_page_id", "connection_type", "count"),
+    "page_connection_missing": (
+        "from_page_id",
+        "to_site_id",
+        "to_page_slug",
+        "connection_type",
+        "count",
+    ),
+    "page_link": ("page_id", "url", "count"),
+}
 IMAGE_ID = re.compile(r"sha256:[0-9a-f]{64}")
 IDEMPOTENT_STATEMENT = re.compile(
     r"^(CREATE TABLE IF NOT EXISTS|CREATE INDEX IF NOT EXISTS)\s", re.IGNORECASE
@@ -174,15 +186,20 @@ def psql(database_container: str, sql: str) -> str:
 
 
 def link_fingerprint(database_container: str) -> dict[str, str]:
-    queries = "\n".join(
-        f"SELECT '{table}', md5(COALESCE(string_agg(t::text, E'\\n' ORDER BY t::text), '')) FROM {table} t;"
-        for table in LINK_TABLES
-    )
+    queries = "\n".join(link_fingerprint_query(table, columns) for table, columns in LINK_TABLES.items())
     rows = psql(database_container, queries).splitlines()
     fingerprint = dict(row.split("|", 1) for row in rows)
     if set(fingerprint) != set(LINK_TABLES):
         raise RuntimeError("link fingerprint query returned unexpected rows")
     return fingerprint
+
+
+def link_fingerprint_query(table: str, columns: tuple[str, ...]) -> str:
+    row = "ROW(" + ", ".join(columns) + ")::text"
+    return (
+        f"SELECT '{table}', md5(COALESCE(string_agg({row}, E'\\n' ORDER BY {row}), '')) "
+        f"FROM {table};"
+    )
 
 
 def render_pass(
@@ -262,6 +279,11 @@ def parse_args() -> argparse.Namespace:
         default=300_000,
         help="one-shot deadline for pages that still miss the serving deadline alone",
     )
+    parser.add_argument(
+        "--rerender-all",
+        action="store_true",
+        help="ignore existing ahead rows and render every stale page again",
+    )
     parser.add_argument("--output-dir", type=Path, required=True)
     return parser.parse_args()
 
@@ -319,7 +341,9 @@ def main() -> int:
         return summary
 
     # Full passes: render every stale page, and again if links moved.
-    not_before = None
+    not_before = (
+        datetime.now(UTC).isoformat().replace("+00:00", "Z") if args.rerender_all else None
+    )
     links_before = link_fingerprint(args.database_container)
     for number in (1, 2):
         summary = render(
