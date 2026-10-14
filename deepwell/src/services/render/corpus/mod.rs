@@ -27,4 +27,7 @@ mod inventory_query;
 mod inventory_tests;
 
 pub(crate) use self::finalizer::{CorpusRenderFinalizerService, RenderFinalizerSettings};
+pub(super) use self::finalizer::{
+    parse_boolish, parse_positive_i64, parse_positive_usize,
+};
 pub(crate) use self::inventory::{CorpusRenderInventoryService, RenderInventorySettings};

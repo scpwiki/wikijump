@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod ahead;
 mod authorized_page_selector;
 mod backlinks;
 mod categories;
@@ -81,6 +82,9 @@ mod user_directory;
 mod wikidot_hosts;
 mod wikidot_user_resources;
 
+pub use self::ahead::{
+    RenderAheadPromotion, RenderAheadService, RenderAheadSettings, RenderAheadSummary,
+};
 pub(crate) use self::authorized_page_selector::AuthorizedPageSelector;
 pub(crate) use self::corpus::{
     CorpusRenderFinalizerService, CorpusRenderInventoryService, RenderFinalizerSettings,
@@ -129,9 +133,7 @@ pub use self::site_changes_feed::{
     SITE_CHANGES_FEED_ITEM_LIMIT, WikidotSiteChangesFeedItem,
     WikidotSiteChangesFeedOutput, wikidot_site_changes_change_type,
 };
-pub use self::sitemap::{
-    SITEMAP_MAX_ENTRIES, WikidotSitemapEntry, WikidotSitemapOutput,
-};
+pub use self::sitemap::{SITEMAP_MAX_ENTRIES, WikidotSitemapEntry, WikidotSitemapOutput};
 pub use self::structs::{
     RenderOutput, RenderPageOutput, WikidotListPagesFeedInput, WikidotListPagesFeedItem,
     WikidotListPagesFeedOutput,

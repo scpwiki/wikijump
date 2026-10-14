@@ -25,6 +25,7 @@ use crate::watch::setup_autorestart;
 
 use crate::config::SetupConfig;
 use crate::error::prelude::*;
+use crate::services::render::RenderAheadService;
 use crate::{api, database};
 use std::fs::File;
 use std::io::Write;
@@ -92,6 +93,18 @@ pub async fn start() -> Result<()> {
 
     if run_seeder {
         database::seed(&app_state).await.or_raise(make_error)?;
+    }
+
+    // Output rendered ahead for this build's generator replaces stale saved
+    // pages before the first request, so a renderer switch has no rerender
+    // window. A failure leaves those pages stale, which the view path already
+    // refuses, so it is logged rather than stopping the server.
+    match RenderAheadService::promote(&app_state, None).await {
+        Ok(promotion) => info!(
+            "Promoted {} render-ahead pages for {} ({} discarded)",
+            promotion.promoted, promotion.compiled_generator, promotion.discarded,
+        ),
+        Err(error) => error!("Failed to promote render-ahead pages: {error:?}"),
     }
 
     info!("Building server...");

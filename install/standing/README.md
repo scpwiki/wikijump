@@ -71,6 +71,20 @@ Preparation records the candidate-image verification duration and exact image ID
 4. Run `docker compose --project-name wikijump-standing up --detach --no-deps --no-build deepwell framerail wws` with the checked-in refresh label overlay. The overlay adds owner and expiry labels to the three recreated containers and has no volume declarations.
 5. Wait for all three services to become healthy, fetch `http://scp-wiki.wikijump.localhost/scp-9506`, require the expected document markers, update `runtime-differential-identity.json`, and seal a revision-specific `refresh-receipt-<wikijump-sha>.json` with the preparation receipt, exact source, FTML pin, dependency lock, application image IDs, effective Compose configuration, phase timings, health, canary, and resource-disposition record.
 
+### Renderer generation switches: render ahead
+
+Deepwell refuses saved output whose `compiled_generator` is not its own (`ftml vX; deepwell-render/vN`), so a release that bumps the renderer epoch or FTML makes every saved page stale at activation. Rerendering after activation means the site is unavailable for the whole rerender (about two hours for the standing corpus). Render ahead instead, while the current build keeps serving, immediately before activation:
+
+```sh
+python install/standing/render_ahead.py \
+  --prepared-receipt "$runtime_home/prepared-<wikijump-sha>.json" \
+  --output-dir "$runtime_home/render-ahead-<wikijump-sha>"
+```
+
+The command runs the prepared Deepwell image's `render-ahead` runtime action as a one-off container in the serving Deepwell's network namespace, with its environment and configuration. It creates the `page_revision_render_ahead` table from the image's idempotent migration without recording the migration, so the serving build (and a rollback to it) still passes its own migration check. Each stale page's latest revision is rendered into that table; `page_revision` is untouched. If link content (endpoints, type, count; not row timestamps) changes during the run, every page is rendered again so query modules see the final links; `--rerender-all` forces that from the start when an earlier run could not establish it. Pages that miss the serving render deadline under load are retried alone, then once with a one-shot `--tail-render-timeout-ms` deadline. The receipt `render-ahead-receipt.json` records the image, generator, per-pass timings and counts, and `stale_without_valid_ahead`, which must be `0`.
+
+The new Deepwell promotes valid rows in one statement when it starts, before it accepts requests. A row is valid only while its revision is still the page's latest, with the same source, and has not been rerendered by the serving build since the row's inputs were read. Pages that changed after the run therefore stay stale; the run is incremental, so rerun it right before `refresh.py` if time has passed. `refresh.py` then finds `stale_pages_remaining: 0`, and activation costs only the container restart.
+
 The candidate Framerail image is built from the production Dockerfile with origin checks enabled by default, and the standing Compose environment repeats `FRAMERAIL_CSRF_CHECK_ORIGIN=true` so the runtime cannot silently disable the check.
 
 The standing image tier is deliberately separate from `install/local`: local images retain bind mounts and watch-mode startup for source iteration, while the sealed candidate images are already-built production artifacts. Deepwell's candidate image contains the pinned `sqlx-cli` and migrations and runs `sqlx migrate run` before the binary; migration handling is therefore explicit rather than silently lost when the local startup script is removed.
