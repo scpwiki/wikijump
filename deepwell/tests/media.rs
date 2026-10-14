@@ -1033,5 +1033,5 @@ async fn embedvideo_preview_and_saved_page_share_rendered_body() {
         saved.compiled_body_html.as_deref(),
         Some(preview.body.as_str()),
     );
-    assert!(saved.compiled_generator.ends_with("; deepwell-render/v23"));
+    assert!(saved.compiled_generator.ends_with("; deepwell-render/v24"));
 }

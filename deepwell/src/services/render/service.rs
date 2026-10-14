@@ -55,6 +55,7 @@ use super::compat::color_and_inline_protection::{
     substitute_wikidot_protected_inline_dashes_with_scan_count,
     wikidot_compat_html_marker,
 };
+use super::compat::link_targets::restore_compat_text_in_link_targets;
 #[cfg(test)]
 use super::compat::preparation::extract_css_modules;
 use super::compat::preparation::{
@@ -2417,6 +2418,10 @@ impl RenderService {
             );
             resolve_typed_root_site_grid_runtime_modules(&mut parsed.tree);
             resolve_typed_root_recent_threads_runtime_modules(&mut parsed.tree);
+            restore_compat_text_in_link_targets(
+                &mut parsed.tree,
+                parsed.prepared.protection.compat_text(),
+            );
             parsed
         });
         let parsed = timeout(render_timeout, parse_task)

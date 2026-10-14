@@ -79,6 +79,17 @@ impl CompatTextFragments {
         Some(logical_len)
     }
 
+    pub(in crate::services::render) fn is_empty(&self) -> bool {
+        self.fragments.is_empty()
+    }
+
+    pub(in crate::services::render) fn contains_marker(&self, text: &str) -> bool {
+        !self.fragments.is_empty()
+            && text
+                .to_ascii_lowercase()
+                .contains(&self.namespace.to_ascii_lowercase())
+    }
+
     pub(in crate::services::render) fn restore(&self, text: &str) -> String {
         if self.fragments.is_empty() || !text.contains(&self.namespace) {
             return text.to_owned();
@@ -95,6 +106,47 @@ impl CompatTextFragments {
             } else {
                 output.push_str(&self.namespace);
                 cursor = start + self.namespace.len();
+            }
+        }
+        output.push_str(&text[cursor..]);
+        output
+    }
+
+    /// Like `restore`, but also matches markers that were lowercased, as in
+    /// page link targets FTML has already slug-normalized.
+    pub(in crate::services::render) fn restore_ignoring_case(
+        &self,
+        text: &str,
+    ) -> String {
+        if self.fragments.is_empty() {
+            return text.to_owned();
+        }
+        let namespace = self.namespace.to_ascii_lowercase();
+        let lowered = text.to_ascii_lowercase();
+        if !lowered.contains(&namespace) {
+            return text.to_owned();
+        }
+
+        let mut output = String::with_capacity(text.len());
+        let mut cursor = 0;
+        while let Some(offset) = lowered[cursor..].find(&namespace) {
+            let start = cursor + offset;
+            output.push_str(&text[cursor..start]);
+            let suffix = &lowered[start + namespace.len()..];
+            let digits = suffix.bytes().take_while(u8::is_ascii_digit).count();
+            let index = (digits > 0 && suffix.as_bytes().get(digits) == Some(&b'x'))
+                .then(|| suffix[..digits].parse::<usize>().ok())
+                .flatten()
+                .filter(|index| *index < self.fragments.len());
+            match index {
+                Some(index) => {
+                    output.push_str(&self.fragments[index]);
+                    cursor = start + namespace.len() + digits + 1;
+                }
+                None => {
+                    output.push_str(&text[start..start + namespace.len()]);
+                    cursor = start + namespace.len();
+                }
             }
         }
         output.push_str(&text[cursor..]);
