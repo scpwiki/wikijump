@@ -26,7 +26,7 @@ paste = "1"
 rand = "0.10"
 redis = { version = "1", features = ["aio", "connection-manager", "tokio-comp", "tokio-rustls-comp"], default-features = false }
 ref-map = "0.2"
-rust-s3 = { version = "0.37", features = ["with-tokio", "tokio-rustls-tls"], default-features = false }
+rust-s3 = { version = "0.38", features = ["with-tokio", "tokio-rustls-tls"], default-features = false }
 serde = { version = "1", features = ["derive"] }
 str-macro = "1"
 thiserror = "2"
