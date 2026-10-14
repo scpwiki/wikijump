@@ -1,14 +1,11 @@
 import { createHash } from "node:crypto"
 import path from "node:path"
-import process from "node:process"
 
 import { scanRustTokens } from "./rust-source.mjs"
+import { siblingCheckout } from "../sibling-checkout.mjs"
 
 const SEMANTICS_REGISTRY = "docs/development/compatibility-surface-semantics.json"
-const DEFAULT_FTML_GIT_DIR = path.join(
-  process.env.WIKIJUMP_FTML_CHECKOUT ?? "/home/roku/src/Rokurolize/ftml",
-  ".git"
-)
+const DEFAULT_FTML_GIT_DIR = path.join(siblingCheckout("ftml", "WIKIJUMP_FTML_CHECKOUT"), ".git")
 
 function sha256(value) {
   return createHash("sha256").update(value).digest("hex")

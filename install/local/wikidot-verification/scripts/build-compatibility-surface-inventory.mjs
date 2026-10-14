@@ -49,19 +49,17 @@ import {
 } from "../src/compatibility-inventory/inventory-model.mjs"
 
 import { CANDIDATE_CASE_SETS } from "../src/candidate-case-command.mjs"
+import { siblingCheckout } from "../src/sibling-checkout.mjs"
 
 const SCHEMA = "wikijump.compatibility_surface_inventory.v3"
 const SCRIPT_DIRECTORY = path.dirname(fileURLToPath(import.meta.url))
 const DEFAULT_ROOT = path.resolve(SCRIPT_DIRECTORY, "../../../..")
 const DEFAULT_OUTPUT = "docs/development/compatibility-surface-inventory.json"
 const WIKIDOT_PY_GIT_DIR = path.join(
-  process.env.WIKIDOT_PY_CHECKOUT ?? path.resolve(DEFAULT_ROOT, "../wikidot.py"),
+  siblingCheckout("wikidot.py", "WIKIDOT_PY_CHECKOUT", DEFAULT_ROOT),
   ".git"
 )
-const FTML_GIT_DIR = path.join(
-  process.env.WIKIJUMP_FTML_CHECKOUT ?? path.resolve(DEFAULT_ROOT, "../ftml"),
-  ".git"
-)
+const FTML_GIT_DIR = path.join(siblingCheckout("ftml", "WIKIJUMP_FTML_CHECKOUT", DEFAULT_ROOT), ".git")
 const GIT_EXECUTABLE = "/usr/bin/git"
 const GIT_ENVIRONMENT = Object.freeze({
   GIT_CONFIG_GLOBAL: "/dev/null",
