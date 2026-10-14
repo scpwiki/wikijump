@@ -359,10 +359,14 @@ def main() -> int:
         # produces different links on every render (random ListPages,
         # per-render placeholders). Any other changed page moved because the
         # links it reads moved, so pages rendered before it may be stale.
+        # The probe renders the changed pages afresh, so it needs its own
+        # cutoff; their rows from this pass are already valid.
         probe = render(
             f"link-probe-{number}",
-            render_ahead_settings(args.concurrency, args.batch_size, not_before, changed),
+            render_ahead_settings(args.concurrency, args.batch_size, utc_now(), changed),
         )
+        if probe["candidates"] != len(changed):
+            raise RuntimeError("the link probe did not select every changed page")
         repeat = changed_pages(links_after, link_digests(args.database_container))
         settled = sorted(set(changed) - set(repeat) - set(probe["failed_page_ids"]))
         passes[-1]["nondeterministic_link_pages"] = len(repeat)
