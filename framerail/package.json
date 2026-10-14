@@ -39,7 +39,7 @@
     "sass": "^1.105.1",
     "stylelint": "^17.16.0",
     "stylelint-config-recess-order": "^7.8.0",
-    "stylelint-order": "^8.1.1",
+    "stylelint-order": "^8.1.2",
     "stylelint-scss": "^7.3.0",
     "svelte-eslint-parser": "^1.8.1",
     "sveltekit-superforms": "^2.30.2",
