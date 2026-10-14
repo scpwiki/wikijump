@@ -9,8 +9,11 @@ const REPOSITORY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)
 // worktree (whose own parent directory has no sibling checkouts).
 function mainCheckout(root) {
   try {
-    const commonDir = execFileSync("git", ["-C", root, "rev-parse", "--path-format=absolute", "--git-common-dir"], {
+    // A clean environment, so inherited GIT_DIR and similar controls cannot
+    // redirect the lookup to another repository.
+    const commonDir = execFileSync("/usr/bin/git", ["--no-replace-objects", "-C", root, "rev-parse", "--path-format=absolute", "--git-common-dir"], {
       encoding: "utf8",
+      env: { PATH: "/usr/bin:/bin", GIT_CONFIG_NOSYSTEM: "1", GIT_CONFIG_GLOBAL: "/dev/null" },
       stdio: ["ignore", "pipe", "ignore"]
     }).trim()
     return path.dirname(commonDir)

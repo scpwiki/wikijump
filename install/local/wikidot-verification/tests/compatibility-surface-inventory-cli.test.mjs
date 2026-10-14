@@ -1200,12 +1200,15 @@ test("CLI projects the current Deepwell contract evidence without promoting sour
   assert.equal(result.status, 0, result.stderr)
   const inventory = JSON.parse(await fs.readFile(outputPath, "utf8"))
   const rows = inventory.surfaces.filter((record) => record.kind === "deepwell_jsonrpc_method")
-  assert.equal(rows.length, 181)
+  const manifest = JSON.parse(
+    await fs.readFile(path.join(repositoryRoot, "docs/development/deepwell-jsonrpc-contract-manifest.json"), "utf8")
+  )
+  assert.equal(rows.length, manifest.method_count)
   assert.equal(rows.every(({ evidence }) => evidence.status === "available"), true)
   assert.equal(rows.every(({ evidence }) =>
     evidence.references.includes("docs/development/deepwell-jsonrpc-contract-manifest.json")
   ), true)
-  assert.equal(rows.filter(({ existing_refs: existingRefs }) => existingRefs.tests.length > 0).length, 181)
+  assert.equal(rows.filter(({ existing_refs: existingRefs }) => existingRefs.tests.length > 0).length, rows.length)
   assert.equal(rows.filter(({ existing_refs: existingRefs }) => existingRefs.tests.length === 0).length, 0)
   assert.deepEqual(
     rows.find(({ surface_id: surfaceId }) => surfaceId === "deepwell-jsonrpc:wikidot_categories_page_list_module")
@@ -1299,8 +1302,11 @@ test("CLI projects current Framerail route-action tests without inventing browse
   const rows = inventory.surfaces.filter(({ kind }) =>
     kind === "framerail_route" || kind === "framerail_server_action"
   )
-  assert.equal(rows.length, 140)
-  assert.equal(rows.filter(({ existing_refs: existingRefs }) => existingRefs.tests.length > 0).length, 140)
+  const evidence = JSON.parse(
+    await fs.readFile(path.join(repositoryRoot, "docs/development/framerail-route-action-evidence.json"), "utf8")
+  )
+  assert.equal(rows.length, evidence.records.length)
+  assert.equal(rows.filter(({ existing_refs: existingRefs }) => existingRefs.tests.length > 0).length, rows.length)
   assert.equal(rows.filter(({ existing_refs: existingRefs }) => existingRefs.tests.length === 0).length, 0)
   assert.equal(rows.every(({ evidence }) => evidence.status === "missing"), true)
   assert.deepEqual(

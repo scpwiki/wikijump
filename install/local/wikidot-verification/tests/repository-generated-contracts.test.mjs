@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
@@ -101,7 +102,8 @@ test("WWS repository consistency distinguishes ANY-only from GET plus fallback d
 test("repository-only generated contract CLI is package-install-free and passes on the tracked repository", () => {
   const result = spawnSync(process.execPath, [cli, "--root", root], { cwd: root, encoding: "utf8" });
   assert.equal(result.status, 0, result.stderr);
-  assert.match(result.stdout, /verified 181 Deepwell JSON-RPC contracts/u);
+  const manifest = JSON.parse(readFileSync(path.join(root, "docs/development/deepwell-jsonrpc-contract-manifest.json"), "utf8"));
+  assert.match(result.stdout, new RegExp(`verified ${manifest.method_count} Deepwell JSON-RPC contracts`, "u"));
   assert.match(result.stdout, /verified 34 WWS route registrations/u);
   assert.match(result.stdout, /verified repository generated-contract consistency/u);
 });
