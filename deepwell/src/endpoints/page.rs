@@ -23,13 +23,13 @@ mod output;
 mod permissions;
 
 use output::{build_page_deleted_output, build_page_file_output, build_page_output};
-pub use permissions::{
-    page_delete_permission, page_edit_permission, page_move_permission,
-};
 use permissions::{
     ensure_deleted_page_delete_permission_and_get_category_id,
     ensure_page_action_permission, ensure_page_create_permission,
     ensure_page_edit_permission, ensure_page_permission, ensure_page_view_permission,
+};
+pub use permissions::{
+    page_delete_permission, page_edit_permission, page_move_permission,
 };
 
 use crate::models::file::Model as FileModel;
@@ -54,9 +54,10 @@ use crate::services::render::{
     LegacyActionRegistry, LegacyBrowserAction, SiteChangesLoad, WikidotForumFeedKind,
     WikidotForumFeedOutput, WikidotForumFeedScope, WikidotForumModuleRequest,
     WikidotForumModuleResponse, WikidotListPagesFeedInput, WikidotListPagesFeedOutput,
-    WikidotMembersListModuleResponse, WikidotSiteChangesFeedOutput, WikidotSitemapOutput,
+    WikidotMembersListModuleResponse, WikidotSiteChangesFeedOutput,
     WikidotSiteChangesFilter, WikidotSiteChangesModuleRequest,
-    WikidotSiteChangesModuleResponse, wikidot_site_changes_empty_response,
+    WikidotSiteChangesModuleResponse, WikidotSitemapOutput,
+    wikidot_site_changes_empty_response,
 };
 use crate::services::settings::PageRatingVisibility;
 use crate::services::{MutationAuthorization, SettingsService, TextService};

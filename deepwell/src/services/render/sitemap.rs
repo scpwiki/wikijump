@@ -31,8 +31,8 @@
 use super::runtime_page_queries::{ViewablePageRef, view_decisions_for_scanned_pages};
 use super::service::RenderService;
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
-use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::services::ServiceContext;
+use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::types::{Action, Permission, Resource};
 use sea_orm::{ConnectionTrait, FromQueryResult, Statement, Value};
 use serde::Serialize;

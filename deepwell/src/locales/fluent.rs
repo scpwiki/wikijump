@@ -430,10 +430,7 @@ mod tests {
             .unwrap();
         assert!(present.is_some());
         let strict_error = localizations.translate([en], "missing", &args).unwrap_err();
-        assert!(matches!(
-            strict_error.error_type,
-            ErrorType::Localization
-        ));
+        assert!(matches!(strict_error.error_type, ErrorType::Localization));
 
         fs::remove_dir_all(root).unwrap();
     }
