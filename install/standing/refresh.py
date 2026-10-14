@@ -273,6 +273,24 @@ def prepare_saved_page_render_ahead(
     }
 
 
+def assert_standing_unchanged_during_render_ahead(
+    before: dict[str, dict[str, object]],
+    after: dict[str, dict[str, object]],
+    previous_port_443_owner: dict[str, object],
+) -> None:
+    """Refuse to park containers when another operator refreshed standing."""
+    for service in RUNTIME_SERVICES:
+        if (
+            before[service]["container_id"] != after[service]["container_id"]
+            or before[service]["image_id"] != after[service]["image_id"]
+        ):
+            raise RuntimeError(
+                f"standing {service} changed during render-ahead; retry with a fresh precondition"
+            )
+    if port_443_owner(after)["container_id"] != previous_port_443_owner["container_id"]:
+        raise RuntimeError("standing port-443 owner changed during render-ahead")
+
+
 def wait_for_health(
     runtime_home: Path, override_file: Path, timeout_seconds: int
 ) -> dict[str, str]:
@@ -869,6 +887,13 @@ def main() -> int:
     try:
         render_ahead = prepare_saved_page_render_ahead(
             runtime_home, source_root, prepared_receipt_path, images["deepwell"]["id"]
+        )
+        if repository_identity(source_root) != identity:
+            raise RuntimeError("source identity changed during render-ahead")
+        assert_standing_unchanged_during_render_ahead(
+            previous_runtime,
+            runtime_containers(runtime_home),
+            previous_port_443_owner,
         )
         parked = park_containers(
             previous_runtime, runtime_home, prepared_receipt_sha256

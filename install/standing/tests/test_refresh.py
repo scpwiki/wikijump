@@ -515,6 +515,35 @@ class RefreshStandingTest(unittest.TestCase):
             main.index("parked = park_containers("),
         )
 
+    def test_render_ahead_rechecks_serving_container_identity_before_parking(self) -> None:
+        before = {
+            service: {
+                "container_id": str(index + 1) * 64,
+                "image_id": "sha256:" + str(index + 1) * 64,
+            }
+            for index, service in enumerate(REFRESH.RUNTIME_SERVICES)
+        }
+        after = {service: dict(value) for service, value in before.items()}
+        edge = {"container_id": before["caddy"]["container_id"]}
+        with mock.patch.object(REFRESH, "port_443_owner", return_value=edge):
+            REFRESH.assert_standing_unchanged_during_render_ahead(before, after, edge)
+            after["deepwell"]["container_id"] = "a" * 64
+            with self.assertRaisesRegex(RuntimeError, "standing deepwell changed"):
+                REFRESH.assert_standing_unchanged_during_render_ahead(before, after, edge)
+            after["deepwell"] = dict(before["deepwell"])
+        with mock.patch.object(
+            REFRESH, "port_443_owner", return_value={"container_id": "b" * 64}
+        ):
+            with self.assertRaisesRegex(RuntimeError, "port-443 owner changed"):
+                REFRESH.assert_standing_unchanged_during_render_ahead(before, after, edge)
+
+        source = SCRIPT.read_text(encoding="utf-8")
+        main = source[source.index("def main() -> int:"):]
+        self.assertLess(
+            main.index("assert_standing_unchanged_during_render_ahead("),
+            main.index("parked = park_containers("),
+        )
+
     def test_expected_compiled_generator_is_source_derived(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_dir:
             root = Path(temporary_dir)
