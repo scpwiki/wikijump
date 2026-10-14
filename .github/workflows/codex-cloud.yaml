@@ -1,20 +1,6 @@
 name: '[ci] Codex Cloud scripts'
 
 on:
-  pull_request:
-    paths:
-      - '.github/workflows/codex-cloud.yaml'
-      - 'docs/CodexCloudEnvironment.md'
-      - 'scripts/codex-cloud-*.sh'
-      - 'scripts/codex_cloud_test.py'
-  push:
-    branches:
-      - develop
-    paths:
-      - '.github/workflows/codex-cloud.yaml'
-      - 'docs/CodexCloudEnvironment.md'
-      - 'scripts/codex-cloud-*.sh'
-      - 'scripts/codex_cloud_test.py'
   workflow_dispatch:
 
 permissions: {}

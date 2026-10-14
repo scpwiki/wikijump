@@ -35,13 +35,19 @@ const verificationInput = (file) =>
     ".github/workflows/wikidot-verification.yaml",
     "scripts/data/wikidot-implementation-ledger.json",
     "scripts/data/wikidot-live-observations.json",
+    "scripts/data/wikidot-spec-supplements.json",
     "scripts/generate-wikidot-specifications.mjs",
+    "scripts/refresh-test-quality-snapshot.mjs",
+    "scripts/run-test-quality-audit.mjs",
     "scripts/initialize-wikidot-implementation-ledger.mjs",
     "scripts/lib/wikidot-implementation-ledger.mjs"
   ].includes(file) ||
   // Dated detailed-spec evidence aliases are consumed only by the
   // specification generator and implementation-ledger checks.
-  file.startsWith("scripts/data/wikidot-detailed-")
+  file.startsWith("scripts/data/wikidot-detailed-") ||
+  // The test-quality audit's library is exercised only by the verification
+  // package's test-quality tests.
+  file.startsWith("scripts/lib/test-quality-")
 
 const verificationOnly = (file) =>
   verificationInput(file) && file !== ".github/workflows/wikidot-verification.yaml"
