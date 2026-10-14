@@ -11475,7 +11475,7 @@
   },
   "provenance": {
     "wikijump": {
-      "source_input_set_sha256": "f6943d79f69c80c1581adf468064d674fd9dba929f544b3f00137d29e95cd172"
+      "source_input_set_sha256": "eb25617ce88a4f3d9f7e23b60cfcacaccc2ef360fc8270a48a0830c6dcd21f9d"
     },
     "ftml": {
       "commit": "17dbc236a5bc879c1bcd451e2308bb080d854f15",
@@ -11716,7 +11716,7 @@
       },
       {
         "path": "docs/wikidot-specifications/live-observations.json",
-        "sha256": "8620a546b10837b8a05bf886580be73933f5fc3ec1fb5ecb71b8e509a8c10146"
+        "sha256": "accbc415e44604acc39c2194204da975203acf6baf7ceb114e02835907c1d686"
       },
       {
         "path": "docs/wikidot-specifications/source-coverage.json",
