@@ -3665,7 +3665,7 @@ async fn rerender_uses_latest_navigation_page_revision() {
     assert!(
         rerendered_home
             .compiled_generator
-            .ends_with("; deepwell-render/v23")
+            .ends_with("; deepwell-render/v24")
     );
 }
 
@@ -4616,7 +4616,7 @@ async fn page_view_rerenders_stale_persisted_compiled_artifact() {
     assert!(
         page_revision
             .compiled_generator
-            .ends_with("; deepwell-render/v23")
+            .ends_with("; deepwell-render/v24")
     );
     assert!(compiled_body_html.contains(CURRENT_BODY));
     assert!(!compiled_body_html.contains(STALE_BODY));
@@ -4641,7 +4641,7 @@ async fn page_view_rerenders_stale_persisted_compiled_artifact() {
     assert!(
         page_revision
             .compiled_generator
-            .ends_with("; deepwell-render/v23"),
+            .ends_with("; deepwell-render/v24"),
         "page view must expose the current compiled generator",
     );
     assert!(compiled_body_html.contains(CURRENT_BODY));
@@ -4655,7 +4655,7 @@ async fn page_view_rerenders_stale_persisted_compiled_artifact() {
     assert!(
         persisted
             .compiled_generator
-            .ends_with("; deepwell-render/v23"),
+            .ends_with("; deepwell-render/v24"),
         "read-time refresh should persist the current compiled generator",
     );
     let persisted_body =
