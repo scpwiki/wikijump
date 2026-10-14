@@ -92,8 +92,8 @@ CREATE TABLE wikidot_user (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     fetched_at TIMESTAMP WITH TIME ZONE NOT NULL,
     is_deleted BOOLEAN NOT NULL,
-    name TEXT UNIQUE CHECK (length(name) > 0),
-    slug TEXT UNIQUE CHECK (length(slug) > 0),
+    name TEXT CHECK (length(name) > 0),
+    slug TEXT CHECK (length(slug) > 0),
     avatar_s3_hash BYTEA,
     -- Biographical fields (optional)
     real_name TEXT,
@@ -110,6 +110,8 @@ CREATE TABLE wikidot_user (
     -- Only deleted users can be missing a username or slug
     CHECK (is_deleted OR (name IS NOT NULL AND slug IS NOT NULL))
 );
+CREATE INDEX wikidot_user_name_idx ON wikidot_user (name) WHERE (is_deleted IS false);
+CREATE INDEX wikidot_user_slug_idx ON wikidot_user (slug) WHERE (is_deleted IS false);
 
 --
 -- Site

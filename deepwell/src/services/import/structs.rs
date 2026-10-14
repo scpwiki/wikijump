@@ -26,13 +26,32 @@ use time::{Date, OffsetDateTime};
 #[derive(Deserialize, Debug)]
 pub struct ImportUser {
     // Required fields
+    /// The user ID of the Wikidot user.
     pub user_id: i32,
+
+    /// The datetime when the Wikidot user was created.
     #[serde(with = "time::serde::rfc3339")]
     pub created_at: OffsetDateTime,
+
+    /// The datetime when this Wikidot user was fetched.
+    ///
+    /// The database asserts that this date is strictly later than `created_at`,
+    /// since it's not possible to fetch data about a user that has not yet been
+    /// created. (And especially for these old users, it's been a decade plus
+    /// since the user was created.)
     #[serde(with = "time::serde::rfc3339")]
     pub fetched_at: OffsetDateTime,
+
+    /// The kind of Wikidot user.
+    ///
+    /// This is how we represent an extant user (which has a name and slug),
+    /// or a deleted user (which doesn't usually have a known username).
     #[serde(flatten)]
     pub wikidot_user_type: ImportedUserType,
+
+    /// The blob ID of the Wikidot user's avatar.
+    ///
+    /// This is created as normal with `blob_upload`.
     pub avatar_uploaded_blob_id: Option<String>,
 
     // Biographical fields
@@ -46,8 +65,27 @@ pub struct ImportUser {
     pub is_pro: bool,
 
     // Request metadata
-    // Must be the same as the user who uploaded the avatar blob
+    /// If a `wikidot_user` row with this ID exists, then update its fields.
+    #[serde(default)]
+    pub upsert: bool,
+
+    /// Mark an old `wikidot_user` row as `deleted` if it has a name collision.
+    ///
+    /// In the case where attempting to import this user fails due to a non-unique
+    /// name or slug, but we find that the colliding user has an older `fetched_at`
+    /// value, this indicates that this Wikidot user has since been deleted.
+    ///
+    /// In such a case, if this option is set, then the user is marked as `deleted`
+    /// and we proceed with the new user insert. Otherwise, we raise an error.
+    #[serde(default)]
+    pub delete_old_if_same_name: bool,
+
+    /// The user ID to associate with this request in the audit log.
+    ///
+    /// Note that this must be the same user who uploaded the avatar blob.
     pub importing_user_id: i64,
+
+    /// The IP address to associate with this request in the audit log.
     pub ip_address: IpAddr,
 }
 
