@@ -3576,18 +3576,18 @@
     },
     {
       "id": "forumstart-route-hidden-prefix-20261008",
-      "title": "ForumStart hidden-prefix route selection",
+      "title": "ForumStart route suffixes select hidden mode only by their first segment",
       "feature_ids": [
         "module-forumstart"
       ],
-      "classification": "route-option",
+      "classification": "documentation-correction",
       "observed_at": "2026-10-08",
-      "analysis": "Anonymous read-only browser observations established that /forum/start and unknown suffixes show the ordinary category view, while /forum/start/hidden/show, /forum/start/hidden/hide, /forum/start/hidden/false, and /forum/start/hidden/show/extra include the hidden categories. The suffix does not select forum rows, add query parameters, or grant private-category permission.",
+      "analysis": "Current anonymous, read-only Wikidot browser observations on www.wikidot.com confirm the route and visible category mode recorded in issue #2115. The route results correct the earlier claim that only the exact /hidden/show suffix is established. The issue retains the HTTP status comparison, and the checked-in observation artifact records the visible document/title and category-mode results. No forum mutations or permission changes were performed.",
       "normative_behavior": [
-        "A hidden-prefixed suffix selects the existing server-authoritative hidden-inclusive ForumStart behavior.",
-        "A suffix outside the hidden prefix selects the ordinary ForumStart view.",
-        "The suffix itself does not select forum rows, add query parameters, or grant permission to read private categories.",
-        "The observation does not establish mutation or forum-object permission behavior."
+        "A ForumStart extra path whose first slash-delimited segment is hidden selects the hidden-inclusive view; observed tails include show, hide, false, and show/extra.",
+        "Other extra paths, including garbage and garbage/extra, return the ordinary ForumStart view rather than a route error.",
+        "The suffix affects only the ForumStart hidden-view selection. It is not a row selector, query parameter, HTML fragment, or permission override; Deepwell continues to enforce the authoritative public/private category visibility rules.",
+        "The observed routes return HTTP 200 with the normal Forum Categories document title. The hidden-inclusive variants visibly contain the Hidden heading and the Per page discussions and Deleted threads categories; ordinary variants omit that heading and those categories."
       ],
       "evidence": [
         {

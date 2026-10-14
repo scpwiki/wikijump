@@ -6426,8 +6426,10 @@ async fn zero_row_listpages_still_renders_its_wikidot_rss_link() {
 
     assert!(
         preview.contains(r#"<div class="feedinfo">"#)
+            // Wikidot emits the same path on its own site origin; the saved
+            // HTML keeps it origin-relative so the link stays on the mirror.
             && preview.contains(concat!(
-                "http://scp-wiki.wikidot.com/feed/pages/category/_default/",
+                r#"href="/feed/pages/category/_default/"#,
                 "range/./limit/1/t/Most+Recently+Translated",
             ))
             && preview.contains(">RSS feed</a>")
