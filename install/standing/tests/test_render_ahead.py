@@ -178,7 +178,13 @@ class RenderUntilLinksSettleTest(unittest.TestCase):
         self.assertEqual(nondeterministic, [2])
         self.assertEqual(
             [call[0] for call in self.calls],
-            ["full-1", "link-probe-1", "full-2", "link-probe-2", "full-3", "link-probe-3"],
+            [
+                "full-1", "link-probe-1.1", "link-probe-1.2", "link-probe-1.3",
+                "link-probe-1.4", "link-probe-1.5", "link-probe-1.6", "link-probe-1.7",
+                "link-probe-1.8", "full-2", "link-probe-2.1", "link-probe-2.2",
+                "link-probe-2.3", "link-probe-2.4", "link-probe-2.5", "link-probe-2.6",
+                "link-probe-2.7", "link-probe-2.8", "full-3",
+            ],
         )
         self.assertIsNotNone(not_before, "the second pass must not accept rows from the first")
 
@@ -210,6 +216,21 @@ class RenderUntilLinksSettleTest(unittest.TestCase):
         self.render = moving
         with self.assertRaises(RuntimeError):
             self.settle()
+
+    def test_a_random_choice_that_repeats_is_not_settled(self) -> None:
+        # Page 5 picks between two link sets; the first probe repeats the
+        # pass's pick, the second does not.
+        picks = iter(["a", "a", "b"] + ["a"] * 50)
+        render = self.render
+        def choosing(name, cutoff, pages=None):
+            result = render(name, cutoff, pages)
+            if pages is None or 5 in pages:
+                self.links["5"] = next(picks)
+            return result
+        self.links["5"] = "start"
+        self.render = choosing
+        _, _, nondeterministic = self.settle()
+        self.assertIn(5, nondeterministic)
 
     def test_probe_must_select_every_changed_page(self) -> None:
         render = self.render

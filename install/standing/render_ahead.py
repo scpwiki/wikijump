@@ -65,6 +65,9 @@ DEADLINE_MARKERS = ("deadline has elapsed", "due to timeout")
 # A page that reads another page's links can only move in the pass after that
 # page moved, so each link dependency level needs one more full pass.
 MAX_FULL_PASSES = 3
+# Renders of a changed page before it counts as settled; a choice between two
+# equally likely link sets survives all of them with probability 1/256.
+LINK_PROBES = 8
 
 
 def run(*args: str, input_text: str | None = None) -> str:
@@ -254,29 +257,43 @@ def render_until_links_settle(render, digests, passes, not_before):
     """Render every stale page, again if some page's links moved because of
     links it reads. Returns the cutoff, the last full-pass summary, and the
     pages whose links differ on every render."""
+    known_random: set[int] = set()
     for number in range(1, MAX_FULL_PASSES + 1):
         links_before = digests()
         summary = render(f"full-{number}", not_before)
         links_after = digests()
         changed = changed_pages(links_before, links_after)
         passes[-1]["link_changed_pages"] = len(changed)
-        if not changed:
-            return not_before, summary, []
+        if not set(changed) - known_random:
+            return not_before, summary, sorted(known_random)
         # A page whose links change again when it alone is rendered again
         # produces different links on every render (random ListPages,
         # per-render placeholders). Any other changed page moved because the
         # links it reads moved, so pages rendered before it may be stale.
         # The probe renders the changed pages afresh, so it needs its own
         # cutoff; their rows from this pass are already valid.
-        probe = render(f"link-probe-{number}", utc_now(), changed)
-        if probe["candidates"] != len(changed):
-            raise RuntimeError("the link probe did not select every changed page")
-        repeat = changed_pages(links_after, digests())
-        settled = sorted(set(changed) - set(repeat) - set(probe["failed_page_ids"]))
-        passes[-1]["nondeterministic_link_pages"] = len(repeat)
+        # A random choice among few options can repeat by chance, so a page
+        # counts as settled only after several identical renders.
+        pending = [page for page in changed if page not in known_random]
+        seen = {page: {links_after.get(str(page))} for page in pending}
+        unrendered: set[int] = set()
+        for attempt in range(1, LINK_PROBES + 1):
+            probe = render(f"link-probe-{number}.{attempt}", utc_now(), pending)
+            if probe["candidates"] != len(pending):
+                raise RuntimeError("the link probe did not select every changed page")
+            unrendered |= set(probe["failed_page_ids"])
+            current = digests()
+            for page in pending:
+                seen[page].add(current.get(str(page)))
+            pending = [page for page in pending if len(seen[page]) == 1 and page not in unrendered]
+            if not pending:
+                break
+        known_random |= {page for page in seen if len(seen[page]) > 1}
+        settled = pending
+        passes[-1]["nondeterministic_link_pages"] = len(known_random)
         passes[-1]["settled_link_pages"] = len(settled)
         if not settled:
-            return not_before, summary, repeat
+            return not_before, summary, sorted(known_random)
         if number == MAX_FULL_PASSES:
             raise RuntimeError(
                 f"links of {len(settled)} pages did not converge after {number} passes: {settled[:20]}"
