@@ -12,14 +12,9 @@ export async function applyFramerailRouteActionEvidence(root, records, sourceRev
   if (
     registry.schema !== "wikijump.framerail_route_action_evidence.v1" ||
     !/^[0-9a-f]{40}$/u.test(registry.source_revision ?? "") ||
-    !Array.isArray(registry.records) ||
-    registry.records.length !== records.length
+    !Array.isArray(registry.records)
   ) {
-    throw new Error(
-      `${registryPath} has an invalid route/action evidence contract ` +
-        `(registry_records=${Array.isArray(registry.records) ? registry.records.length : "invalid"}, ` +
-        `discovered_records=${records.length})`
-    )
+    throw new Error(`${registryPath} has an invalid route/action evidence contract`)
   }
   const recordIds = records.map(({ surface_id: surfaceId }) => surfaceId).sort()
   const evidenceIds = registry.records.map(({ surface_id: surfaceId }) => surfaceId).sort()
@@ -27,7 +22,13 @@ export async function applyFramerailRouteActionEvidence(root, records, sourceRev
     new Set(evidenceIds).size !== evidenceIds.length ||
     JSON.stringify(evidenceIds) !== JSON.stringify(recordIds)
   ) {
-    throw new Error(`${registryPath} does not exactly match the current route/action denominator`)
+    const registered = new Set(evidenceIds)
+    const discovered = new Set(recordIds)
+    throw new Error(
+      `${registryPath} does not exactly match the current route/action denominator ` +
+        `(unregistered: ${recordIds.filter((id) => !registered.has(id)).join(", ") || "none"}; ` +
+        `no longer discovered: ${evidenceIds.filter((id) => !discovered.has(id)).join(", ") || "none"})`
+    )
   }
   const evidenceById = new Map(
     registry.records.map((record) => [record.surface_id, record])

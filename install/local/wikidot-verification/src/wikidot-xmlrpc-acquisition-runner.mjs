@@ -83,6 +83,7 @@ export const WIKIDOT_XMLRPC_CANONICAL_COORDINATOR_SOURCE_PATHS = Object.freeze(
     "install/local/wikidot-verification/src/canonical-json.mjs",
     "install/local/wikidot-verification/src/corpus-file-reader.mjs",
     "install/local/wikidot-verification/src/corpus-import-manifest.mjs",
+    "install/local/wikidot-verification/src/corpus-include-closure.mjs",
     "install/local/wikidot-verification/src/exact-git-blob.mjs",
     "install/local/wikidot-verification/src/reference-acquisition-attachment.mjs",
     "install/local/wikidot-verification/src/reference-acquisition-attempt.mjs",
