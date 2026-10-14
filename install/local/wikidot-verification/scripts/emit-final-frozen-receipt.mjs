@@ -1,5 +1,9 @@
 #!/usr/bin/env node
 
+// Emit a final-frozen receipt from executed evidence only: the clean source
+// identity, a passing consolidated validation of exactly that source, and the
+// sealed image producer output for exactly that source.
+
 import {execFile} from "node:child_process";
 import path from "node:path";
 import {promisify} from "node:util";
@@ -7,26 +11,24 @@ import {promisify} from "node:util";
 import {runCliIfMain} from "../src/cli-entry.mjs";
 import {
   readStableRegularFile,
-  requireNonEmptyString,
   sealJsonNoReplace,
 } from "../src/standing-browser-parity-util.mjs";
 import {
-  validateFinalFrozenInputManifest,
+  FINAL_FROZEN_RECEIPT_SCHEMA,
+  validateConsolidatedValidation,
   validateFinalFrozenReceipt,
-  validateCompatibilityReview,
   validateImageProducer,
-  validateSourceWriterRoster,
 } from "../src/final-frozen-receipt-contract.mjs";
 
 const execFileAsync = promisify(execFile);
-const GIT_OBJECT = /^[0-9a-f]{40}$/u;
 
-function gitObject(value, name) {
-  if (!GIT_OBJECT.test(value ?? "")) {
-    throw new Error(`${name} must be a full lowercase Git object id`);
-  }
-  return value;
-}
+export const LOCKFILES = Object.freeze([
+  "deepwell/Cargo.lock",
+  "framerail/pnpm-lock.yaml",
+  "install/local/wikidot-verification/pnpm-lock.yaml",
+  "locales/validator/Cargo.lock",
+  "wws/Cargo.lock",
+]);
 
 function parseJson(bytes, name) {
   try {
@@ -36,136 +38,57 @@ function parseJson(bytes, name) {
   }
 }
 
-async function artifactReference(filePath, sourceRoot, name) {
-  const absolute = path.resolve(sourceRoot, requireNonEmptyString(filePath, name));
-  const file = await readStableRegularFile(absolute, `${name}: ${absolute}`);
-  return {path: absolute, sha256: file.sha256};
-}
-
-async function artifactReferences(filePaths, sourceRoot, name) {
-  const paths = filePaths.map((filePath) => path.resolve(sourceRoot, filePath)).sort();
-  if (new Set(paths).size !== paths.length) {
-    throw new Error(`${name} contains duplicate file paths`);
-  }
-  return Promise.all(paths.map((filePath) => artifactReference(filePath, sourceRoot, name)));
-}
-
 export async function buildFinalFrozenReceipt({
   source,
-  inputManifestPath,
-  sourceWritersPath,
-  sourceRoot = process.cwd(),
+  sourceRoot,
+  validationReceiptPath,
+  imageProducerPath,
 }) {
-  const manifestPath = path.resolve(
-    sourceRoot,
-    requireNonEmptyString(inputManifestPath, "input manifest"),
+  const lockfiles = await Promise.all(
+    LOCKFILES.map(async (relative) => {
+      const absolute = path.resolve(sourceRoot, relative);
+      const file = await readStableRegularFile(absolute, `lockfile ${relative}`);
+      return {path: absolute, sha256: file.sha256};
+    }),
   );
-  const writersPath = path.resolve(
-    sourceRoot,
-    requireNonEmptyString(sourceWritersPath, "source writer registry"),
-  );
-  const manifestFile = await readStableRegularFile(manifestPath, "input manifest");
-  const manifest = validateFinalFrozenInputManifest(
-    parseJson(manifestFile.bytes, "input manifest"),
-  );
-  if (
-    !manifest.lockfiles.some(
-      (filePath) =>
-        path.resolve(sourceRoot, filePath) ===
-        path.resolve(sourceRoot, "deepwell/Cargo.lock"),
-    )
-  ) {
-    throw new Error("lockfiles must include deepwell/Cargo.lock");
-  }
-  const normalizedSource = {
-    wikijump_commit: gitObject(source?.wikijump_commit, "source Wikijump commit"),
-    wikijump_tree: gitObject(source?.wikijump_tree, "source Wikijump tree"),
-    ftml_sha: gitObject(source?.ftml_sha, "source FTML commit"),
-    lockfiles: await artifactReferences(manifest.lockfiles, sourceRoot, "lockfiles"),
-  };
-  const [writerFile, verifier, fixtures, tools, denominator, standardsReviewFile, specReviewFile, imageProducerFile] =
-    await Promise.all([
-      readStableRegularFile(writersPath, "source writer registry"),
-      artifactReferences(manifest.verifier, sourceRoot, "verifier"),
-      artifactReferences(manifest.fixtures, sourceRoot, "fixtures"),
-      artifactReferences(manifest.tools, sourceRoot, "tools"),
-      artifactReferences(manifest.denominator, sourceRoot, "denominator"),
-      readStableRegularFile(
-        path.resolve(sourceRoot, manifest.reviews.standards),
-        "standards review",
-      ),
-      readStableRegularFile(
-        path.resolve(sourceRoot, manifest.reviews.spec),
-        "spec review",
-      ),
-      readStableRegularFile(
-        path.resolve(sourceRoot, manifest.images),
-        "image producer output",
-      ),
-    ]);
-  validateSourceWriterRoster(
-    parseJson(writerFile.bytes, "source writer registry"),
+  const normalizedSource = {...source, lockfiles};
+  const validationPath = path.resolve(validationReceiptPath);
+  const validationFile = await readStableRegularFile(validationPath, "consolidated validation");
+  const validation = validateConsolidatedValidation(
+    parseJson(validationFile.bytes, "consolidated validation"),
     normalizedSource,
   );
-  validateCompatibilityReview(
-    parseJson(standardsReviewFile.bytes, "standards review"),
-    "standards",
-    normalizedSource,
-  );
-  validateCompatibilityReview(
-    parseJson(specReviewFile.bytes, "spec review"),
-    "spec",
-    normalizedSource,
-  );
+  const producerPath = path.resolve(imageProducerPath);
+  const producerFile = await readStableRegularFile(producerPath, "image producer output");
   const identities = validateImageProducer(
-    parseJson(imageProducerFile.bytes, "image producer output"),
+    parseJson(producerFile.bytes, "image producer output"),
     normalizedSource,
   );
   const receipt = {
-    schema: "wikijump.phase4.final_frozen_receipt.v1",
+    schema: FINAL_FROZEN_RECEIPT_SCHEMA,
     status: "FINAL_FROZEN",
     source: normalizedSource,
-    verifier: {
-      wikijump_commit: normalizedSource.wikijump_commit,
-      wikijump_tree: normalizedSource.wikijump_tree,
-      files: verifier,
-    },
-    fixtures,
-    tools,
-    denominator,
-    reviews: {
-      standards: {
-        path: path.resolve(sourceRoot, manifest.reviews.standards),
-        sha256: standardsReviewFile.sha256,
-      },
-      spec: {
-        path: path.resolve(sourceRoot, manifest.reviews.spec),
-        sha256: specReviewFile.sha256,
-      },
+    validation: {
+      path: validationPath,
+      sha256: validationFile.sha256,
+      base_commit: validation.base_commit,
+      check_count: validation.check_count,
+      groups: validation.groups,
     },
     images: {
-      producer: {
-        path: path.resolve(sourceRoot, manifest.images),
-        sha256: imageProducerFile.sha256,
-      },
+      producer: {path: producerPath, sha256: producerFile.sha256},
       identities,
     },
-    inputs: {
-      manifest: {path: manifestPath, sha256: manifestFile.sha256},
-      source_writers: {path: writersPath, sha256: writerFile.sha256},
-    },
-    source_writers: [],
   };
   validateFinalFrozenReceipt(receipt, {source: normalizedSource});
   return receipt;
 }
 
 async function git(sourceRoot, args) {
-  const {stdout} = await execFileAsync(
-    "git",
-    ["-C", sourceRoot, ...args],
-    {encoding: "utf8", maxBuffer: 1024 * 1024},
-  );
+  const {stdout} = await execFileAsync("git", ["-C", sourceRoot, ...args], {
+    encoding: "utf8",
+    maxBuffer: 1024 * 1024,
+  });
   return stdout.trim();
 }
 
@@ -194,31 +117,27 @@ export async function sourceIdentity(sourceRoot) {
 }
 
 export function parseArgs(argv) {
+  const names = ["source-root", "validation-receipt", "image-producer", "output"];
   const args = {};
   for (let index = 0; index < argv.length; index += 2) {
     const flag = argv[index];
     if (flag === "--help" || flag === "-h") return {help: true};
     const name = flag?.startsWith("--") ? flag.slice(2) : "";
-    if (
-      !["source-root", "input-manifest", "source-writers", "output"].includes(name) ||
-      Object.hasOwn(args, name)
-    ) {
+    if (!names.includes(name) || Object.hasOwn(args, name)) {
       throw new Error(`unknown or duplicate option: ${flag}`);
     }
     const value = argv[index + 1];
-    if (!value || value.startsWith("--")) {
-      throw new Error(`${flag} requires a value`);
-    }
+    if (!value || value.startsWith("--")) throw new Error(`${flag} requires a value`);
     args[name] = path.resolve(value);
   }
-  for (const name of ["source-root", "input-manifest", "source-writers", "output"]) {
+  for (const name of names) {
     if (!args[name]) throw new Error(`--${name} is required`);
   }
   return args;
 }
 
 export function usage() {
-  return "Usage: emit-final-frozen-receipt.mjs --source-root DIR --input-manifest FILE --source-writers FILE --output FILE";
+  return "Usage: emit-final-frozen-receipt.mjs --source-root DIR --validation-receipt FILE --image-producer FILE --output FILE";
 }
 
 export async function main(argv) {
@@ -229,9 +148,9 @@ export async function main(argv) {
   }
   const receipt = await buildFinalFrozenReceipt({
     source: await sourceIdentity(args["source-root"]),
-    inputManifestPath: args["input-manifest"],
-    sourceWritersPath: args["source-writers"],
     sourceRoot: args["source-root"],
+    validationReceiptPath: args["validation-receipt"],
+    imageProducerPath: args["image-producer"],
   });
   const sealed = await sealJsonNoReplace(args.output, receipt);
   console.log(

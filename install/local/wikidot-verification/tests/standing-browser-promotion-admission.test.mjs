@@ -10,6 +10,7 @@ import {
   defaultCanaryPairs,
 } from "../src/standing-browser-canaries.mjs";
 import { main as runAdmissionCli, parseArgs as parseAdmissionArgs, usage as admissionCliUsage } from "../scripts/verify-standing-candidate-parity-admission.mjs";
+import { LOCKFILES, buildFinalFrozenReceipt } from "../scripts/emit-final-frozen-receipt.mjs";
 import { buildCandidateParityReceipt } from "../src/standing-browser-parity-receipt.mjs";
 import { buildLiveReferenceLedger } from "../src/standing-browser-parity-reference.mjs";
 import { verifyStandingCandidateParityAdmission } from "../src/standing-browser-promotion-admission.mjs";
@@ -354,109 +355,57 @@ function executionIdentity(identity) {
 
 async function createFinalFrozenReceiptFixture(root, identity) {
   const directory = path.join(root, "final-frozen");
-  await fs.mkdir(path.join(directory, "deepwell"), { recursive: true });
-  const paths = {
-    lockfile: path.join(directory, "deepwell", "Cargo.lock"),
-    verifier: path.join(directory, "verifier.mjs"),
-    fixture: path.join(directory, "fixture.json"),
-    tool: path.join(directory, "tool.mjs"),
-    denominator: path.join(directory, "denominator.json"),
-    images: path.join(directory, "images.json"),
-    standardsReview: path.join(directory, "standards-review.json"),
-    specReview: path.join(directory, "spec-review.json"),
-    manifest: path.join(directory, "inputs.json"),
-    writers: path.join(directory, "writers.json"),
-    receipt: path.join(directory, "receipt.json"),
-  };
-  await fs.writeFile(paths.lockfile, "lock\n");
-  await fs.writeFile(paths.verifier, "verifier\n");
-  await fs.writeFile(paths.fixture, "fixture\n");
-  await fs.writeFile(paths.tool, "tool\n");
-  await fs.writeFile(paths.denominator, "denominator\n");
-  for (const [axis, reviewPath] of [["standards", paths.standardsReview], ["spec", paths.specReview]]) {
-    await fs.writeFile(
-      reviewPath,
-      canonicalJson({
-        schema: "wikijump.compatibility_review.v1",
-        axis,
-        status: "pass",
-        wikijump_commit: identity.candidate.wikijump_commit,
-        wikijump_tree: identity.candidate.wikijump_tree,
-        findings: [],
-      }),
-    );
+  for (const lockfile of LOCKFILES) {
+    await fs.mkdir(path.dirname(path.join(directory, lockfile)), { recursive: true });
+    await fs.writeFile(path.join(directory, lockfile), `lock ${lockfile}\n`);
   }
+  const source = {
+    wikijump_commit: identity.candidate.wikijump_commit,
+    wikijump_tree: identity.candidate.wikijump_tree,
+    ftml_sha: identity.candidate.ftml_sha,
+  };
+  const validationPath = path.join(directory, "validation.json");
   await fs.writeFile(
-    paths.images,
+    validationPath,
+    canonicalJson({
+      schema: "wikijump.consolidated_validation_receipt.v2",
+      status: "pass",
+      started_at: "2026-10-15T00:00:00.000Z",
+      completed_at: "2026-10-15T01:00:00.000Z",
+      wikijump_commit: source.wikijump_commit,
+      wikijump_tree: source.wikijump_tree,
+      base_commit: "d".repeat(40),
+      mode: "final",
+      groups: { deepwell: true },
+      checks: [{ name: "deepwell full tests", status: "ok" }],
+      tool_versions: { node: "v24" },
+      preflight: { exit: 0, log: { path: "/log", sha256: "e".repeat(64) }, source_sha256: {} },
+    }),
+  );
+  const imagesPath = path.join(directory, "images.json");
+  await fs.writeFile(
+    imagesPath,
     canonicalJson({
       status: "pass",
-      wikijump_sha: identity.candidate.wikijump_commit,
-      wikijump_tree: identity.candidate.wikijump_tree,
-      ftml_sha: identity.candidate.ftml_sha,
+      wikijump_sha: source.wikijump_commit,
+      wikijump_tree: source.wikijump_tree,
+      ftml_sha: source.ftml_sha,
       images: { deepwell: { id: image("f") } },
     }),
   );
+  const receiptPath = path.join(directory, "receipt.json");
   await fs.writeFile(
-    paths.manifest,
-    canonicalJson({
-      lockfiles: [paths.lockfile],
-      verifier: [paths.verifier],
-      fixtures: [paths.fixture],
-      tools: [paths.tool],
-      denominator: [paths.denominator],
-      reviews: {standards: paths.standardsReview, spec: paths.specReview},
-      images: paths.images,
-    }),
+    receiptPath,
+    canonicalJson(
+      await buildFinalFrozenReceipt({
+        source,
+        sourceRoot: directory,
+        validationReceiptPath: validationPath,
+        imageProducerPath: imagesPath,
+      }),
+    ),
   );
-  await fs.writeFile(
-    paths.writers,
-    canonicalJson({
-      schema: "wikijump.phase4.source_writer_roster.v1",
-      status: "pass",
-      wikijump_commit: identity.candidate.wikijump_commit,
-      wikijump_tree: identity.candidate.wikijump_tree,
-      lanes: [{ name: "candidate", state: "stopped" }],
-    }),
-  );
-  const ref = async (filePath) => ({
-    path: filePath,
-    sha256: await sha256File(filePath),
-  });
-  await fs.writeFile(
-    paths.receipt,
-    canonicalJson({
-      schema: "wikijump.phase4.final_frozen_receipt.v1",
-      status: "FINAL_FROZEN",
-      source: {
-        wikijump_commit: identity.candidate.wikijump_commit,
-        wikijump_tree: identity.candidate.wikijump_tree,
-        ftml_sha: identity.candidate.ftml_sha,
-        lockfiles: [await ref(paths.lockfile)],
-      },
-      verifier: {
-        wikijump_commit: identity.candidate.wikijump_commit,
-        wikijump_tree: identity.candidate.wikijump_tree,
-        files: [await ref(paths.verifier)],
-      },
-      fixtures: [await ref(paths.fixture)],
-      tools: [await ref(paths.tool)],
-      denominator: [await ref(paths.denominator)],
-      reviews: {
-        standards: await ref(paths.standardsReview),
-        spec: await ref(paths.specReview),
-      },
-      images: {
-        producer: await ref(paths.images),
-        identities: { deepwell: image("f") },
-      },
-      inputs: {
-        manifest: await ref(paths.manifest),
-        source_writers: await ref(paths.writers),
-      },
-      source_writers: [],
-    }),
-  );
-  return paths.receipt;
+  return receiptPath;
 }
 
 async function fixture(root, identity = candidateIdentity()) {

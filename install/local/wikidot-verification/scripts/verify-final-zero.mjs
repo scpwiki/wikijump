@@ -12,7 +12,7 @@ import {validateStandingPromotionPrecondition} from "../../../standing/scripts/v
 import {validateStandingRefreshReceipt} from "../../../standing/scripts/verify-standing-refresh.mjs";
 import {sha256Hex} from "../src/canonical-json.mjs";
 import {runCliIfMain} from "../src/cli-entry.mjs";
-import {verifyFinalFrozenReceipt} from "../src/final-frozen-receipt-contract.mjs";
+import {validateConsolidatedValidation, verifyFinalFrozenReceipt} from "../src/final-frozen-receipt-contract.mjs";
 import {sealJsonNoReplace} from "../src/standing-browser-parity-util.mjs";
 
 const FINAL_ZERO_CLASSES = Object.freeze(compatibilityContract.vocabularies.final_zero_nonzero_classes);
@@ -23,7 +23,6 @@ const DEFERRED_DENOMINATOR_SCHEMA = "wikijump.compatibility_deferred_denominator
 const DEFERRED_LEDGER_SCHEMA = "wikijump.compatibility_deferred_ledger.v1";
 const STANDING_MATRIX_SCHEMA = "wikijump.compatibility_standing_matrix.v2";
 const CURRENT_OPEN_ISSUES_SCHEMA = "wikijump.current_open_issues.v1";
-const CONSOLIDATED_VALIDATION_SCHEMA = "wikijump.consolidated_validation_receipt.v1";
 const TRACKING_ISSUE = 1089;
 const CONSOLIDATED_VALIDATION_SOURCE_FILES = Object.freeze([
   "scripts/preflight.sh",
@@ -465,13 +464,12 @@ async function verifyStandingRefresh(matrix, promotion) {
 
 async function verifyConsolidatedValidation(input, matrix, repositoryPath) {
   const value = input.value;
-  exactKeys(value, ["schema", "status", "completed_at", "wikijump_commit", "wikijump_tree", "base_commit", "preflight"], "consolidated validation receipt");
-  if (value.schema !== CONSOLIDATED_VALIDATION_SCHEMA || value.status !== "pass") fail("consolidated validation receipt is not passing");
-  if (value.wikijump_commit !== matrix.merge_commit || value.wikijump_tree !== matrix.merge_tree) fail("consolidated validation receipt is not bound to the merge source");
+  try {
+    validateConsolidatedValidation(value, {wikijump_commit: matrix.merge_commit, wikijump_tree: matrix.merge_tree});
+  } catch (error) {
+    fail(`consolidated validation receipt is not passing for the merge source: ${error.message}`);
+  }
   if (Number.isNaN(Date.parse(value.completed_at))) fail("consolidated validation receipt has invalid completion time");
-  if (!HEX40.test(value.base_commit ?? "")) fail("consolidated validation receipt has invalid base commit");
-  exactKeys(value.preflight, ["mode", "source_sha256"], "consolidated validation preflight");
-  if (value.preflight.mode !== "final") fail("consolidated validation did not run the final preflight");
   exactKeys(value.preflight.source_sha256, CONSOLIDATED_VALIDATION_SOURCE_FILES, "consolidated validation source hashes");
   const {stdout: parentStdout} = await execFile("git", ["-C", repositoryPath, "rev-parse", `${matrix.merge_commit}^1`], {encoding: "utf8"});
   if (parentStdout.trim() !== value.base_commit) fail("consolidated validation base is not the merge first parent");
@@ -492,7 +490,7 @@ function finalZeroCounts(ledger, finalFrozen, openIssues) {
       count((row) => row.closure.state !== "closed" || row.issues.state !== "present" || row.blockers.state !== "none") +
       openProductIssues.length,
     duplicate_or_ambiguous_canonical_identities: 0,
-    missing_independent_standards_or_spec_reviews: finalFrozen?.receipt?.reviews ? 0 : rows.length,
+    missing_or_failing_final_validation: finalFrozen?.receipt?.validation ? 0 : rows.length,
     missing_or_failing_candidate_proofs: count((row) => row.candidate.state !== "pass"),
     missing_or_failing_standing_proofs: count((row) => row.standing.state !== "pass"),
     missing_or_stale_source_provenance: count((row) => row.source.state !== "present"),

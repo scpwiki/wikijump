@@ -1,3 +1,8 @@
+// Final-frozen receipt: the machine-checkable claim that one exact source
+// identity passed the repository's validation barrier and produced one exact
+// set of sealed images. Every field is derived from an executed check or a
+// content hash; nothing in it is an attestation.
+
 import path from "node:path";
 
 import {
@@ -8,35 +13,34 @@ import {
   requireSha256,
 } from "./standing-browser-parity-util.mjs";
 
-export const FINAL_FROZEN_RECEIPT_SCHEMA =
-  "wikijump.phase4.final_frozen_receipt.v1";
+export const FINAL_FROZEN_RECEIPT_SCHEMA = "wikijump.final_frozen_receipt.v2";
+export const CONSOLIDATED_VALIDATION_SCHEMA =
+  "wikijump.consolidated_validation_receipt.v2";
 
 const GIT_OBJECT = /^[0-9a-f]{40}$/u;
 const IMAGE_ID = /^sha256:[0-9a-f]{64}$/u;
-const SOURCE_WRITER_ROSTER_SCHEMA =
-  "wikijump.phase4.source_writer_roster.v1";
 const REF_KEYS = ["path", "sha256"];
-const MANIFEST_KEYS = [
-  "denominator",
-  "fixtures",
-  "images",
-  "lockfiles",
-  "reviews",
-  "tools",
-  "verifier",
+const RECEIPT_KEYS = ["images", "schema", "source", "status", "validation"];
+const VALIDATION_KEYS = [
+  "base_commit",
+  "check_count",
+  "groups",
+  "path",
+  "sha256",
 ];
-const RECEIPT_KEYS = [
-  "denominator",
-  "fixtures",
-  "images",
-  "inputs",
-  "reviews",
+const CONSOLIDATED_KEYS = [
+  "base_commit",
+  "checks",
+  "completed_at",
+  "groups",
+  "mode",
+  "preflight",
   "schema",
-  "source",
-  "source_writers",
+  "started_at",
   "status",
-  "tools",
-  "verifier",
+  "tool_versions",
+  "wikijump_commit",
+  "wikijump_tree",
 ];
 
 function exactKeys(value, expected, name) {
@@ -81,72 +85,45 @@ function references(value, name) {
   return Object.freeze(result);
 }
 
-export function validateFinalFrozenInputManifest(value) {
-  const manifest = requirePlainObject(value, "final frozen input manifest");
-  exactKeys(manifest, MANIFEST_KEYS, "final frozen input manifest");
-  for (const key of MANIFEST_KEYS) {
-    if (key === "images") {
-      if (typeof manifest[key] !== "string" || manifest[key] === "") {
-        throw new Error(
-          "final frozen input manifest images must name a producer output",
-        );
-      }
-      continue;
-    }
-    if (key === "reviews") {
-      const reviews = requirePlainObject(manifest.reviews, "final frozen input manifest reviews");
-      exactKeys(reviews, ["spec", "standards"], "final frozen input manifest reviews");
-      for (const axis of ["standards", "spec"]) {
-        if (typeof reviews[axis] !== "string" || reviews[axis] === "") {
-          throw new Error(`final frozen input manifest ${axis} review must name a file path`);
-        }
-      }
-      continue;
-    }
-    if (
-      !Array.isArray(manifest[key]) ||
-      manifest[key].length === 0 ||
-      manifest[key].some(
-        (entry) => typeof entry !== "string" || entry === "",
-      )
-    ) {
-      throw new Error(
-        `final frozen input manifest ${key} must contain file paths`,
-      );
-    }
+/** A consolidated validation receipt: the final preflight barrier run on one
+ * exact clean commit, with every selected check and its result. */
+export function validateConsolidatedValidation(value, source) {
+  const receipt = requirePlainObject(value, "consolidated validation");
+  exactKeys(receipt, CONSOLIDATED_KEYS, "consolidated validation");
+  if (receipt.schema !== CONSOLIDATED_VALIDATION_SCHEMA) {
+    throw new Error("consolidated validation has an unsupported schema");
   }
-  return manifest;
-}
-
-export function validateCompatibilityReview(value, axis, source) {
-  const review = requirePlainObject(value, `${axis} review`);
-  exactKeys(
-    review,
-    ["axis", "findings", "schema", "status", "wikijump_commit", "wikijump_tree"],
-    `${axis} review`,
-  );
-  if (
-    review.schema !== "wikijump.compatibility_review.v1" ||
-    review.axis !== axis ||
-    review.status !== "pass" ||
-    !Array.isArray(review.findings) ||
-    review.findings.length !== 0
-  ) {
-    throw new Error(`${axis} review is not a passing zero-finding review`);
+  if (receipt.mode !== "final") {
+    throw new Error("consolidated validation must run the final barrier");
   }
+  gitObject(receipt.base_commit, "consolidated validation base commit");
   if (
-    review.wikijump_commit !== source.wikijump_commit ||
-    review.wikijump_tree !== source.wikijump_tree
+    receipt.wikijump_commit !== source.wikijump_commit ||
+    receipt.wikijump_tree !== source.wikijump_tree
   ) {
-    throw new Error(`${axis} review source identity is stale`);
+    throw new Error("consolidated validation source identity is stale");
+  }
+  if (!Array.isArray(receipt.checks) || receipt.checks.length === 0) {
+    throw new Error("consolidated validation ran no checks");
+  }
+  const failed = receipt.checks.filter((check) => check?.status !== "ok");
+  for (const check of receipt.checks) {
+    requireNonEmptyString(check?.name, "consolidated validation check name");
+  }
+  if (receipt.status !== "pass" || failed.length > 0) {
+    throw new Error(
+      `consolidated validation did not pass: ${
+        failed.map((check) => check.name).join(", ") || receipt.status
+      }`,
+    );
+  }
+  if (!isPlainObject(receipt.groups) || !Object.values(receipt.groups).some(Boolean)) {
+    throw new Error("consolidated validation selected no check groups");
   }
   return Object.freeze({
-    schema: review.schema,
-    axis,
-    status: "pass",
-    wikijump_commit: review.wikijump_commit,
-    wikijump_tree: review.wikijump_tree,
-    findings: Object.freeze([]),
+    base_commit: receipt.base_commit,
+    check_count: receipt.checks.length,
+    groups: Object.freeze({...receipt.groups}),
   });
 }
 
@@ -175,10 +152,7 @@ export function validateImageProducer(value, source) {
   }
   const identities = Object.entries(producer.images).map(([role, image]) => {
     const id = typeof image === "string" ? image : image?.id;
-    if (
-      !/^[a-z][a-z0-9_-]*$/u.test(role) ||
-      !IMAGE_ID.test(id ?? "")
-    ) {
+    if (!/^[a-z][a-z0-9_-]*$/u.test(role) || !IMAGE_ID.test(id ?? "")) {
       throw new Error(
         `image producer output has no immutable image ID for ${role}`,
       );
@@ -191,57 +165,6 @@ export function validateImageProducer(value, source) {
   return Object.freeze(Object.fromEntries(identities.sort()));
 }
 
-export function validateSourceWriterRoster(value, source) {
-  const roster = requirePlainObject(value, "source writer roster");
-  exactKeys(
-    roster,
-    ["lanes", "schema", "status", "wikijump_commit", "wikijump_tree"],
-    "source writer roster",
-  );
-  if (
-    roster.schema !== SOURCE_WRITER_ROSTER_SCHEMA ||
-    roster.status !== "pass"
-  ) {
-    throw new Error("source writer roster is not a passing receipt");
-  }
-  if (
-    roster.wikijump_commit !== source.wikijump_commit ||
-    roster.wikijump_tree !== source.wikijump_tree
-  ) {
-    throw new Error("source writer roster source identity is stale");
-  }
-  if (!Array.isArray(roster.lanes) || roster.lanes.length === 0) {
-    throw new Error("source writer roster must list every lane");
-  }
-  const names = new Set();
-  for (const [index, lane] of roster.lanes.entries()) {
-    const entry = requirePlainObject(lane, `source writer roster lane ${index}`);
-    exactKeys(entry, ["name", "state"], `source writer roster lane ${index}`);
-    const name = requireNonEmptyString(
-      entry.name,
-      `source writer roster lane ${index}.name`,
-    );
-    if (names.has(name)) {
-      throw new Error("source writer roster has duplicate lanes");
-    }
-    names.add(name);
-    if (entry.state !== "stopped") {
-      throw new Error(`source writer roster lane ${name} is not stopped`);
-    }
-  }
-  return Object.freeze({
-    schema: SOURCE_WRITER_ROSTER_SCHEMA,
-    status: "pass",
-    wikijump_commit: source.wikijump_commit,
-    wikijump_tree: source.wikijump_tree,
-    lanes: Object.freeze(
-      roster.lanes.map((lane) =>
-        Object.freeze({name: lane.name, state: "stopped"}),
-      ),
-    ),
-  });
-}
-
 export function validateFinalFrozenReceipt(value, {source = null} = {}) {
   const receipt = requirePlainObject(value, "final frozen receipt");
   exactKeys(receipt, RECEIPT_KEYS, "final frozen receipt");
@@ -249,105 +172,48 @@ export function validateFinalFrozenReceipt(value, {source = null} = {}) {
     receipt.schema !== FINAL_FROZEN_RECEIPT_SCHEMA ||
     receipt.status !== "FINAL_FROZEN"
   ) {
-    throw new Error("final frozen receipt is not a FINAL_FROZEN receipt");
+    throw new Error("final frozen receipt is not a FINAL_FROZEN v2 receipt");
   }
-  const frozenSource = requirePlainObject(
-    receipt.source,
-    "final frozen source",
-  );
+  const sourceValue = requirePlainObject(receipt.source, "final frozen source");
   exactKeys(
-    frozenSource,
+    sourceValue,
     ["ftml_sha", "lockfiles", "wikijump_commit", "wikijump_tree"],
     "final frozen source",
   );
-  const sourceIdentity = {
-    wikijump_commit: gitObject(
-      frozenSource.wikijump_commit,
-      "final frozen Wikijump commit",
-    ),
-    wikijump_tree: gitObject(
-      frozenSource.wikijump_tree,
-      "final frozen Wikijump tree",
-    ),
-    ftml_sha: gitObject(frozenSource.ftml_sha, "final frozen FTML commit"),
-  };
-  if (source !== null) {
-    for (const key of Object.keys(sourceIdentity)) {
-      if (sourceIdentity[key] !== source[key]) {
-        throw new Error(`final frozen source ${key} does not match the candidate`);
+  const normalizedSource = Object.freeze({
+    wikijump_commit: gitObject(sourceValue.wikijump_commit, "final frozen Wikijump commit"),
+    wikijump_tree: gitObject(sourceValue.wikijump_tree, "final frozen Wikijump tree"),
+    ftml_sha: gitObject(sourceValue.ftml_sha, "final frozen FTML commit"),
+    lockfiles: references(sourceValue.lockfiles, "final frozen lockfiles"),
+  });
+  if (source) {
+    for (const key of ["wikijump_commit", "wikijump_tree", "ftml_sha"]) {
+      if (normalizedSource[key] !== source[key]) {
+        throw new Error(`final frozen ${key} does not match the expected source`);
       }
     }
   }
-
-  const verifier = requirePlainObject(receipt.verifier, "final frozen verifier");
-  exactKeys(
-    verifier,
-    ["files", "wikijump_commit", "wikijump_tree"],
-    "final frozen verifier",
-  );
-  if (
-    verifier.wikijump_commit !== sourceIdentity.wikijump_commit ||
-    verifier.wikijump_tree !== sourceIdentity.wikijump_tree
-  ) {
-    throw new Error("final frozen verifier source identity is stale");
-  }
-  const inputs = requirePlainObject(receipt.inputs, "final frozen inputs");
-  exactKeys(inputs, ["manifest", "source_writers"], "final frozen inputs");
+  const validation = requirePlainObject(receipt.validation, "final frozen validation");
+  exactKeys(validation, VALIDATION_KEYS, "final frozen validation");
   const images = requirePlainObject(receipt.images, "final frozen images");
   exactKeys(images, ["identities", "producer"], "final frozen images");
-  const reviews = requirePlainObject(receipt.reviews, "final frozen reviews");
-  exactKeys(reviews, ["spec", "standards"], "final frozen reviews");
-  if (!Array.isArray(receipt.source_writers) || receipt.source_writers.length) {
-    throw new Error("FINAL_FROZEN receipt has active source writers");
+  if (!isPlainObject(images.identities) || Object.keys(images.identities).length === 0) {
+    throw new Error("final frozen images have no identities");
   }
-
   return Object.freeze({
     schema: FINAL_FROZEN_RECEIPT_SCHEMA,
     status: "FINAL_FROZEN",
-    source: Object.freeze({
-      ...sourceIdentity,
-      lockfiles: references(frozenSource.lockfiles, "final frozen source.lockfiles"),
-    }),
-    verifier: Object.freeze({
-      wikijump_commit: sourceIdentity.wikijump_commit,
-      wikijump_tree: sourceIdentity.wikijump_tree,
-      files: references(verifier.files, "final frozen verifier.files"),
-    }),
-    fixtures: references(receipt.fixtures, "final frozen fixtures"),
-    tools: references(receipt.tools, "final frozen tools"),
-    denominator: references(receipt.denominator, "final frozen denominator"),
-    reviews: Object.freeze({
-      standards: reference(reviews.standards, "final frozen standards review"),
-      spec: reference(reviews.spec, "final frozen spec review"),
+    source: normalizedSource,
+    validation: Object.freeze({
+      ...reference({path: validation.path, sha256: validation.sha256}, "final frozen validation"),
+      base_commit: gitObject(validation.base_commit, "final frozen validation base commit"),
+      check_count: validation.check_count,
+      groups: validation.groups,
     }),
     images: Object.freeze({
-      producer: reference(images.producer, "final frozen images.producer"),
-      identities: Object.freeze(
-        Object.fromEntries(
-          Object.entries(
-            requirePlainObject(
-              images.identities,
-              "final frozen image identities",
-            ),
-          )
-            .map(([role, id]) => {
-              if (!/^[a-z][a-z0-9_-]*$/u.test(role) || !IMAGE_ID.test(id ?? "")) {
-                throw new Error(`final frozen image identity is invalid for ${role}`);
-              }
-              return [role, id];
-            })
-            .sort(([left], [right]) => left.localeCompare(right)),
-        ),
-      ),
+      producer: reference(images.producer, "final frozen image producer"),
+      identities: Object.freeze({...images.identities}),
     }),
-    inputs: Object.freeze({
-      manifest: reference(inputs.manifest, "final frozen inputs.manifest"),
-      source_writers: reference(
-        inputs.source_writers,
-        "final frozen inputs.source_writers",
-      ),
-    }),
-    source_writers: Object.freeze([]),
   });
 }
 
@@ -376,50 +242,26 @@ export async function verifyFinalFrozenReceipt({receiptPath, source}) {
     parseJson(receiptFile.bytes, "final frozen receipt"),
     {source},
   );
-  const manifestFile = await verifyReference(
-    receipt.inputs.manifest,
-    "final frozen input manifest",
-  );
-  validateFinalFrozenInputManifest(
-    parseJson(manifestFile.bytes, "final frozen input manifest"),
-  );
-  const writerFile = await verifyReference(
-    receipt.inputs.source_writers,
-    "final frozen source writer registry",
-  );
-  validateSourceWriterRoster(
-    parseJson(writerFile.bytes, "final frozen source writer registry"),
-    receipt.source,
-  );
-
-  await Promise.all([
-    ...receipt.source.lockfiles.map((entry) =>
+  await Promise.all(
+    receipt.source.lockfiles.map((entry) =>
       verifyReference(entry, "final frozen lockfile"),
     ),
-    ...receipt.verifier.files.map((entry) =>
-      verifyReference(entry, "final frozen verifier"),
-    ),
-    ...receipt.fixtures.map((entry) =>
-      verifyReference(entry, "final frozen fixture"),
-    ),
-    ...receipt.tools.map((entry) => verifyReference(entry, "final frozen tool")),
-    ...receipt.denominator.map((entry) =>
-      verifyReference(entry, "final frozen denominator"),
-    ),
-  ]);
-
-  for (const axis of ["standards", "spec"]) {
-    const reviewFile = await verifyReference(
-      receipt.reviews[axis],
-      `final frozen ${axis} review`,
-    );
-    validateCompatibilityReview(
-      parseJson(reviewFile.bytes, `final frozen ${axis} review`),
-      axis,
-      receipt.source,
-    );
+  );
+  const validationFile = await verifyReference(
+    receipt.validation,
+    "final frozen consolidated validation",
+  );
+  const validation = validateConsolidatedValidation(
+    parseJson(validationFile.bytes, "final frozen consolidated validation"),
+    receipt.source,
+  );
+  if (
+    validation.base_commit !== receipt.validation.base_commit ||
+    validation.check_count !== receipt.validation.check_count ||
+    JSON.stringify(validation.groups) !== JSON.stringify(receipt.validation.groups)
+  ) {
+    throw new Error("final frozen validation summary disagrees with its receipt");
   }
-
   const imageProducerFile = await verifyReference(
     receipt.images.producer,
     "final frozen image producer",

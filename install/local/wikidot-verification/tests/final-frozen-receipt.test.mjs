@@ -5,229 +5,157 @@ import path from "node:path";
 import test from "node:test";
 
 import {
+  LOCKFILES,
   buildFinalFrozenReceipt,
   parseArgs as parseFinalFrozenArgs,
 } from "../scripts/emit-final-frozen-receipt.mjs";
-import {verifyFinalFrozenReceipt} from "../src/final-frozen-receipt-contract.mjs";
+import {parsePreflightOutput} from "../scripts/run-consolidated-validation.mjs";
+import {
+  CONSOLIDATED_VALIDATION_SCHEMA,
+  validateConsolidatedValidation,
+  verifyFinalFrozenReceipt,
+} from "../src/final-frozen-receipt-contract.mjs";
 
-test("FINAL_FROZEN CLI consumes every flag-value pair", () => {
-  const args = parseFinalFrozenArgs([
-    "--source-root", "/repo",
-    "--input-manifest", "/evidence/inputs.json",
-    "--source-writers", "/evidence/writers.json",
-    "--output", "/evidence/final-frozen.json",
-  ]);
-  assert.equal(args["source-root"], "/repo");
-  assert.equal(args.output, "/evidence/final-frozen.json");
+const SOURCE = Object.freeze({
+  wikijump_commit: "a".repeat(40),
+  wikijump_tree: "b".repeat(40),
+  ftml_sha: "c".repeat(40),
 });
 
-test("FINAL_FROZEN binds producer identities and stopped source lanes", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "final-frozen-root-"));
-  t.after(() => fs.rm(root, {recursive: true, force: true}));
-  const write = async (name, value) => {
-    const filePath = path.join(root, name);
-    await fs.mkdir(path.dirname(filePath), {recursive: true});
-    await fs.writeFile(filePath, value, "utf8");
-    return filePath;
+function validation(overrides = {}) {
+  return {
+    schema: CONSOLIDATED_VALIDATION_SCHEMA,
+    status: "pass",
+    started_at: "2026-10-15T00:00:00.000Z",
+    completed_at: "2026-10-15T01:00:00.000Z",
+    wikijump_commit: SOURCE.wikijump_commit,
+    wikijump_tree: SOURCE.wikijump_tree,
+    base_commit: "d".repeat(40),
+    mode: "final",
+    groups: {deepwell: true, verification: true},
+    checks: [
+      {name: "deepwell clippy", status: "ok"},
+      {name: "deepwell full tests", status: "ok"},
+    ],
+    tool_versions: {node: "v24"},
+    preflight: {exit: 0, log: {path: "/log", sha256: "e".repeat(64)}, source_sha256: {}},
+    ...overrides,
   };
-  const source = {
-    wikijump_commit: "a".repeat(40),
-    wikijump_tree: "b".repeat(40),
-    ftml_sha: "c".repeat(40),
-  };
-  const imageIds = Object.fromEntries(
-    ["deepwell", "framerail", "wws"].map((role, index) => [
-      role,
-      `sha256:${String.fromCharCode(100 + index).repeat(64)}`,
-    ]),
-  );
-  const validImageOutput = () => ({
+}
+
+function imageProducer(source = SOURCE) {
+  return {
     status: "pass",
     wikijump_sha: source.wikijump_commit,
     wikijump_tree: source.wikijump_tree,
     ftml_sha: source.ftml_sha,
-    images: Object.fromEntries(
-      Object.entries(imageIds).map(([role, id]) => [role, {id}]),
-    ),
+    images: {
+      deepwell: {id: `sha256:${"1".repeat(64)}`},
+      framerail: {id: `sha256:${"2".repeat(64)}`},
+      wws: {id: `sha256:${"3".repeat(64)}`},
+    },
+  };
+}
+
+async function fixture(t) {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "final-frozen-v2-"));
+  t.after(() => fs.rm(root, {recursive: true, force: true}));
+  for (const lockfile of LOCKFILES) {
+    await fs.mkdir(path.dirname(path.join(root, lockfile)), {recursive: true});
+    await fs.writeFile(path.join(root, lockfile), `lock ${lockfile}`);
+  }
+  const write = async (name, value) => {
+    const filePath = path.join(root, "evidence", name);
+    await fs.mkdir(path.dirname(filePath), {recursive: true});
+    await fs.writeFile(filePath, JSON.stringify(value));
+    return filePath;
+  };
+  return {root, write};
+}
+
+test("FINAL_FROZEN CLI takes only executed-evidence inputs", () => {
+  const args = parseFinalFrozenArgs([
+    "--source-root", "/repo",
+    "--validation-receipt", "/evidence/validation.json",
+    "--image-producer", "/evidence/image-producer.json",
+    "--output", "/evidence/final-frozen.json",
+  ]);
+  assert.equal(args["validation-receipt"], "/evidence/validation.json");
+  assert.throws(() => parseFinalFrozenArgs(["--attestation", "zero-findings-reviewed"]), /unknown or duplicate option/u);
+});
+
+test("FINAL_FROZEN binds a passing validation and the sealed images of one source", async (t) => {
+  const {root, write} = await fixture(t);
+  const receipt = await buildFinalFrozenReceipt({
+    source: SOURCE,
+    sourceRoot: root,
+    validationReceiptPath: await write("validation.json", validation()),
+    imageProducerPath: await write("image-producer.json", imageProducer()),
   });
-  const imagePath = await write("images.json", JSON.stringify(validImageOutput()));
-  const review = (axis) => ({
-    schema: "wikijump.compatibility_review.v1",
-    axis,
-    status: "pass",
-    wikijump_commit: source.wikijump_commit,
-    wikijump_tree: source.wikijump_tree,
-    findings: [],
+  assert.equal(receipt.status, "FINAL_FROZEN");
+  assert.equal(receipt.validation.check_count, 2);
+  assert.equal(receipt.source.lockfiles.length, LOCKFILES.length);
+  const receiptPath = await write("final-frozen.json", receipt);
+  const verified = await verifyFinalFrozenReceipt({receiptPath, source: SOURCE});
+  assert.deepEqual(Object.keys(verified.receipt.images.identities), ["deepwell", "framerail", "wws"]);
+});
+
+test("FINAL_FROZEN refuses validation that failed, ran nothing, or is for another source", async (t) => {
+  const {root, write} = await fixture(t);
+  const producer = await write("image-producer.json", imageProducer());
+  const build = async (value) => buildFinalFrozenReceipt({
+    source: SOURCE,
+    sourceRoot: root,
+    validationReceiptPath: await write(`validation-${Math.random()}.json`, value),
+    imageProducerPath: producer,
   });
-  const standardsReviewPath = await write(
-    "reviews/standards.json",
-    JSON.stringify(review("standards")),
+  await assert.rejects(
+    build(validation({status: "fail", checks: [{name: "deepwell full tests", status: "failed"}]})),
+    /did not pass: deepwell full tests/u,
   );
-  const specReviewPath = await write(
-    "reviews/spec.json",
-    JSON.stringify(review("spec")),
-  );
-  const manifestPath = await write(
-    "inputs.json",
-    JSON.stringify({
-      lockfiles: [await write("deepwell/Cargo.lock", "lock")],
-      verifier: [await write("verifier.mjs", "verifier")],
-      fixtures: [await write("fixture.json", "fixture")],
-      tools: [await write("tool.mjs", "tool")],
-      denominator: [await write("denominator.json", "denominator")],
-      reviews: {standards: standardsReviewPath, spec: specReviewPath},
-      images: imagePath,
-    }),
-  );
-  const writersPath = await write(
-    "writers.json",
-    JSON.stringify({
-      schema: "wikijump.phase4.source_writer_roster.v1",
-      status: "pass",
-      wikijump_commit: source.wikijump_commit,
-      wikijump_tree: source.wikijump_tree,
-      lanes: [{name: "phase4", state: "stopped"}],
-    }),
-  );
-  const build = () =>
+  await assert.rejects(build(validation({checks: []})), /ran no checks/u);
+  await assert.rejects(build(validation({wikijump_commit: "f".repeat(40)})), /source identity is stale/u);
+  await assert.rejects(build(validation({mode: "checkpoint"})), /final barrier/u);
+});
+
+test("FINAL_FROZEN verification rejects changed validation bytes and foreign images", async (t) => {
+  const {root, write} = await fixture(t);
+  const validationPath = await write("validation.json", validation());
+  const receipt = await buildFinalFrozenReceipt({
+    source: SOURCE,
+    sourceRoot: root,
+    validationReceiptPath: validationPath,
+    imageProducerPath: await write("image-producer.json", imageProducer()),
+  });
+  const receiptPath = await write("final-frozen.json", receipt);
+  await fs.writeFile(validationPath, JSON.stringify(validation({base_commit: "9".repeat(40)})));
+  await assert.rejects(verifyFinalFrozenReceipt({receiptPath, source: SOURCE}), /validation is stale/u);
+
+  await assert.rejects(
     buildFinalFrozenReceipt({
-      source,
-      inputManifestPath: manifestPath,
-      sourceWritersPath: writersPath,
+      source: SOURCE,
       sourceRoot: root,
-    });
-
-  const receipt = await build();
-  assert.deepEqual(receipt.images.identities, imageIds);
-  assert.deepEqual(Object.keys(receipt.reviews).sort(), ["spec", "standards"]);
-  const receiptPath = await write("receipt.json", JSON.stringify(receipt));
-  await verifyFinalFrozenReceipt({receiptPath, source});
-  for (const key of ["wikijump_commit", "wikijump_tree", "ftml_sha"]) {
-    await assert.rejects(
-      verifyFinalFrozenReceipt({
-        receiptPath,
-        source: {...source, [key]: "f".repeat(40)},
-      }),
-      new RegExp(`final frozen source ${key}`, "u"),
-      key,
-    );
-  }
-  for (const reference of [
-    receipt.inputs.manifest,
-    receipt.inputs.source_writers,
-    receipt.source.lockfiles[0],
-    receipt.verifier.files[0],
-    receipt.fixtures[0],
-    receipt.tools[0],
-    receipt.denominator[0],
-    receipt.reviews.standards,
-    receipt.reviews.spec,
-    receipt.images.producer,
-  ]) {
-    const original = await fs.readFile(reference.path);
-    await fs.writeFile(reference.path, Buffer.concat([original, Buffer.from("drift")]));
-    await assert.rejects(
-      verifyFinalFrozenReceipt({receiptPath, source}),
-      /final frozen .* is stale/u,
-    );
-    await fs.writeFile(reference.path, original);
-  }
-
-  const badStandards = review("standards");
-  badStandards.findings = [{severity: "error", message: "unresolved"}];
-  await fs.writeFile(standardsReviewPath, JSON.stringify(badStandards));
-  await assert.rejects(build(), /standards review is not a passing zero-finding review/u);
-  await fs.writeFile(standardsReviewPath, JSON.stringify(review("standards")));
-
-  const badSpec = review("spec");
-  badSpec.wikijump_tree = "f".repeat(40);
-  await fs.writeFile(specReviewPath, JSON.stringify(badSpec));
-  await assert.rejects(build(), /spec review source identity is stale/u);
-  await fs.writeFile(specReviewPath, JSON.stringify(review("spec")));
-
-  for (const [producerKey, sourceKey] of [
-    ["wikijump_sha", "wikijump_commit"],
-    ["wikijump_tree", "wikijump_tree"],
-    ["ftml_sha", "ftml_sha"],
-  ]) {
-    const altered = validImageOutput();
-    altered[producerKey] = "f".repeat(40);
-    await fs.writeFile(imagePath, JSON.stringify(altered));
-    await assert.rejects(
-      build(),
-      new RegExp(`image producer output ${producerKey} does not match`, "u"),
-      sourceKey,
-    );
-  }
-  await fs.writeFile(
-    imagePath,
-    JSON.stringify({...validImageOutput(), unknown: true}),
-  );
-  await assert.rejects(build(), /image producer output has missing or unknown fields/u);
-  for (const role of Object.keys(imageIds)) {
-    const altered = validImageOutput();
-    altered.images[role].id = `sha256:${"e".repeat(64)}`;
-    await fs.writeFile(imagePath, JSON.stringify(altered));
-    const rebuilt = await build();
-    assert.equal(rebuilt.images.identities[role], altered.images[role].id, role);
-  }
-
-  await fs.writeFile(imagePath, JSON.stringify(validImageOutput()));
-  for (const key of ["wikijump_commit", "wikijump_tree"]) {
-    const altered = {
-      schema: "wikijump.phase4.source_writer_roster.v1",
-      status: "pass",
-      wikijump_commit: source.wikijump_commit,
-      wikijump_tree: source.wikijump_tree,
-      lanes: [{name: "phase4", state: "stopped"}],
-    };
-    altered[key] = "f".repeat(40);
-    await fs.writeFile(writersPath, JSON.stringify(altered));
-    await assert.rejects(build(), /source writer roster source identity is stale/u);
-  }
-  await fs.writeFile(
-    writersPath,
-    JSON.stringify({
-      schema: "wikijump.phase4.source_writer_roster.v1",
-      status: "pass",
-      wikijump_commit: source.wikijump_commit,
-      wikijump_tree: source.wikijump_tree,
-      lanes: [{name: "phase4", state: "active"}],
+      validationReceiptPath: await write("validation-2.json", validation()),
+      imageProducerPath: await write("foreign.json", imageProducer({...SOURCE, wikijump_tree: "0".repeat(40)})),
     }),
+    /wikijump_tree does not match the frozen source/u,
   );
-  await assert.rejects(build(), /lane phase4 is not stopped/u);
+});
 
-  await fs.writeFile(
-    writersPath,
-    JSON.stringify({
-      schema: "wikijump.phase4.source_writer_roster.v1",
-      status: "pass",
-      wikijump_commit: source.wikijump_commit,
-      wikijump_tree: source.wikijump_tree,
-      lanes: [{name: "phase4", state: "stopped"}],
-    }),
-  );
-  const stale = structuredClone(receipt);
-  stale.images.identities.deepwell = `sha256:${"0".repeat(64)}`;
-  await fs.writeFile(receiptPath, JSON.stringify(stale));
-  await assert.rejects(
-    verifyFinalFrozenReceipt({receiptPath, source}),
-    /final frozen image identities are stale/u,
-  );
-  await fs.writeFile(receiptPath, JSON.stringify(receipt));
-  await fs.writeFile(receiptPath, JSON.stringify({...receipt, unknown: true}));
-  await assert.rejects(
-    verifyFinalFrozenReceipt({receiptPath, source}),
-    /missing or unknown fields/u,
-  );
-  await fs.writeFile(receiptPath, JSON.stringify(receipt));
-  const manifestLink = path.join(root, "manifest-link.json");
-  await fs.symlink(receipt.inputs.manifest.path, manifestLink);
-  const symlinked = structuredClone(receipt);
-  symlinked.inputs.manifest.path = manifestLink;
-  await fs.writeFile(receiptPath, JSON.stringify(symlinked));
-  await assert.rejects(
-    verifyFinalFrozenReceipt({receiptPath, source}),
-    /input manifest must be a regular file/u,
+test("preflight output yields selected groups and every check result", () => {
+  const parsed = parsePreflightOutput([
+    "preflight: groups: deepwell=true wws=false verification=true ",
+    "--- deepwell fmt: ok",
+    "--- deepwell full tests: FAILED",
+    "preflight: FAILED: deepwell full tests",
+  ].join("\n"));
+  assert.deepEqual(parsed.groups, {deepwell: true, wws: false, verification: true});
+  assert.deepEqual(parsed.checks, [
+    {name: "deepwell fmt", status: "ok"},
+    {name: "deepwell full tests", status: "failed"},
+  ]);
+  assert.throws(
+    () => validateConsolidatedValidation(validation({checks: parsed.checks, status: "fail"}), SOURCE),
+    /did not pass: deepwell full tests/u,
   );
 });

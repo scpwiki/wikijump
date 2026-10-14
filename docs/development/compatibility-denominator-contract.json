@@ -115,8 +115,8 @@
     "final_zero_nonzero_classes": [
       "complete_product_rows_open_or_unreconciled",
       "duplicate_or_ambiguous_canonical_identities",
-      "missing_independent_standards_or_spec_reviews",
       "missing_or_failing_candidate_proofs",
+      "missing_or_failing_final_validation",
       "missing_or_failing_standing_proofs",
       "missing_or_stale_source_provenance",
       "missing_public_surfaces",
