@@ -2743,6 +2743,54 @@ fn direct_balanced_iftags_without_includes_are_evaluated_by_ftml() {
     assert!(rendered.contains("visible"), "{rendered}");
 }
 
+/// Live sandbox-for-codex observations, 2026-10-15 (run-owned pages
+/// `wjct2353-*`, `wjct2353b-*`): `[[/module]]` pairs with the nearest
+/// preceding module opener that starts a line, so a body-less module does not
+/// reach past a later `[[module CSS]]` and swallow the `[[/iftags]]` between
+/// them (#2353). Without the later CSS module the gate already resolved.
+#[test]
+fn bodyless_module_does_not_take_a_later_modules_closer() {
+    let css = "[[module CSS]]\n.x { color: red; }\n[[/module]]\n";
+    for module in ["Rate", "PageTree"] {
+        for later in [css, ""] {
+            let source = format!(
+                "[[iftags +component]]\nDOCS-SHOULD-HIDE\n[[module {module}]]\n[[/iftags]]\n{later}AFTER-MARK",
+            );
+            for (tags, shown) in [(&[][..], false), (&["component"][..], true)] {
+                let mut prepared = source.clone();
+                let page_info = ftml::data::PageInfo {
+                    tags: tags.iter().map(|tag| Cow::Borrowed(*tag)).collect(),
+                    ..fallback_test_page_info("root", "Root")
+                };
+                prepare_test_wikidot_conditionals_before_include_expansion(
+                    &mut prepared,
+                    &page_info,
+                );
+                prepare_test_wikidot_conditionals(&mut prepared, &page_info);
+
+                assert!(
+                    !prepared.contains("iftags"),
+                    "{module} {tags:?}: {prepared}"
+                );
+                assert_eq!(
+                    prepared.contains("DOCS-SHOULD-HIDE"),
+                    shown,
+                    "{module} {tags:?}: {prepared}",
+                );
+                assert_eq!(
+                    prepared.contains(&format!("[[module {module}]]")),
+                    shown,
+                    "{module} {tags:?}: {prepared}",
+                );
+                assert!(
+                    prepared.ends_with(&format!("{later}AFTER-MARK")),
+                    "{prepared}"
+                );
+            }
+        }
+    }
+}
+
 #[test]
 fn direct_theme_source_drops_unbound_empty_nested_iftags() {
     let mut source = concat!(
