@@ -27,7 +27,8 @@
 //! link table is not touched, because a page view is a read.
 
 use super::module_arguments::PageModuleArguments;
-use crate::error::prelude::Result;
+use crate::error::exn_any_error;
+use crate::error::prelude::{Error, ErrorType, Result};
 use crate::models::page::Model as PageModel;
 use crate::models::page_revision::Model as PageRevisionModel;
 use crate::models::site::Model as SiteModel;
@@ -41,6 +42,7 @@ use crate::services::score::ScoreService;
 use crate::services::settings::SettingsService;
 use crate::types::PageId;
 use crate::utils::{locale_for_ftml, split_category};
+use exn::Exn;
 use ftml::data::PageInfo;
 use ref_map::OptionRefMap;
 
@@ -112,7 +114,70 @@ pub(super) async fn render_body_for_module_arguments(
             path_arguments: &module_arguments.path_arguments,
         },
     )
-    .await?;
+    .await;
 
-    Ok(output.html_output.body)
+    match output {
+        Ok(output) => Ok(output.html_output.body),
+        // The saved render answers the bare URL. It was produced by the
+        // renderer for this revision, without the interactive deadline. When
+        // a page's live runtime modules cannot be rendered within that
+        // deadline, serving it is better than failing the whole page. A
+        // request with module arguments still needs its own render.
+        Err(error) if saved_render_answers_failed_render(module_arguments, &error) => {
+            warn!(
+                "Serving the saved render of page ID {} after the live render timed out",
+                page.page_id,
+            );
+            Ok(stored_body_html)
+        }
+        Err(error) => Err(error),
+    }
+}
+
+/// Whether the saved render may answer a request whose live render failed:
+/// only a bare URL (the saved render answers no module arguments), and only
+/// when the failure is the render deadline rather than a rendering error.
+fn saved_render_answers_failed_render(
+    module_arguments: &PageModuleArguments,
+    error: &Exn<Error>,
+) -> bool {
+    module_arguments.is_empty()
+        && exn_any_error(error, |error| {
+            matches!(error.error_type, ErrorType::RenderTimeout)
+        })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use exn::{ErrorExt, ResultExt};
+
+    fn failed_render(error_type: ErrorType) -> Exn<Error> {
+        Err::<(), _>(Error::new("inner render failure", error_type).raise())
+            .or_raise(|| Error::new("failed to render page", ErrorType::Render))
+            .unwrap_err()
+    }
+
+    #[test]
+    fn saved_render_answers_only_a_timed_out_bare_url() {
+        let bare = PageModuleArguments::default();
+        assert!(bare.is_empty());
+        assert!(saved_render_answers_failed_render(
+            &bare,
+            &failed_render(ErrorType::RenderTimeout),
+        ));
+        assert!(!saved_render_answers_failed_render(
+            &bare,
+            &failed_render(ErrorType::Render),
+        ));
+
+        let paged = PageModuleArguments {
+            page: Some(2),
+            ..PageModuleArguments::default()
+        };
+        assert!(!saved_render_answers_failed_render(
+            &paged,
+            &failed_render(ErrorType::RenderTimeout),
+        ));
+    }
 }

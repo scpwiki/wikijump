@@ -47,6 +47,15 @@ pub fn unwrap_transaction_error(txn_error: TransactionError<Exn<Error>>) -> Exn<
 
 /// Converts an `Exn<deepwell::error::Error>` to a JSONRPC object type.
 ///
+/// Whether any error in the chain satisfies the predicate.
+pub fn exn_any_error(exn_error: &Exn<Error>, predicate: impl Fn(&Error) -> bool) -> bool {
+    fn walk(frame: &Frame, predicate: &dyn Fn(&Error) -> bool) -> bool {
+        frame.error().downcast_ref::<Error>().is_some_and(predicate)
+            || frame.children().iter().any(|child| walk(child, predicate))
+    }
+    walk(exn_error.frame(), &predicate)
+}
+
 /// This is not a `From` implementation since, technically, `Exn<T>` is a
 /// foreign type. 🙁
 pub fn exn_error_to_rpc_error(exn_error: Exn<Error>) -> ErrorObjectOwned {
