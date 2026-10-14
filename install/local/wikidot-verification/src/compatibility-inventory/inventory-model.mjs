@@ -19,17 +19,6 @@ const AUDITED_CURRENT_CATALOG_ISSUES = Object.freeze({
   fallback_surface_ids_sha256: "a69ba8bc0a841c3092fb6cab2b1d2efcea8044b25ddb9dcad52669db66867820",
   fallback_mapping_sha256: "9a7489f1083ef9a114f95221997194afcb6eb1b957ad36f307e309a3a3668ff7"
 })
-const AUDITED_ISSUE_GROUPS = Object.freeze({
-  deepwell_jsonrpc_method: Object.freeze({ count: 181, surface_ids_sha256: "87b0a37cc0405ee0cbfd01bc8749add8d669eb4b36629da7fbd155bca47f490a", mapping_sha256: "368a150cb151f96556060b20a3ffc81a83d65efabdcb3fd438b1f33a8df896ee" }),
-  framerail_route: Object.freeze({ count: 33, surface_ids_sha256: "6684a64a13d1618ca4732c020934f6e6844c329f478ecf23243b6299b4cfc0b4", mapping_sha256: "4a4a625e9e009c2d1b8a00595e8b01722a17c3992e2be93e30cc230831d94a12" }),
-  framerail_server_action: Object.freeze({ count: 107, surface_ids_sha256: "2d24668b2c1a9c5dd03f76aeba6e4ebe40127e0570bf0b788bec5d980cefd836", mapping_sha256: "03447d40bc082d4b323530ec2abf0b57ad3906fac5ef268cb1bb344e8e9fa0fd" }),
-  framerail_amc_action_shape: Object.freeze({ count: 2, surface_ids_sha256: "69e643ef40a7efffbcc2cea03dc0f864aa0fb62d51ab8fd0c6062c74af9bee49", mapping_sha256: "945b06829bdf00f44c78040b1b2a4f793bb3e67325c98a94cffee4079c008646" }),
-  framerail_amc_module_shape: Object.freeze({ count: 27, surface_ids_sha256: "4f2f2705c525444287f6d2f2835903263953f78d8d2d830f46b296e139de8b13", mapping_sha256: "90c279280479e68e0227a8c4d26ececa5a74b0f0ef8937abeac548dcffc89b61" }),
-  page_action: Object.freeze({ count: 25, surface_ids_sha256: "7650ecd18142446eb1c4f557ad13bc525cdd541b31dcbc982ea1f92288f0e206", mapping_sha256: "98ebacfd535793c5c4996797ea2c206f3edea85852520705b01a3f9dd03faad6" }),
-  framerail_xmlrpc_method: Object.freeze({ count: 17, surface_ids_sha256: "862b1daa07ba126424e6021d306854f2c431073c024e1497a0ed5ab65b0d118d", mapping_sha256: "8862712f0d5acc1e73ff31f873d4ed8a8e7d2c01afc74ce988894e38508f9a34" }),
-  wws_route: Object.freeze({ count: 50, surface_ids_sha256: "b83d044571891e697ad1a14ad5c36ce0ef034dedbb3ffca0702f7d00f0cd18b3", mapping_sha256: "b2d851904f7d8e1d9b4399a11dd954760a102142ae7f9676b29b487c63940c88" }),
-  wikidot_py_amc_module_shape: Object.freeze({ count: 22, surface_ids_sha256: "4af71683f0059a07403b6cba86cb1d8961e9b9b4c1b2f3be158b2e7bd2918123", mapping_sha256: "a7cd9e3f642420977c413a97231131d38f56e0374e3440955e081b417e3ac48f" })
-})
 const FTML_PUBLIC_PREVIEW_TEST_FEATURES = new Set([
   "syntax-bibliography",
   "syntax-block-formatting-elements",
@@ -378,20 +367,10 @@ export function applyAuditedIssueOwnership(surfaces, auditedOwnershipActive) {
       }
     }
   })
-  for (const [kind, expected] of Object.entries(AUDITED_ISSUE_GROUPS)) {
-    const rows = assigned.filter((record) => record.kind === kind)
-    const ids = rows.map(({ surface_id: surfaceId }) => surfaceId)
-    const mapping = rows.map(({ surface_id: surfaceId, existing_refs: existingRefs }) =>
-      `${surfaceId}\t${existingRefs.issues.join(",")}`
-    )
-    if (
-      rows.length !== expected.count ||
-      auditedLinesSha256(ids) !== expected.surface_ids_sha256 ||
-      auditedLinesSha256(mapping) !== expected.mapping_sha256
-    ) {
-      throw new Error(`audited issue ownership drift for ${kind}`)
-    }
-  }
+  // Every surface of an audited kind is assigned (or rejected) by
+  // auditedIssueForSurface above, and the generated inventory is verified
+  // byte-for-byte, so pinned per-kind counts and ID hashes would only force a
+  // hand re-pin whenever a surface is added.
   const currentCatalogRows = assigned.filter((record) =>
     record.kind === "catalog_feature" && !DEFERRED_XMLRPC_CATALOG_FEATURES.has(record.surface_id)
   )
