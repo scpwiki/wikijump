@@ -138,5 +138,87 @@ class RenderAheadRuntimeTest(unittest.TestCase):
                 RENDER_AHEAD.parse_summary(bad)
 
 
+class RenderUntilLinksSettleTest(unittest.TestCase):
+    """Fake site: page 1 is stable, page 2 links differently on every render,
+    page 3 reads page 1's links and changes once they move."""
+
+    def setUp(self) -> None:
+        self.clock = iter(f"t{index}" for index in range(100))
+        self.original_now = RENDER_AHEAD.utc_now
+        RENDER_AHEAD.utc_now = lambda: next(self.clock)
+        self.links = {"1": "old", "2": "r0", "3": "old"}
+        self.renders = 0
+        self.calls = []
+
+    def tearDown(self) -> None:
+        RENDER_AHEAD.utc_now = self.original_now
+
+    def render(self, name, cutoff, pages=None):
+        self.calls.append((name, cutoff, pages))
+        selected = pages or [1, 2, 3]
+        self.renders += 1
+        for page in selected:
+            if page == 1:
+                self.links["1"] = "new"
+            elif page == 2:
+                self.links["2"] = f"r{self.renders}"
+            elif page == 3 and self.renders > 1:
+                self.links["3"] = "new"
+        return {"candidates": len(selected), "failed_page_ids": []}
+
+    def settle(self, not_before=None):
+        passes = [{}]
+        def render(name, cutoff, pages=None):
+            passes.append({})
+            return self.render(name, cutoff, pages)
+        return RENDER_AHEAD.render_until_links_settle(render, lambda: dict(self.links), passes, not_before)
+
+    def test_dependency_changes_render_everything_again(self) -> None:
+        not_before, _, nondeterministic = self.settle()
+        self.assertEqual(nondeterministic, [2])
+        self.assertEqual(
+            [call[0] for call in self.calls],
+            ["full-1", "link-probe-1", "full-2", "link-probe-2", "full-3", "link-probe-3"],
+        )
+        self.assertIsNotNone(not_before, "the second pass must not accept rows from the first")
+
+    def test_probe_uses_a_fresh_cutoff(self) -> None:
+        self.settle(not_before="t-start")
+        probe_cutoffs = [cutoff for name, cutoff, _ in self.calls if name.startswith("link-probe")]
+        full_cutoffs = {cutoff for name, cutoff, _ in self.calls if name.startswith("full")}
+        self.assertTrue(probe_cutoffs)
+        self.assertTrue(full_cutoffs.isdisjoint(probe_cutoffs))
+
+    def test_stable_links_need_one_pass(self) -> None:
+        self.links["1"] = "new"
+        self.render = lambda name, cutoff, pages=None: (
+            self.calls.append((name, cutoff, pages)) or {"candidates": 3, "failed_page_ids": []}
+        )
+        _, _, nondeterministic = self.settle()
+        self.assertEqual(nondeterministic, [])
+        self.assertEqual([call[0] for call in self.calls], ["full-1"])
+
+    def test_links_that_keep_moving_fail_the_run(self) -> None:
+        render = self.render
+        def moving(name, cutoff, pages=None):
+            result = render(name, cutoff, pages)
+            if not pages:
+                # Page 4's links move on every full pass but are stable when
+                # page 4 is rendered alone: a dependency that never settles.
+                self.links["4"] = f"moved-{self.renders}"
+            return result
+        self.render = moving
+        with self.assertRaises(RuntimeError):
+            self.settle()
+
+    def test_probe_must_select_every_changed_page(self) -> None:
+        render = self.render
+        self.render = lambda name, cutoff, pages=None: (
+            {"candidates": 0, "failed_page_ids": []} if pages else render(name, cutoff, pages)
+        )
+        with self.assertRaises(RuntimeError):
+            self.settle()
+
+
 if __name__ == "__main__":
     unittest.main()

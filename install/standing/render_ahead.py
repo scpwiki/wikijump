@@ -19,8 +19,7 @@ Rendering also refreshes link rows. If those rows change during the run, a page
 rendered early may have read links that a later page changed. After each full
 pass, the pages whose links changed are rendered once more: a page that
 changes again has links that differ on every render and is recorded; if any
-other page changed, every page is rendered again, and a second such change
-fails the run. Pages that miss the serving
+other page changed, every page is rendered again, up to three full passes. Pages that miss the serving
 render deadline under concurrent load are retried alone and then once with a
 longer one-shot deadline (docs/agents/compatibility/execution.md); any other
 failure stops the run. A final dry run checks the whole site.
@@ -63,6 +62,9 @@ IDEMPOTENT_STATEMENT = re.compile(
 SUMMARY_SCHEMA = "wikijump.render_ahead_receipt.v1"
 RENDER_TIMEOUT = re.compile(r"^render-timeout-ms\s*=\s*[0-9]+\s*$", re.MULTILINE)
 DEADLINE_MARKERS = ("deadline has elapsed", "due to timeout")
+# A page that reads another page's links can only move in the pass after that
+# page moved, so each link dependency level needs one more full pass.
+MAX_FULL_PASSES = 3
 
 
 def run(*args: str, input_text: str | None = None) -> str:
@@ -248,6 +250,41 @@ def render_pass(
     )
 
 
+def render_until_links_settle(render, digests, passes, not_before):
+    """Render every stale page, again if some page's links moved because of
+    links it reads. Returns the cutoff, the last full-pass summary, and the
+    pages whose links differ on every render."""
+    for number in range(1, MAX_FULL_PASSES + 1):
+        links_before = digests()
+        summary = render(f"full-{number}", not_before)
+        links_after = digests()
+        changed = changed_pages(links_before, links_after)
+        passes[-1]["link_changed_pages"] = len(changed)
+        if not changed:
+            return not_before, summary, []
+        # A page whose links change again when it alone is rendered again
+        # produces different links on every render (random ListPages,
+        # per-render placeholders). Any other changed page moved because the
+        # links it reads moved, so pages rendered before it may be stale.
+        # The probe renders the changed pages afresh, so it needs its own
+        # cutoff; their rows from this pass are already valid.
+        probe = render(f"link-probe-{number}", utc_now(), changed)
+        if probe["candidates"] != len(changed):
+            raise RuntimeError("the link probe did not select every changed page")
+        repeat = changed_pages(links_after, digests())
+        settled = sorted(set(changed) - set(repeat) - set(probe["failed_page_ids"]))
+        passes[-1]["nondeterministic_link_pages"] = len(repeat)
+        passes[-1]["settled_link_pages"] = len(settled)
+        if not settled:
+            return not_before, summary, repeat
+        if number == MAX_FULL_PASSES:
+            raise RuntimeError(
+                f"links of {len(settled)} pages did not converge after {number} passes: {settled[:20]}"
+            )
+        not_before = utc_now()
+    raise AssertionError("unreachable")
+
+
 def image_identity(image: str) -> str:
     image_id = run("docker", "image", "inspect", "--format", "{{.Id}}", image).strip()
     if IMAGE_ID.fullmatch(image_id) is None:
@@ -339,46 +376,14 @@ def main() -> int:
         )
         return summary
 
-    # Full passes: render every stale page; render them all again if some
-    # page's links moved because of links it reads.
-    not_before = utc_now() if args.rerender_all else None
-    nondeterministic: list[int] = []
-    for number in (1, 2):
-        links_before = link_digests(args.database_container)
-        summary = render(
-            f"full-{number}",
-            render_ahead_settings(args.concurrency, args.batch_size, not_before),
-        )
-        links_after = link_digests(args.database_container)
-        changed = changed_pages(links_before, links_after)
-        passes[-1]["link_changed_pages"] = len(changed)
-        if not changed:
-            nondeterministic = []
-            break
-        # A page whose links change again when it alone is rendered again
-        # produces different links on every render (random ListPages,
-        # per-render placeholders). Any other changed page moved because the
-        # links it reads moved, so pages rendered before it may be stale.
-        # The probe renders the changed pages afresh, so it needs its own
-        # cutoff; their rows from this pass are already valid.
-        probe = render(
-            f"link-probe-{number}",
-            render_ahead_settings(args.concurrency, args.batch_size, utc_now(), changed),
-        )
-        if probe["candidates"] != len(changed):
-            raise RuntimeError("the link probe did not select every changed page")
-        repeat = changed_pages(links_after, link_digests(args.database_container))
-        settled = sorted(set(changed) - set(repeat) - set(probe["failed_page_ids"]))
-        passes[-1]["nondeterministic_link_pages"] = len(repeat)
-        passes[-1]["settled_link_pages"] = len(settled)
-        nondeterministic = repeat
-        if not settled:
-            break
-        if number == 2:
-            raise RuntimeError(
-                f"links of {len(settled)} pages did not converge after two passes: {settled[:20]}"
-            )
-        not_before = utc_now()
+    not_before, summary, nondeterministic = render_until_links_settle(
+        lambda name, cutoff, pages=None: render(
+            name, render_ahead_settings(args.concurrency, args.batch_size, cutoff, pages)
+        ),
+        lambda: link_digests(args.database_container),
+        passes,
+        utc_now() if args.rerender_all else None,
+    )
 
     # Tail: pages that missed the deadline under load are retried alone, then
     # once with a longer one-shot deadline. Any other failure stops the run.
