@@ -4,6 +4,7 @@ mod fallback_render;
 pub(super) mod footnote_dom;
 mod html_fragments;
 pub(super) mod issued_markers;
+pub(super) mod link_targets;
 pub(super) mod preparation;
 pub(super) mod text_fragments;
 pub(super) mod wikidot_compat_restore;

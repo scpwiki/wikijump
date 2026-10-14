@@ -1649,6 +1649,93 @@ fn protects_unbound_include_variables_in_all_rendered_positions() {
     assert_eq!(fragments.restore(&wikitext), original);
 }
 
+/// Parse protected Wikidot source, optionally restoring compatibility text
+/// in link targets first, and return the restored HTML with its links.
+fn render_protected_links(
+    source: &str,
+    restore_targets: bool,
+) -> (String, ftml::data::Backlinks<'static>) {
+    let mut wikitext = source.to_owned();
+    let mut fragments = CompatTextFragments::new(&wikitext);
+    RenderService::protect_wikidot_unbound_include_variables(
+        &mut wikitext,
+        &mut fragments,
+    );
+    // A stray `##` is protected the same way as an unrendered color marker.
+    wikitext = wikitext.replace("##", &fragments.push("##"));
+    let page_info = fallback_test_page_info("component:links", "Links");
+    let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+    ftml::preprocess_for_layout(&mut wikitext, settings.layout);
+    let tokens = ftml::tokenize(&wikitext);
+    let (mut tree, _) = ftml::parse(&tokens, &page_info, &settings).into();
+    if restore_targets {
+        super::super::compat::link_targets::restore_compat_text_in_link_targets(
+            &mut tree, &fragments,
+        );
+    }
+    let output = HtmlRender.render(&tree, &page_info, &settings);
+    let backlinks = ftml::data::Backlinks {
+        included_pages: output.backlinks.included_pages.clone(),
+        internal_links: output.backlinks.internal_links.clone(),
+        external_links: output
+            .backlinks
+            .external_links
+            .iter()
+            .map(|link| Cow::Owned(link.to_string()))
+            .collect(),
+    };
+    (fragments.restore(&output.body), backlinks)
+}
+
+#[test]
+fn link_targets_keep_the_authored_text_of_protected_fragments() {
+    // Wikidot links an unbound variable target by its authored text
+    // (component:earthworm: `[[[{$previous-url} | {$previous-title}]]]`
+    // links to /previous-url) and keeps a stray `##` inside a URL.
+    let source = concat!(
+        "[[[{$previous-url} | {$previous-title}]]]\n\n",
+        "[[[adult:{$page} | Adult]]]\n\n",
+        "[https://example.com/scp-7493## SCP-7493]\n",
+    );
+
+    let (html, links) = render_protected_links(source, true);
+
+    assert!(html.contains(r#"href="/previous-url""#), "{html}");
+    assert!(html.contains(">{$previous-title}</a>"), "{html}");
+    assert!(html.contains(r#"href="/adult:page""#), "{html}");
+    assert!(
+        html.contains(r#"href="https://example.com/scp-7493##""#),
+        "{html}"
+    );
+    assert!(
+        !html
+            .to_ascii_uppercase()
+            .contains(COMPAT_TEXT_MARKER_PREFIX),
+        "{html}"
+    );
+    let recorded = format!("{:?} {:?}", links.internal_links, links.external_links);
+    assert!(
+        !recorded
+            .to_ascii_uppercase()
+            .contains(COMPAT_TEXT_MARKER_PREFIX),
+        "recorded links must not carry protection markers: {recorded}",
+    );
+    assert!(
+        recorded.contains("https://example.com/scp-7493##"),
+        "{recorded}"
+    );
+
+    // Without the pass the marker survives into the page target, which is
+    // the leak this guards against.
+    let (unrestored, _) = render_protected_links(source, false);
+    assert!(
+        unrestored
+            .to_ascii_uppercase()
+            .contains(COMPAT_TEXT_MARKER_PREFIX),
+        "{unrestored}",
+    );
+}
+
 #[test]
 fn densely_protects_and_restores_marker_class_variables() {
     let mut wikitext = String::from("[[div class=\"");
