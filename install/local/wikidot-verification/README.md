@@ -255,6 +255,17 @@ The command is read-only. It follows same-site `[[include]]` targets (skipping o
 
 Repair drifted pages as new revisions: build an import manifest for exactly the drifted slugs with `build-corpus-import-manifest.mjs --fullname <slug>...`, apply it with `apply-corpus-import-manifest.mjs --create-mode db --replace-existing`, rerender the dependents, and rerun the report until it exits zero. `--replace-existing` appends a revision; it never rewrites or deletes existing rows.
 
+### Import mirrored site icons
+
+A mirrored site's favicon, iOS touch icon, and Windows tile are site-level assets (`site_icon`), not page files. `scripts/import-mirror-site-icons.mjs` reads which icons the source site's own head declares, fetches each through the identity-bound public evidence response cache (pass `--cache-dir`/`--cache-identity` to replay a retained store such as `scp9506-live-20261012-chromium149` with no network), and stores the bytes and observed media type with `site_icon_set`. A kind the source no longer declares is cleared, so re-running refreshes and removes stale icons. The session file holds a platform-staff Deepwell session; the RPC token comes from `DEEPWELL_RPC_TOKEN`.
+
+```sh
+node install/local/wikidot-verification/scripts/import-mirror-site-icons.mjs \
+  --site scp-wiki --source-origin https://scp-wiki.wikidot.com \
+  --rpc-url http://127.0.0.1:2747/jsonrpc --session-file /private/operator-session.json \
+  --receipt /evidence/site-icons-scp-wiki.json
+```
+
 ### Verify imported source integrity
 
 After materializing corpus pages, compare the selected local page's current revision source, stored corpus snapshot hash, latest import state, and (for selected complex canaries) compiled body length against the exact manifest source files. The command is read-only and exits nonzero for missing pages, changed or blank source, absent/mismatched provenance, incomplete import state, or a required empty body. Select the correct site ID explicitly when the local stack has more than one site:
