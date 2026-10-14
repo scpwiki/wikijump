@@ -17,7 +17,10 @@ build's own migration check (and a rollback to it) working.
 
 Rendering also refreshes link rows. If those rows change during the run, a page
 rendered early may have read links that a later page changed, so every page is
-rendered again; the links must then be stable.
+rendered again; the links must then be stable. Pages that miss the serving
+render deadline under concurrent load are retried alone and then once with a
+longer one-shot deadline (docs/agents/compatibility/execution.md); any other
+failure stops the run. A final dry run checks the whole site.
 """
 
 from __future__ import annotations
@@ -43,6 +46,8 @@ IDEMPOTENT_STATEMENT = re.compile(
     r"^(CREATE TABLE IF NOT EXISTS|CREATE INDEX IF NOT EXISTS)\s", re.IGNORECASE
 )
 SUMMARY_SCHEMA = "wikijump.render_ahead_receipt.v1"
+RENDER_TIMEOUT = re.compile(r"^render-timeout-ms\s*=\s*[0-9]+\s*$", re.MULTILINE)
+DEADLINE_MARKERS = ("deadline has elapsed", "due to timeout")
 
 
 def run(*args: str, input_text: str | None = None) -> str:
@@ -101,20 +106,44 @@ def runtime_environment(inspected: dict[str, object]) -> dict[str, str]:
 
 
 def render_ahead_settings(
-    concurrency: int, batch_size: int, not_before: str | None
+    concurrency: int,
+    batch_size: int,
+    not_before: str | None,
+    page_ids: list[int] | None = None,
+    dry_run: bool = False,
 ) -> dict[str, str]:
     settings = {
         "DEEPWELL_RUNTIME_ACTION": "render-ahead",
-        "DEEPWELL_RENDER_AHEAD_DRY_RUN": "false",
+        "DEEPWELL_RENDER_AHEAD_DRY_RUN": "true" if dry_run else "false",
         "DEEPWELL_RENDER_AHEAD_CONCURRENCY": str(concurrency),
         "DEEPWELL_RENDER_AHEAD_BATCH_SIZE": str(batch_size),
     }
     if not_before is not None:
         settings["DEEPWELL_RENDER_AHEAD_NOT_BEFORE"] = not_before
+    if page_ids is not None:
+        if not page_ids:
+            raise ValueError("a page-limited render-ahead run needs page IDs")
+        settings["DEEPWELL_RENDER_AHEAD_PAGE_IDS"] = ",".join(map(str, page_ids))
     return settings
 
 
-def parse_summary(output: str) -> dict[str, object]:
+def deadline_only(summary: dict[str, object]) -> bool:
+    """Whether every failure of a pass is the renderer deadline."""
+    failures = summary["failures"]
+    return len(failures) == summary["failed"] and all(
+        any(marker in failure["error"] for marker in DEADLINE_MARKERS)
+        for failure in failures
+    )
+
+
+def config_with_render_timeout(config: str, timeout_ms: int) -> str:
+    matches = RENDER_TIMEOUT.findall(config)
+    if len(matches) != 1:
+        raise ValueError("Deepwell config must set render-timeout-ms exactly once")
+    return RENDER_TIMEOUT.sub(f"render-timeout-ms = {timeout_ms}", config)
+
+
+def parse_summary(output: str, dry_run: bool = False) -> dict[str, object]:
     summaries = []
     for line in output.splitlines():
         if not line.startswith("{"):
@@ -125,8 +154,8 @@ def parse_summary(output: str) -> dict[str, object]:
     if len(summaries) != 1:
         raise RuntimeError("render-ahead did not print exactly one summary")
     summary = summaries[0]
-    if summary.get("dry_run") is not False:
-        raise RuntimeError("render-ahead summary is not a real run")
+    if summary.get("dry_run") is not dry_run:
+        raise RuntimeError("render-ahead summary does not match the requested mode")
     return summary
 
 
@@ -198,7 +227,9 @@ def render_pass(
     log_path.write_text(result.stdout + result.stderr, encoding="utf-8")
     if result.returncode != 0:
         raise RuntimeError(f"render-ahead exited {result.returncode}; see {log_path}")
-    return parse_summary(result.stdout)
+    return parse_summary(
+        result.stdout, settings["DEEPWELL_RENDER_AHEAD_DRY_RUN"] == "true"
+    )
 
 
 def image_identity(image: str) -> str:
@@ -225,14 +256,20 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--database-container", default="wikijump-standing-database-1")
     parser.add_argument("--concurrency", type=int, default=16)
     parser.add_argument("--batch-size", type=int, default=200)
+    parser.add_argument(
+        "--tail-render-timeout-ms",
+        type=int,
+        default=300_000,
+        help="one-shot deadline for pages that still miss the serving deadline alone",
+    )
     parser.add_argument("--output-dir", type=Path, required=True)
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
-    if args.concurrency < 1 or args.batch_size < 1:
-        raise ValueError("--concurrency and --batch-size must be positive")
+    if min(args.concurrency, args.batch_size, args.tail_render_timeout_ms) < 1:
+        raise ValueError("numeric options must be positive")
     image = (
         prepared_deepwell_image(args.prepared_receipt)
         if args.prepared_receipt is not None
@@ -254,41 +291,91 @@ def main() -> int:
     require_idempotent_migration(migration)
     psql(args.database_container, migration)
 
-    passes = []
-    not_before = None
-    links_before = link_fingerprint(args.database_container)
-    for number in (1, 2):
+    passes: list[dict[str, object]] = []
+
+    def render(name: str, settings: dict[str, str], config: str = config_source) -> dict[str, object]:
         pass_started = time.monotonic()
         summary = render_pass(
             image_id,
             args.deepwell_container,
-            config_source,
+            config,
             environment,
-            render_ahead_settings(args.concurrency, args.batch_size, not_before),
-            args.output_dir / f"pass{number}.log",
+            settings,
+            args.output_dir / f"{name}.log",
         )
-        links_after = link_fingerprint(args.database_container)
         passes.append(
             {
-                "pass": number,
-                "not_before": not_before,
+                "pass": name,
+                "settings": {
+                    key: value
+                    for key, value in settings.items()
+                    if key != "DEEPWELL_RUNTIME_ACTION"
+                },
+                "config": "serving" if config == config_source else "extended-deadline",
                 "duration_seconds": time.monotonic() - pass_started,
-                "links_before": links_before,
-                "links_after": links_after,
                 "summary": summary,
             }
         )
-        if summary["failed"]:
-            raise RuntimeError(f"render-ahead pass {number} has failed pages")
+        return summary
+
+    # Full passes: render every stale page, and again if links moved.
+    not_before = None
+    links_before = link_fingerprint(args.database_container)
+    for number in (1, 2):
+        summary = render(
+            f"full-{number}",
+            render_ahead_settings(args.concurrency, args.batch_size, not_before),
+        )
+        links_after = link_fingerprint(args.database_container)
+        passes[-1]["links_before"] = links_before
+        passes[-1]["links_after"] = links_after
         if links_after == links_before:
             break
         if number == 2:
-            raise RuntimeError("link rows still changed during the second render-ahead pass")
+            raise RuntimeError("link rows still changed during the second full pass")
         # Rows rendered before this point may have read links that changed.
         not_before = datetime.now(UTC).isoformat().replace("+00:00", "Z")
         links_before = links_after
 
-    final = passes[-1]["summary"]
+    # Tail: pages that missed the deadline under load are retried alone, then
+    # once with a longer one-shot deadline. Any other failure stops the run.
+    failed = summary["failed_page_ids"]
+    if failed:
+        if not deadline_only(summary):
+            raise RuntimeError("render-ahead has failures other than the render deadline")
+        summary = render(
+            "tail-serial",
+            render_ahead_settings(1, args.batch_size, not_before, failed),
+        )
+        failed = summary["failed_page_ids"]
+    if failed:
+        if not deadline_only(summary):
+            raise RuntimeError("render-ahead tail has failures other than the render deadline")
+        with tempfile.NamedTemporaryFile(
+            "w", encoding="utf-8", prefix="render-ahead-config.", suffix=".toml", delete=False
+        ) as config_file:
+            config_file.write(
+                config_with_render_timeout(
+                    Path(config_source).read_text(encoding="utf-8"),
+                    args.tail_render_timeout_ms,
+                )
+            )
+        os.chmod(config_file.name, 0o644)
+        try:
+            summary = render(
+                "tail-extended-deadline",
+                render_ahead_settings(1, args.batch_size, not_before, failed),
+                config_file.name,
+            )
+        finally:
+            os.unlink(config_file.name)
+        failed = summary["failed_page_ids"]
+
+    # Verify the whole site, not just the last pass's pages.
+    final = render(
+        "verify",
+        render_ahead_settings(args.concurrency, args.batch_size, not_before, dry_run=True),
+    )
     receipt = {
         "schema": SUMMARY_SCHEMA,
         "status": "pass" if final["stale_without_valid_ahead"] == 0 else "incomplete",
@@ -301,14 +388,23 @@ def main() -> int:
         "deepwell_container": args.deepwell_container,
         "database_container": args.database_container,
         "migration_sha256": hashlib.sha256(migration.encode()).hexdigest(),
+        "tail_render_timeout_ms": args.tail_render_timeout_ms,
         "passes": passes,
+        "unrendered_page_ids": failed,
         "stale_without_valid_ahead": final["stale_without_valid_ahead"],
     }
     receipt_path = args.output_dir / "render-ahead-receipt.json"
     with receipt_path.open("x", encoding="utf-8") as output:
         json.dump(receipt, output, indent=2, sort_keys=True)
         output.write("\n")
-    print(json.dumps({key: receipt[key] for key in ("status", "duration_seconds", "stale_without_valid_ahead")}))
+    print(
+        json.dumps(
+            {
+                key: receipt[key]
+                for key in ("status", "duration_seconds", "stale_without_valid_ahead")
+            }
+        )
+    )
     return 0 if receipt["status"] == "pass" else 1
 
 

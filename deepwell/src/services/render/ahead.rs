@@ -86,6 +86,7 @@ pub struct RenderAheadSummary {
     candidates: usize,
     rendered: usize,
     failed: usize,
+    failed_page_ids: Vec<i64>,
     stale_without_valid_ahead: i64,
     elapsed_ms: u128,
     rows_per_sec: f64,
@@ -147,7 +148,7 @@ impl RenderAheadService {
         let mut candidates = 0;
         let mut rendered = 0;
         let mut failures = Vec::new();
-        let mut failed = 0;
+        let mut failed_page_ids = Vec::new();
         let mut after_page_id = 0;
 
         // Keyset pagination over page IDs, so a page that fails is not
@@ -176,7 +177,7 @@ impl RenderAheadService {
                 match result {
                     Ok(_) => rendered += 1,
                     Err(error) => {
-                        failed += 1;
+                        failed_page_ids.push(id.page_id);
                         warn!(
                             "render-ahead failed for page ID {} on site ID {}: {error}",
                             id.page_id, id.site_id,
@@ -205,7 +206,11 @@ impl RenderAheadService {
             concurrency: settings.concurrency,
             candidates,
             rendered,
-            failed,
+            failed: failed_page_ids.len(),
+            failed_page_ids: {
+                failed_page_ids.sort_unstable();
+                failed_page_ids
+            },
             stale_without_valid_ahead,
             elapsed_ms: elapsed.as_millis(),
             rows_per_sec: if elapsed_secs > 0.0 {

@@ -83,14 +83,45 @@ class RenderAheadRuntimeTest(unittest.TestCase):
         second = RENDER_AHEAD.render_ahead_settings(8, 100, "2026-10-14T00:00:00Z")
         self.assertEqual(second["DEEPWELL_RENDER_AHEAD_NOT_BEFORE"], "2026-10-14T00:00:00Z")
 
+    def test_settings_limit_pages_and_dry_runs(self) -> None:
+        settings = RENDER_AHEAD.render_ahead_settings(1, 100, None, [5, 9], dry_run=True)
+        self.assertEqual(settings["DEEPWELL_RENDER_AHEAD_PAGE_IDS"], "5,9")
+        self.assertEqual(settings["DEEPWELL_RENDER_AHEAD_DRY_RUN"], "true")
+        with self.assertRaises(ValueError):
+            RENDER_AHEAD.render_ahead_settings(1, 100, None, [])
+
+    def test_only_deadline_failures_are_retried(self) -> None:
+        deadline = {"error": "failed to render\n`-- deadline has elapsed, at service.rs"}
+        other = {"error": "include expansion exceeded maximum total includes 256"}
+        self.assertTrue(RENDER_AHEAD.deadline_only({"failed": 1, "failures": [deadline]}))
+        self.assertFalse(
+            RENDER_AHEAD.deadline_only({"failed": 2, "failures": [deadline, other]})
+        )
+        self.assertFalse(
+            RENDER_AHEAD.deadline_only({"failed": 51, "failures": [deadline] * 50}),
+            "truncated failure details cannot prove every failure is a deadline",
+        )
+
+    def test_extended_deadline_replaces_exactly_one_setting(self) -> None:
+        config = "[main]\nrender-timeout-ms = 2000\nother = 1\n"
+        self.assertEqual(
+            RENDER_AHEAD.config_with_render_timeout(config, 300000),
+            "[main]\nrender-timeout-ms = 300000\nother = 1\n",
+        )
+        for bad in ("[main]\n", "render-timeout-ms = 1\nrender-timeout-ms = 2\n"):
+            with self.subTest(config=bad), self.assertRaises(ValueError):
+                RENDER_AHEAD.config_with_render_timeout(bad, 300000)
+
     def test_summary_must_be_one_real_run(self) -> None:
         summary = {"action": "render-ahead", "dry_run": False, "failed": 0}
         output = "log line\n" + json.dumps(summary) + "\n"
         self.assertEqual(RENDER_AHEAD.parse_summary(output), summary)
+        dry = {**summary, "dry_run": True}
+        self.assertEqual(RENDER_AHEAD.parse_summary(json.dumps(dry), dry_run=True), dry)
         for bad in (
             "no summary\n",
             json.dumps(summary) + "\n" + json.dumps(summary) + "\n",
-            json.dumps({**summary, "dry_run": True}) + "\n",
+            json.dumps(dry) + "\n",
         ):
             with self.subTest(output=bad), self.assertRaises(RuntimeError):
                 RENDER_AHEAD.parse_summary(bad)
