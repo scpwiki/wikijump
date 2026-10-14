@@ -1,0 +1,316 @@
+#!/usr/bin/env python3
+"""Render saved pages ahead of a Deepwell renderer-generation switch.
+
+A renderer epoch or FTML bump makes every saved page stale, and Deepwell
+refuses stale output. Rerendering only after activation therefore holds the
+site in maintenance for the whole rerender. This command runs the `render-ahead`
+action of the image that is about to be activated against the live database
+while the current Deepwell keeps serving. The new Deepwell promotes the rows
+when it starts, so activation costs a container restart.
+
+The one-off container copies the environment and configuration mount of the
+running Deepwell container and joins its network namespace, so it reaches the
+same database, cache, and object store. Its entrypoint is the Deepwell binary,
+not the image start script, so no migration is recorded: the command only runs
+the image's idempotent render-ahead table migration, which keeps the serving
+build's own migration check (and a rollback to it) working.
+
+Rendering also refreshes link rows. If those rows change during the run, a page
+rendered early may have read links that a later page changed, so every page is
+rendered again; the links must then be stable.
+"""
+
+from __future__ import annotations
+
+import argparse
+from datetime import UTC, datetime
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import tempfile
+import time
+
+
+MIGRATION_PATH = "/opt/deepwell/migrations/20261014120000_page_revision_render_ahead.sql"
+DEEPWELL_BINARY = "/usr/local/bin/deepwell"
+CONFIG_PATH = "/etc/deepwell.toml"
+LINK_TABLES = ("page_connection", "page_connection_missing", "page_link")
+IMAGE_ID = re.compile(r"sha256:[0-9a-f]{64}")
+IDEMPOTENT_STATEMENT = re.compile(
+    r"^(CREATE TABLE IF NOT EXISTS|CREATE INDEX IF NOT EXISTS)\s", re.IGNORECASE
+)
+SUMMARY_SCHEMA = "wikijump.render_ahead_receipt.v1"
+
+
+def run(*args: str, input_text: str | None = None) -> str:
+    result = subprocess.run(
+        args, check=True, text=True, capture_output=True, input=input_text
+    )
+    return result.stdout
+
+
+def sql_statements(sql: str) -> list[str]:
+    """Split a migration into statements, dropping comments and blank lines."""
+    lines = [
+        line for line in sql.splitlines() if line.strip() and not line.lstrip().startswith("--")
+    ]
+    return [statement.strip() for statement in "\n".join(lines).split(";") if statement.strip()]
+
+
+def require_idempotent_migration(sql: str) -> None:
+    statements = sql_statements(sql)
+    if not statements:
+        raise ValueError("render-ahead migration is empty")
+    for statement in statements:
+        if IDEMPOTENT_STATEMENT.match(statement) is None:
+            raise ValueError(
+                "render-ahead migration must only create tables or indexes IF NOT EXISTS: "
+                + statement.splitlines()[0]
+            )
+
+
+def container_inspect(container: str) -> dict[str, object]:
+    [inspected] = json.loads(run("docker", "inspect", container))
+    state = inspected.get("State") or {}
+    if not state.get("Running"):
+        raise RuntimeError(f"{container} is not running")
+    return inspected
+
+
+def config_mount(inspected: dict[str, object]) -> str:
+    for mount in inspected.get("Mounts") or []:
+        if mount.get("Destination") == CONFIG_PATH:
+            return str(mount["Source"])
+    raise RuntimeError(f"Deepwell container has no {CONFIG_PATH} mount")
+
+
+def runtime_environment(inspected: dict[str, object]) -> dict[str, str]:
+    environment = {}
+    for entry in (inspected.get("Config") or {}).get("Env") or []:
+        key, _, value = entry.partition("=")
+        if key.startswith("DEEPWELL_RENDER") or key == "DEEPWELL_RUNTIME_ACTION":
+            continue
+        environment[key] = value
+    for required in ("DATABASE_URL", "REDIS_URL", "DEEPWELL_RPC_TOKEN"):
+        if required not in environment:
+            raise RuntimeError(f"Deepwell container environment lacks {required}")
+    return environment
+
+
+def render_ahead_settings(
+    concurrency: int, batch_size: int, not_before: str | None
+) -> dict[str, str]:
+    settings = {
+        "DEEPWELL_RUNTIME_ACTION": "render-ahead",
+        "DEEPWELL_RENDER_AHEAD_DRY_RUN": "false",
+        "DEEPWELL_RENDER_AHEAD_CONCURRENCY": str(concurrency),
+        "DEEPWELL_RENDER_AHEAD_BATCH_SIZE": str(batch_size),
+    }
+    if not_before is not None:
+        settings["DEEPWELL_RENDER_AHEAD_NOT_BEFORE"] = not_before
+    return settings
+
+
+def parse_summary(output: str) -> dict[str, object]:
+    summaries = []
+    for line in output.splitlines():
+        if not line.startswith("{"):
+            continue
+        value = json.loads(line)
+        if value.get("action") == "render-ahead":
+            summaries.append(value)
+    if len(summaries) != 1:
+        raise RuntimeError("render-ahead did not print exactly one summary")
+    summary = summaries[0]
+    if summary.get("dry_run") is not False:
+        raise RuntimeError("render-ahead summary is not a real run")
+    return summary
+
+
+def psql(database_container: str, sql: str) -> str:
+    return run(
+        "docker",
+        "exec",
+        "-i",
+        database_container,
+        "sh",
+        "-c",
+        'PGPASSWORD="$POSTGRES_PASSWORD" exec psql -h 127.0.0.1 -U "$POSTGRES_USER" '
+        '-d "$POSTGRES_DB" -At -v ON_ERROR_STOP=1 --single-transaction',
+        input_text=sql,
+    ).strip()
+
+
+def link_fingerprint(database_container: str) -> dict[str, str]:
+    queries = "\n".join(
+        f"SELECT '{table}', md5(COALESCE(string_agg(t::text, E'\\n' ORDER BY t::text), '')) FROM {table} t;"
+        for table in LINK_TABLES
+    )
+    rows = psql(database_container, queries).splitlines()
+    fingerprint = dict(row.split("|", 1) for row in rows)
+    if set(fingerprint) != set(LINK_TABLES):
+        raise RuntimeError("link fingerprint query returned unexpected rows")
+    return fingerprint
+
+
+def render_pass(
+    image: str,
+    deepwell_container: str,
+    config_source: str,
+    environment: dict[str, str],
+    settings: dict[str, str],
+    log_path: Path,
+) -> dict[str, object]:
+    with tempfile.NamedTemporaryFile(
+        "w", encoding="utf-8", prefix="render-ahead-env.", delete=False
+    ) as env_file:
+        os.chmod(env_file.name, 0o600)
+        for key, value in {**environment, **settings}.items():
+            if "\n" in value:
+                raise ValueError(f"{key} is not a single-line environment value")
+            env_file.write(f"{key}={value}\n")
+    try:
+        result = subprocess.run(
+            (
+                "docker",
+                "run",
+                "--rm",
+                "--network",
+                f"container:{deepwell_container}",
+                "--env-file",
+                env_file.name,
+                "--volume",
+                f"{config_source}:{CONFIG_PATH}:ro",
+                "--entrypoint",
+                DEEPWELL_BINARY,
+                image,
+                CONFIG_PATH,
+            ),
+            check=False,
+            text=True,
+            capture_output=True,
+        )
+    finally:
+        os.unlink(env_file.name)
+    log_path.write_text(result.stdout + result.stderr, encoding="utf-8")
+    if result.returncode != 0:
+        raise RuntimeError(f"render-ahead exited {result.returncode}; see {log_path}")
+    return parse_summary(result.stdout)
+
+
+def image_identity(image: str) -> str:
+    image_id = run("docker", "image", "inspect", "--format", "{{.Id}}", image).strip()
+    if IMAGE_ID.fullmatch(image_id) is None:
+        raise RuntimeError(f"{image} has no immutable image ID")
+    return image_id
+
+
+def prepared_deepwell_image(prepared_receipt: Path) -> str:
+    prepared = json.loads(prepared_receipt.read_text(encoding="utf-8"))
+    image = prepared["images"]["deepwell"]
+    if IMAGE_ID.fullmatch(image.get("id", "")) is None:
+        raise ValueError("prepared receipt has no immutable Deepwell image ID")
+    return image["id"]
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    source = parser.add_mutually_exclusive_group(required=True)
+    source.add_argument("--prepared-receipt", type=Path)
+    source.add_argument("--image", help="Deepwell image ID to render with")
+    parser.add_argument("--deepwell-container", default="wikijump-standing-deepwell-1")
+    parser.add_argument("--database-container", default="wikijump-standing-database-1")
+    parser.add_argument("--concurrency", type=int, default=16)
+    parser.add_argument("--batch-size", type=int, default=200)
+    parser.add_argument("--output-dir", type=Path, required=True)
+    return parser.parse_args()
+
+
+def main() -> int:
+    args = parse_args()
+    if args.concurrency < 1 or args.batch_size < 1:
+        raise ValueError("--concurrency and --batch-size must be positive")
+    image = (
+        prepared_deepwell_image(args.prepared_receipt)
+        if args.prepared_receipt is not None
+        else args.image
+    )
+    image_id = image_identity(image)
+    args.output_dir.mkdir(mode=0o700, parents=True, exist_ok=False)
+    started_at = datetime.now(UTC)
+    started = time.monotonic()
+
+    inspected = container_inspect(args.deepwell_container)
+    serving_image_id = str(inspected.get("Image"))
+    if serving_image_id == image_id:
+        raise ValueError("the serving Deepwell already runs the render-ahead image")
+    environment = runtime_environment(inspected)
+    config_source = config_mount(inspected)
+
+    migration = run("docker", "run", "--rm", "--entrypoint", "cat", image_id, MIGRATION_PATH)
+    require_idempotent_migration(migration)
+    psql(args.database_container, migration)
+
+    passes = []
+    not_before = None
+    links_before = link_fingerprint(args.database_container)
+    for number in (1, 2):
+        pass_started = time.monotonic()
+        summary = render_pass(
+            image_id,
+            args.deepwell_container,
+            config_source,
+            environment,
+            render_ahead_settings(args.concurrency, args.batch_size, not_before),
+            args.output_dir / f"pass{number}.log",
+        )
+        links_after = link_fingerprint(args.database_container)
+        passes.append(
+            {
+                "pass": number,
+                "not_before": not_before,
+                "duration_seconds": time.monotonic() - pass_started,
+                "links_before": links_before,
+                "links_after": links_after,
+                "summary": summary,
+            }
+        )
+        if summary["failed"]:
+            raise RuntimeError(f"render-ahead pass {number} has failed pages")
+        if links_after == links_before:
+            break
+        if number == 2:
+            raise RuntimeError("link rows still changed during the second render-ahead pass")
+        # Rows rendered before this point may have read links that changed.
+        not_before = datetime.now(UTC).isoformat().replace("+00:00", "Z")
+        links_before = links_after
+
+    final = passes[-1]["summary"]
+    receipt = {
+        "schema": SUMMARY_SCHEMA,
+        "status": "pass" if final["stale_without_valid_ahead"] == 0 else "incomplete",
+        "started_at": started_at.isoformat(),
+        "completed_at": datetime.now(UTC).isoformat(),
+        "duration_seconds": time.monotonic() - started,
+        "render_image_id": image_id,
+        "serving_image_id": serving_image_id,
+        "compiled_generator": final["compiled_generator"],
+        "deepwell_container": args.deepwell_container,
+        "database_container": args.database_container,
+        "migration_sha256": hashlib.sha256(migration.encode()).hexdigest(),
+        "passes": passes,
+        "stale_without_valid_ahead": final["stale_without_valid_ahead"],
+    }
+    receipt_path = args.output_dir / "render-ahead-receipt.json"
+    with receipt_path.open("x", encoding="utf-8") as output:
+        json.dump(receipt, output, indent=2, sort_keys=True)
+        output.write("\n")
+    print(json.dumps({key: receipt[key] for key in ("status", "duration_seconds", "stale_without_valid_ahead")}))
+    return 0 if receipt["status"] == "pass" else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

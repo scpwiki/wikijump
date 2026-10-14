@@ -1321,7 +1321,11 @@ fn parse_render_pass(name: &str, value: Option<String>) -> Result<RenderFinalize
     }
 }
 
-fn parse_positive_i64(name: &str, value: Option<String>, default: i64) -> Result<i64> {
+pub(in crate::services::render) fn parse_positive_i64(
+    name: &str,
+    value: Option<String>,
+    default: i64,
+) -> Result<i64> {
     let Some(value) = value else {
         return Ok(default);
     };
@@ -1342,7 +1346,7 @@ fn parse_positive_i64(name: &str, value: Option<String>, default: i64) -> Result
     }
 }
 
-fn parse_positive_usize(
+pub(in crate::services::render) fn parse_positive_usize(
     name: &str,
     value: Option<String>,
     default: usize,
@@ -1359,7 +1363,10 @@ fn parse_positive_usize(
     })
 }
 
-fn parse_boolish(name: &str, value: Option<String>) -> Result<Option<bool>> {
+pub(in crate::services::render) fn parse_boolish(
+    name: &str,
+    value: Option<String>,
+) -> Result<Option<bool>> {
     let Some(value) = value else {
         return Ok(None);
     };

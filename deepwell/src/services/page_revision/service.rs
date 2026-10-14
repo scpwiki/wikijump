@@ -1303,6 +1303,57 @@ impl PageRevisionService {
         .await
     }
 
+    /// Renders a stored revision from its source and the page's current
+    /// score and layout, and records the links the output contains.
+    ///
+    /// This writes the compiled text and the page's link rows but leaves the
+    /// revision itself unchanged; callers decide where the output is stored.
+    pub(super) async fn render_revision(
+        ctx: &ServiceContext<'_>,
+        id: PageId,
+        revision: &PageRevisionModel,
+        allow_corpus_dense_includes: bool,
+        trace: Option<&CorpusRenderTrace>,
+    ) -> Result<RenderPageOutput> {
+        let PageId {
+            site_id, page_id, ..
+        } = id;
+
+        // Get data for page
+        let (wikitext, score, layout) = {
+            let _stage = StageGuard::new(
+                trace.map(|trace| (trace, CorpusRenderScope::Rerender)),
+                CorpusRenderStage::RenderInputs,
+            );
+            try_join!(
+                TextService::get(ctx, &revision.wikitext_hash),
+                ScoreService::score(ctx, page_id),
+                SettingsService::get_layout(ctx, site_id, Some(page_id)),
+            )?
+        };
+
+        // This is necessary until we are able to replace the
+        // 'tags' column with TEXT[] instead of JSON.
+        let render_input = RenderPageInfo {
+            layout,
+            slug: &revision.slug,
+            title: &revision.title,
+            alt_title: revision.alt_title.ref_map(|s| s.as_str()),
+            score,
+            tags: &revision.tags,
+        };
+
+        Self::render_and_update_links(
+            ctx,
+            id,
+            wikitext,
+            render_input,
+            allow_corpus_dense_includes,
+            trace,
+        )
+        .await
+    }
+
     async fn rerender_inner(
         ctx: &ServiceContext<'_>,
         id: PageId,
@@ -1378,30 +1429,6 @@ impl PageRevisionService {
         ctx.defer_public_content_cache_invalidate_site(site_id)
             .or_raise(make_error)?;
 
-        // Get data for page
-        let (wikitext, score, layout) = {
-            let _stage = StageGuard::new(
-                trace.map(|trace| (trace, CorpusRenderScope::Rerender)),
-                CorpusRenderStage::RenderInputs,
-            );
-            try_join!(
-                TextService::get(ctx, &revision.wikitext_hash),
-                ScoreService::score(ctx, page_id),
-                SettingsService::get_layout(ctx, site_id, Some(page_id)),
-            )?
-        };
-
-        // This is necessary until we are able to replace the
-        // 'tags' column with TEXT[] instead of JSON.
-        let render_input = RenderPageInfo {
-            layout,
-            slug: &revision.slug,
-            title: &revision.title,
-            alt_title: revision.alt_title.ref_map(|s| s.as_str()),
-            score,
-            tags: &revision.tags,
-        };
-
         // TODO use html_output
         let RenderPageOutput {
             html_output: _,
@@ -1412,16 +1439,9 @@ impl PageRevisionService {
             compiled_side_bar_html_hash,
             compiled_at,
             compiled_generator,
-        } = Self::render_and_update_links(
-            ctx,
-            id,
-            wikitext,
-            render_input,
-            allow_corpus_dense_includes,
-            trace,
-        )
-        .await
-        .or_raise(make_error)?;
+        } = Self::render_revision(ctx, id, &revision, allow_corpus_dense_includes, trace)
+            .await
+            .or_raise(make_error)?;
 
         let model = match rerender_type {
             RerenderType::Full => {

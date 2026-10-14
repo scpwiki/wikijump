@@ -30,7 +30,8 @@ use crate::services::render::{
     RenderInventorySettings,
 };
 use crate::services::render::{
-    RenderReplayService, RenderReplaySettings, run_worker_action,
+    RenderAheadService, RenderAheadSettings, RenderReplayService, RenderReplaySettings,
+    run_worker_action,
 };
 use crate::{api, database};
 use std::path::PathBuf;
@@ -48,6 +49,7 @@ pub async fn run_runtime_action() {
         "config" | "validate-config" => validate_config(),
         "seeder" | "run-seeder" => run_seeder().await,
         "render-finalize" => run_render_finalize().await,
+        "render-ahead" => run_render_ahead().await,
         "render-inventory" => run_render_inventory().await,
         "render-replay" => run_render_replay().await,
         "render-replay-worker" => run_worker_action(),
@@ -103,6 +105,42 @@ async fn run_seeder() -> i32 {
         }
         Err(error) => {
             println!("error:");
+            eprintln!("{error:?}");
+            1
+        }
+    }
+}
+
+async fn run_render_ahead() -> i32 {
+    let settings = match RenderAheadSettings::from_env() {
+        Ok(settings) => settings,
+        Err(error) => {
+            eprintln!("{error:?}");
+            return 1;
+        }
+    };
+
+    let SetupConfig { secrets, config } = SetupConfig::load_only();
+    let app_state = match api::build_server_state_without_workers(config, secrets).await {
+        Ok(app_state) => app_state,
+        Err(error) => {
+            eprintln!("{error:?}");
+            return 1;
+        }
+    };
+
+    match RenderAheadService::run(&app_state, settings).await {
+        Ok(summary) => match serde_json::to_string(&summary) {
+            Ok(json) => {
+                println!("{json}");
+                0
+            }
+            Err(error) => {
+                eprintln!("{error:?}");
+                1
+            }
+        },
+        Err(error) => {
             eprintln!("{error:?}");
             1
         }

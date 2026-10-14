@@ -1,0 +1,100 @@
+from __future__ import annotations
+
+import importlib.util
+import json
+from pathlib import Path
+import unittest
+
+
+ROOT = Path(__file__).parents[3]
+SCRIPT = Path(__file__).parents[1] / "render_ahead.py"
+SPEC = importlib.util.spec_from_file_location("standing_render_ahead", SCRIPT)
+assert SPEC is not None and SPEC.loader is not None
+RENDER_AHEAD = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(RENDER_AHEAD)
+
+
+class RenderAheadMigrationTest(unittest.TestCase):
+    def test_the_shipped_migration_is_idempotent(self) -> None:
+        migration = ROOT / "deepwell" / "migrations" / Path(RENDER_AHEAD.MIGRATION_PATH).name
+        RENDER_AHEAD.require_idempotent_migration(migration.read_text(encoding="utf-8"))
+
+    def test_non_idempotent_statements_are_rejected(self) -> None:
+        for sql in (
+            "CREATE TABLE page_revision_render_ahead (revision_id BIGINT);",
+            "CREATE TABLE IF NOT EXISTS a (b INT);\nALTER TABLE page DROP COLUMN slug;",
+            "-- comment only\n",
+        ):
+            with self.subTest(sql=sql), self.assertRaises(ValueError):
+                RENDER_AHEAD.require_idempotent_migration(sql)
+
+    def test_comments_are_not_statements(self) -> None:
+        self.assertEqual(
+            RENDER_AHEAD.sql_statements(
+                "-- a; b\nCREATE TABLE IF NOT EXISTS a (\n  b INT -- c\n);\n"
+            ),
+            ["CREATE TABLE IF NOT EXISTS a (\n  b INT -- c\n)"],
+        )
+
+
+class RenderAheadRuntimeTest(unittest.TestCase):
+    def test_environment_drops_inherited_runtime_actions(self) -> None:
+        inspected = {
+            "Config": {
+                "Env": [
+                    "DATABASE_URL=postgres://db",
+                    "REDIS_URL=redis://cache",
+                    "DEEPWELL_RPC_TOKEN=" + "0" * 64,
+                    "DEEPWELL_RUNTIME_ACTION=render-finalize",
+                    "DEEPWELL_RENDER_PASS=pass2",
+                    "PATH=/usr/bin",
+                ]
+            }
+        }
+        self.assertEqual(
+            RENDER_AHEAD.runtime_environment(inspected),
+            {
+                "DATABASE_URL": "postgres://db",
+                "REDIS_URL": "redis://cache",
+                "DEEPWELL_RPC_TOKEN": "0" * 64,
+                "PATH": "/usr/bin",
+            },
+        )
+
+    def test_environment_requires_backing_services(self) -> None:
+        with self.assertRaises(RuntimeError):
+            RENDER_AHEAD.runtime_environment({"Config": {"Env": ["REDIS_URL=x"]}})
+
+    def test_config_mount_is_required(self) -> None:
+        self.assertEqual(
+            RENDER_AHEAD.config_mount(
+                {"Mounts": [{"Destination": "/etc/deepwell.toml", "Source": "/srv/config.toml"}]}
+            ),
+            "/srv/config.toml",
+        )
+        with self.assertRaises(RuntimeError):
+            RENDER_AHEAD.config_mount({"Mounts": []})
+
+    def test_settings_only_name_not_before_for_a_second_pass(self) -> None:
+        first = RENDER_AHEAD.render_ahead_settings(8, 100, None)
+        self.assertEqual(first["DEEPWELL_RUNTIME_ACTION"], "render-ahead")
+        self.assertEqual(first["DEEPWELL_RENDER_AHEAD_DRY_RUN"], "false")
+        self.assertNotIn("DEEPWELL_RENDER_AHEAD_NOT_BEFORE", first)
+        second = RENDER_AHEAD.render_ahead_settings(8, 100, "2026-10-14T00:00:00Z")
+        self.assertEqual(second["DEEPWELL_RENDER_AHEAD_NOT_BEFORE"], "2026-10-14T00:00:00Z")
+
+    def test_summary_must_be_one_real_run(self) -> None:
+        summary = {"action": "render-ahead", "dry_run": False, "failed": 0}
+        output = "log line\n" + json.dumps(summary) + "\n"
+        self.assertEqual(RENDER_AHEAD.parse_summary(output), summary)
+        for bad in (
+            "no summary\n",
+            json.dumps(summary) + "\n" + json.dumps(summary) + "\n",
+            json.dumps({**summary, "dry_run": True}) + "\n",
+        ):
+            with self.subTest(output=bad), self.assertRaises(RuntimeError):
+                RENDER_AHEAD.parse_summary(bad)
+
+
+if __name__ == "__main__":
+    unittest.main()
