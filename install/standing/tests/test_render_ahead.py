@@ -83,11 +83,16 @@ class RenderAheadRuntimeTest(unittest.TestCase):
         second = RENDER_AHEAD.render_ahead_settings(8, 100, "2026-10-14T00:00:00Z")
         self.assertEqual(second["DEEPWELL_RENDER_AHEAD_NOT_BEFORE"], "2026-10-14T00:00:00Z")
 
-    def test_link_fingerprint_ignores_row_timestamps(self) -> None:
-        for table, columns in RENDER_AHEAD.LINK_TABLES.items():
-            query = RENDER_AHEAD.link_fingerprint_query(table, columns)
-            self.assertNotIn("_at", query, table)
-            self.assertIn(f"FROM {table};", query)
+    def test_link_digest_ignores_row_timestamps(self) -> None:
+        self.assertNotIn("_at", RENDER_AHEAD.LINK_DIGEST_QUERY)
+        for table in ("page_connection", "page_connection_missing", "page_link"):
+            self.assertIn(f"FROM {table}", RENDER_AHEAD.LINK_DIGEST_QUERY)
+
+    def test_changed_pages_include_added_and_removed_link_sets(self) -> None:
+        self.assertEqual(
+            RENDER_AHEAD.changed_pages({"1": "a", "2": "b", "3": "c"}, {"1": "a", "2": "x", "4": "d"}),
+            [2, 3, 4],
+        )
 
     def test_settings_limit_pages_and_dry_runs(self) -> None:
         settings = RENDER_AHEAD.render_ahead_settings(1, 100, None, [5, 9], dry_run=True)
