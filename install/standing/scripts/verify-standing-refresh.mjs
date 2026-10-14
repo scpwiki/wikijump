@@ -140,10 +140,11 @@ export function validateStandingRefreshReceipt(value) {
       "canary",
       "cleanup",
       "resource_disposition",
+      ...(value?.schema_version === 3 ? ["render_ahead"] : []),
     ],
     "standing refresh receipt",
   );
-  if (![1, 2].includes(value.schema_version) || value.kind !== STANDING_REFRESH_KIND || value.status !== "pass") {
+  if (![1, 2, 3].includes(value.schema_version) || value.kind !== STANDING_REFRESH_KIND || value.status !== "pass") {
     throw new Error("standing refresh receipt is not a passing canonical receipt");
   }
   requireNonEmptyString(value.run_id, "standing refresh.run_id");
@@ -188,6 +189,31 @@ export function validateStandingRefreshReceipt(value) {
     value.saved_page_render_freshness.stale_pages_remaining !== 0
   ) {
     throw new Error("standing refresh saved page render freshness is not passing");
+  }
+
+  if (value.schema_version === 3) {
+    const ahead = value.render_ahead;
+    if (ahead?.status !== "pass" && ahead?.status !== "not-needed") {
+      throw new Error("standing refresh has no passing render-ahead decision");
+    }
+    exactKeys(
+      ahead,
+      ahead.status === "pass"
+        ? ["status", "expected_compiled_generator", "stale_pages_before", "receipt"]
+        : ["status", "expected_compiled_generator", "stale_pages_before"],
+      "standing refresh render-ahead",
+    );
+    if (
+      ahead.expected_compiled_generator !== value.saved_page_render_freshness.expected_compiled_generator ||
+      !Number.isSafeInteger(ahead.stale_pages_before) || ahead.stale_pages_before < 0 ||
+      (ahead.status === "not-needed" && ahead.stale_pages_before !== 0) ||
+      (ahead.status === "pass" && ahead.stale_pages_before === 0)
+    ) {
+      throw new Error("standing refresh render-ahead is inconsistent with saved-page freshness");
+    }
+    if (ahead.status === "pass") {
+      requirePathDigest(ahead.receipt, "standing refresh render-ahead receipt");
+    }
   }
 
   validateImages(value.images, "standing refresh.images");

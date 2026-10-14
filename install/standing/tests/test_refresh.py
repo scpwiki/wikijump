@@ -421,6 +421,100 @@ class RefreshStandingTest(unittest.TestCase):
         self.assertIn("stale_pages_remaining", source)
         self.assertIn("standing contains stale saved-page renders", source)
 
+    def test_render_ahead_skips_when_saved_pages_are_current(self) -> None:
+        with mock.patch.object(
+            REFRESH, "standing_stale_saved_pages", return_value=(0, "generator")
+        ), mock.patch.object(REFRESH.subprocess, "run") as run:
+            result = REFRESH.prepare_saved_page_render_ahead(
+                Path("/runtime"), Path("/source"), Path("/prepared.json"),
+                "sha256:" + "a" * 64,
+            )
+        self.assertEqual(result["status"], "not-needed")
+        run.assert_not_called()
+
+    def test_render_ahead_runs_before_activation_and_binds_its_proof(self) -> None:
+        image = "sha256:" + "a" * 64
+        with tempfile.TemporaryDirectory() as temporary_dir:
+            root = Path(temporary_dir)
+            source = root / "source"
+            source.mkdir()
+            runtime = root / "runtime"
+            runtime.mkdir()
+            prepared = root / "prepared.json"
+
+            def render_ahead(command: list[str], *, cwd: Path, check: bool) -> None:
+                self.assertTrue(check)
+                self.assertEqual(cwd, source)
+                self.assertEqual(command[command.index("--prepared-receipt") + 1], str(prepared))
+                output = Path(command[command.index("--output-dir") + 1])
+                output.mkdir()
+                (output / "render-ahead-receipt.json").write_text(json.dumps({
+                    "schema": "wikijump.render_ahead_receipt.v1",
+                    "status": "pass",
+                    "render_image_id": image,
+                    "compiled_generator": "ftml; deepwell-render/v24",
+                    "stale_without_valid_ahead": 0,
+                    "unrendered_page_ids": [],
+                }), encoding="utf-8")
+
+            with mock.patch.object(
+                REFRESH, "standing_stale_saved_pages",
+                return_value=(24573, "ftml; deepwell-render/v24"),
+            ), mock.patch.object(REFRESH.subprocess, "run", side_effect=render_ahead):
+                result = REFRESH.prepare_saved_page_render_ahead(
+                    runtime, source, prepared, image
+                )
+            self.assertEqual(result["status"], "pass")
+            self.assertEqual(result["stale_pages_before"], 24573)
+            receipt = result["receipt"]
+            self.assertEqual(receipt["sha256"], REFRESH.file_sha256(Path(receipt["path"])))
+
+    def test_render_ahead_rejects_mismatched_candidate_receipt(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_dir:
+            root = Path(temporary_dir)
+
+            def forged_receipt(command: list[str], *, cwd: Path, check: bool) -> None:
+                output = Path(command[command.index("--output-dir") + 1])
+                output.mkdir()
+                (output / "render-ahead-receipt.json").write_text(json.dumps({
+                    "schema": "wikijump.render_ahead_receipt.v1",
+                    "status": "pass",
+                    "render_image_id": "sha256:" + "b" * 64,
+                    "compiled_generator": "old generator",
+                    "stale_without_valid_ahead": 0,
+                    "unrendered_page_ids": [],
+                }), encoding="utf-8")
+
+            with mock.patch.object(
+                REFRESH, "standing_stale_saved_pages", return_value=(1, "new generator")
+            ), mock.patch.object(REFRESH.subprocess, "run", side_effect=forged_receipt):
+                with self.assertRaisesRegex(RuntimeError, "did not prove a fresh candidate"):
+                    REFRESH.prepare_saved_page_render_ahead(
+                        root, root, root / "prepared.json", "sha256:" + "a" * 64
+                    )
+
+    def test_render_ahead_failure_keeps_evidence_path_and_prevents_activation(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_dir:
+            root = Path(temporary_dir)
+            with mock.patch.object(
+                REFRESH, "standing_stale_saved_pages", return_value=(10, "new generator")
+            ), mock.patch.object(
+                REFRESH.subprocess, "run",
+                side_effect=subprocess.CalledProcessError(1, ["render_ahead.py"]),
+            ):
+                with self.assertRaisesRegex(RuntimeError, "inspect retained evidence in"):
+                    REFRESH.prepare_saved_page_render_ahead(
+                        root, root, root / "prepared.json", "sha256:" + "a" * 64
+                    )
+
+    def test_render_ahead_occurs_before_parking_containers(self) -> None:
+        source = SCRIPT.read_text(encoding="utf-8")
+        main = source[source.index("def main() -> int:"):]
+        self.assertLess(
+            main.index("render_ahead = prepare_saved_page_render_ahead("),
+            main.index("parked = park_containers("),
+        )
+
     def test_expected_compiled_generator_is_source_derived(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_dir:
             root = Path(temporary_dir)

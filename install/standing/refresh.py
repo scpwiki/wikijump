@@ -11,9 +11,11 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import sys
 import tempfile
 import time
 import tomllib
+import uuid
 
 from merge_identity import validate_candidate_merge
 from volume_contract import PROTECTED_VOLUMES
@@ -206,6 +208,69 @@ def standing_stale_saved_pages(
     if stale < 0:
         raise RuntimeError("standing stale saved-page count is negative")
     return stale, expected
+
+
+def prepare_saved_page_render_ahead(
+    runtime_home: Path,
+    source_root: Path,
+    prepared_receipt_path: Path,
+    deepwell_image_id: str,
+) -> dict[str, object]:
+    """Complete the slow renderer transition before taking the site offline.
+
+    The serving Deepwell continues to use its current compiled pages while a
+    one-off new-image process writes ahead rows to a separate table. The new
+    image promotes them on startup. A failed or incomplete run must prevent
+    activation; the retained log directory makes failure diagnosable.
+    """
+    stale, expected = standing_stale_saved_pages(runtime_home, source_root)
+    if stale == 0:
+        return {
+            "status": "not-needed",
+            "expected_compiled_generator": expected,
+            "stale_pages_before": 0,
+        }
+    if IMAGE_ID.fullmatch(deepwell_image_id) is None:
+        raise ValueError("render-ahead requires an immutable Deepwell image ID")
+
+    evidence_root = runtime_home / "render-ahead-evidence"
+    evidence_root.mkdir(mode=0o700, parents=True, exist_ok=True)
+    output_dir = evidence_root / f"{source_root.name}-{uuid.uuid4().hex}"
+    script = source_root / "install" / "standing" / "render_ahead.py"
+    try:
+        subprocess.run(
+            [
+                sys.executable,
+                str(script),
+                "--prepared-receipt",
+                str(prepared_receipt_path),
+                "--output-dir",
+                str(output_dir),
+            ],
+            cwd=source_root,
+            check=True,
+        )
+    except subprocess.CalledProcessError as error:
+        raise RuntimeError(
+            f"render-ahead failed; inspect retained evidence in {output_dir}"
+        ) from error
+    receipt_path = output_dir / "render-ahead-receipt.json"
+    receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    if (
+        receipt.get("schema") != "wikijump.render_ahead_receipt.v1"
+        or receipt.get("status") != "pass"
+        or receipt.get("render_image_id") != deepwell_image_id
+        or receipt.get("compiled_generator") != expected
+        or receipt.get("stale_without_valid_ahead") != 0
+        or receipt.get("unrendered_page_ids")
+    ):
+        raise RuntimeError(f"render-ahead did not prove a fresh candidate: {receipt_path}")
+    return {
+        "status": "pass",
+        "expected_compiled_generator": expected,
+        "stale_pages_before": stale,
+        "receipt": {"path": str(receipt_path), "sha256": file_sha256(receipt_path)},
+    }
 
 
 def wait_for_health(
@@ -800,7 +865,11 @@ def main() -> int:
     candidate_port_443_owner = None
     differential_identity_published = False
     switched = False
+    render_ahead = None
     try:
+        render_ahead = prepare_saved_page_render_ahead(
+            runtime_home, source_root, prepared_receipt_path, images["deepwell"]["id"]
+        )
         parked = park_containers(
             previous_runtime, runtime_home, prepared_receipt_sha256
         )
@@ -887,7 +956,7 @@ def main() -> int:
         atomic_json(differential_identity_path, differential_identity)
         differential_identity_published = True
         receipt: dict[str, object] = {
-            "schema_version": 2,
+            "schema_version": 3,
             "kind": "standing-promotion",
             "status": "pass",
             "run_id": prepared_receipt["run_id"],
@@ -918,6 +987,7 @@ def main() -> int:
             },
             "health": health,
             "saved_page_render_freshness": saved_page_render_freshness,
+            "render_ahead": render_ahead,
             "canary": {
                 "url": CANARY_URL,
                 "status": "pass",
@@ -1051,12 +1121,13 @@ def main() -> int:
             except Exception as rollback_exception:
                 restore_error = str(rollback_exception)
         failure = {
-            "schema_version": 2,
+            "schema_version": 3,
             "status": "fail",
             "run_id": prepared_receipt_sha256,
             "started_at": started_at.isoformat(),
             "completed_at": datetime.now(UTC).isoformat(),
             "error": str(error),
+            "render_ahead": render_ahead,
             "containers": {
                 "before": previous_runtime,
                 "candidate": candidate_runtime,
