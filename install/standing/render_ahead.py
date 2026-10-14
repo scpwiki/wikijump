@@ -16,8 +16,10 @@ the image's idempotent render-ahead table migration, which keeps the serving
 build's own migration check (and a rollback to it) working.
 
 Rendering also refreshes link rows. If those rows change during the run, a page
-rendered early may have read links that a later page changed, so every page is
-rendered again; the links must then be stable. Pages that miss the serving
+rendered early may have read links that a later page changed. After each full
+pass, the pages whose links changed are rendered once more: a page that
+changes again has links that differ on every render and is recorded; if any
+other page changed, every page is rendered again, up to three full passes. Pages that miss the serving
 render deadline under concurrent load are retried alone and then once with a
 longer one-shot deadline (docs/agents/compatibility/execution.md); any other
 failure stops the run. A final dry run checks the whole site.
@@ -40,19 +42,19 @@ import time
 MIGRATION_PATH = "/opt/deepwell/migrations/20261014120000_page_revision_render_ahead.sql"
 DEEPWELL_BINARY = "/usr/local/bin/deepwell"
 CONFIG_PATH = "/etc/deepwell.toml"
-# Link content only: rendering rewrites rows and their timestamps even when
-# the links are unchanged.
-LINK_TABLES = {
-    "page_connection": ("from_page_id", "to_page_id", "connection_type", "count"),
-    "page_connection_missing": (
-        "from_page_id",
-        "to_site_id",
-        "to_page_slug",
-        "connection_type",
-        "count",
-    ),
-    "page_link": ("page_id", "url", "count"),
-}
+# Per-page link content: endpoints, type and count, not row timestamps, which
+# rendering rewrites even when the links are unchanged.
+LINK_DIGEST_QUERY = """
+SELECT page_id, md5(string_agg(row, ',' ORDER BY row)) FROM (
+  SELECT from_page_id AS page_id, 'c' || ROW(to_page_id, connection_type, count)::text AS row
+  FROM page_connection
+  UNION ALL
+  SELECT from_page_id, 'm' || ROW(to_site_id, to_page_slug, connection_type, count)::text
+  FROM page_connection_missing
+  UNION ALL
+  SELECT page_id, 'l' || ROW(url, count)::text FROM page_link
+) AS links GROUP BY page_id;
+"""
 IMAGE_ID = re.compile(r"sha256:[0-9a-f]{64}")
 IDEMPOTENT_STATEMENT = re.compile(
     r"^(CREATE TABLE IF NOT EXISTS|CREATE INDEX IF NOT EXISTS)\s", re.IGNORECASE
@@ -60,6 +62,12 @@ IDEMPOTENT_STATEMENT = re.compile(
 SUMMARY_SCHEMA = "wikijump.render_ahead_receipt.v1"
 RENDER_TIMEOUT = re.compile(r"^render-timeout-ms\s*=\s*[0-9]+\s*$", re.MULTILINE)
 DEADLINE_MARKERS = ("deadline has elapsed", "due to timeout")
+# A page that reads another page's links can only move in the pass after that
+# page moved, so each link dependency level needs one more full pass.
+MAX_FULL_PASSES = 3
+# Renders of a changed page before it counts as settled; a choice between two
+# equally likely link sets survives all of them with probability 1/256.
+LINK_PROBES = 8
 
 
 def run(*args: str, input_text: str | None = None) -> str:
@@ -185,21 +193,17 @@ def psql(database_container: str, sql: str) -> str:
     ).strip()
 
 
-def link_fingerprint(database_container: str) -> dict[str, str]:
-    queries = "\n".join(link_fingerprint_query(table, columns) for table, columns in LINK_TABLES.items())
-    rows = psql(database_container, queries).splitlines()
-    fingerprint = dict(row.split("|", 1) for row in rows)
-    if set(fingerprint) != set(LINK_TABLES):
-        raise RuntimeError("link fingerprint query returned unexpected rows")
-    return fingerprint
+def link_digests(database_container: str) -> dict[str, str]:
+    rows = psql(database_container, LINK_DIGEST_QUERY).splitlines()
+    return dict(row.split("|", 1) for row in rows)
 
 
-def link_fingerprint_query(table: str, columns: tuple[str, ...]) -> str:
-    row = "ROW(" + ", ".join(columns) + ")::text"
-    return (
-        f"SELECT '{table}', md5(COALESCE(string_agg({row}, E'\\n' ORDER BY {row}), '')) "
-        f"FROM {table};"
-    )
+def changed_pages(before: dict[str, str], after: dict[str, str]) -> list[int]:
+    return sorted(int(page) for page in before.keys() | after.keys() if before.get(page) != after.get(page))
+
+
+def utc_now() -> str:
+    return datetime.now(UTC).isoformat().replace("+00:00", "Z")
 
 
 def render_pass(
@@ -247,6 +251,55 @@ def render_pass(
     return parse_summary(
         result.stdout, settings["DEEPWELL_RENDER_AHEAD_DRY_RUN"] == "true"
     )
+
+
+def render_until_links_settle(render, digests, passes, not_before):
+    """Render every stale page, again if some page's links moved because of
+    links it reads. Returns the cutoff, the last full-pass summary, and the
+    pages whose links differ on every render."""
+    known_random: set[int] = set()
+    for number in range(1, MAX_FULL_PASSES + 1):
+        links_before = digests()
+        summary = render(f"full-{number}", not_before)
+        links_after = digests()
+        changed = changed_pages(links_before, links_after)
+        passes[-1]["link_changed_pages"] = len(changed)
+        if not set(changed) - known_random:
+            return not_before, summary, sorted(known_random)
+        # A page whose links change again when it alone is rendered again
+        # produces different links on every render (random ListPages,
+        # per-render placeholders). Any other changed page moved because the
+        # links it reads moved, so pages rendered before it may be stale.
+        # The probe renders the changed pages afresh, so it needs its own
+        # cutoff; their rows from this pass are already valid.
+        # A random choice among few options can repeat by chance, so a page
+        # counts as settled only after several identical renders.
+        pending = [page for page in changed if page not in known_random]
+        seen = {page: {links_after.get(str(page))} for page in pending}
+        unrendered: set[int] = set()
+        for attempt in range(1, LINK_PROBES + 1):
+            probe = render(f"link-probe-{number}.{attempt}", utc_now(), pending)
+            if probe["candidates"] != len(pending):
+                raise RuntimeError("the link probe did not select every changed page")
+            unrendered |= set(probe["failed_page_ids"])
+            current = digests()
+            for page in pending:
+                seen[page].add(current.get(str(page)))
+            pending = [page for page in pending if len(seen[page]) == 1 and page not in unrendered]
+            if not pending:
+                break
+        known_random |= {page for page in seen if len(seen[page]) > 1}
+        settled = pending
+        passes[-1]["nondeterministic_link_pages"] = len(known_random)
+        passes[-1]["settled_link_pages"] = len(settled)
+        if not settled:
+            return not_before, summary, sorted(known_random)
+        if number == MAX_FULL_PASSES:
+            raise RuntimeError(
+                f"links of {len(settled)} pages did not converge after {number} passes: {settled[:20]}"
+            )
+        not_before = utc_now()
+    raise AssertionError("unreachable")
 
 
 def image_identity(image: str) -> str:
@@ -340,26 +393,14 @@ def main() -> int:
         )
         return summary
 
-    # Full passes: render every stale page, and again if links moved.
-    not_before = (
-        datetime.now(UTC).isoformat().replace("+00:00", "Z") if args.rerender_all else None
+    not_before, summary, nondeterministic = render_until_links_settle(
+        lambda name, cutoff, pages=None: render(
+            name, render_ahead_settings(args.concurrency, args.batch_size, cutoff, pages)
+        ),
+        lambda: link_digests(args.database_container),
+        passes,
+        utc_now() if args.rerender_all else None,
     )
-    links_before = link_fingerprint(args.database_container)
-    for number in (1, 2):
-        summary = render(
-            f"full-{number}",
-            render_ahead_settings(args.concurrency, args.batch_size, not_before),
-        )
-        links_after = link_fingerprint(args.database_container)
-        passes[-1]["links_before"] = links_before
-        passes[-1]["links_after"] = links_after
-        if links_after == links_before:
-            break
-        if number == 2:
-            raise RuntimeError("link rows still changed during the second full pass")
-        # Rows rendered before this point may have read links that changed.
-        not_before = datetime.now(UTC).isoformat().replace("+00:00", "Z")
-        links_before = links_after
 
     # Tail: pages that missed the deadline under load are retried alone, then
     # once with a longer one-shot deadline. Any other failure stops the run.
@@ -415,6 +456,7 @@ def main() -> int:
         "tail_render_timeout_ms": args.tail_render_timeout_ms,
         "passes": passes,
         "unrendered_page_ids": failed,
+        "nondeterministic_link_page_ids": nondeterministic,
         "stale_without_valid_ahead": final["stale_without_valid_ahead"],
     }
     receipt_path = args.output_dir / "render-ahead-receipt.json"
