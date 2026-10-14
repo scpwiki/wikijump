@@ -6,9 +6,9 @@
     "sha256": "1906d7229472694d2afbbea30e65e9e33c39dbc40481f794f4676a4000ac57cb"
   },
   "current_inventory": {
-    "source_revision": "20cd7aa4a74e89976090a1c9d81f267bbb484d58",
+    "source_revision": "900f3a5d3fd340ef917d407a30a4d3fe4383162e",
     "path": "docs/development/compatibility-surface-inventory.json",
-    "sha256": "30e7bc6462035f10c444e3992c338970dfffd8bef0c4f178e6df72405ce00746"
+    "sha256": "3f86342507e44a1f8285a03782df49caf9afdec1355117929303e2b97a4cbfcb"
   },
   "records": [
     {
@@ -597,6 +597,31 @@
       "temporal": []
     },
     {
+      "surface_id": "framerail-route:/sitemap_page_{n}.xml",
+      "tests": [
+        "framerail/tests/sitemap.test.ts::builds a shard urlset with escaped locations and lastmod dates",
+        "framerail/tests/sitemap.test.ts::parses shard numbers starting at 1 and rejects anything else"
+      ],
+      "tracking": [
+        {
+          "issue": 1372
+        }
+      ],
+      "temporal": []
+    },
+    {
+      "surface_id": "framerail-route:/sitemap.xml",
+      "tests": [
+        "framerail/tests/sitemap.test.ts::builds a sitemap index pointing at each shard page"
+      ],
+      "tracking": [
+        {
+          "issue": 1372
+        }
+      ],
+      "temporal": []
+    },
+    {
       "surface_id": "framerail-route:/user:info/{target}",
       "tests": [
         "framerail/tests/wikidot-user-info-target-route.test.js::GET /user:info/<target> has an encoded public route"
@@ -1081,6 +1106,18 @@
       "temporal": []
     },
     {
+      "surface_id": "framerail-server-action:/?/deletePermission",
+      "tests": [
+        "framerail/tests/page-option-form-permission.spec.ts::Delete answers with the delete-permission dialog and opens no form"
+      ],
+      "tracking": [
+        {
+          "issue": 1372
+        }
+      ],
+      "temporal": []
+    },
+    {
       "surface_id": "framerail-server-action:/?/edit",
       "tests": [
         "framerail/tests/page-append-backlinks-public-boundary.test.js::Append submission preserves metadata and commits only the appended source at the revision-bound edit action"
@@ -1345,6 +1382,18 @@
       "temporal": []
     },
     {
+      "surface_id": "framerail-server-action:/?/movePermission",
+      "tests": [
+        "framerail/tests/page-option-form-permission.spec.ts::Move answers with the move-permission dialog and opens no form"
+      ],
+      "tracking": [
+        {
+          "issue": 1372
+        }
+      ],
+      "temporal": []
+    },
+    {
       "surface_id": "framerail-server-action:/?/parentGet",
       "tests": [
         "framerail/tests/page-parent-action-boundary.test.js::page form initialization gives ParentPane only its parents field"
@@ -1504,6 +1553,18 @@
       "surface_id": "framerail-server-action:/{slug}/{*extra}?/deletedGet",
       "tests": [
         "framerail/tests/page-deleted-authorization.test.js::deleted-page actions use the authenticated route context"
+      ],
+      "tracking": [
+        {
+          "issue": 1372
+        }
+      ],
+      "temporal": []
+    },
+    {
+      "surface_id": "framerail-server-action:/{slug}/{*extra}?/deletePermission",
+      "tests": [
+        "framerail/tests/page-option-form-permission.spec.ts::Delete answers with the delete-permission dialog and opens no form"
       ],
       "tracking": [
         {
@@ -1768,6 +1829,18 @@
       "surface_id": "framerail-server-action:/{slug}/{*extra}?/move",
       "tests": [
         "framerail/tests/page-move-action-boundary.test.js::native page move resolves the routed page before moving it"
+      ],
+      "tracking": [
+        {
+          "issue": 1372
+        }
+      ],
+      "temporal": []
+    },
+    {
+      "surface_id": "framerail-server-action:/{slug}/{*extra}?/movePermission",
+      "tests": [
+        "framerail/tests/page-option-form-permission.spec.ts::Move answers with the move-permission dialog and opens no form"
       ],
       "tracking": [
         {

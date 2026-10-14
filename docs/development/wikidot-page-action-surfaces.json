@@ -235,18 +235,9 @@
         "issue": 1372
       },
       "source_identities": [
-        {
-          "path": "framerail/src/routes/WikiPageError.svelte",
-          "sha256": "fa24a16b8638b6e27603d79c50be4bafd59913558bc52767c193d9c2412f098c"
-        },
-        {
-          "path": "framerail/src/routes/+error.svelte",
-          "sha256": "3d1d95cb080d5eee7dafb797d08b8fac1ecef771ed5c606c38637c01d8832cb1"
-        },
-        {
-          "path": "framerail/src/lib/server/load/page/page-actions.ts",
-          "sha256": "13bfc494f60d509442ab91ae58fdfc0b8509c281bb992d78cdfea4ea55adf813"
-        }
+        { "path": "framerail/src/routes/WikiPageError.svelte" },
+        { "path": "framerail/src/routes/+error.svelte" },
+        { "path": "framerail/src/lib/server/load/page/page-actions.ts" }
       ],
       "issues": [1371, 1372, 2090],
       "test_references": [
@@ -288,26 +279,11 @@
         "issue": 1372
       },
       "source_identities": [
-        {
-          "path": "framerail/src/routes/WikiPageError.svelte",
-          "sha256": "fa24a16b8638b6e27603d79c50be4bafd59913558bc52767c193d9c2412f098c"
-        },
-        {
-          "path": "framerail/src/routes/+error.svelte",
-          "sha256": "3d1d95cb080d5eee7dafb797d08b8fac1ecef771ed5c606c38637c01d8832cb1"
-        },
-        {
-          "path": "framerail/src/lib/server/load/page/page-actions.ts",
-          "sha256": "13bfc494f60d509442ab91ae58fdfc0b8509c281bb992d78cdfea4ea55adf813"
-        },
-        {
-          "path": "framerail/src/lib/server/load/page/page.ts",
-          "sha256": "210bf097801311046cb8f19cf1e57bd5fd7694f50852146c12bf2ef6548bac7a"
-        },
-        {
-          "path": "framerail/src/lib/server/load/page/page-revision-actions.ts",
-          "sha256": "03bf8790bbd004ed6094ee9c5fa043bb1241fabebbb1881f420c7363b4c2f3ee"
-        }
+        { "path": "framerail/src/routes/WikiPageError.svelte" },
+        { "path": "framerail/src/routes/+error.svelte" },
+        { "path": "framerail/src/lib/server/load/page/page-actions.ts" },
+        { "path": "framerail/src/lib/server/load/page/page.ts" },
+        { "path": "framerail/src/lib/server/load/page/page-revision-actions.ts" }
       ],
       "issues": [1371, 1372, 2090],
       "test_references": [

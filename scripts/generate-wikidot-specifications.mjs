@@ -166,6 +166,24 @@ invariant(
   Array.isArray(liveObservations.observations),
   "Live observations must be an array",
 );
+const specSupplements = JSON.parse(
+  readFileSync(join(repositoryRoot, "scripts/data/wikidot-spec-supplements.json"), "utf8"),
+);
+invariant(
+  specSupplements.schema === "wikijump.wikidot_spec_supplements.v1" &&
+    Array.isArray(specSupplements.supplements),
+  "Unexpected spec supplement schema",
+);
+for (const supplement of specSupplements.supplements) {
+  invariant(
+    typeof supplement.feature_id === "string" &&
+      typeof supplement.title === "string" &&
+      supplement.title !== "" &&
+      typeof supplement.markdown === "string" &&
+      supplement.markdown.trim() !== "",
+    `Invalid spec supplement: ${supplement.title}`,
+  );
+}
 const liveObservationIds = new Set();
 for (const observation of liveObservations.observations) {
   invariant(
@@ -1558,11 +1576,14 @@ ${sourceRangeText(source)}
   const featureLiveObservations = liveObservations.observations.filter(
     (observation) => observation.feature_ids.includes(feature.id),
   );
+  const featureSupplements = specSupplements.supplements.filter(
+    (supplement) => supplement.feature_id === feature.id,
+  );
   const detailedStatus = detailedContracts.features[feature.id]
     ? "- Detailed conformance status: `detailed-p1-p8`\n"
     : "";
   const liveEvidence =
-    featureLiveObservations.length === 0
+    featureLiveObservations.length === 0 && featureSupplements.length === 0
       ? ""
       : `
 ## Live-Wikidot behavioral corrections
@@ -1614,7 +1635,13 @@ ${observation.evidence
 `,
   )
   .join("\n")}
-`;
+${featureSupplements
+  .map((supplement) => `
+### ${supplement.title}
+
+${supplement.markdown}
+`)
+  .join("")}`;
 
   return `# ${feature.title}
 

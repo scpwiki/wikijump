@@ -184,8 +184,10 @@ async function endpointSources(root) {
 
     const moduleFunctions = new Map()
     const topLevelFunctions = []
+    let topLevelSource = ""
     for (const modulePath of moduleFiles.sort()) {
       const source = await readText(root, modulePath)
+      if (modulePath === relativePath) topLevelSource = source
       for (const match of source.matchAll(/^[ \t]*(?:(pub(?:\s*\([^)]*\))?)\s+)?(async\s+)?fn\s+([A-Za-z_][A-Za-z0-9_]*)(?:\s*<[^>{}]*>)?\s*\(/gmu)) {
         const entry = {
           handler: match[3],
@@ -203,7 +205,11 @@ async function endpointSources(root) {
     for (const entries of moduleFunctions.values()) {
       for (const entry of entries) entry.fileFunctions = moduleFunctions
     }
-    for (const entry of topLevelFunctions) {
+    const handlers = [
+      ...topLevelFunctions,
+      ...reexportedFunctions(relativePath, topLevelSource, moduleFunctions)
+    ]
+    for (const entry of handlers) {
       if (!entry.source.slice(entry.offset).trimStart().startsWith("pub async fn")) continue
       const matches = byHandler.get(entry.handler) ?? []
       matches.push(entry)
@@ -211,6 +217,26 @@ async function endpointSources(root) {
     }
   }
   return byHandler
+}
+
+// An endpoint file may define handlers in a private child module and
+// re-export them (`pub use child::{a, b};`). Only names the top-level file
+// re-exports are handlers; other child functions stay helpers.
+function reexportedFunctions(relativePath, topLevel, moduleFunctions) {
+  const moduleDirectory = relativePath.replace(/\.rs$/u, "")
+  const entries = []
+  for (const match of topLevel.matchAll(/^[ \t]*pub\s+use\s+([A-Za-z_][A-Za-z0-9_]*)::(?:\{([^}]*)\}|([A-Za-z_][A-Za-z0-9_]*))\s*;/gmu)) {
+    const childPath = `${moduleDirectory}/${match[1]}.rs`
+    const names = (match[2] ?? match[3]).split(",").map((name) => name.trim()).filter(Boolean)
+    for (const name of names) {
+      const candidates = (moduleFunctions.get(name) ?? []).filter((entry) => entry.sourcePath === childPath)
+      if (candidates.length !== 1) {
+        throw new Error(`${relativePath} re-exports ${match[1]}::${name}, which resolves ${candidates.length} functions in ${childPath}`)
+      }
+      entries.push(candidates[0])
+    }
+  }
+  return entries
 }
 
 function rustFunctionBody(source, offset, reference) {

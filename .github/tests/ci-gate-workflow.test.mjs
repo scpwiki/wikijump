@@ -216,3 +216,16 @@ test("Theme Lab inputs select their own acceptance gates without selecting runti
   const preflight = read("scripts/preflight.sh")
   for (const gate of ["check-adaptation-authority.mjs", "prepare-maintainable-sources.mjs --check", "real-port-regression.mjs --verify-only", "sigma10-migration/check-final.mjs"]) assert.ok(preflight.includes(gate), gate)
 })
+
+test("specification supplements and test-quality audit scripts select only verification", () => {
+  for (const file of [
+    "scripts/data/wikidot-spec-supplements.json",
+    "scripts/run-test-quality-audit.mjs",
+    "scripts/refresh-test-quality-snapshot.mjs",
+    "scripts/lib/test-quality-snapshot.mjs",
+  ]) {
+    const selected = classifyChanges([file])
+    assert.equal(selected.verification, true, file)
+    for (const group of GROUPS) assert.equal(selected[group], false, `${file} selected ${group}`)
+  }
+})

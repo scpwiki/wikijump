@@ -261,14 +261,8 @@ async function writeRepositoryFixture(root) {
         ],
         browser_interval_proof: { status: "missing", issue: 1372 },
         source_identities: [
-          {
-            path: "framerail/src/routes/+page.svelte",
-            sha256: "b14d226020649601ba32153ab426b08d816efbdaa68fd0618cf3fe6143ee0fee"
-          },
-          {
-            path: "framerail/src/lib/server/load/page/page-actions.ts",
-            sha256: sha256(pageActionsFixtureSource)
-          }
+          { path: "framerail/src/routes/+page.svelte" },
+          { path: "framerail/src/lib/server/load/page/page-actions.ts" }
         ],
         issues: [1371, 1372],
         test_references: ["tests/missing-page-create.spec.ts"]
@@ -304,14 +298,8 @@ async function writeRepositoryFixture(root) {
         ],
         browser_interval_proof: { status: "missing", issue: 1372 },
         source_identities: [
-          {
-            path: "framerail/src/routes/+page.svelte",
-            sha256: "b14d226020649601ba32153ab426b08d816efbdaa68fd0618cf3fe6143ee0fee"
-          },
-          {
-            path: "framerail/src/lib/server/load/page/page-actions.ts",
-            sha256: sha256(pageActionsFixtureSource)
-          }
+          { path: "framerail/src/routes/+page.svelte" },
+          { path: "framerail/src/lib/server/load/page/page-actions.ts" }
         ],
         issues: [1371, 1372],
         test_references: ["tests/missing-page-restore.spec.ts"]
@@ -531,15 +519,6 @@ export const classifyWikidotSiteChangesRequest = (fields) => fields
 async function replacePageActionsFixture(root, actionSource) {
   const actionPath = "framerail/src/lib/server/load/page/page-actions.ts"
   await writeText(root, actionPath, actionSource)
-  const registryPath = path.join(root, "docs/development/wikidot-page-action-surfaces.json")
-  const registry = JSON.parse(await fs.readFile(registryPath, "utf8"))
-  for (const control of registry.missing_page_controls) {
-    const identity = control.source_identities.find(
-      ({ path: sourcePath }) => sourcePath === actionPath
-    )
-    identity.sha256 = sha256(actionSource)
-  }
-  await fs.writeFile(registryPath, `${JSON.stringify(registry, null, 2)}\n`)
 }
 
 async function refreshCatalogHash(root) {
@@ -1221,12 +1200,15 @@ test("CLI projects the current Deepwell contract evidence without promoting sour
   assert.equal(result.status, 0, result.stderr)
   const inventory = JSON.parse(await fs.readFile(outputPath, "utf8"))
   const rows = inventory.surfaces.filter((record) => record.kind === "deepwell_jsonrpc_method")
-  assert.equal(rows.length, 181)
+  const manifest = JSON.parse(
+    await fs.readFile(path.join(repositoryRoot, "docs/development/deepwell-jsonrpc-contract-manifest.json"), "utf8")
+  )
+  assert.equal(rows.length, manifest.method_count)
   assert.equal(rows.every(({ evidence }) => evidence.status === "available"), true)
   assert.equal(rows.every(({ evidence }) =>
     evidence.references.includes("docs/development/deepwell-jsonrpc-contract-manifest.json")
   ), true)
-  assert.equal(rows.filter(({ existing_refs: existingRefs }) => existingRefs.tests.length > 0).length, 181)
+  assert.equal(rows.filter(({ existing_refs: existingRefs }) => existingRefs.tests.length > 0).length, rows.length)
   assert.equal(rows.filter(({ existing_refs: existingRefs }) => existingRefs.tests.length === 0).length, 0)
   assert.deepEqual(
     rows.find(({ surface_id: surfaceId }) => surfaceId === "deepwell-jsonrpc:wikidot_categories_page_list_module")
@@ -1320,8 +1302,11 @@ test("CLI projects current Framerail route-action tests without inventing browse
   const rows = inventory.surfaces.filter(({ kind }) =>
     kind === "framerail_route" || kind === "framerail_server_action"
   )
-  assert.equal(rows.length, 140)
-  assert.equal(rows.filter(({ existing_refs: existingRefs }) => existingRefs.tests.length > 0).length, 140)
+  const evidence = JSON.parse(
+    await fs.readFile(path.join(repositoryRoot, "docs/development/framerail-route-action-evidence.json"), "utf8")
+  )
+  assert.equal(rows.length, evidence.records.length)
+  assert.equal(rows.filter(({ existing_refs: existingRefs }) => existingRefs.tests.length > 0).length, rows.length)
   assert.equal(rows.filter(({ existing_refs: existingRefs }) => existingRefs.tests.length === 0).length, 0)
   assert.equal(rows.every(({ evidence }) => evidence.status === "missing"), true)
   assert.deepEqual(
@@ -1850,8 +1835,26 @@ test("CLI rejects an omitted or duplicate missing-page control", async (t) => {
   }
 })
 
-test("CLI rejects a stale missing-page source identity", async (t) => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "compatibility-missing-page-stale-"))
+test("CLI binds missing-page source identities to the current source bytes", async (t) => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "compatibility-missing-page-bytes-"))
+  cleanupFixture(t, root)
+  await writeRepositoryFixture(root)
+  const edited = `${pageActionsFixtureSource}\n// edited after the registry was written\n`
+  await writeText(root, "framerail/src/lib/server/load/page/page-actions.ts", edited)
+
+  const result = runCli(root, path.join(root, "inventory.json"))
+
+  assert.equal(result.status, 0, result.stderr)
+  const inventory = JSON.parse(await fs.readFile(path.join(root, "inventory.json"), "utf8"))
+  const control = inventory.surfaces.find(({ surface_id: id }) => id === "missing-page-control:create")
+  assert.deepEqual(
+    control.source_identities.find(({ path: sourcePath }) => sourcePath.endsWith("page-actions.ts")),
+    { path: "framerail/src/lib/server/load/page/page-actions.ts", sha256: sha256(edited) }
+  )
+})
+
+test("CLI rejects a pinned missing-page source hash", async (t) => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "compatibility-missing-page-pin-"))
   cleanupFixture(t, root)
   await writeRepositoryFixture(root)
   const registryPath = path.join(root, "docs/development/wikidot-page-action-surfaces.json")
@@ -1862,7 +1865,7 @@ test("CLI rejects a stale missing-page source identity", async (t) => {
   const result = runCli(root, path.join(root, "inventory.json"))
 
   assert.equal(result.status, 1)
-  assert.match(result.stderr, /create source identity is stale/u)
+  assert.match(result.stderr, /create has an invalid source identity/u)
   await assert.rejects(fs.access(path.join(root, "inventory.json")))
 })
 

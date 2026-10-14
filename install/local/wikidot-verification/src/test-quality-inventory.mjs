@@ -171,15 +171,27 @@ function independentReview(review, context) {
   `independent review with bound evidence required: ${context}`);
 }
 
-export async function loadAuditProofs(root, ledger, inventory) {
+// Proofs whose inventory binding is stale, recorded instead of rejected when a
+// caller asks for an incomplete report, so the report names the evidence to
+// regenerate rather than stopping at the first stale proof.
+const staleProofIds = new WeakMap();
+
+export async function loadAuditProofs(root, ledger, inventory, {allowStale = false} = {}) {
   const proofs = new Map();
+  const stale = new Set();
   for (const reference of ledger.proofs ?? []) {
     requireValue(typeof reference.id === "string" && !proofs.has(reference.id), "duplicate/invalid proof id");
     const bytes = await fs.readFile(repositoryPath(root, reference.path));
     requireValue(sha256(bytes) === reference.sha256, `stale proof bytes: ${reference.id}`);
     const proof = JSON.parse(bytes);
     requireValue(proof.id === reference.id && proof.kind === reference.kind, `proof identity mismatch: ${reference.id}`);
-    if (proof.kind !== "observation") requireValue(proof.inventory_digest === ledger.inventory_digest, `stale proof inventory: ${reference.id}`);
+    // A mutation proof is bound to its owner's exact source and definition
+    // by validateMutationReceipt; tying it to the whole-repository inventory
+    // would invalidate it whenever any unrelated production file changed.
+    if (!["observation", "mutation"].includes(proof.kind) && proof.inventory_digest !== ledger.inventory_digest) {
+      requireValue(allowStale, `stale proof inventory: ${reference.id}`);
+      stale.add(reference.id);
+    }
     proofs.set(reference.id, proof);
   }
   for (const proof of proofs.values()) {
@@ -208,6 +220,7 @@ export async function loadAuditProofs(root, ledger, inventory) {
     }
   }
   verifiedProofMaps.add(proofs);
+  staleProofIds.set(proofs, stale);
   return proofs;
 }
 
@@ -226,10 +239,11 @@ export function validateAuditLedger(ledger, inventory, {allowIncomplete = false,
     for (const file of owner.files) requireValue(expected.has(file), `unknown executable owner source: ${file}`);
     for (const anchor of owner.anchors) requireValue(anchors.has(anchor), `nonexistent executable owner anchor: ${anchor}`);
   }
+  const stale = new Set(staleProofIds.get(proofs) ?? []);
   const proofFor = (id, kind) => {
     const proof = proofs.get(id);
     requireValue(proof && proof.kind === kind, `missing/wrong bound ${kind} proof: ${id}`);
-    requireValue(proof.inventory_digest === inventory.digest || kind === "observation", `stale proof inventory: ${id}`);
+    if (proof.inventory_digest !== inventory.digest && !["observation", "mutation"].includes(kind)) stale.add(id);
     return proof;
   };
   const review = (value, context) => {
@@ -321,8 +335,14 @@ export function validateAuditLedger(ledger, inventory, {allowIncomplete = false,
     requireValue(!acceptance.standing_required || acceptance.standing?.merged_revision === acceptance.delivery.merged_revision, "merged-head standing proof required");
     accepted = true;
   }
-  requireValue(allowIncomplete || (pending === 0 && unresolvedMutations === 0 && accepted), `${pending} production records remain unresolved or final acceptance is missing; issue #1990 cannot close`);
-  return {production_files: expected.size, unresolved_records: pending, unresolved_mutations: unresolvedMutations, closure_ready: pending === 0 && unresolvedMutations === 0 && accepted};
+  requireValue(allowIncomplete || (pending === 0 && unresolvedMutations === 0 && stale.size === 0 && accepted), `${pending} production records remain unresolved or final acceptance is missing${stale.size ? `; stale proofs to regenerate: ${[...stale].sort().join(", ")}` : ""}; issue #1990 cannot close`);
+  return {
+    production_files: expected.size,
+    unresolved_records: pending,
+    unresolved_mutations: unresolvedMutations,
+    stale_proofs: [...stale].sort(),
+    closure_ready: pending === 0 && unresolvedMutations === 0 && stale.size === 0 && accepted,
+  };
 }
 
 export function validateMutationReceipt(receipt, {owner, definition, sourceHash, inventoryHash, ownerHash, proofs = new Map(), allowIncomplete = false}) {

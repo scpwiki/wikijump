@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 import fs from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
 import {buildAuditInventory, loadAuditProofs, validateAuditLedger} from "../install/local/wikidot-verification/src/test-quality-inventory.mjs";
 import {runAuditCommand, withAuditSignals} from "../install/local/wikidot-verification/src/audit-command.mjs";
 import {coverageInstrumentationExclusions, runNodeCoverage, runRustCoverage} from "../install/local/wikidot-verification/src/test-quality-coverage.mjs";
 import {runNodeMutations, runRustMutations} from "../install/local/wikidot-verification/src/test-quality-mutations.mjs";
+import {snapshotStaleness} from "./lib/test-quality-snapshot.mjs";
 
 const root = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
 const ledgerPath = path.join(root, "docs/development/test-quality-audit.json");
@@ -29,6 +31,19 @@ function argumentsFor(values) {
   return options;
 }
 
+async function withSnapshotCheckout(commit, action) {
+  if (!/^[0-9a-f]{40}$/u.test(commit ?? "")) throw new Error("test-quality ledger has no pinned snapshot commit");
+  const temp = await fs.mkdtemp(path.join(os.tmpdir(), "wikijump-test-quality-verify-"));
+  const checkout = path.join(temp, "checkout");
+  try {
+    await runAuditCommand("git", ["worktree", "add", "--detach", checkout, commit], {cwd: root, capture: true});
+    return await action(checkout);
+  } finally {
+    await runAuditCommand("git", ["worktree", "remove", "--force", checkout], {cwd: root, capture: true}).catch(() => {});
+    await fs.rm(temp, {recursive: true, force: true});
+  }
+}
+
 async function run(options, signal) {
   await fs.mkdir(path.dirname(options.output), {recursive: true, mode: 0o700});
   await fs.mkdir(options.output, {mode: 0o700});
@@ -40,13 +55,24 @@ async function run(options, signal) {
     return;
   }
   const ledger = JSON.parse(await fs.readFile(ledgerPath, "utf8"));
-  const proofs = await loadAuditProofs(root, ledger, inventory);
-  const verification = validateAuditLedger(ledger, inventory, {proofs, allowIncomplete: options.mode !== "verify" || options.allowIncomplete});
   if (options.mode === "verify") {
+    // The ledger audits a pinned commit; judging it against the working tree
+    // would fail on every later production edit. Working-tree drift is
+    // reported, not treated as a broken ledger.
+    const verification = await withSnapshotCheckout(ledger.snapshot?.commit, async (checkout) => {
+      const snapshotInventory = await buildAuditInventory(checkout);
+      const allowIncomplete = options.allowIncomplete;
+      const proofs = await loadAuditProofs(root, ledger, snapshotInventory, {allowStale: true});
+      return validateAuditLedger(ledger, snapshotInventory, {proofs, allowIncomplete});
+    });
+    verification.working_tree_drift = snapshotStaleness(root, ledger).length;
     await write("verification.json", verification);
     console.log(JSON.stringify(verification));
     return;
   }
+  const allowIncomplete = options.mode !== "verify" || options.allowIncomplete;
+  const proofs = await loadAuditProofs(root, ledger, inventory, {allowStale: allowIncomplete});
+  validateAuditLedger(ledger, inventory, {proofs, allowIncomplete});
   const owner = options.owner ? ledger.owners.find((entry) => entry.id === options.owner) : null;
   if (options.owner && !owner) throw new Error(`unknown executable owner: ${options.owner}`);
   const metadata = {

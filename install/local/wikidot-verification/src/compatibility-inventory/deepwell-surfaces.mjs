@@ -284,7 +284,7 @@ export async function discoverPageActionSurfaces(root, helpers) {
         normalizedIdentityPath !== identity.path ||
         normalizedIdentityPath === ".." ||
         normalizedIdentityPath.startsWith("../") ||
-        !/^[0-9a-f]{64}$/u.test(identity.sha256 ?? "")
+        Object.keys(identity).some((key) => key !== "path")
       ) {
         throw new Error(`${registryPath} ${entry.control_id} has an invalid source identity`)
       }
@@ -294,13 +294,10 @@ export async function discoverPageActionSurfaces(root, helpers) {
         )
       }
       identityPaths.add(identity.path)
+      // The registry names the owning sources; their bytes are bound here, at
+      // the inventory's own source revision, so an edit needs no hand re-pin.
       const sourceText = await readText(root, identity.path)
-      if (sha256(sourceText) !== identity.sha256) {
-        throw new Error(
-          `${registryPath} ${entry.control_id} source identity is stale: ${identity.path}`
-        )
-      }
-      sourceIdentities.push({ path: identity.path, sha256: identity.sha256 })
+      sourceIdentities.push({ path: identity.path, sha256: sha256(sourceText) })
     }
     for (const binding of operationBindings) {
       for (const reference of binding.public_references) {

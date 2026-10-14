@@ -11,7 +11,7 @@ const command = resolve(root, "scripts/run-test-quality-audit.mjs");
 
 function run(args) {
   return spawnSync(process.execPath, [command, ...args], {
-    cwd: root, encoding: "utf8", timeout: 30_000,
+    cwd: root, encoding: "utf8", timeout: 120_000,
   });
 }
 

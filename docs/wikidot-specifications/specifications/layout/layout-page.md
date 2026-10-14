@@ -25,27 +25,6 @@ If the documentation is silent or contradictory, the implementation MUST fail cl
 The observations in this section are normative and override conflicting or
 incomplete documentation-derived evidence below.
 
-### Standard footer and license template preserve text nodes
-
-The retained English and Japanese standard shells captured on 2026-09-29
-emit the same footer structure with localized link labels. Preserve the
-template's whitespace text nodes, nonbreaking spaces before the separators,
-inline visibility styles, control IDs, and linked `Powered by` text. The
-cookie-consent entry remains hidden when the advertising consent runtime is
-absent. Wikijump does not execute the third-party advertising script; its
-known report and consent handlers remain inert under the local CSP boundary.
-
-The standard license area preserves template whitespace and `rel="license"`.
-Creative Commons links use the HTTP deed URL; the Japanese template appends
-`deed.ja`. Custom license HTML and copyright-only modes retain their separate
-contracts.
-
-Frozen browser DOM evidence and the byte-exact regression oracle:
-
-- `install/local/theme-lab/evidence/wikidot-runtime-surface-20260929.normal/scp-wiki-scp-173-normal-20260929-5d64b862fb46/live.dom.html`
-- `install/local/theme-lab/evidence/wikidot-runtime-surface-20260929.normal/scp-jp-scp-173-normal-20260929-7984e750c954/live.dom.html`
-- `framerail/tests/wikidot-footer.test.js`
-
 ### Wikidot document shells propagate the stored locale verbatim
 
 - Observation ID: `wikidot-document-shell-stored-locale-20260722`
@@ -87,6 +66,69 @@ Evidence:
 
 - `install/local/wikidot-verification/artifacts/issue1063-parent-breadcrumb-live-20260908.json` (SHA-256 `5c68a8df37651e4fc0753860ca2aac2e6a8abac637665a1ff7fd8253852ae444`), cases: `issue1063-parent-chain-standard-layout-no-breadcrumbs`, `issue1063-renamed-parent-standard-layout-no-breadcrumbs`, `issue1063-no-parent-standard-layout-control`, `issue1063-deleted-parent-standard-layout-control`, `issue1063-cycle-standard-layout-control`, `issue1063-independent-standard-layout-control`, `issue1063-current-parented-documentation-page-no-breadcrumbs`
 
+
+### Standard footer and license template preserve text nodes
+
+The retained English and Japanese standard shells captured on 2026-09-29
+emit the same footer structure with localized link labels. Preserve the
+template's whitespace text nodes, nonbreaking spaces before the separators,
+inline visibility styles, control IDs, and linked `Powered by` text. The
+cookie-consent entry remains hidden when the advertising consent runtime is
+absent. Wikijump does not execute the third-party advertising script; its
+known report and consent handlers remain inert under the local CSP boundary.
+
+The standard license area preserves template whitespace and `rel="license"`.
+Creative Commons links use the HTTP deed URL; the Japanese template appends
+`deed.ja`. Custom license HTML and copyright-only modes retain their separate
+contracts.
+
+Frozen browser DOM evidence and the byte-exact regression oracle:
+
+- `install/local/theme-lab/evidence/wikidot-runtime-surface-20260929.normal/scp-wiki-scp-173-normal-20260929-5d64b862fb46/live.dom.html`
+- `install/local/theme-lab/evidence/wikidot-runtime-surface-20260929.normal/scp-jp-scp-173-normal-20260929-7984e750c954/live.dom.html`
+- `framerail/tests/wikidot-footer.test.js`
+
+### Standard secondary page actions and hovertip text nodes
+
+Observation: `standard-secondary-actions-en-ja-20260929`, confirmed for the
+English Basalt canary on 2026-10-12. These rules describe standard Wikidot page
+chrome; they do not define the custom-layout PageOptionsBottom module.
+
+- The secondary row remains in the initial DOM with inline `display: none`.
+- Its anchor order is Edit Sections, Append, Edit Meta, Watchers, Backlinks,
+  Page Source, Parent, Lock Page, Rename, Delete. The Japanese shell uses the
+  corresponding retained Japanese labels in the same order.
+- Lock Page has ID `page-block-button`. The standard row contains neither
+  `layout-button` nor `lock-page-button`; anchors carry no `type` attribute.
+- Opening and closing the row retains its elements. The Options control uses
+  a nonbreaking space between its sign and label in the observed expanded state.
+- The hovertip initializer preserves the server template's text nodes inside
+  `div.content`, including indentation and the extra spaces in the English
+  Edit Sections message. Visible text layout still follows normal HTML
+  whitespace collapsing; hidden text nodes must not be trimmed.
+
+The frozen reduced observations and original capture SHA-256 values are in
+`framerail/tests/fixtures/wikidot-standard-page-chrome.json`. Their authorities
+are the EN and JP `live.dom.html` files in
+`install/local/theme-lab/evidence/wikidot-runtime-surface-20260929.normal/`.
+The two sites agree on order and DOM identifiers, differ in localized labels,
+and have no Layout action. The native Wikijump layout retains its own action
+order, Layout action, identifiers and translations.
+
+### Read-only standard footer modules (2026-10-12)
+
+Anonymous EN and JA BugReportModule reads return the standard problem-report
+window linking to `https://feedback.wikidot.com/`. Anonymous FlagPageModule
+returns `no_permission`; the English callback builds the Permission error
+window, focuses its close button, and includes the sign-in/account message.
+The frozen module bodies are in `framerail/tests/fixtures/wikidot-footer-dialogs.json`.
+Source callback DOM and screenshots are retained under
+`/home/roku/.local/state/wikijump/scp9506-final-evidence/browser-final-20261012-source-footer-dialogs-callback`.
+This callback replay proves rendering, not a server-side report submission.
+OZONE retains an empty hidden `odialog-container` after closing, removes the
+shader and blank iframe after 200ms, and does not bind Escape/outside dismissal.
+Bug opening retains focus on its invoking control; closing remains visible during that delay; ErrorDialog fades out for 100ms.
+Unobserved authenticated flag reporting and JA error chrome remain unsupported.
 
 
 ## Suggested public TDD seams
@@ -161,45 +203,3 @@ L0044  * {{span}}
 L0045 * {{div#extra-div-6}}
 L0046 
 ```
-
-### Standard secondary page actions and hovertip text nodes
-
-Observation: `standard-secondary-actions-en-ja-20260929`, confirmed for the
-English Basalt canary on 2026-10-12. These rules describe standard Wikidot page
-chrome; they do not define the custom-layout PageOptionsBottom module.
-
-- The secondary row remains in the initial DOM with inline `display: none`.
-- Its anchor order is Edit Sections, Append, Edit Meta, Watchers, Backlinks,
-  Page Source, Parent, Lock Page, Rename, Delete. The Japanese shell uses the
-  corresponding retained Japanese labels in the same order.
-- Lock Page has ID `page-block-button`. The standard row contains neither
-  `layout-button` nor `lock-page-button`; anchors carry no `type` attribute.
-- Opening and closing the row retains its elements. The Options control uses
-  a nonbreaking space between its sign and label in the observed expanded state.
-- The hovertip initializer preserves the server template's text nodes inside
-  `div.content`, including indentation and the extra spaces in the English
-  Edit Sections message. Visible text layout still follows normal HTML
-  whitespace collapsing; hidden text nodes must not be trimmed.
-
-The frozen reduced observations and original capture SHA-256 values are in
-`framerail/tests/fixtures/wikidot-standard-page-chrome.json`. Their authorities
-are the EN and JP `live.dom.html` files in
-`install/local/theme-lab/evidence/wikidot-runtime-surface-20260929.normal/`.
-The two sites agree on order and DOM identifiers, differ in localized labels,
-and have no Layout action. The native Wikijump layout retains its own action
-order, Layout action, identifiers and translations.
-
-### Read-only standard footer modules (2026-10-12)
-
-Anonymous EN and JA BugReportModule reads return the standard problem-report
-window linking to `https://feedback.wikidot.com/`. Anonymous FlagPageModule
-returns `no_permission`; the English callback builds the Permission error
-window, focuses its close button, and includes the sign-in/account message.
-The frozen module bodies are in `framerail/tests/fixtures/wikidot-footer-dialogs.json`.
-Source callback DOM and screenshots are retained under
-`/home/roku/.local/state/wikijump/scp9506-final-evidence/browser-final-20261012-source-footer-dialogs-callback`.
-This callback replay proves rendering, not a server-side report submission.
-OZONE retains an empty hidden `odialog-container` after closing, removes the
-shader and blank iframe after 200ms, and does not bind Escape/outside dismissal.
-Bug opening retains focus on its invoking control; closing remains visible during that delay; ErrorDialog fades out for 100ms.
-Unobserved authenticated flag reporting and JA error chrome remain unsupported.
