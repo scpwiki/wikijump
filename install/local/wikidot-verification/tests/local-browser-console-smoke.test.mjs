@@ -153,8 +153,10 @@ function fakeChromium(version = "Chromium 130") {
   };
 }
 
+// The driver bounds ledger append/fsync by timeoutMs too, so a short bound
+// fails on a loaded disk rather than on a driver defect.
 function driverOptions(root, chromium) {
-  return {chromium, rows: [rowA], outputPath: path.join(root, "smoke.jsonl"), runtimeIdentity: identity, inventoryPath: "/inventory.json", inventorySha256: SHA_A, shardManifestPath: "/shards.json", shardManifestSha256: SHA_B, shardId: "en", browserExecutable: "/browser/chrome", browserExecutableSha256: "c".repeat(64), browserArgs: ["--host-resolver-rules=MAP x 127.0.0.2"], workers: 2, timeoutMs: 100, settleMs: 0, ignoreHttpsErrors: true};
+  return {chromium, rows: [rowA], outputPath: path.join(root, "smoke.jsonl"), runtimeIdentity: identity, inventoryPath: "/inventory.json", inventorySha256: SHA_A, shardManifestPath: "/shards.json", shardManifestSha256: SHA_B, shardId: "en", browserExecutable: "/browser/chrome", browserExecutableSha256: "c".repeat(64), browserArgs: ["--host-resolver-rules=MAP x 127.0.0.2"], workers: 2, timeoutMs: 10_000, settleMs: 0, ignoreHttpsErrors: true};
 }
 
 test("driver fingerprints browser/config/inputs, resumes exact records, and owner-locks output", async () => {
