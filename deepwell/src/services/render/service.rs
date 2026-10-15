@@ -2569,6 +2569,10 @@ impl RenderService {
                             .remove_renderer_ids_from_wikidot_html(&mut html_output.body);
                     }
                     html_output.backlinks.included_pages.extend(included_pages);
+                    Self::restore_protected_backlink_pages(
+                        &mut html_output.backlinks,
+                        protection.compat_text(),
+                    );
                     let html_block_texts: Vec<String> = tree
                         .html_blocks
                         .iter()

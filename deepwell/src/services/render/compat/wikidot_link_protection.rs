@@ -27,6 +27,7 @@ use super::super::service::{
     escape_list_pages_html_attr, escape_list_pages_html_text,
 };
 use super::issued_markers::restore_issued_html_text_markers;
+use super::text_fragments::CompatTextFragments;
 use ftml::settings::WikitextSettings;
 use std::borrow::Cow;
 use uuid::Uuid;
@@ -365,6 +366,23 @@ impl RenderService {
 
         output.push_str(&html[last..]);
         output
+    }
+
+    /// Restores protected include-variable text in page references.
+    ///
+    /// FTML normalizes page-link slugs before the rendered HTML is restored, so the
+    /// recorded backlinks carry the lowercased marker and need the same restoration.
+    pub(in crate::services::render) fn restore_protected_backlink_pages(
+        backlinks: &mut ftml::data::Backlinks<'_>,
+        compat_text: &CompatTextFragments,
+    ) {
+        for page_ref in backlinks
+            .internal_links
+            .iter_mut()
+            .chain(backlinks.included_pages.iter_mut())
+        {
+            page_ref.page = compat_text.restore_page_slug(&page_ref.page);
+        }
     }
 
     pub(in crate::services::render) fn record_protected_wikidot_wikipedia_backlinks(

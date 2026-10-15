@@ -91,21 +91,56 @@ impl CompatTextFragments {
     }
 
     pub(in crate::services::render) fn restore(&self, text: &str) -> String {
-        if self.fragments.is_empty() || !text.contains(&self.namespace) {
+        if self.fragments.is_empty() {
+            return text.to_owned();
+        }
+
+        let restored = self.restore_namespace(text, &self.namespace, b'X', |fragment| {
+            fragment.to_owned()
+        });
+        let lowercase = self.namespace.to_ascii_lowercase();
+        self.restore_namespace(&restored, &lowercase, b'x', |fragment| {
+            let mut slug = fragment.to_owned();
+            wikidot_normalize::normalize(&mut slug);
+            slug
+        })
+    }
+
+    /// Restores markers inside a page slug, which FTML has already normalized.
+    ///
+    /// Slug normalization lowercases the marker, so the lowercase namespace is
+    /// replaced with the fragment's own Wikidot page-name normalization. This is
+    /// the result Wikidot produces for an unexpanded variable inside a link target.
+    pub(in crate::services::render) fn restore_page_slug(&self, slug: &str) -> String {
+        let mut restored = self.restore(slug);
+        wikidot_normalize::normalize(&mut restored);
+        restored
+    }
+
+    fn restore_namespace(
+        &self,
+        text: &str,
+        namespace: &str,
+        terminator: u8,
+        mut replacement: impl FnMut(&str) -> String,
+    ) -> String {
+        if !text.contains(namespace) {
             return text.to_owned();
         }
 
         let mut output = String::with_capacity(text.len());
         let mut cursor = 0;
-        while let Some(offset) = text[cursor..].find(&self.namespace) {
+        while let Some(offset) = text[cursor..].find(namespace) {
             let start = cursor + offset;
             output.push_str(&text[cursor..start]);
-            if let Some((index, len)) = self.marker_at(&text[start..]) {
-                output.push_str(&self.fragments[index]);
+            if let Some((index, len)) =
+                self.marker_at_namespace(&text[start..], namespace, terminator)
+            {
+                output.push_str(&replacement(&self.fragments[index]));
                 cursor = start + len;
             } else {
-                output.push_str(&self.namespace);
-                cursor = start + self.namespace.len();
+                output.push_str(namespace);
+                cursor = start + namespace.len();
             }
         }
         output.push_str(&text[cursor..]);
@@ -154,14 +189,22 @@ impl CompatTextFragments {
     }
 
     fn marker_at(&self, text: &str) -> Option<(usize, usize)> {
-        let suffix = text.strip_prefix(&self.namespace)?;
+        self.marker_at_namespace(text, &self.namespace, b'X')
+    }
+
+    fn marker_at_namespace(
+        &self,
+        text: &str,
+        namespace: &str,
+        terminator: u8,
+    ) -> Option<(usize, usize)> {
+        let suffix = text.strip_prefix(namespace)?;
         let digits = suffix.bytes().take_while(u8::is_ascii_digit).count();
-        if digits == 0 || suffix.as_bytes().get(digits) != Some(&b'X') {
+        if digits == 0 || suffix.as_bytes().get(digits) != Some(&terminator) {
             return None;
         }
         let index = suffix[..digits].parse::<usize>().ok()?;
-        (index < self.fragments.len())
-            .then_some((index, self.namespace.len() + digits + 1))
+        (index < self.fragments.len()).then_some((index, namespace.len() + digits + 1))
     }
 }
 
@@ -248,5 +291,29 @@ mod tests {
             ),
             Some("marker was removed".len()),
         );
+    }
+
+    #[test]
+    fn restores_lowercased_markers_as_wikidot_page_slugs() {
+        let mut fragments = CompatTextFragments::new("authored source");
+        let url = fragments.push("{$previous-url}");
+        let title = fragments.push("{$previous-title}");
+        let lowercase_url = url.to_ascii_lowercase();
+
+        // FTML lowercases a marker when it forms a page link target. The restored
+        // target must match Wikidot's page-name normalization of the variable.
+        assert_eq!(
+            fragments.restore(&format!("<a href=\"/{lowercase_url}\">{title}</a>")),
+            "<a href=\"/previous-url\">{$previous-title}</a>",
+        );
+        assert_eq!(fragments.restore_page_slug(&lowercase_url), "previous-url");
+        assert_eq!(fragments.restore(&url), "{$previous-url}");
+    }
+
+    #[test]
+    fn keeps_lowercase_marker_text_without_a_registered_fragment() {
+        let fragments = CompatTextFragments::new("authored source");
+        let lowercase = format!("{}0x", COMPAT_TEXT_MARKER_PREFIX.to_ascii_lowercase());
+        assert_eq!(fragments.restore(&lowercase), lowercase);
     }
 }

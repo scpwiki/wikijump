@@ -1684,7 +1684,14 @@ fn render_protected_links(
             .map(|link| Cow::Owned(link.to_string()))
             .collect(),
     };
-    (fragments.restore(&output.body), backlinks)
+    // The body-level restore also repairs a lowercased marker, so the control keeps
+    // the raw body. Without the link-target pass the marker must still be there.
+    let body = if restore_targets {
+        fragments.restore(&output.body)
+    } else {
+        output.body
+    };
+    (body, backlinks)
 }
 
 #[test]
@@ -3852,4 +3859,42 @@ fn wikidot_site(slug: &str, preferred_domain: Option<&str>) -> SiteModel {
         license: License::CcBySa30,
         forum_max_nest_level: 10,
     }
+}
+
+#[test]
+fn unbound_include_variable_link_targets_restore_as_wikidot_page_slugs() {
+    // Wikidot normalizes an unexpanded variable in a link target as a page name, so
+    // the target is `previous-url` and the label keeps its literal variable text.
+    let html = render_wikidot_conditionals_with_tags(
+        "[[[{$previous-url} | {$previous-title}]]]",
+        &[],
+    );
+
+    assert!(html.contains(r#"href="/previous-url""#), "{html}");
+    assert!(html.contains("{$previous-title}"), "{html}");
+    assert!(
+        !html
+            .to_ascii_lowercase()
+            .contains(&COMPAT_TEXT_MARKER_PREFIX.to_ascii_lowercase()),
+        "{html}",
+    );
+}
+
+#[test]
+fn unbound_include_variable_backlink_pages_restore_as_wikidot_page_slugs() {
+    let mut fragments = CompatTextFragments::new("authored source");
+    let marker = fragments.push("{$previous-url}");
+    let mut backlinks = ftml::data::Backlinks::new();
+    backlinks
+        .internal_links
+        .push(ftml::data::PageRef::page_only(marker.to_ascii_lowercase()));
+
+    RenderService::restore_protected_backlink_pages(&mut backlinks, &fragments);
+
+    let pages: Vec<&str> = backlinks
+        .internal_links
+        .iter()
+        .map(|page_ref| page_ref.page())
+        .collect();
+    assert_eq!(pages, ["previous-url"]);
 }
