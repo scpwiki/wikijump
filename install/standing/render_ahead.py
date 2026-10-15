@@ -42,10 +42,14 @@ import time
 MIGRATION_PATH = "/opt/deepwell/migrations/20261014120000_page_revision_render_ahead.sql"
 DEEPWELL_BINARY = "/usr/local/bin/deepwell"
 CONFIG_PATH = "/etc/deepwell.toml"
+# Only live pages with a current revision are eligible for render-ahead.
+# Historical connections on deleted pages are still retained in the database,
+# but they cannot be re-rendered. Excluding them here keeps the link probe's
+# candidate set aligned with the renderer's active-page selection.
 # Per-page link content: endpoints, type and count, not row timestamps, which
 # rendering rewrites even when the links are unchanged.
 LINK_DIGEST_QUERY = """
-SELECT page_id, md5(string_agg(row, ',' ORDER BY row)) FROM (
+SELECT links.page_id, md5(string_agg(row, ',' ORDER BY row)) FROM (
   SELECT from_page_id AS page_id, 'c' || ROW(to_page_id, connection_type, count)::text AS row
   FROM page_connection
   UNION ALL
@@ -53,7 +57,11 @@ SELECT page_id, md5(string_agg(row, ',' ORDER BY row)) FROM (
   FROM page_connection_missing
   UNION ALL
   SELECT page_id, 'l' || ROW(url, count)::text FROM page_link
-) AS links GROUP BY page_id;
+) AS links
+JOIN page AS source_page ON source_page.page_id = links.page_id
+WHERE source_page.deleted_at IS NULL
+  AND source_page.latest_revision_id IS NOT NULL
+GROUP BY links.page_id;
 """
 IMAGE_ID = re.compile(r"sha256:[0-9a-f]{64}")
 IDEMPOTENT_STATEMENT = re.compile(
@@ -280,7 +288,12 @@ def render_until_links_settle(render, digests, passes, not_before):
         for attempt in range(1, LINK_PROBES + 1):
             probe = render(f"link-probe-{number}.{attempt}", utc_now(), pending)
             if probe["candidates"] != len(pending):
-                raise RuntimeError("the link probe did not select every changed page")
+                raise RuntimeError(
+                    f"link probe {number}.{attempt} selected "
+                    f"{probe['candidates']} of {len(pending)} changed active page IDs; "
+                    f"requested sample={pending[:20]}; "
+                    "candidate selection requires investigation before promotion"
+                )
             unrendered |= set(probe["failed_page_ids"])
             current = digests()
             for page in pending:

@@ -84,9 +84,16 @@ class RenderAheadRuntimeTest(unittest.TestCase):
         self.assertEqual(second["DEEPWELL_RENDER_AHEAD_NOT_BEFORE"], "2026-10-14T00:00:00Z")
 
     def test_link_digest_ignores_row_timestamps(self) -> None:
-        self.assertNotIn("_at", RENDER_AHEAD.LINK_DIGEST_QUERY)
+        for timestamp in ("created_at", "updated_at", "rendered_at"):
+            self.assertNotIn(timestamp, RENDER_AHEAD.LINK_DIGEST_QUERY)
         for table in ("page_connection", "page_connection_missing", "page_link"):
             self.assertIn(f"FROM {table}", RENDER_AHEAD.LINK_DIGEST_QUERY)
+
+    def test_link_digest_only_considers_renderable_live_source_pages(self) -> None:
+        query = RENDER_AHEAD.LINK_DIGEST_QUERY
+        self.assertIn("JOIN page AS source_page ON source_page.page_id = links.page_id", query)
+        self.assertIn("source_page.deleted_at IS NULL", query)
+        self.assertIn("source_page.latest_revision_id IS NOT NULL", query)
 
     def test_changed_pages_include_added_and_removed_link_sets(self) -> None:
         self.assertEqual(
@@ -237,7 +244,7 @@ class RenderUntilLinksSettleTest(unittest.TestCase):
         self.render = lambda name, cutoff, pages=None: (
             {"candidates": 0, "failed_page_ids": []} if pages else render(name, cutoff, pages)
         )
-        with self.assertRaises(RuntimeError):
+        with self.assertRaisesRegex(RuntimeError, r"selected 0 of 2 changed active page IDs"):
             self.settle()
 
 
