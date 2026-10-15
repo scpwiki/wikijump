@@ -16,7 +16,7 @@ import {
   loadOfflineBrowserOracle,
   sha256File,
 } from "../src/offline-compatibility-oracle.mjs";
-import {loadOfflineBrowserResponseFixture} from "../src/offline-browser-response-fixture.mjs";
+import {browserReplayPayload, loadOfflineBrowserResponseFixture} from "../src/offline-browser-response-fixture.mjs";
 import {captureBrowserParityObservation} from "../src/standing-browser-parity-observation.mjs";
 import {
   DEFAULT_SETTLE_MS,
@@ -309,11 +309,20 @@ export async function runOfflineBrowserOracle(args) {
       const retained =
         request.method() === "GET" ? responseFixture.lookup(url) : null;
       if (retained) {
+        const replay = browserReplayPayload(retained);
+        if (replay.rebased_urls > 0) {
+          harnessNormalizations.push({
+            kind: "redirected_stylesheet_relative_urls",
+            source_url: url,
+            terminal_url: retained.resolved_url,
+            rewritten_count: replay.rebased_urls,
+          });
+        }
         replayedRequests.push(requestRecord);
         await route.fulfill({
           status: retained.status,
           headers: retained.headers,
-          body: retained.body,
+          body: replay.body,
         });
         return;
       }

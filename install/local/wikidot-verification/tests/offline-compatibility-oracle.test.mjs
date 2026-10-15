@@ -10,7 +10,7 @@ import {
   parseImageMagickRmse,
   validateOfflineBrowserOracle,
 } from "../src/offline-compatibility-oracle.mjs";
-import {loadOfflineBrowserResponseFixture} from "../src/offline-browser-response-fixture.mjs";
+import {browserReplayPayload, loadOfflineBrowserResponseFixture} from "../src/offline-browser-response-fixture.mjs";
 import {
   parseArgs,
   requestIsOfflineSafe,
@@ -153,4 +153,48 @@ test("offline response fixture resolves retained redirects without browser egres
     "https://scp-wiki-cdn.nyc3.cdn.digitaloceanspaces.com/theme/en/basalt/basalt-bedrock-min.css",
   ]);
   assert.match(retained.headers["content-type"], /text\/css/u);
+});
+
+test("browser replay uses the retained CSS redirect destination for relative font URLs", async () => {
+  const fixture = await loadOfflineBrowserResponseFixture(responseFixturePath);
+  const source = "https://cdn.scpwiki.com/theme/en/basalt/basalt-bedrock-min.css";
+  const retained = fixture.lookup(source);
+  const finalUrl = retained.resolved_url;
+  assert.equal(
+    finalUrl,
+    "https://scp-wiki-cdn.nyc3.cdn.digitaloceanspaces.com/theme/en/basalt/basalt-bedrock-min.css",
+  );
+  const {body, rebased_urls: rebased} = browserReplayPayload(retained);
+  assert.equal(retained.status, 200);
+  assert.ok(rebased > 1);
+  const correctedFont = new URL("./fonts/Jost-Book.woff2", finalUrl).href;
+  assert.ok(body.toString("utf8").includes(correctedFont));
+  assert.ok(retained.body.toString("utf8").includes("./fonts/Jost-Book.woff2"));
+  assert.equal(fixture.lookup("https://example.invalid/never-recorded.css"), null);
+  assert.equal(browserReplayPayload(fixture.lookup(finalUrl)).rebased_urls, 0);
+  assert.equal(browserReplayPayload(null), null);
+});
+
+test("redirected CSS rewriting preserves absolute references and rebases imports without touching fixture bytes", () => {
+  const body = Buffer.from([
+    '@import "../site.css";',
+    '@font-face{src:url(fonts/Book.woff2),url("../fonts/Second.woff2")}',
+    'a{background:url("data:image/svg+xml,body"),url(/icons/icon.svg),url(#filter),url("https://other.test/image.svg")}',
+  ].join("\n"));
+  const normalized = browserReplayPayload({
+    original_url: "https://entry.test/css/site.css",
+    resolved_url: "https://cdn.test/build/css/site.css",
+    headers: {"Content-Type": "text/css; charset=utf-8"},
+    body,
+  });
+  assert.equal(normalized.rebased_urls, 3);
+  const css = normalized.body.toString("utf8");
+  assert.ok(css.includes('@import "https://cdn.test/build/site.css"'));
+  assert.ok(css.includes('url(https://cdn.test/build/css/fonts/Book.woff2)'));
+  assert.ok(css.includes('url("https://cdn.test/build/fonts/Second.woff2")'));
+  assert.ok(css.includes('url("data:image/svg+xml,body")'));
+  assert.ok(css.includes('url(/icons/icon.svg)'));
+  assert.ok(css.includes('url(#filter)'));
+  assert.ok(css.includes('url("https://other.test/image.svg")'));
+  assert.ok(body.toString("utf8").includes('url(fonts/Book.woff2)'));
 });
