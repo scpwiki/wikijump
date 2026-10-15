@@ -423,16 +423,8 @@ fn wikidot_literal_block(
         let end = first_wikidot_tag_end(source.as_bytes(), start, line_end)?;
         (end, end - 2)
     };
-    let is_rate = source[name_end..head_end]
-        .split_whitespace()
-        .next()
-        .is_some_and(|name| name.eq_ignore_ascii_case("Rate"));
-    // An absent closer after a complete Rate head must not mask later
-    // conditional boundaries through EOF. Paired Rate still owns its body.
-    let is_module = module_candidate
-        && (!is_rate
-            || find_block_close(source, opener_end, source.len(), "[[/module]]")
-                .is_some());
+    let is_module =
+        module_candidate && module_body(source, opener_end) == ModuleBody::Paired;
     let close = if name.eq_ignore_ascii_case("code") {
         "[[/code]]"
     } else if name.eq_ignore_ascii_case("html") {
@@ -451,6 +443,43 @@ fn wikidot_literal_block(
     };
     *text_tokens = lookahead_tokens;
     Some((close, opener_end))
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum ModuleBody {
+    /// The first `[[/module]]` belongs to this opener.
+    Paired,
+    /// A later line-start module opener takes the first `[[/module]]`.
+    Claimed,
+    /// No `[[/module]]` follows.
+    Unclosed,
+}
+
+/// Wikidot pairs `[[/module]]` with the nearest preceding module opener that
+/// starts a line, and a module without its own closer owns no body: an
+/// unclosed `[[module CSS]]` renders its text, and an unclosed
+/// `[[module Rate]]` or `[[module PageTree]]` leaves later `[[/iftags]]`
+/// boundaries live. A body-less module therefore owns nothing when another
+/// line-start `[[module ...]]` (typically CSS) comes before the first closer.
+/// An opener elsewhere on a line, such as one quoted inside a CSS comment,
+/// does not take the closer.
+fn module_body(source: &str, opener_end: usize) -> ModuleBody {
+    let Some(close) = find_block_close(source, opener_end, source.len(), "[[/module]]")
+    else {
+        return ModuleBody::Unclosed;
+    };
+    let claimed = source[opener_end..close]
+        .match_indices('\n')
+        .map(|(offset, _)| opener_end + offset + 1)
+        .any(|line_start| {
+            source[line_start..].starts_with("[[")
+                && wikidot_multiline_map_head(source, line_start)
+        });
+    if claimed {
+        ModuleBody::Claimed
+    } else {
+        ModuleBody::Paired
+    }
 }
 
 fn wikidot_multiline_map_head(source: &str, start: usize) -> bool {
