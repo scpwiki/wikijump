@@ -112,6 +112,54 @@ function resolveRetainedRedirect(responses, startUrl) {
   throw new Error(`offline response fixture redirect limit exceeded for ${startUrl}`);
 }
 
+// Playwright's route.fulfill() cannot supply a redirected response URL, and
+// Chromium's follow-up network redirect is outside the hermetic route gate.
+// A CSS 200 fulfilled at the original 301 URL otherwise resolves relative
+// @font-face/image URLs against the wrong origin. Rebase only relative CSS
+// url() references against the retained terminal response URL. Neither the
+// recorded bytes nor the manifest is modified. The caller records this
+// transport-only normalization in its verdict.
+export function browserReplayPayload(retained) {
+  if (!retained) return null;
+  const contentType = Object.entries(retained.headers).find(
+    ([name]) => name.toLowerCase() === "content-type",
+  )?.[1] ?? "";
+  const isRedirectedCss =
+    retained.original_url !== retained.resolved_url &&
+    /^text\/css(?:\s*;|$)/iu.test(contentType);
+  if (!isRedirectedCss) return {body: retained.body, rebased_urls: 0};
+  let rebased = 0;
+  const terminalUrl = retained.resolved_url;
+  const stylesheet = retained.body.toString("utf8");
+  const absoluteOrFragment = /^(?:[a-z][a-z\d+.-]*:|\/\/|\/|#)/iu;
+  const rebase = (rawValue) => {
+    const value = rawValue.trim();
+    if (!value || absoluteOrFragment.test(value)) return null;
+    const resolved = new URL(value, terminalUrl).href;
+    rebased += 1;
+    return resolved;
+  };
+  const urlRebased = stylesheet.replace(
+    /url\(\s*(['"]?)([^'"()]*?)\1\s*\)/gu,
+    (match, quote, value) => {
+      const resolved = rebase(value);
+      if (resolved === null) return match;
+      return `url(${quote}${resolved}${quote})`;
+    },
+  );
+  const rewritten = urlRebased.replace(
+    /(@import\s+)(['"])([^'"]+)\2/gu,
+    (match, prefix, quote, value) => {
+      const resolved = rebase(value);
+      return resolved === null ? match : `${prefix}${quote}${resolved}${quote}`;
+    },
+  );
+  return {
+    body: rebased ? Buffer.from(rewritten, "utf8") : retained.body,
+    rebased_urls: rebased,
+  };
+}
+
 export async function loadOfflineBrowserResponseFixture(filePath) {
   const compressed = await fs.readFile(filePath);
   const raw = await gunzip(compressed);
