@@ -641,8 +641,18 @@ pub async fn seed(state: &ServerState) -> Result<()> {
     // Role and permission mutations normally defer permission-cache invalidation
     // until the API wrapper commits. The seeder owns the transaction manually, so
     // drain those Redis-side invalidations before rerendering with the final role
-    // graph.
-    ctx.run_post_commit_actions().await.or_raise(make_error)?;
+    // graph. Page rerenders queued while seeding (dependents of pages created
+    // later) are covered by the full rerender below, and would otherwise run
+    // in a separate transaction that cannot see the uncommitted seed.
+    let actions = ctx
+        .drain_post_commit_actions()
+        .or_raise(make_error)?
+        .into_iter()
+        .filter(|action| !action.is_page_rerender())
+        .collect();
+    ServiceContext::run_post_commit_actions_for_state(&ctx.state(), actions)
+        .await
+        .or_raise(make_error)?;
 
     for page_id in seeded_page_ids {
         PageRevisionService::rerender(

@@ -760,7 +760,7 @@ impl PageRevisionService {
             rerender_after_latest_revision,
         }: FirstRevisionFollowups,
     ) -> Result<()> {
-        OutdateService::process_page_displace(
+        OutdateService::process_page_create(
             ctx,
             id.site_id,
             id.page_id,
@@ -824,7 +824,7 @@ impl PageRevisionService {
             .or_raise(make_error)?;
 
         // Run outdater
-        OutdateService::process_page_displace(
+        OutdateService::process_page_delete(
             ctx,
             site_id,
             page_id,
@@ -1014,7 +1014,7 @@ impl PageRevisionService {
         replace_hash_opt(&mut compiled_side_bar_html_hash, new_side_bar_html_hash);
 
         // Run outdater
-        OutdateService::process_page_displace(
+        OutdateService::process_page_create(
             ctx,
             site_id,
             page_id,

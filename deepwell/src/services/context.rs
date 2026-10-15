@@ -170,6 +170,15 @@ pub(crate) enum PostCommitAction {
     },
 }
 
+impl PostCommitAction {
+    pub(crate) fn is_page_rerender(&self) -> bool {
+        matches!(
+            self,
+            Self::RerenderPage { .. } | Self::RerenderPageImmediate { .. },
+        )
+    }
+}
+
 /// Who committed the transaction whose post-commit actions are running.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 enum PostCommitRerenderTrust {
