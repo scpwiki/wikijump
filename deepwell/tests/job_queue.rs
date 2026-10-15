@@ -291,14 +291,19 @@ async fn create_editable_site_fixture(state: &ServerState, site_slug: &str) -> i
             UpdateRolePermissionsInput {
                 site_id: site.site_id,
                 role_reference: Reference::Id(everyone.role_id),
-                new_permissions: [Action::View, Action::Create, Action::Edit]
-                    .into_iter()
-                    .map(|action| Permission {
-                        resource_type: Resource::Page,
-                        resource_category: None,
-                        action,
-                    })
-                    .collect(),
+                new_permissions: [
+                    Action::View,
+                    Action::Create,
+                    Action::Edit,
+                    Action::Delete,
+                ]
+                .into_iter()
+                .map(|action| Permission {
+                    resource_type: Resource::Page,
+                    resource_category: None,
+                    action,
+                })
+                .collect(),
                 cascade_removals: false,
                 updating_user_id: SYSTEM_USER_ID,
                 ip_address: IpAddr::V4(Ipv4Addr::new(192, 0, 2, 61)),
@@ -1282,6 +1287,157 @@ async fn component_css_save_refreshes_direct_dependent_before_rpc_returns() {
             })
         }),
         "the first article_view after concurrent component save must contain neither stale nor losing CSS",
+    );
+
+    handle.stop().expect("public Deepwell server should stop");
+    handle.stopped().await;
+    cleanup_namespace(&redis_url, &namespace).await;
+}
+
+async fn served_body(
+    client: &reqwest::Client,
+    address: SocketAddr,
+    site_id: i64,
+    slug: &str,
+) -> String {
+    let view = rpc_request(
+        client,
+        address,
+        None,
+        Some(site_id),
+        Some(slug),
+        "article_view",
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": {"slug": slug, "extra": ""},
+            "locales": ["en-US", "en"],
+        }),
+    )
+    .await;
+    view["page"]["data"]["compiled_body_html"]
+        .as_str()
+        .expect("page body should be served")
+        .to_owned()
+}
+
+/// Wikidot re-renders pages that referenced a slug while no page existed
+/// there as soon as one is created, and leaves the pages that include or link
+/// a page untouched when it is deleted (live sandbox-for-codex observations,
+/// 2026-10-15, run-owned `wjctl1015-*` / `wjctk1015-*` pages at 2-120 s).
+#[tokio::test]
+async fn created_target_refreshes_referrers_and_deleted_target_leaves_them() {
+    let redis_url =
+        env::var("REDIS_URL").expect("REDIS_URL must be set for integration tests");
+    let run_id = Uuid::new_v4().simple().to_string();
+    let namespace = format!("rsmq-absent-target-{run_id}");
+    let mut config = Config::integration_testing();
+    config.job_min_poll_delay = Duration::from_millis(10);
+    config.job_max_poll_delay = Duration::from_millis(50);
+    config.job_work_delay = Duration::from_millis(10);
+    config.rerender_skip = vec![(10, None)];
+    let state = build_server_state_without_workers_with_job_queue_namespace(
+        config,
+        Secrets::load(),
+        &namespace,
+    )
+    .await
+    .expect("isolated post-commit worker state should build");
+    let mut rsmq = Rsmq::clone(&state.rsmq);
+    clear_job_queue(&mut rsmq).await;
+
+    let site_slug = format!("absent-target-{run_id}");
+    let site_id = create_editable_site_fixture(&state, &site_slug).await;
+    let session_token = create_admin_session(&state).await;
+    let (address, handle) = build_server_at(
+        state.clone(),
+        SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), 0),
+    )
+    .await
+    .expect("public Deepwell server should start");
+    let client = reqwest::Client::new();
+    let target_slug = format!("absent-target-page-{run_id}");
+    let holder_slug = format!("absent-target-holder-{run_id}");
+
+    rpc_request(
+        &client,
+        address,
+        Some(&session_token),
+        Some(site_id),
+        Some(&holder_slug),
+        "page_create",
+        json!({
+            "site_id": site_id,
+            "wikitext": format!(
+                "BEFORE\n[[include {target_slug} a=present]]\n[[[{target_slug}|to target]]]\nAFTER",
+            ),
+            "title": "Absent target holder",
+            "alt_title": null,
+            "slug": holder_slug,
+            "layout": "wikidot",
+            "revision_comments": "create holder of an absent target",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": "192.0.2.62",
+        }),
+    )
+    .await;
+    let newpage_link = format!("class=\"newpage\" href=\"/{target_slug}\"");
+
+    let before = served_body(&client, address, site_id, &holder_slug).await;
+    assert!(before.contains("does not exist"), "{before}");
+    assert!(before.contains(&newpage_link), "{before}");
+
+    let target = rpc_request(
+        &client,
+        address,
+        Some(&session_token),
+        Some(site_id),
+        Some(&target_slug),
+        "page_create",
+        json!({
+            "site_id": site_id,
+            "wikitext": "TARGET-EXISTS a=[{$a}]",
+            "title": "Absent target",
+            "alt_title": null,
+            "slug": target_slug,
+            "layout": "wikidot",
+            "revision_comments": "create the absent target",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": "192.0.2.62",
+        }),
+    )
+    .await;
+    assert_eq!(
+        queued_job_count(&mut rsmq).await,
+        0,
+        "the referrer should refresh before page_create returns",
+    );
+    let created = served_body(&client, address, site_id, &holder_slug).await;
+    assert!(created.contains("TARGET-EXISTS a=[present]"), "{created}");
+    assert!(!created.contains("does not exist"), "{created}");
+    assert!(!created.contains(&newpage_link), "{created}");
+
+    rpc_request(
+        &client,
+        address,
+        Some(&session_token),
+        Some(site_id),
+        Some(&target_slug),
+        "page_delete",
+        json!({
+            "site_id": site_id,
+            "page": target["page_id"],
+            "last_revision_id": target["revision_id"],
+            "revision_comments": "delete the target",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": "192.0.2.62",
+        }),
+    )
+    .await;
+    let deleted = served_body(&client, address, site_id, &holder_slug).await;
+    assert_eq!(
+        deleted, created,
+        "Wikidot keeps serving the deleted target's content in pages that include it",
     );
 
     handle.stop().expect("public Deepwell server should stop");

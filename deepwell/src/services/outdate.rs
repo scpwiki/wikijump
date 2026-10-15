@@ -22,6 +22,8 @@ use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::futures::StreamExt;
 use crate::models::page::{self, Entity as Page};
 use crate::models::page_category::{self, Entity as PageCategory};
+use crate::models::page_connection::{self, Entity as PageConnection};
+use crate::models::page_connection_missing::{self, Entity as PageConnectionMissing};
 use crate::services::ServiceContext;
 use crate::services::{LinkService, PageService, SiteService};
 use crate::types::{ConnectionType, PageId, PageOrder, Reference, RerenderDepth};
@@ -111,6 +113,170 @@ impl OutdateService {
         );
         raise_multiple!(result1, result2; make_error);
 
+        Ok(())
+    }
+
+    /// Performs outdating tasks for a page created (or restored) here.
+    ///
+    /// Wikidot re-renders every page that referenced this slug while no page
+    /// existed there, as soon as one is created: an include of it renders the
+    /// new source and a link to it loses the `newpage` class (live
+    /// sandbox-for-codex observations, 2026-10-15). Those references are
+    /// missing connections, or connections to an earlier, deleted page with
+    /// the same slug, so the ordinary dependents of the new page ID miss them.
+    pub async fn process_page_create(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+        slug: &str,
+        depth: RerenderDepth,
+    ) -> Result<()> {
+        let make_error = || {
+            Error::new(
+                format!(
+                    "failed to run outdater for creation of page '{}' (ID {}) on site ID {} (depth {})",
+                    slug, page_id, site_id, depth,
+                ),
+                ErrorType::PageOutdater,
+            )
+        };
+
+        let (result1, result2) = join!(
+            Self::process_page_displace(ctx, site_id, page_id, slug, depth),
+            Self::outdate_references_to_absent_slug(ctx, site_id, page_id, slug, depth),
+        );
+        raise_multiple!(result1, result2; make_error);
+
+        Ok(())
+    }
+
+    /// Performs outdating tasks for a page deleted here.
+    ///
+    /// Wikidot does not re-render the pages that include or link a deleted
+    /// page: they keep serving the deleted page's content (and a plain link)
+    /// until they are themselves re-rendered. Live sandbox-for-codex
+    /// observations, 2026-10-15, at 2, 30, 90 and 120 seconds after the
+    /// deletion. Template and navigation dependents keep the existing refresh,
+    /// which those observations do not cover.
+    pub async fn process_page_delete(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+        slug: &str,
+        depth: RerenderDepth,
+    ) -> Result<()> {
+        let make_error = || {
+            Error::new(
+                format!(
+                    "failed to run outdater for deletion of page '{}' (ID {}) on site ID {} (depth {})",
+                    slug, page_id, site_id, depth,
+                ),
+                ErrorType::PageOutdater,
+            )
+        };
+
+        let (category_slug, page_slug) = split_category_name(slug);
+        let (result1, result2) = join!(
+            Self::outdate_templates(ctx, site_id, category_slug, page_slug, depth),
+            Self::outdate_nav_pages(ctx, site_id, slug, depth),
+        );
+        raise_multiple!(result1, result2; make_error);
+
+        Ok(())
+    }
+
+    /// Re-renders pages that include, embed, or link `slug` on this site while
+    /// it had no live page: missing connections to the slug and connections
+    /// to deleted pages that had it.
+    async fn outdate_references_to_absent_slug(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+        slug: &str,
+        depth: RerenderDepth,
+    ) -> Result<()> {
+        const CONNECTION_TYPES: &[ConnectionType] = &[
+            ConnectionType::IncludeMessy,
+            ConnectionType::IncludeElements,
+            ConnectionType::Component,
+            ConnectionType::Link,
+        ];
+
+        let make_error = || {
+            Error::new(
+                format!(
+                    "failed to run outdater for pages referencing absent page '{}' on site ID {} (depth {})",
+                    slug, site_id, depth,
+                ),
+                ErrorType::PageOutdater,
+            )
+        };
+        let txn = ctx.transaction();
+
+        let missing = PageConnectionMissing::find()
+            .select_only()
+            .column(page_connection_missing::Column::FromPageId)
+            .filter(
+                Condition::all()
+                    .add(page_connection_missing::Column::ToSiteId.eq(site_id))
+                    .add(page_connection_missing::Column::ToPageSlug.eq(slug))
+                    .add(
+                        page_connection_missing::Column::ConnectionType
+                            .is_in(CONNECTION_TYPES.iter().copied()),
+                    ),
+            )
+            .into_tuple::<i64>()
+            .all(txn)
+            .await
+            .or_raise(make_error)?;
+
+        let deleted_pages = Page::find()
+            .select_only()
+            .column(page::Column::PageId)
+            .filter(
+                Condition::all()
+                    .add(page::Column::SiteId.eq(site_id))
+                    .add(page::Column::Slug.eq(slug))
+                    .add(page::Column::DeletedAt.is_not_null())
+                    .add(page::Column::PageId.ne(page_id)),
+            )
+            .into_tuple::<i64>()
+            .all(txn)
+            .await
+            .or_raise(make_error)?;
+        let stale = if deleted_pages.is_empty() {
+            Vec::new()
+        } else {
+            PageConnection::find()
+                .select_only()
+                .column(page_connection::Column::FromPageId)
+                .filter(
+                    Condition::all()
+                        .add(page_connection::Column::ToPageId.is_in(deleted_pages))
+                        .add(
+                            page_connection::Column::ConnectionType
+                                .is_in(CONNECTION_TYPES.iter().copied()),
+                        ),
+                )
+                .into_tuple::<i64>()
+                .all(txn)
+                .await
+                .or_raise(make_error)?
+        };
+
+        let mut referrers = missing;
+        referrers.extend(stale);
+        referrers.sort_unstable();
+        referrers.dedup();
+        for id in referrers.into_iter().filter(|id| *id != page_id) {
+            if depth == RerenderDepth::default() {
+                Self::outdate_immediate(ctx, id, depth)
+                    .await
+                    .or_raise(make_error)?;
+            } else {
+                Self::outdate(ctx, id, depth).await.or_raise(make_error)?;
+            }
+        }
         Ok(())
     }
 
