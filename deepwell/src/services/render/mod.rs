@@ -99,9 +99,8 @@ pub use self::forum_read_routes::{
     WikidotForumFeedItem, WikidotForumFeedKind, WikidotForumFeedOutput,
     WikidotForumFeedScope, WikidotForumModuleRequest, WikidotForumModuleResponse,
 };
-pub(crate) use self::generator::{
-    DEEPWELL_RENDERER_EPOCH, compiled_generator_is_current,
-};
+pub use self::generator::DEEPWELL_RENDERER_EPOCH;
+pub(crate) use self::generator::compiled_generator_is_current;
 pub use self::legacy_actions::{
     LegacyActionDescriptor, LegacyActionRegistry, LegacyBrowserAction,
 };

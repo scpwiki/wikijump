@@ -24,6 +24,7 @@ mod common;
 use self::common::TestRunner;
 use deepwell::constants::ADMIN_USER_ID;
 use deepwell::services::RequestContext;
+use deepwell::services::render::DEEPWELL_RENDERER_EPOCH;
 use deepwell::services::view::GetPageViewOutput;
 use deepwell::types::Reference;
 use serde_json::json;
@@ -1033,5 +1034,9 @@ async fn embedvideo_preview_and_saved_page_share_rendered_body() {
         saved.compiled_body_html.as_deref(),
         Some(preview.body.as_str()),
     );
-    assert!(saved.compiled_generator.ends_with("; deepwell-render/v24"));
+    assert!(
+        saved
+            .compiled_generator
+            .ends_with(&format!("; deepwell-render/v{DEEPWELL_RENDERER_EPOCH}"))
+    );
 }

@@ -1100,7 +1100,9 @@ test("distinct persistent misses can acquire concurrently without losing evidenc
   try {
     await Promise.race([
       waitForBoth,
-      new Promise((_, reject) => { timeout = setTimeout(() => reject(new Error("distinct fills serialized through acquisition")), 1_000); }),
+      // A serialized acquisition never starts the second fill, so this only
+      // bounds a deadlock; it must not race scheduling on a loaded host.
+      new Promise((_, reject) => { timeout = setTimeout(() => reject(new Error("distinct fills serialized through acquisition")), 15_000); }),
     ]);
     assert.equal(peakActive, 2);
   } finally {

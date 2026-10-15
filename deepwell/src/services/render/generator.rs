@@ -12,7 +12,7 @@
 
 use std::sync::LazyLock;
 
-pub(crate) const DEEPWELL_RENDERER_EPOCH: u32 = 24;
+pub const DEEPWELL_RENDERER_EPOCH: u32 = 24;
 
 pub(super) static COMPILED_GENERATOR: LazyLock<String> = LazyLock::new(|| {
     format!(
