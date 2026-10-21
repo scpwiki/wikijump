@@ -22,7 +22,7 @@ use super::prelude::*;
 use crate::models::page_parent::Model as PageParentModel;
 use crate::services::page::GetPageReference;
 use crate::services::parent::{
-    GetParentRelationships, ParentDescription, RemoveParentOutput, UpdateParents,
+    GetChildOutput, GetParentRelationships, ParentDescription, RemoveParentOutput,
     UpdateParentsOutput,
 };
 use crate::types::Reference;
@@ -215,4 +215,51 @@ pub async fn parent_update(
         added: creation,
         removed: removal,
     })
+}
+
+pub async fn child_get_all(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Vec<GetChildOutput>> {
+    let make_error = || {
+        Error::new(
+            "failed to get all children pages for a parent page",
+            ErrorType::PageParent,
+        )
+    };
+
+    let GetPageReference { site_id, page } = params.parse().or_raise(make_error)?;
+
+    info!(
+        "Getting children for parent {:?} in site ID {}",
+        page, site_id,
+    );
+
+    let parents: Vec<Reference<'_>> = ParentService::get_children(ctx, site_id, page)
+        .await
+        .or_raise(make_error)?
+        .iter()
+        .map(|p| Reference::from(p.child_page_id))
+        .collect();
+
+    let page_revision_ids: Vec<i64> =
+        PageService::get_pages(ctx, site_id, parents.as_slice())
+            .await
+            .or_raise(make_error)?
+            .into_iter()
+            .filter_map(|p| p.latest_revision_id)
+            .collect();
+
+    let page_details = PageRevisionService::get_revisions(ctx, page_revision_ids)
+        .await
+        .or_raise(make_error)?
+        .into_iter()
+        .map(|p| GetChildOutput {
+            slug: p.slug,
+            title: p.title,
+            page_id: p.page_id,
+        })
+        .collect();
+
+    Ok(page_details)
 }

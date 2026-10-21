@@ -1256,6 +1256,30 @@ impl PageRevisionService {
         Ok(revision)
     }
 
+    pub async fn get_revisions(
+        ctx: &ServiceContext<'_>,
+        revision_ids: Vec<i64>,
+    ) -> Result<Vec<PageRevisionModel>> {
+        let txn = ctx.transaction();
+        let revisions = PageRevision::find()
+            .filter(
+                Condition::all()
+                    .add(page_revision::Column::RevisionId.is_in(revision_ids.clone())),
+            )
+            .all(txn)
+            .await
+            .or_raise(|| {
+                Error::new(
+                    format!(
+                        "failed to get page revisions ID {:?} directly",
+                        revision_ids
+                    ),
+                    ErrorType::PageRevision,
+                )
+            })?;
+        Ok(revisions)
+    }
+
     pub async fn count(
         ctx: &ServiceContext<'_>,
         site_id: i64,

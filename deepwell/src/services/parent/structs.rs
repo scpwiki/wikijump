@@ -84,3 +84,10 @@ pub struct UpdateParentsOutput {
     pub added: Option<Vec<i64>>,
     pub removed: Option<Vec<bool>>,
 }
+
+#[derive(Serialize, Debug, Clone)]
+pub struct GetChildOutput {
+    pub slug: String,
+    pub title: String,
+    pub page_id: i64,
+}
