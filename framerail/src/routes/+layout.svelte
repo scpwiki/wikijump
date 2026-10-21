@@ -227,5 +227,19 @@
         max-height: 6.5em;
       }
     }
+
+    .footer-inner {
+      flex-direction: column;
+      justify-content: center;
+      padding-bottom: 1em;
+    }
+    .footer-items {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .footer-powered-by {
+      text-align: center;
+    }
   }
 </style>

@@ -543,6 +543,7 @@
   .action-row {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     gap: 10px;
     align-items: stretch;
     justify-content: flex-end;
