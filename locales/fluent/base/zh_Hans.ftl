@@ -28,6 +28,7 @@ avatar = 头像
 breadcrumbs = 面包屑
 cancel = 取消
 change = 修改
+children = 子页面
 clear = 清空
 close = 关闭
 confirm = 确认

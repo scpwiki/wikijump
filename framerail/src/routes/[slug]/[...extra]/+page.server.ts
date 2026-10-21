@@ -1,6 +1,7 @@
 import {
   layoutAction,
   loadPage,
+  pageChildrenGetAction,
   pageDeleteAction,
   pageDeletedGetAction,
   pageEditAction,
@@ -33,6 +34,7 @@ export async function load({ params, request, cookies, parent }) {
 }
 
 export const actions = {
+  childrenGet: pageChildrenGetAction,
   delete: pageDeleteAction,
   edit: pageEditAction,
   editPermission: pageEditPermissionAction,

@@ -4,6 +4,7 @@
   import { pageLayoutState, errorPopupState } from "$lib/stores.svelte"
   import { Layout, PagePane } from "$lib/types"
   import {
+    ChildrenPane,
     DeletePane,
     EditorPane,
     FilePane,
@@ -264,6 +265,19 @@
         </a>
         <!-- svelte-ignore a11y_invalid_attribute -->
         <a
+          id="children-page-button"
+          class="btn btn-default"
+          href="javascript:;"
+          onclick={() => {
+            showSource = false
+            pagePaneState = PagePane.Children
+          }}
+          type="button"
+        >
+          {data.internationalization?.children}
+        </a>
+        <!-- svelte-ignore a11y_invalid_attribute -->
+        <a
           id="lock-page-button"
           class="btn btn-default"
           href="javascript:;"
@@ -331,6 +345,8 @@
         <LayoutPane bind:pagePaneState {...props} />
       {:else if pagePaneState === PagePane.Parent}
         <ParentPane bind:pagePaneState {...props} />
+      {:else if pagePaneState === PagePane.Children}
+        <ChildrenPane {...props} />
       {:else if pagePaneState === PagePane.Lock}
         <LockPane bind:pagePaneState {...props} />
       {:else if pagePaneState === PagePane.Vote}
@@ -419,6 +435,13 @@
         {data.internationalization?.parents}
       </button>
       <button
+        class="action-button editor-button button-children clickable"
+        onclick={() => (pagePaneState = PagePane.Children)}
+        type="button"
+      >
+        {data.internationalization?.children}
+      </button>
+      <button
         class="action-button editor-button button-lock clickable"
         onclick={() => (pagePaneState = PagePane.Lock)}
         type="button"
@@ -485,6 +508,8 @@
     <LayoutPane bind:pagePaneState {...props} />
   {:else if pagePaneState === PagePane.Parent}
     <ParentPane bind:pagePaneState {...props} />
+  {:else if pagePaneState === PagePane.Children}
+    <ChildrenPane {...props} />
   {:else if pagePaneState === PagePane.Lock}
     <LockPane bind:pagePaneState {...props} />
   {:else if pagePaneState === PagePane.Vote}
