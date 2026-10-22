@@ -14,6 +14,7 @@ import {
   pageLockRemove,
   pageMove,
   pageParentGet,
+  pageParentTrace,
   pageParentUpdate,
   pageRestore,
   pageRevision,
@@ -1012,6 +1013,27 @@ export async function pageParentGetAction({ request }: RequestEvent) {
     } = await request.json()
     const { siteId, pageId, slug } = requestData
     const res = await pageParentGet(siteId, pageId, slug)
+    return { res }
+  } catch (e) {
+    const error = e as DeepwellError
+    return fail(500, {
+      message: error.message,
+      code: error.code,
+      data: error.data
+    })
+  }
+}
+
+/* ----- Page Parent Trace ----- */
+export async function pageParentTraceAction({ request }: RequestEvent) {
+  try {
+    const requestData: {
+      siteId: number
+      pageId: number
+      slug: string
+    } = await request.json()
+    const { siteId, pageId, slug } = requestData
+    const res = await pageParentTrace(siteId, pageId, slug)
     return { res }
   } catch (e) {
     const error = e as DeepwellError

@@ -91,3 +91,18 @@ pub struct GetChildOutput {
     pub title: String,
     pub page_id: i64,
 }
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct TraceParents<'a> {
+    pub site_id: i64,
+    pub page: Reference<'a>,
+    pub depth: Option<i64>,
+}
+
+#[derive(Serialize, Debug, Clone)]
+pub struct TraceParentsOutput {
+    pub children_map: Vec<Vec<i64>>,
+    pub parent_map: Vec<Vec<i64>>,
+    pub details: Vec<GetChildOutput>,
+    pub root_parents: Vec<i64>,
+}

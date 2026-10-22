@@ -289,6 +289,18 @@ export async function pageParentGet(
   })
 }
 
+/* ----- Page Parent Trace ----- */
+export async function pageParentTrace(
+  siteId: number,
+  pageId: Optional<number>,
+  slug: string
+): Promise<object> {
+  return client.request("parent_trace", {
+    site_id: siteId,
+    page: pageId ?? slug
+  })
+}
+
 /* ----- Page Children Get ----- */
 export async function pageChildrenGet(
   siteId: number,
