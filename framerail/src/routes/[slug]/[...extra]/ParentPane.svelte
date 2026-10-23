@@ -4,6 +4,7 @@
   import { errorPopupState, pageLayoutState } from "$lib/stores.svelte"
   import { Layout, PagePane, ToastType } from "$lib/types"
   import { toast } from "$lib/component/scripts/toasts"
+  import { ParentGraph } from "."
   import { superForm } from "sveltekit-superforms"
   import { untrack } from "svelte"
 
@@ -11,8 +12,11 @@
 
   let pageParents = $state<string>("")
 
-  let { pagePaneState = $bindable(), data }: PageProps & { pagePaneState: PagePane } =
-    $props()
+  let {
+    pagePaneState = $bindable(),
+    data,
+    ...props
+  }: PageProps & { pagePaneState: PagePane } = $props()
 
   const { form, enhance } = superForm(
     untrack(() => data.forms.pageParentForm),
@@ -133,6 +137,8 @@
     </div>
   {/if}
 </form>
+
+<ParentGraph {data} {...props} />
 
 <style lang="scss">
   .page-parent {
