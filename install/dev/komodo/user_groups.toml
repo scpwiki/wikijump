@@ -1,0 +1,41 @@
+[[user_group]]
+# Able to see resources and application info, but can't change anything
+name = "Infra Viewer"
+all.Server = { level = "Read", specific = ["Logs"] }
+all.Stack = { level = "Read", specific = ["Logs"] }
+all.Deployment = { level = "Read", specific = ["Logs"] }
+all.Build = "Read"
+all.Action = "Read"
+all.Procedure = "Read"
+all.Repo = "Read"
+all.Builder = "Read"
+all.Alerter = "Read"
+all.ResourceSync = "Read"
+
+[[user_group]]
+# Able to run redeploys, commands, trigger new builds, see logs, and deploy committed resource syncs
+name = "Developer"
+all.Server = { level = "Execute", specific = ["Logs", "Processes", "Terminal"] }
+all.Stack = { level = "Execute", specific = ["Logs", "Terminal"] }
+all.Deployment = { level = "Execute", specific = ["Logs", "Terminal"] }
+all.Build = "Execute"
+all.Repo = "Execute"
+all.Builder = "Execute"
+all.Procedure = "Execute"
+all.Action = "Execute"
+all.ResourceSync = "Execute"
+all.Alerter = "Execute"
+
+[[user_group]]
+# Able to read and write any resource in the infrastructure
+name = "Manager"
+all.Server = { level = "Write", specific = ["Attach", "Inspect", "Logs", "Processes", "Terminal"] }
+all.Stack = { level = "Write", specific = ["Inspect", "Logs", "Terminal"] }
+all.Deployment = { level = "Write", specific = ["Inspect", "Logs", "Terminal"] }
+all.Build = { level = "Write", specific = ["Attach"] }
+all.Repo = { level = "Write", specific = ["Attach"] }
+all.Builder = { level = "Write", specific = ["Attach"] }
+all.Action = "Write"
+all.Procedure = "Write"
+all.Alerter = "Write"
+all.ResourceSync = "Write"
