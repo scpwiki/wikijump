@@ -359,12 +359,12 @@ pub async fn seed(state: &ServerState) -> Result<()> {
             if let Some(parents) = page.parents {
                 let page_id = page_ids
                     .get(&(site_id, page.slug.clone()))
-                    .expect(&format!("Page {} should exist", page.slug));
+                    .unwrap_or_else(|| panic!("Page {} should exist", page.slug));
 
                 for parent in parents {
                     let parent_id = page_ids
                         .get(&(site_id, parent.clone()))
-                        .expect(&format!("Parent page {} should exist", parent));
+                        .unwrap_or_else(|| panic!("Parent page {} should exist", parent));
 
                     ParentService::create(
                         &ctx,

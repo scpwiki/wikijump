@@ -339,21 +339,25 @@ pub async fn parent_trace(
         let mut current_child_list: HashSet<i64> = HashSet::new();
 
         for p in &parents {
-            if children_map.contains_key(&p.parent_page_id) {
+            if let std::collections::hash_map::Entry::Vacant(e) =
+                children_map.entry(p.parent_page_id)
+            {
+                e.insert(vec![p.child_page_id]);
+            } else {
                 children_map
                     .get_mut(&p.parent_page_id)
                     .unwrap()
                     .push(p.child_page_id);
-            } else {
-                children_map.insert(p.parent_page_id, vec![p.child_page_id]);
             }
-            if parent_map.contains_key(&p.child_page_id) {
+            if let std::collections::hash_map::Entry::Vacant(e) =
+                parent_map.entry(p.child_page_id)
+            {
+                e.insert(vec![p.parent_page_id]);
+            } else {
                 parent_map
                     .get_mut(&p.child_page_id)
                     .unwrap()
                     .push(p.parent_page_id);
-            } else {
-                parent_map.insert(p.child_page_id, vec![p.parent_page_id]);
             }
             current_child_list.insert(p.child_page_id);
         }
@@ -387,7 +391,7 @@ pub async fn parent_trace(
         let parent_pages_id: Vec<Reference<'_>> = current_node_list
             .clone()
             .into_iter()
-            .map(|p| Reference::from(p))
+            .map(Reference::from)
             .collect();
 
         let page_revision_ids: Vec<i64> =
