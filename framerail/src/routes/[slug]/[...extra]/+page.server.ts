@@ -1,6 +1,7 @@
 import {
   layoutAction,
   loadPage,
+  pageChildrenGetAction,
   pageDeleteAction,
   pageDeletedGetAction,
   pageEditAction,
@@ -19,6 +20,7 @@ import {
   pageMoveAction,
   pageParentGetAction,
   pageParentSetAction,
+  pageParentTraceAction,
   pageRestoreAction,
   pageRevisionAction,
   pageRollbackAction,
@@ -33,6 +35,7 @@ export async function load({ params, request, cookies, parent }) {
 }
 
 export const actions = {
+  childrenGet: pageChildrenGetAction,
   delete: pageDeleteAction,
   edit: pageEditAction,
   editPermission: pageEditPermissionAction,
@@ -53,6 +56,7 @@ export const actions = {
   move: pageMoveAction,
   parentSet: pageParentSetAction,
   parentGet: pageParentGetAction,
+  parentTrace: pageParentTraceAction,
   voteGet: pageVoteGetAction,
   voteCast: pageVoteCastAction,
   voteCancel: pageVoteCancelAction,

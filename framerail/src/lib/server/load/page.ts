@@ -2,6 +2,7 @@ import defaults from "$lib/defaults"
 
 import { authGetSession } from "$lib/server/auth/getSession"
 import {
+  pageChildrenGet,
   pageDelete,
   pageDeletedGet,
   pageEdit,
@@ -13,6 +14,7 @@ import {
   pageLockRemove,
   pageMove,
   pageParentGet,
+  pageParentTrace,
   pageParentUpdate,
   pageRestore,
   pageRevision,
@@ -202,6 +204,11 @@ export async function loadPage(
       "wiki-page-file-restore.new-page": {},
       "wiki-page-file-restore.new-name": {},
       "wiki-page-file-restore.toast": {},
+
+      // Page children
+      "children": {},
+      "wiki-page-children": {},
+      "wiki-page-children.no-children": {},
 
       // Misc
       "wiki-page-edit": {},
@@ -1006,6 +1013,48 @@ export async function pageParentGetAction({ request }: RequestEvent) {
     } = await request.json()
     const { siteId, pageId, slug } = requestData
     const res = await pageParentGet(siteId, pageId, slug)
+    return { res }
+  } catch (e) {
+    const error = e as DeepwellError
+    return fail(500, {
+      message: error.message,
+      code: error.code,
+      data: error.data
+    })
+  }
+}
+
+/* ----- Page Parent Trace ----- */
+export async function pageParentTraceAction({ request }: RequestEvent) {
+  try {
+    const requestData: {
+      siteId: number
+      pageId: number
+      slug: string
+    } = await request.json()
+    const { siteId, pageId, slug } = requestData
+    const res = await pageParentTrace(siteId, pageId, slug)
+    return { res }
+  } catch (e) {
+    const error = e as DeepwellError
+    return fail(500, {
+      message: error.message,
+      code: error.code,
+      data: error.data
+    })
+  }
+}
+
+/* ----- Page Children Get ---- */
+export async function pageChildrenGetAction({ request }: RequestEvent) {
+  try {
+    const requestData: {
+      siteId: number
+      pageId: number
+      slug: string
+    } = await request.json()
+    const { siteId, pageId, slug } = requestData
+    const res = await pageChildrenGet(siteId, pageId, slug)
     return { res }
   } catch (e) {
     const error = e as DeepwellError

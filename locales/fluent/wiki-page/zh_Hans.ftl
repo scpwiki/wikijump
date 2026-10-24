@@ -139,6 +139,11 @@ wiki-page-lock = 锁定页面
 wiki-page-parent = 父页面
   .toast = 父页面保存成功。
 
+### 维基页面子页面
+
+wiki-page-children = 子页面
+  .no-children = 本页没有子页面。
+
 ### 蓝图页面
 
 wiki-page-missing = 你访问的页面 //{ $slug }// 并不存在。

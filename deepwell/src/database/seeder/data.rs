@@ -211,6 +211,9 @@ pub struct Page {
 
     #[serde(rename = "wikitext")]
     pub wikitext_filename: PathBuf,
+
+    #[serde(default)]
+    pub parents: Option<Vec<String>>,
 }
 
 #[derive(Deserialize, Debug)]
