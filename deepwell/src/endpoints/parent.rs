@@ -296,8 +296,6 @@ pub async fn parent_trace(
         depth,
     } = params.parse().or_raise(make_error)?;
 
-    let mut i = 1;
-
     let page_id = PageService::get_id(ctx, site_id, page)
         .await
         .or_raise(make_error)?;
@@ -321,8 +319,12 @@ pub async fn parent_trace(
         },
     );
 
-    while if depth.is_some() {
-        i < depth.unwrap()
+    use std::collections::hash_map::Entry;
+
+    let mut i = 1;
+
+    while if let Some(depth) = depth {
+        i < depth
     } else {
         true
     } {
@@ -339,9 +341,7 @@ pub async fn parent_trace(
         let mut current_child_list: HashSet<i64> = HashSet::new();
 
         for p in &parents {
-            if let std::collections::hash_map::Entry::Vacant(e) =
-                children_map.entry(p.parent_page_id)
-            {
+            if let Entry::Vacant(e) = children_map.entry(p.parent_page_id) {
                 e.insert(vec![p.child_page_id]);
             } else {
                 children_map
@@ -349,9 +349,7 @@ pub async fn parent_trace(
                     .unwrap()
                     .push(p.child_page_id);
             }
-            if let std::collections::hash_map::Entry::Vacant(e) =
-                parent_map.entry(p.child_page_id)
-            {
+            if let Entry::Vacant(e) = parent_map.entry(p.child_page_id) {
                 e.insert(vec![p.parent_page_id]);
             } else {
                 parent_map
@@ -389,9 +387,8 @@ pub async fn parent_trace(
 
         // Get newly fetched page details
         let parent_pages_id: Vec<Reference<'_>> = current_node_list
-            .clone()
-            .into_iter()
-            .map(Reference::from)
+            .iter()
+            .map(|i| Reference::Id(*i))
             .collect();
 
         let page_revision_ids: Vec<i64> =

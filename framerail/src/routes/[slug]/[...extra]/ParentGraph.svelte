@@ -244,16 +244,6 @@
         let child = pageDetails.get(activeRows[idx]!)!
         activeRows[idx] = ordered[i]
 
-        // // expand the corresponding interval
-        // let targetInterval = rowIntervals
-        //   .search<number[] | null>([child.x!, child.x!], (v, k) => {
-        //     if (k.low !== child.x || v !== idx) return null
-        //     return [k.low, k.high, v] as number[]
-        //   })
-        //   .filter((v) => v !== null)[0] // should only yield one
-        // rowIntervals.remove([targetInterval[0], targetInterval[1]], targetInterval[2])
-        // rowIntervals.insert([i, targetInterval[1]], targetInterval[2])
-
         rowIntervals.insert([i, child.x!], idx)
 
         // set the rows of all its other children as inactive

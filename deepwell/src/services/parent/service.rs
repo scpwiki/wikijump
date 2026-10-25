@@ -35,9 +35,11 @@ impl ParentService {
     ///
     /// Both pages must be extant and on the same site.
     ///
+    /// Errors out if creating the relationship forms a cycle.
+    ///
     /// # Returns
     /// Returns `Some` with a model if the relationship was created,
-    /// and `None` if it already existed or forms a cycle.
+    /// and `None` if it already existed.
     pub async fn create(
         ctx: &ServiceContext<'_>,
         ParentDescription {
@@ -121,16 +123,16 @@ impl ParentService {
                         ),
                         ErrorType::PageParent
                     ));
-                } else {
-                    let model = page_parent::ActiveModel {
-                        parent_page_id: Set(parent_page.page_id),
-                        child_page_id: Set(child_page.page_id),
-                        ..Default::default()
-                    };
-
-                    let parent = model.insert(txn).await.or_raise(make_error)?;
-                    Ok(Some(parent))
                 }
+
+                let model = page_parent::ActiveModel {
+                    parent_page_id: Set(parent_page.page_id),
+                    child_page_id: Set(child_page.page_id),
+                    ..Default::default()
+                };
+
+                let parent = model.insert(txn).await.or_raise(make_error)?;
+                Ok(Some(parent))
             }
 
             // Parent relationship already exists
