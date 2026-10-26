@@ -46,7 +46,7 @@
     }>()
   )
   /** Radius for curved branches in the graph, relative to scale factor */
-  let radius = $state(0.75)
+  let radius = $state(0.5)
   /** Scale factor of the graph in pixels */
   let scaleFactor = $derived(30)
   /** Offset from top left in pixels */
