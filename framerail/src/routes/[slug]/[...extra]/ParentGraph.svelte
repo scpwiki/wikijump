@@ -263,10 +263,11 @@
         }
         // rowIntervals.insert([i, i], idx)
       }
-      if (!parentMap.get(ordered[i])?.length) {
-        // no more parents, we can set the tip as inactive
-        activeRows[idx] = null
-      }
+      // TODO: Find how to determine when to reuse the available space behind a root parent
+      // if (!parentMap.get(ordered[i])?.length) {
+      //   // no more parents, we can set the tip as inactive
+      //   activeRows[idx] = null
+      // }
       pageDetails.get(ordered[i])!.y = idx
       if (maxY < activeRows.length) maxY = activeRows.length
     }
