@@ -7,7 +7,7 @@
   let children = $state<Record<string, any>[]>([])
   let { data } = $props()
 
-  async function fetchParents() {
+  async function fetchChildren() {
     const res = await fetch(`?/childrenGet`, {
       method: "POST",
       body: JSON.stringify({
@@ -34,7 +34,7 @@
   }
 
   onMount(async () => {
-    fetchParents()
+    fetchChildren()
   })
 </script>
 
