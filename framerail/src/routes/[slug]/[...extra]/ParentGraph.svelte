@@ -436,13 +436,6 @@
     width={Math.min(viewbox.width, graphContainerWidth)}
   >
     <style>
-      .rotated {
-        --origin-x: 0;
-        --origin-y: 0;
-        transform: rotate(45deg) translate(-5px, 5px);
-        transform-origin: var(--origin-x) var(--origin-y);
-      }
-
       .current-page {
         path {
           stroke: currentColor;
@@ -535,8 +528,6 @@
                 fill="currentColor"
                 r={5.5}
               /><text
-                style:--origin-x="{scaleOffset(detail.x ?? 0) - 3}px"
-                style:--origin-y="{scaleOffset(maxY)}px"
                 data-id={detail.page_id}
                 fill="none"
                 x={scaleOffset(detail.x ?? 0) - 3}
@@ -559,8 +550,6 @@
               r={5.5}
             />
             <text
-              style:--origin-x="{scaleOffset(detail.x ?? 0) - 3}px"
-              style:--origin-y="{scaleOffset(maxY)}px"
               data-id={detail.page_id}
               fill="currentColor"
               x={scaleOffset(detail.x ?? 0) - 3}
