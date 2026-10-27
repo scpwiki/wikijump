@@ -84,3 +84,25 @@ pub struct UpdateParentsOutput {
     pub added: Option<Vec<i64>>,
     pub removed: Option<Vec<bool>>,
 }
+
+#[derive(Serialize, Debug, Clone)]
+pub struct GetChildOutput {
+    pub slug: String,
+    pub title: String,
+    pub page_id: i64,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct TraceParents<'a> {
+    pub site_id: i64,
+    pub page: Reference<'a>,
+    pub depth: Option<i64>,
+}
+
+#[derive(Serialize, Debug, Clone)]
+pub struct TraceParentsOutput {
+    pub children_map: Vec<Vec<i64>>,
+    pub parent_map: Vec<Vec<i64>>,
+    pub details: Vec<GetChildOutput>,
+    pub root_parents: Vec<i64>,
+}

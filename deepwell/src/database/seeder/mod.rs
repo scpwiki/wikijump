@@ -24,7 +24,6 @@ use self::data::SeedData;
 use crate::api::ServerState;
 use crate::constants::{ADMIN_USER_ID, SYSTEM_USER_ID};
 use crate::error::prelude::*;
-use crate::services::ServiceContext;
 use crate::services::alias::{AliasService, CreateAlias};
 use crate::services::domain::{CreateCustomDomain, DomainService};
 use crate::services::file::{
@@ -32,6 +31,7 @@ use crate::services::file::{
 };
 use crate::services::filter::{CreateFilter, FilterService};
 use crate::services::page::{CreatePage, PageService};
+use crate::services::parent::ParentDescription;
 use crate::services::permission::PermissionService;
 use crate::services::relation::{
     PageAttributionEntry, PageAttributionKind, PageAttributionMetadata, RelationService,
@@ -42,6 +42,7 @@ use crate::services::role::{
 };
 use crate::services::site::{CreateSite, CreateSiteOutput, SiteService, UpdateSiteBody};
 use crate::services::user::{CreateUser, CreateUserOutput, UpdateUserBody, UserService};
+use crate::services::{ParentService, ServiceContext};
 use crate::types::{Action, AliasType, Maybe, Permission, Reference, Resource};
 use crate::utils::now;
 use arrayvec::ArrayVec;
@@ -311,17 +312,17 @@ pub async fn seed(state: &ServerState) -> Result<()> {
             .await
             .or_raise(make_error)?;
 
-        for page in pages {
+        for page in &pages {
             info!("Creating page '{}' (slug {})", page.title, page.slug);
 
             let model = PageService::create(
                 &ctx,
                 CreatePage {
                     site_id,
-                    wikitext: page.wikitext,
-                    title: page.title,
-                    alt_title: page.alt_title,
-                    slug: page.slug,
+                    wikitext: page.wikitext.to_owned(),
+                    title: page.title.to_owned(),
+                    alt_title: page.alt_title.to_owned(),
+                    slug: page.slug.to_owned(),
                     layout: None,
                     revision_comments: str!(),
                     user_id: SYSTEM_USER_ID,
@@ -351,6 +352,32 @@ pub async fn seed(state: &ServerState) -> Result<()> {
             .or_raise(make_error)?;
 
             page_ids.insert((site_id, model.slug), model.page_id);
+        }
+
+        // Seed parent relations
+        for page in pages {
+            if let Some(parents) = page.parents {
+                let page_id = page_ids
+                    .get(&(site_id, page.slug.clone()))
+                    .unwrap_or_else(|| panic!("Page {} should exist", page.slug));
+
+                for parent in parents {
+                    let parent_id = page_ids
+                        .get(&(site_id, parent.clone()))
+                        .unwrap_or_else(|| panic!("Parent page {} should exist", parent));
+
+                    ParentService::create(
+                        &ctx,
+                        ParentDescription {
+                            site_id,
+                            parent: Reference::Id(parent_id.to_owned()),
+                            child: Reference::Id(page_id.to_owned()),
+                        },
+                    )
+                    .await
+                    .or_raise(make_error)?;
+                }
+            }
         }
     }
 

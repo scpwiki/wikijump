@@ -139,6 +139,11 @@ wiki-page-lock = Lock Page
 wiki-page-parent = Page parents
   .toast = Page parents saved.
 
+### Wiki Page Children
+
+wiki-page-children = Page children
+  .no-children = No children for this page.
+
 ### Blueprint page fallback strings
 
 wiki-page-missing = The page //{ $slug }// you want to access does not exist.

@@ -258,5 +258,13 @@
     .header {
       height: initial;
     }
+
+    .action-row {
+      flex-wrap: wrap;
+      align-items: stretch;
+      .action-button {
+        flex: 1;
+      }
+    }
   }
 </style>

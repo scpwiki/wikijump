@@ -392,6 +392,8 @@ async fn build_module(app_state: ServerState) -> Result<RpcModule<ServerState>> 
     register!("parent_relationships_get", parent_relationships_get);
     register!("parent_get_all", parent_get_all);
     register!("parent_update", parent_update);
+    register!("parent_trace", parent_trace);
+    register!("child_get_all", child_get_all);
 
     // Hosted text blocks
     register!("text_block_get_index", text_block_get_index);

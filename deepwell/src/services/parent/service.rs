@@ -20,6 +20,8 @@
 
 // TODO replace ParentService with a new relation type
 
+use std::collections::HashSet;
+
 use super::prelude::*;
 use crate::models::page::Model as PageModel;
 use crate::models::page_parent::{self, Entity as PageParent, Model as PageParentModel};
@@ -32,6 +34,8 @@ impl ParentService {
     /// Adds a parental relationship with the two given pages.
     ///
     /// Both pages must be extant and on the same site.
+    ///
+    /// Errors out if creating the relationship forms a cycle.
     ///
     /// # Returns
     /// Returns `Some` with a model if the relationship was created,
@@ -96,6 +100,31 @@ impl ParentService {
         match relationship {
             // Create new parent relationship
             None => {
+                // Check if this relationship forms a cycle
+                let cyclic =
+                    Self::check_cycle(ctx, parent_page.page_id, child_page.page_id)
+                        .await
+                        .or_raise(|| {
+                            Error::new(
+                                "failed to check if setting page parent forms a cycle",
+                                ErrorType::PageParent,
+                            )
+                        })?;
+
+                if cyclic {
+                    error!(
+                        "Setting parent {} for page {} creates a cycle",
+                        parent_page.page_id, child_page.page_id
+                    );
+                    bail!(Error::new(
+                        format!(
+                            "Setting parent {} for page {} creates a cycle",
+                            parent_page.page_id, child_page.page_id
+                        ),
+                        ErrorType::PageParent
+                    ));
+                }
+
                 let model = page_parent::ActiveModel {
                     parent_page_id: Set(parent_page.page_id),
                     child_page_id: Set(child_page.page_id),
@@ -255,7 +284,6 @@ impl ParentService {
     }
 
     /// Gets all children of the given page.
-    #[allow(dead_code)] // TEMP
     pub async fn get_children(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -303,6 +331,24 @@ impl ParentService {
         })
     }
 
+    /// Gets all parents of the given pages.
+    pub async fn get_parents_multi(
+        ctx: &ServiceContext<'_>,
+        children_id: Vec<i64>,
+    ) -> Result<Vec<PageParentModel>> {
+        let txn = ctx.transaction();
+        PageParent::find()
+            .filter(page_parent::Column::ChildPageId.is_in(children_id.clone()))
+            .all(txn)
+            .await
+            .or_raise(|| {
+                Error::new(
+                    format!("failed to get parents of pages {:?}", children_id,),
+                    ErrorType::PageParent,
+                )
+            })
+    }
+
     /// Removes all parent relationships involving this page.
     ///
     /// Whether this page is a parent or a child, this method
@@ -335,6 +381,61 @@ impl ParentService {
             .rows_affected;
 
         Ok(rows_deleted)
+    }
+
+    /// Checks if adding this relation will form a cycle.
+    pub async fn check_cycle(
+        ctx: &ServiceContext<'_>,
+        parent_id: i64,
+        child_id: i64,
+    ) -> Result<bool> {
+        let make_error = || {
+            Error::new(
+                format!(
+                    "failed to check cycle for parent page ID {} and child page ID {}",
+                    parent_id, child_id
+                ),
+                ErrorType::PageParent,
+            )
+        };
+
+        let mut checked_pages: HashSet<i64> = HashSet::new();
+        let mut current_checking: Vec<i64> = vec![parent_id];
+        loop {
+            let parents = Self::get_parents_multi(ctx, current_checking.clone())
+                .await
+                .or_raise(make_error)?;
+
+            checked_pages.extend(current_checking.iter());
+
+            if parents.is_empty() {
+                break;
+            };
+
+            current_checking = parents
+                .clone()
+                .into_iter()
+                .filter_map(|p| {
+                    // Remove nodes that are already evaluated
+                    if checked_pages.contains(&p.parent_page_id) {
+                        None
+                    } else {
+                        Some(p.parent_page_id)
+                    }
+                })
+                .collect();
+
+            if current_checking.contains(&child_id) {
+                return Ok(true);
+            }
+        }
+
+        // Sanity check
+        if checked_pages.contains(&child_id) {
+            Ok(true)
+        } else {
+            Ok(false)
+        }
     }
 }
 
