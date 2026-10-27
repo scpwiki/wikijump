@@ -52,7 +52,7 @@
   /** Offset from top left in pixels */
   let offset = $state(20)
   let graphContainerWidth = $state(0)
-  let graphElem: SVGGraphicsElement | null = $state(null)
+  let graphElem = $state<SVGGraphicsElement | null>(null)
   /** Viewbox sizing */
   let viewbox = $derived({
     width: Math.max(
@@ -178,7 +178,7 @@
     maxY = 0
     // First do a topological sort using Kahn's Algorithm to determine order on the parent-child axis
     // This assumes the parent graph is a directed acyclic graph
-    let unedged = [...rootParents].sort()
+    let unedged = rootParents.toSorted((a, b) => a - b)
     let ordered = []
     let parentMapClone: Map<number, number[]> = new Map(
       JSON.parse(JSON.stringify(Array.from(parentMap)))
@@ -186,7 +186,7 @@
     while (unedged.length) {
       let node = unedged.shift()!
       ordered.push(node)
-      let children = (childrenMap.get(node) ?? []).toSorted()
+      let children = (childrenMap.get(node) ?? []).toSorted((a, b) => a - b)
       while (children.length) {
         // remove the edge from node to child
         let child = children.shift()!
@@ -401,7 +401,7 @@
     // and normalize them to be equidistant
     let yValues = curvedIntervals.values.map((v) => v.yBranch)
     yValues.push(...Array(maxY).keys())
-    yValues = [...new Set(yValues)].toSorted()
+    yValues = [...new Set(yValues)].toSorted((a, b) => a - b)
 
     // TODO: move branches up unused Y values
     let yMap = new Map(yValues.map((v, i) => [v, i]))

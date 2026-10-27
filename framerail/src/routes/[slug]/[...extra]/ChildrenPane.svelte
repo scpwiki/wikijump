@@ -1,6 +1,5 @@
 <script lang="ts">
   import { deserialize } from "$app/forms"
-  import { onMount } from "svelte"
   import { pageLayoutState, errorPopupState } from "$lib/stores.svelte"
   import { Layout } from "$lib/types"
   import { resolve } from "$app/paths"
@@ -33,7 +32,7 @@
     }
   }
 
-  onMount(async () => {
+  $effect(() => {
     fetchChildren()
   })
 </script>
