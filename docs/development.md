@@ -30,7 +30,7 @@ Once it's installed, ensure it is running:
 
 ## Building and Running
 
-**The helper script `install/local/deploy.py` is the primary way to manage a local Wikijump installation.**
+**The helper script `install/local/deploy-helper.py` is the primary way to manage a local Wikijump installation.**
 
 Under the hood, it is running the following:
 
@@ -55,11 +55,14 @@ The "action" corresponds to actions that `docker-compose` can do. Some common ac
 
 Note that in `docker-compose.yaml`, there are configuration options for the domains to use. For development purposes, these are set to `wikijump.localhost`. This is the domain you will be connecting to, e.g. `https://www.wikijump.localhost`. The TLD `.localhost` is just like the usual `localhost` domain. Even when running locally, HTTPS is used. Because this certificate is self-signed, you will need to dismiss the certificate warning.
 
-**Thus, you can run the following to start a local instance:**
+**all you need to do to use the script is run:**
 
 ```
-$ install/local/deploy.py up
+$ install/local/deploy-helper.py
 ```
+and select the options you want to use 
+
+**for your first build, select the up option from the actions menu**
 
 Because this first needs to build the images and sources, _this will take some time_. Docker's build cache will prevent future rebuilds from taking as long, though there are circumstances where a full rebuild will be necessary (such as updated dependencies).
 
@@ -71,11 +74,16 @@ Because this first needs to build the images and sources, _this will take some t
 
 You can kill the terminal (`CTRL + C` usually) when you want to stop the server.
 
-If you want to entirely _reset_ the containers, as their data is otherwise persistent even across restarts, you can run the following:
+If you want to entirely _reset_ the containers, as their data is otherwise persistent even across restarts, use the down option in the helper script
 
-```sh
-$ install/local/deploy.py down
+**you may find entering your choices in thge deploy script every time to be anoying. to skip stright to selecting the docker command, run:**
+
 ```
+$ install/local/deploy-helper.py -s 
+```
+**you can also use --skip instead of -s**
+
+this will use the recomended defualts of dev bindings, not using sudo, and changing directory to the scripts loaction, as this is where the docker-compose file is. (if you run it from another directory, python inherits your working directory, and the needed file is not in your working directory unless you ran it from the corerect folder)
 
 It's useful to keep track of existing Docker images and containers, and destroy them when you no longer need them, so you don't waste space rebuilding the same image over and over. If you are using Docker Desktop, you can manage containers and images from the GUI. Otherwise, using the command line:
 
@@ -123,7 +131,7 @@ Sometimes when starting a container locally, it will report being "unhealthy" an
 * If the container is not `deepwell`, it may be that `deepwell` is unhealthy and a dependent container is unable to connect to it.
 * Since builds are done in runtime, the _initial_ build a container does (before it can do faster incremental builds) can take a long time. In some cases, docker will decide that the service has taken too long and is unhealthy. Try restarting it to allow the build to finish.
 * If the build fails (say due to a compiler error), the service will not be healthy. If the failure happened a while ago, the logs will not be visible at the bottom of your screen; check `./deploy logs [container]` to see what the issue may be.
-* The service may be trying to access a file which is unavailable. Check that the file hasn't been removed locally, or that if you are not using local binding (i.e. `--no-dev`), that the files have been manually installed into the container.
+* The service may be trying to access a file which is unavailable. Check that the file hasn't been removed locally, or that if you are not using local binding (i.e. the pod envroment in the deploy script), that the files have been manually installed into the container.
 
 ## Making Web Requests
 
