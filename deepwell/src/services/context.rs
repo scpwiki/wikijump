@@ -24,6 +24,7 @@ use crate::error::prelude::*;
 use crate::locales::Localizations;
 use crate::models::session::Model as SessionModel;
 use crate::services::blob::MimeAnalyzer;
+use crate::services::email::EmailMailer;
 use crate::services::permission::PermissionCache;
 use crate::types::Reference;
 use redis::aio::MultiplexedConnection as RedisMultiplexedConnection;
@@ -155,6 +156,11 @@ impl<'txn> ServiceContext<'txn> {
     #[inline]
     pub fn s3_tblocks_bucket(&self) -> &Bucket {
         &self.state.s3_tblocks_bucket
+    }
+
+    #[inline]
+    pub fn email_mailer(&self) -> &EmailMailer {
+        &self.state.email_mailer
     }
 
     #[inline]

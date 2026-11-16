@@ -25,7 +25,7 @@ mod runtime_action;
 mod secrets;
 
 pub use self::object::Config;
-pub use self::secrets::Secrets;
+pub use self::secrets::{EmailProvider, Secrets};
 
 use self::args::parse_args;
 use self::runtime_action::run_runtime_action;

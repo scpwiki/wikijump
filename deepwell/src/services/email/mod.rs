@@ -24,8 +24,10 @@ mod prelude {
     pub use super::structs::*;
 }
 
+mod mailer;
 mod service;
 mod structs;
 
+pub use mailer::EmailMailer;
 pub use service::EmailService;
 pub use structs::*;

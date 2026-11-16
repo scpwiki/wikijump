@@ -106,6 +106,46 @@ pub enum MxProviderGrade {
     Basic,
 }
 
+/// Which of the configured addresses an email is sent from.
+///
+/// See the `[email]` section in the configuration file.
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum EmailSender {
+    /// Automated account emails, e.g. verifying email, password resets.
+    Automation,
+
+    /// Notifications, e.g. configured emails on forum thread comment.
+    Notification,
+
+    /// Bulk emails sent to many users, e.g. site mailing list.
+    Newsletter,
+}
+
+/// An email to be sent by `EmailService::send()`.
+#[derive(Debug, Clone)]
+pub struct SendEmail<'a> {
+    /// Which address the email is sent from.
+    pub sender: EmailSender,
+
+    /// The email address of the recipient.
+    pub recipient: &'a str,
+
+    pub subject: &'a str,
+
+    /// The plain text version of the email body.
+    pub text_body: &'a str,
+
+    /// The HTML version of the email body, if any.
+    pub html_body: Option<&'a str>,
+}
+
+#[derive(Serialize, Debug, Clone)]
+pub struct SendEmailOutput {
+    /// The identifier the email provider assigned to this message.
+    pub message_id: String,
+}
+
 #[derive(Serialize, Debug, Clone)]
 pub struct EmailValidationOutput {
     pub valid: bool,

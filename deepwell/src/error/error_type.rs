@@ -68,6 +68,7 @@ pub enum ErrorType {
     Fluent(Vec<FluentError>),
     FluentParser(Vec<FluentParserError>),
     Cryptography(String),
+    EmailSend,
 
     // 1300
     Text,
@@ -370,6 +371,7 @@ impl ErrorType {
             ErrorType::Fluent(_) => 1207,
             ErrorType::FluentParser(_) => 1208,
             ErrorType::Cryptography(_) => 1209,
+            ErrorType::EmailSend => 1210,
 
             // 1300 - Other / Uncommon
             ErrorType::Text => 1300,
@@ -626,6 +628,7 @@ impl ErrorType {
             ErrorType::Fluent(_) => "Fluent bundle error",
             ErrorType::FluentParser(_) => "Fluent parser error",
             ErrorType::Cryptography(_) => "Cryptographic operation failed",
+            ErrorType::EmailSend => "Sending an email failed",
 
             // 1300
             ErrorType::Text => "Failed to act on a text entry",
