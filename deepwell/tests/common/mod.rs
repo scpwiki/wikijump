@@ -39,6 +39,7 @@ pub use self::audit::*;
 #[allow(unused_imports)]
 pub use self::error::extract_error;
 
+#[allow(unused_imports)]
 pub use self::params::*;
 pub use self::runner::TestRunner;
 use std::net::{IpAddr, Ipv4Addr};
