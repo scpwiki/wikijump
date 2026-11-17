@@ -78,14 +78,20 @@ impl EmailMailer {
         }
     }
 
-    /// Makes all future deliveries fail (or stop failing if `None`), if using the local provider.
+    /// Makes all future deliveries fail (or stop failing if `None`).
     ///
-    /// This is for testing error handling. It has no effect on a real provider.
+    /// This is for testing error handling, and so only works on the local provider.
+    ///
+    /// # Panics
+    /// If a real provider is in use, since calling this outside of tests is a bug.
     pub fn set_local_failure(&self, message: Option<&str>) {
-        if let EmailMailer::Local(mailer) = self {
-            match message {
+        match self {
+            EmailMailer::Local(mailer) => match message {
                 Some(message) => mailer.set_failure(message),
                 None => mailer.clear_failure(),
+            },
+            EmailMailer::Mailjet(_) => {
+                panic!("Cannot simulate delivery failure on a real email provider");
             }
         }
     }
