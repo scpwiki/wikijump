@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::utils::trim_spaces_in_place;
 use dotenvy::dotenv;
 use ref_map::*;
 use s3::creds::Credentials;
@@ -109,15 +110,15 @@ impl EmailProvider {
         F: FnMut(&str) -> Option<String>,
     {
         let mut get_required = |provider: &str, name: &str| {
-            let value = get_secret(name).unwrap_or_default();
-            let value = value.trim();
+            let mut value = get_secret(name).unwrap_or_default();
+            trim_spaces_in_place(&mut value);
             if value.is_empty() {
                 return Err(format!(
                     "EMAIL_PROVIDER is '{provider}', but environment variable {name} is not set",
                 ));
             }
 
-            Ok(str!(value))
+            Ok(value)
         };
 
         match provider.map(str::trim) {
