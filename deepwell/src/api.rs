@@ -170,6 +170,14 @@ pub async fn build_server_state(
     // Set up the mailer used to send emails
     let email_mailer = match email_provider {
         EmailProvider::Local => {
+            // Don't silently discard emails in environments which need to send them
+            if !config.allow_local_email {
+                bail!(Error::new(
+                    "local email provider is not allowed, set EMAIL_PROVIDER or email.allow-local",
+                    ErrorType::ServerSetup,
+                ));
+            }
+
             warn!("Using local email provider, no emails will actually be sent!");
             EmailMailer::local()
         }

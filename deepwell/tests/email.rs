@@ -22,6 +22,8 @@
 mod common;
 
 use self::common::TestRunner;
+use deepwell::api::build_server_state;
+use deepwell::config::{Config, EmailProvider, Secrets};
 use deepwell::error::prelude::*;
 use deepwell::services::email::{EmailSender, EmailService, SendEmail};
 
@@ -212,4 +214,29 @@ async fn email_send_provider_failure() {
         .expect("Unable to send email");
 
     assert_eq!(mailer.local_emails().expect("Not a local mailer").len(), 1);
+}
+
+#[tokio::test]
+async fn email_local_provider_disallowed() {
+    let secrets = Secrets::load();
+    assert!(
+        matches!(secrets.email_provider, EmailProvider::Local),
+        "Tests must run with EMAIL_PROVIDER=local",
+    );
+
+    // Like dev and prod, where discarding emails is not acceptable
+    let mut config = Config::integration_testing();
+    config.allow_local_email = false;
+
+    let error = build_server_state(config, secrets)
+        .await
+        .expect_err("Server started with a disallowed local email provider");
+
+    assert_contains_error!(error, ErrorType::ServerSetup);
+
+    let message = format!("{error:?}");
+    assert!(
+        message.contains("local email provider is not allowed"),
+        "Wrong server setup error:\n{message}",
+    );
 }

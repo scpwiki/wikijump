@@ -213,6 +213,9 @@ pub struct Config {
     /// Whether to use a mocked version of MailCheck for testing purposes.
     pub mock_mailcheck: bool,
 
+    /// Whether the local email provider is permitted.
+    pub allow_local_email: bool,
+
     /// The email address to use when sending typical automation emails.
     pub automation_email: String,
 
@@ -335,6 +338,7 @@ impl Config {
             minimum_name_bytes: 4,
             minimum_name_chars: 2,
             mock_mailcheck: true,
+            allow_local_email: true,
             automation_email: str!("noreply@wikijump.com"),
             notification_email: str!("notifications@wikijump.com"),
             newsletter_email: str!("newsletter@wikijump.com"),

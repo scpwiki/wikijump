@@ -73,6 +73,7 @@ refill-name-change-days = 90
 
 [email]
 mock-mailcheck = false
+allow-local = false
 automation-address = "noreply@wikijump.dev"
 notification-address = "notifications@wikijump.dev"
 newsletter-address = "newsletter@wikijump.dev"

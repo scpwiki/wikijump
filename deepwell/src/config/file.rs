@@ -191,6 +191,7 @@ struct UserSection {
 #[serde(rename_all = "kebab-case")]
 struct Email {
     mock_mailcheck: bool,
+    allow_local: bool,
     automation_address: String,
     notification_address: String,
     newsletter_address: String,
@@ -342,6 +343,7 @@ impl ConfigFile {
             email:
                 Email {
                     mock_mailcheck,
+                    allow_local: allow_local_email,
                     automation_address: automation_email,
                     notification_address: notification_email,
                     newsletter_address: newsletter_email,
@@ -483,6 +485,7 @@ impl ConfigFile {
             minimum_name_bytes,
             minimum_name_chars,
             mock_mailcheck,
+            allow_local_email,
             automation_email,
             notification_email,
             newsletter_email,
