@@ -131,6 +131,7 @@ pub struct SendEmail<'a> {
     /// The email address of the recipient.
     pub recipient: &'a str,
 
+    // The email's subject line.
     pub subject: &'a str,
 
     /// The plain text version of the email body.
