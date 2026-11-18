@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::utils::trim_spaces_in_place;
 use dotenvy::dotenv;
 use ref_map::*;
 use s3::creds::Credentials;
@@ -76,6 +77,68 @@ pub struct Secrets {
     /// * No API key: 5 requests / hour
     /// * Free tier: 1000 requests / month
     pub mailcheck_api_key: Option<String>,
+
+    /// Which provider to use for sending emails, and its credentials.
+    ///
+    /// Set using environment variable `EMAIL_PROVIDER`:
+    /// * `local`: Emails are not sent, only stored in memory.
+    ///   For local development and tests.
+    /// * `mailjet`: Emails are sent using the Mailjet API.
+    ///   Requires `MAILJET_API_KEY` and `MAILJET_SECRET_KEY` to be set.
+    ///
+    /// If unset, then `local` is assumed.
+    pub email_provider: EmailProvider,
+}
+
+/// The provider used for sending emails, along with any needed credentials.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum EmailProvider {
+    /// Don't actually send emails, only store them in memory.
+    Local,
+
+    /// Send emails through the Mailjet API.
+    Mailjet { api_key: String, secret_key: String },
+}
+
+impl EmailProvider {
+    /// Determines the email provider from its environment variable values.
+    ///
+    /// The `get_secret` closure is given the name of an environment variable,
+    /// and returns its value if it is set.
+    pub fn parse<F>(provider: Option<&str>, mut get_secret: F) -> Result<Self, String>
+    where
+        F: FnMut(&str) -> Option<String>,
+    {
+        let mut get_required = |provider: &str, name: &str| {
+            let mut value = get_secret(name).unwrap_or_default();
+            trim_spaces_in_place(&mut value);
+            if value.is_empty() {
+                return Err(format!(
+                    "EMAIL_PROVIDER is '{provider}', but environment variable {name} is not set",
+                ));
+            }
+
+            Ok(value)
+        };
+
+        match provider.map(str::trim) {
+            None | Some("") => Ok(EmailProvider::Local),
+            Some(value) if value.eq_ignore_ascii_case("local") => {
+                Ok(EmailProvider::Local)
+            }
+            Some(value) if value.eq_ignore_ascii_case("mailjet") => {
+                let api_key = get_required("mailjet", "MAILJET_API_KEY")?;
+                let secret_key = get_required("mailjet", "MAILJET_SECRET_KEY")?;
+                Ok(EmailProvider::Mailjet {
+                    api_key,
+                    secret_key,
+                })
+            }
+            Some(value) => Err(format!(
+                "EMAIL_PROVIDER variable is not a known provider (expected 'local' or 'mailjet'): '{value}'",
+            )),
+        }
+    }
 }
 
 impl Secrets {
@@ -173,6 +236,31 @@ impl Secrets {
             }
         };
 
+        let email_provider = {
+            // Unlike a missing variable, an unreadable one (i.e. not valid UTF-8)
+            // is an error, rather than being treated as if it were unset.
+            let get_optional = |name: &str| match env::var(name) {
+                Ok(value) => Some(value),
+                Err(VarError::NotPresent) => None,
+                Err(error) => {
+                    eprintln!("Unable to read environment variable {name}: {error}");
+                    process::exit(1);
+                }
+            };
+
+            let provider = get_optional("EMAIL_PROVIDER");
+            let result =
+                EmailProvider::parse(provider.ref_map(|s| s.as_str()), get_optional);
+
+            match result {
+                Ok(email_provider) => email_provider,
+                Err(message) => {
+                    eprintln!("{message}");
+                    process::exit(1);
+                }
+            }
+        };
+
         // Build and return
         Secrets {
             database_url,
@@ -183,6 +271,79 @@ impl Secrets {
             s3_path_style,
             s3_credentials,
             mailcheck_api_key,
+            email_provider,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn parse(
+        provider: Option<&str>,
+        secrets: &[(&str, &str)],
+    ) -> Result<EmailProvider, String> {
+        EmailProvider::parse(provider, |name| {
+            secrets
+                .iter()
+                .find(|(key, _)| *key == name)
+                .map(|(_, value)| str!(*value))
+        })
+    }
+
+    #[test]
+    fn email_provider_local() {
+        assert_eq!(parse(None, &[]), Ok(EmailProvider::Local));
+        assert_eq!(parse(Some(""), &[]), Ok(EmailProvider::Local));
+        assert_eq!(parse(Some("local"), &[]), Ok(EmailProvider::Local));
+        assert_eq!(parse(Some("LOCAL"), &[]), Ok(EmailProvider::Local));
+    }
+
+    #[test]
+    fn email_provider_mailjet() {
+        const SECRETS: [(&str, &str); 2] =
+            [("MAILJET_API_KEY", "abc"), ("MAILJET_SECRET_KEY", "xyz")];
+
+        assert_eq!(
+            parse(Some("mailjet"), &SECRETS),
+            Ok(EmailProvider::Mailjet {
+                api_key: str!("abc"),
+                secret_key: str!("xyz"),
+            }),
+        );
+
+        // Whitespace around credentials is ignored
+        assert_eq!(
+            parse(
+                Some(" mailjet "),
+                &[("MAILJET_API_KEY", " abc"), ("MAILJET_SECRET_KEY", "xyz\n")],
+            ),
+            Ok(EmailProvider::Mailjet {
+                api_key: str!("abc"),
+                secret_key: str!("xyz"),
+            }),
+        );
+
+        // Missing or empty credentials
+        parse(
+            Some("mailjet"),
+            &[("MAILJET_API_KEY", "abc"), ("MAILJET_SECRET_KEY", "  ")],
+        )
+        .unwrap_err();
+        parse(Some("mailjet"), &[]).unwrap_err();
+        parse(Some("mailjet"), &SECRETS[..1]).unwrap_err();
+        parse(Some("mailjet"), &SECRETS[1..]).unwrap_err();
+        parse(
+            Some("mailjet"),
+            &[("MAILJET_API_KEY", "abc"), ("MAILJET_SECRET_KEY", "")],
+        )
+        .unwrap_err();
+    }
+
+    #[test]
+    fn email_provider_unknown() {
+        parse(Some("sendgrid"), &[]).unwrap_err();
+        parse(Some("mailjet2"), &[]).unwrap_err();
     }
 }
