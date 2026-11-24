@@ -37,7 +37,7 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 wikidot-normalize = "0.12"
 
 [build-dependencies]
-built = { version = "0.8", features = ["git2"] }
+built = { version = "0.9", features = ["git2"] }
 
 # Lints
 
